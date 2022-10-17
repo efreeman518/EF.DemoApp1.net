@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <UserSecretsId>68046606-5651-4c0f-a63d-84ba6dca386b</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.17.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.0-rc.2.22476.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.0-rc.2.22472.11" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0-rc.2.22472.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0-rc.2.22472.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="7.0.0-rc.2.22472.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221003-04" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.3.0-preview-20220810-02" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.3.0-preview-20220810-02" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
+    <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\SampleApp.Api\SampleApp.Api.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.Shared\Domain.Shared.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Data\Package.Infrastructure.Data.csproj" />
+  </ItemGroup>
+
+</Project>

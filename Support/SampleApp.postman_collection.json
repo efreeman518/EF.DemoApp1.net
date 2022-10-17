@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "a3a2c429-9c67-42b3-a6a3-0d355b29e849",
+		"name": "SampleApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TodoItems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{baseUrl}}/api/TodoItems",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"TodoItems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)\r",
+							"if(jsonData.id != null )\r",
+							"{\r",
+							"   postman.setEnvironmentVariable(\"item_id\", jsonData.id)\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenamexyz\",\r\n  \"isComplete\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/TodoItems",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"TodoItems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenamexyz345\",\r\n  \"isComplete\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenamexyz345\",\r\n  \"isComplete\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
