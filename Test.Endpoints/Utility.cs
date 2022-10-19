@@ -39,7 +39,7 @@ public static class Utility
             
 
         IConfigurationRoot config = builder.Build();
-        string env = config.GetValue<string>("Environment", "development");
+        string env = config.GetValue<string>("Environment", "development")!;
         var isDevelopment = env?.ToLower() == "development";
         if (env != null)
         {

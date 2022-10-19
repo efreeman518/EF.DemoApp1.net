@@ -8,8 +8,8 @@ namespace Test.SpecFlow.Specs;
 public class SeleniumTestBase : IDisposable
 {
     protected ScenarioContext _scenarioContext;
-    protected IWebDriver _driver;
-    protected WebDriverWait _waitMax10Seconds;
+    protected IWebDriver? _driver;
+    protected WebDriverWait? _waitMax10Seconds;
     private static readonly Random random = new();
 
     public SeleniumTestBase(ScenarioContext scenarioContext)

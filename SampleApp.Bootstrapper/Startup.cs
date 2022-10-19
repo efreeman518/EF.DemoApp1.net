@@ -23,7 +23,7 @@ public class Startup
     {
         //Application Services
         services.AddTransient<ITodoService, TodoService>();
-        services.Configure<TodoServiceSettings>(_config.GetSection("TodoServiceSettings"));
+        services.Configure<TodoServiceSettings>(_config.GetSection(TodoServiceSettings.ConfigSectionName));
 
         //AutoMapper Configuration - map domain <-> application 
         ConfigureAutomapper.Configure(services);
@@ -32,7 +32,7 @@ public class Startup
         services.AddTransient<ITodoRepository, TodoRepository>();
 
         //Database
-        string connectionString = _config.GetConnectionString("TodoContext");
+        string? connectionString = _config.GetConnectionString("TodoContext");
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory

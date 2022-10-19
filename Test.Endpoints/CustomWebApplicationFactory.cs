@@ -32,7 +32,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
         //To use a different service for the tests, the app's service must be replaced here in builder.ConfigureServices
         //This methed enables replacing the endpoint project's registered services with test-purposed services
 
-        string env = Utility.GetConfiguration().GetValue<string>("Environment", "development");
+        string env = Utility.GetConfiguration().GetValue<string>("Environment", "development")!;
         builder
             .UseEnvironment(env)
             .ConfigureServices(services =>
