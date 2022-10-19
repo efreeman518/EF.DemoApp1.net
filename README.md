@@ -7,7 +7,7 @@
 
 # Getting Started
 1.	Clone, set the startup project to Api/SampleApp.Api, and run - swagger page opens, using the same port and root folder shows a basic js UI
-2.	Run tests - Test.UI & Test.SpecFlow.Specs UI feature tests require the app to be running in order to run the Selenium UI tests. Load and run the solution in one VS, load into another VS to run the Selenium based tests. 
+2.	Run tests - Test.UI & Test.SpecFlow.Specs UI feature tests require the correct versions of Chrome and Edge, and the app to be running in order to run the Selenium UI tests. Load and run the solution in one VS, load into another VS to run the Selenium based tests. 
 
 # Notes
 1. Started from Microsoft's Todo sample api (https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-6.0&tabs=visual-studio)
