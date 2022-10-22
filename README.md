@@ -1,5 +1,5 @@
 # Introduction 
-.net6 C# Sample App - A modern domain-centric service api template
+.net7 C# Sample App - A modern domain-centric service api template
 
 # Prerequisites
 1. [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview/)
