@@ -2,7 +2,7 @@
 .net7 C# Sample App - A modern domain-centric service api template
 
 # Prerequisites
-1. [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview/)
+1. [Visual Studio 2022 Latest (>=17.4.0)](https://visualstudio.microsoft.com/vs/)
 2. [.net7 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
 # Getting Started

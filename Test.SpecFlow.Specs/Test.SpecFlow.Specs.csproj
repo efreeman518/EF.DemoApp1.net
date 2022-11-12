@@ -15,18 +15,18 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221003-04" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.3.0-preview-20220810-02" />
     <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" />
-    <PackageReference Include="Selenium.Support" Version="4.5.1" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.5.1" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="106.0.5249.6100" />
+    <PackageReference Include="Selenium.Support" Version="4.6.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.6.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="107.0.5304.6200" />
     <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.32.0" />
-    <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.5.0" />
+    <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.6.0" />
     <PackageReference Include="Selenium.WebDriver.MicrosoftDriver" Version="17.17134.0" />
-    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="106.0.1370.34" />
+    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="107.0.1418.35" />
     <PackageReference Include="SpecFlow.Assist.Dynamic" Version="1.4.2" />
     <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageReference Include="SpecFlow.MsTest" Version="3.9.74" />
     <PackageReference Include="MSTest.TestFramework" Version="2.3.0-preview-20220810-02" />
-    <PackageReference Include="FluentAssertions" Version="6.7.0" />
+    <PackageReference Include="FluentAssertions" Version="6.8.0" />
   </ItemGroup>
 
   <ItemGroup>
