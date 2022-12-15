@@ -5,7 +5,8 @@ using SeleniumExtras.WaitHelpers;
 
 namespace Test.UI;
 
-//[Ignore("api needs to be running somewhere")]
+//Run the api in another VS
+[Ignore("api needs to be running somewhere")]
 [TestClass]
 public class UITests : SeleniumTestBase
 {
@@ -20,7 +21,6 @@ public class UITests : SeleniumTestBase
         string path = $"{_config.GetValue<string>("SampeApi:BaseUrl")}";
         _webDriver.Navigate().GoToUrl(path);
         Assert.IsTrue(_webDriver.Title.Contains("SampleApp - Todo CRUD"));
-
     }
 
     [TestCleanup]

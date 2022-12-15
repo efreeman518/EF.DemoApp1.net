@@ -1,7 +1,10 @@
 ﻿Feature: TodoItemUI
 	Add, edit, remove TodoItems
 
+#Run the api in another VS
+@ignore
 @tag1
+
 Scenario: TodoItem CRUD
 	#Given some name-value pairs as params sent in to the step definition methods
 	#| name	  | value |

@@ -73,6 +73,10 @@ public class TodoService : ServiceBase, ITodoService
         if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(todo))
             throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
 
+        //validate domain model (using model.Validate())
+        var validationResult = todo.Validate();
+        if (!validationResult.IsValid) throw new ValidationException(validationResult);
+
         todo = _repository.AddItem(todo);
         await _repository.SaveChangesAsync("userId1");
 
