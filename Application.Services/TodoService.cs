@@ -36,7 +36,7 @@ public class TodoService : ServiceBase, ITodoService
         {
             PageSize = pageSize,
             PageIndex = pageIndex,
-            Data = _mapper.Map<List<TodoItem>, List<TodoItemDto>>(await _repository.GetItemsAsync(pageSize, pageIndex)),
+            Data = _mapper.Map<List<TodoItem>, List<TodoItemDto>>(await _repository.GetItemsPagedAsync(pageSize, pageIndex)),
             Total = await _repository.GetItemsCountAsync()
         };
     }

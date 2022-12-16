@@ -29,6 +29,5 @@ public class ValidationResultTests
         vr1.IsValid = !vr.IsValid;
         Assert.IsTrue(vr != vr1); //operator !=
 
-
     }
 }
