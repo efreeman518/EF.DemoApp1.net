@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Package.Infrastructure.Utility;
-public class ValidationResult
+public class ValidationResult : IEquatable<ValidationResult>
 {
     public bool IsValid { get; set; }
     public List<string> Messages { get; set; }
@@ -19,10 +21,8 @@ public class ValidationResult
     public static implicit operator bool(ValidationResult value) => value.IsValid;
     public static explicit operator ValidationResult(bool valid) => Assign(valid);
 
-    public override int GetHashCode()
-    {
-        return IsValid.GetHashCode();
-    }
+    public override int GetHashCode() => IsValid.GetHashCode();
+    public static int GetHashCode([DisallowNull] ValidationResult obj) => obj.GetHashCode();
 
     //Equality ignores messages
 
@@ -37,6 +37,13 @@ public class ValidationResult
         return IsValid == vr?.IsValid;
     }
 
+    public bool Equals(ValidationResult? x, ValidationResult? y)
+    {
+        throw new NotImplementedException();
+    }
+
+    
+
     public static bool operator ==(ValidationResult value1, ValidationResult value2)
     {
         return value1.IsValid == value2.IsValid;
@@ -45,6 +52,4 @@ public class ValidationResult
     {
         return value1.IsValid != value2.IsValid;
     }
-
-    
 }
