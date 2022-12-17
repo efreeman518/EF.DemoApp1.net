@@ -13,7 +13,7 @@ namespace Infrastructure.Data;
 /// </summary>
 /// Implement AlwaysEncrypted on a column - add something like this at the end of the migration's Up() method:
 
-#pragma warning disable S1135 // Track uses of "TODO" tags
+#pragma warning disable S1135, S125 // Track uses of "TODO" tags, comments
 /* 
     //add to migration class - customize for always encrypted (until supported in fluent syntax)
     string url_AKV_CMK = <url to the keyvault key used as Column Master Key>
@@ -37,7 +37,7 @@ namespace Infrastructure.Data;
 public class MigrationSupport
 {
     private readonly MigrationBuilder _migrationBuilder;
-    private readonly SqlColumnEncryptionAzureKeyVaultProvider _akvProvider = null!;
+    private readonly SqlColumnEncryptionAzureKeyVaultProvider _akvProvider;
     private readonly string s_algorithm = "RSA_OAEP";
 
     public MigrationSupport(MigrationBuilder migrationBuilder, DefaultAzureCredential credential)
@@ -104,13 +104,12 @@ public class MigrationSupport
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="migrationBuilder"></param>
-    /// <param name="tableName">[schema].[TodoItem]</param>
+    /// <param name="cekName"></param>
+    /// <param name="tableName">[schema].[tablename]</param>
     /// <param name="columnNameAndType">[SecureString] NVARCHAR(100)</param>
     /// <param name="collate">If not string then null; COLLATE Latin1_General_BIN2</param>
     /// <param name="encType">DETERMINISTIC or RANDOMIZED; DETERMINISTIC can be used in queries</param>
     /// <param name="algorithm">AEAD_AES_256_CBC_HMAC_SHA_256</param>
-    /// <param name="cekName"></param>
     /// <param name="isNull"></param>
     public void AlterColumnEncryption(string cekName, string tableName,
         string columnNameAndType, string? collate = "COLLATE Latin1_General_BIN2", string encType = "DETERMINISTIC",

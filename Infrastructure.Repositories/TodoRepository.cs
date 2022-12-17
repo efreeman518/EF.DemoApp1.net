@@ -1,4 +1,7 @@
-﻿using Package.Infrastructure.Data;
+﻿using Application.Contracts.Model;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Package.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 
@@ -6,8 +9,10 @@ namespace Infrastructure.Repositories;
 
 public class TodoRepository : RepositoryBase<TodoContext>, ITodoRepository
 {
-    public TodoRepository(TodoContext dbContext) : base(dbContext)
+    private readonly IMapper _mapper;
+    public TodoRepository(TodoContext dbContext, IMapper mapper) : base(dbContext)
     {
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -17,17 +22,29 @@ public class TodoRepository : RepositoryBase<TodoContext>, ITodoRepository
     /// <param name="pageIndex">1 based index</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<TodoItem>> GetItemsAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
+    public async Task<List<TodoItem>> GetItemsPagedAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
     {
-        var error = "";
-        if (pageSize < 1) error += "Invalid page size; must be > 0. ";
-        if (pageIndex < 1) error += "Invalid page index; must be >= 1.";
-        if (error.Length > 0) throw new ValidationException(error);
+        return await BuildIQueryablePage(pageSize, pageIndex).ToListAsync(cancellationToken);
+    }
 
-        var q = DB.TodoItems.AsQueryable().AsNoTracking();
-        int skipCount = (pageIndex - 1) * pageSize;
-        q = skipCount == 0 ? q.Take(pageSize) : q.Skip(skipCount).Take(pageSize);
-        return await q.ToListAsync(cancellationToken);
+    /// <summary>
+    /// Return a cref="PagedResponse" projected to Dto
+    /// </summary>
+    /// <param name="pageSize"></param>
+    /// <param name="pageIndex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ValidationException"></exception>
+    public async Task<PagedResponse<TodoItemDto>> GetDtosPagedAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
+    {
+        (var q, var total) = await BuildIQueryablePageWithTotal(pageSize, pageIndex);
+        return new PagedResponse<TodoItemDto>
+        {
+            PageIndex = pageIndex,
+            PageSize= pageSize,
+            Data = await q.ProjectTo<TodoItemDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken),
+            Total = total
+        };
     }
 
     public async Task<int> GetItemsCountAsync(CancellationToken cancellationToken = default)
@@ -91,5 +108,30 @@ public class TodoRepository : RepositoryBase<TodoContext>, ITodoRepository
     public void DeleteItem(Guid id)
     {
         DeleteItem(new TodoItem { Id = id });
+    }
+
+    private IQueryable<TodoItem> BuildIQueryableForPaging(int pageSize, int pageIndex)
+    {
+        var error = "";
+        if (pageSize < 1) error += "Invalid page size; must be > 0. ";
+        if (pageIndex < 1) error += "Invalid page index; must be >= 1.";
+        if (error.Length > 0) throw new ValidationException(error);
+
+        return DB.TodoItems.AsQueryable().AsNoTracking();
+    }
+
+    private IQueryable<TodoItem> BuildIQueryablePage(int pageSize, int pageIndex)
+    {
+        var q = BuildIQueryableForPaging(pageSize, pageIndex);
+        int skipCount = (pageIndex - 1) * pageSize;
+        return skipCount == 0 ? q.Take(pageSize) : q.Skip(skipCount).Take(pageSize);
+    }
+
+    private async Task<(IQueryable<TodoItem>, int)> BuildIQueryablePageWithTotal(int pageSize, int pageIndex)
+    {
+        var q = BuildIQueryableForPaging(pageSize, pageIndex);
+        var total = await q.CountAsync();
+        int skipCount = (pageIndex - 1) * pageSize;
+        return (skipCount == 0 ? q.Take(pageSize) : q.Skip(skipCount).Take(pageSize), total);
     }
 }

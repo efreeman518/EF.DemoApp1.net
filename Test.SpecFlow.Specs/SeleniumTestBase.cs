@@ -47,12 +47,6 @@ public class SeleniumTestBase : IDisposable
             "headless"
         });
 
-        //var firefoxOptions = new FirefoxOptions();
-        //firefoxOptions.AddArguments(new List<string>
-        //{
-        //    "--headless"
-        //});
-
         _driver = browser switch
         {
             "Edge" => new EdgeDriver(edgeOptions),

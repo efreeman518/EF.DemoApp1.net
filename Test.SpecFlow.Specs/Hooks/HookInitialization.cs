@@ -16,6 +16,7 @@ public sealed class HookInitialization
         // Example of filtering hooks using tags. (in this case, this 'before scenario' hook will execute if the feature/scenario contains the tag '@tag1')
         // See https://docs.specflow.org/projects/specflow/en/latest/Bindings/Hooks.html?highlight=hooks#tag-scoping
 
+        _scenarioContext.GetHashCode();
         Console.WriteLine("BeforeScenarioWithTag");
     }
 
@@ -25,12 +26,14 @@ public sealed class HookInitialization
         // Example of ordering the execution of hooks
         // See https://docs.specflow.org/projects/specflow/en/latest/Bindings/Hooks.html?highlight=order#hook-execution-order
 
+        _scenarioContext.GetHashCode();
         Console.WriteLine("FirstBeforeScenario");
     }
 
     [AfterScenario]
     public void AfterScenario()
     {
+        _scenarioContext.GetHashCode();
         Console.WriteLine("AfterScenario");
     }
 }

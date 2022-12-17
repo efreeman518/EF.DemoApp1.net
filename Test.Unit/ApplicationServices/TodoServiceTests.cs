@@ -95,8 +95,16 @@ public class TodoServiceTests : UnitTestBase
         //arrange
 
         //InMemory setup & seed
-        TodoContext db = Utility.SetupInMemoryDB("GetItem_memory_pass", true);
-        ITodoRepository repo = new TodoRepository(db);
+        TodoContext db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(entities =>
+            {
+                //custom data scenario that default seed data does not cover
+                entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+            })
+            .GetOrBuild<TodoContext>();
+
+        ITodoRepository repo = new TodoRepository(db, _mapper);
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, repo, _mapper);
         var todo = new TodoItemDto { Name = "wash car", IsComplete = false };
 
