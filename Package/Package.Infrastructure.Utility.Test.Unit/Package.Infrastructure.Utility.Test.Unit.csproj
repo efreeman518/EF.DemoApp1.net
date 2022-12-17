@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Package\Package.Infrastructure.Utility\Package.Infrastructure.Utility.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Utility\Package.Infrastructure.Utility.csproj" />
   </ItemGroup>
 
 </Project>
