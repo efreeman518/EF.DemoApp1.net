@@ -19,7 +19,7 @@ public class TodoServiceTests : ServiceTestBase
     [TestMethod]
     public async Task Todo_CRUD_pass()
     {
-        Logger.Log(LogLevel.Information, "Starting ContextEntity_crud_pass");
+        Logger.Log(LogLevel.Information, "Starting Todo_CRUD_pass");
 
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
 
@@ -66,6 +66,33 @@ public class TodoServiceTests : ServiceTestBase
             Assert.IsTrue(ex != null);
         }
 
+    }
+
+    [DataTestMethod]
+    [DataRow("asg")]
+    [DataRow("sdfg")]
+    [DataRow("sdfgsd456yrt")]
+    [DataRow("sdfgs")]
+    [ExpectedException(typeof(ValidationException))]
+    public async Task Todo_AddItem_fail(string name)
+    {
+        Logger.Log(LogLevel.Information, "Starting Todo_AddItem_fail");
+
+        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
+
+        //arrange
+        TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
+
+        TodoItemDto? todo = new()
+        {
+            Name = name,
+            IsComplete = false
+        };
+
+        //act & assert
+
+        //create
+        await svc.AddItemAsync(todo);
     }
 
 }

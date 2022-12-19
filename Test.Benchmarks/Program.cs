@@ -16,7 +16,8 @@ Utility.GetServiceCollection().AddLogging(configure => configure.AddConsole().Ad
 ILogger<Program> logger = Utility.GetServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.Log(LogLevel.Information, "Benchmark Run Starting.");
 
-_ = BenchmarkRunner.Run<RulesBenchmarks>();
+//_ = BenchmarkRunner.Run<RulesBenchmarks>();
+_ = BenchmarkRunner.Run<RepositoryBenchmarks>();
 Console.ReadKey();
 
 

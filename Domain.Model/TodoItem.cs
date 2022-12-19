@@ -18,7 +18,7 @@ public partial class TodoItem : EntityBase
     {
         var errors = new List<string>();
         if (Name?.Length < Constants.RULE_NAME_LENGTH) errors.Add("Name length violation");
-        if(!KnownGeneratedRegex().Match(Name ?? "").Success) errors.Add("Name regex violation");
+        if(!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) errors.Add("Name regex violation");
         var result = new ValidationResult(errors.Count == 0, errors);
         if (errors.Count > 0 && throwOnInvalid) throw new ValidationException(result);
         return result;
@@ -29,5 +29,5 @@ public partial class TodoItem : EntityBase
     /// </summary>
     /// <returns></returns>
     [GeneratedRegex("a")]
-    private static partial Regex KnownGeneratedRegex();
+    private static partial Regex KnownGeneratedRegexNameRule();
 }

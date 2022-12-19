@@ -1,4 +1,4 @@
-﻿using Domain.Rules;
+﻿using Application.Services.Rules;
 using Package.Infrastructure.Utility.Exceptions;
 using Package.Infrastructure.Utility.Extensions;
 using System.Collections.Generic;
@@ -56,24 +56,29 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", JsonSerializer.Serialize(dto));
 
-        //validate app model
+        #region dto validation - using service code
+
         if (dto.Name.Length < DomainConstants.RULE_NAME_LENGTH)
             throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}");
         if (await _repository.ExistsAsync(t => t.Name == dto.Name))
             throw new ValidationException($"{AppConstants.ERROR_ITEM_EXISTS}: '{dto.Name}'");
 
+        #endregion
+
+        #region dto validation - using rule classes
+
+        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(dto))
+            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}.");
+        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
+            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
+        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
+            throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
+
+        #endregion
+
         //map app -> domain
         var todo = _mapper.Map<TodoItemDto, TodoItem>(dto);
 
-        //validate domain model (using Rule classes)
-        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(todo))
-            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}.");
-        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(todo))
-            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
-        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(todo))
-            throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
-
-        //validate domain model (using model.Validate())
         var validationResult = todo.Validate();
         if (!validationResult.IsValid) throw new ValidationException(validationResult);
 
@@ -90,6 +95,14 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", JsonSerializer.Serialize(dto));
 
+        //validate dto (using Rule classes)
+        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(dto))
+            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}.");
+        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
+            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
+        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
+            throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
+
         //retrieve existing
         var dbTodo = await _repository.GetItemAsync(t => t.Id == dto.Id);
         if (dbTodo == null) throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
@@ -100,14 +113,6 @@ public class TodoService : ServiceBase, ITodoService
         dbTodo.Name = updateTodo.Name;
         dbTodo.IsComplete = updateTodo.IsComplete;
         dbTodo.Status = updateTodo.Status;
-
-        //validate domain model (using Rule classes)
-        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(dbTodo))
-            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}.");
-        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dbTodo))
-            throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
-        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dbTodo))
-            throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
 
         _repository.UpdateItem(dbTodo); //update full record
 

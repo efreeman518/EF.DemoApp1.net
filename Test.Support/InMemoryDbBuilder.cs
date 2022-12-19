@@ -2,11 +2,9 @@
 using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
-namespace Test.Unit;
+namespace Test.Support;
 public class InMemoryDbBuilder
 {
     private static readonly object _lock = new();

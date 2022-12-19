@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain.Rules\Domain.Rules.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
+    <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
 
 </Project>
