@@ -17,12 +17,11 @@ namespace Test.Benchmarks;
 public class RepositoryBenchmarks
 {
     //Infrastructure
-    private readonly IMapper _mapper;
     private readonly ITodoRepository _repo;
 
     public RepositoryBenchmarks()
     {
-        _mapper = SampleApp.Bootstrapper.Automapper.ConfigureAutomapper.CreateMapper();
+        var mapper = SampleApp.Bootstrapper.Automapper.ConfigureAutomapper.CreateMapper();
         TodoContext db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>
@@ -32,7 +31,7 @@ public class RepositoryBenchmarks
             })
             .GetOrBuild<TodoContext>();
 
-        _repo = new TodoRepository(db, _mapper);
+        _repo = new TodoRepository(db, mapper);
     }
 
     [IterationSetup]
