@@ -4,6 +4,3 @@ using Test.Load;
 Console.WriteLine("Load Tester");
 
 TodoLoadTest.Run();
-
-Console.ReadLine();
-

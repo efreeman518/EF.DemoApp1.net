@@ -1,5 +1,4 @@
-﻿using Application.Contracts.Model;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
 using Domain.Rules;
@@ -25,7 +24,7 @@ public class RulesBenchmarks
     public void Setup()
     {
         _todoItemDto = new TodoItem { Name = Utility.RandomString(NameLength) };
-        _regexMatch = $"{_todoItemDto.Name[..1]}.*{_todoItemDto.Name.Substring(_todoItemDto.Name.Length - 3)}";
+        _regexMatch = $"{_todoItemDto.Name[..1]}.*{_todoItemDto.Name[^3..]}";
     }
 
     [Benchmark]

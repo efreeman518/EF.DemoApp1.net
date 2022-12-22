@@ -1,6 +1,4 @@
-﻿using Application.Contracts.Model;
-using AutoMapper;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
 using Infrastructure.Data;

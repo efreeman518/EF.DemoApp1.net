@@ -4,6 +4,9 @@ using NBomber.CSharp;
 using NBomber.Plugins.Network.Ping;
 using System.Text.Json;
 
+
+//https://nbomber.com/
+
 namespace Test.Load;
 
 internal static class TodoLoadTest
@@ -19,7 +22,8 @@ internal static class TodoLoadTest
         var steps = new[]
         {
             Support.CreateStep(httpFactory,"getpage", "api/TodoItems", HttpMethod.Get),
-            Support.CreateStep(httpFactory,"post", "api/TodoItems", HttpMethod.Post, genPayload()),
+            Support.CreateStep(httpFactory,"post", "api/TodoItems", HttpMethod.Post, () => GenPayload()),
+            Support.CreateStep(httpFactory,"get", $"api/TodoItems/", HttpMethod.Get, () => GenPayload()),
         };
 
         var scenario = ScenarioBuilder
@@ -40,7 +44,7 @@ internal static class TodoLoadTest
             .Run();
     }
 
-    private static string genPayload(Guid? id = null)
+    private static string GenPayload(Guid? id = null)
     {
         var dto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
         if (id != null) dto.Id = (Guid)id;
