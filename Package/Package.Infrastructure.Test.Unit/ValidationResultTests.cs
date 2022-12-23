@@ -1,4 +1,6 @@
-namespace Package.Infrastructure.Utility.Test.Unit;
+using Package.Infrastructure.Utility;
+
+namespace Package.Infrastructure.Test.Unit;
 
 [TestClass]
 public class ValidationResultTests

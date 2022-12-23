@@ -1,5 +1,8 @@
-﻿namespace Application.Services;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace Application.Services;
+
+[ExcludeFromCodeCoverage]
 public class TodoServiceSettings
 {
     public const string ConfigSectionName = "TodoServiceSettings";

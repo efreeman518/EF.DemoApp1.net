@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
 namespace Infrastructure.Data;
@@ -34,6 +35,7 @@ namespace Infrastructure.Data;
  */
 #pragma warning restore S1135 // Track uses of "TODO" tags
 
+[ExcludeFromCodeCoverage]
 public class MigrationSupport
 {
     private readonly MigrationBuilder _migrationBuilder;
