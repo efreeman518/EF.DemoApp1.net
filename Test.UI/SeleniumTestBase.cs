@@ -26,6 +26,7 @@ public abstract class SeleniumTestBase : IDisposable
     {
         _config = BuildConfiguration();
 
+#pragma warning disable S125
         //https://github.com/rosolko/WebDriverManager.Net
         //new DriverManager().SetUpDriver(new ChromeConfig());
 
@@ -33,6 +34,7 @@ public abstract class SeleniumTestBase : IDisposable
         //put the chromedriver.exe in the /drivers folder, properties - Copy to Output folder, and note the version here:
         //var chromeVersion = "97.0.4692.71";
         //_webDriver = new ChromeDriver($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Chrome\\{chromeVersion}\\X64");
+#pragma warning restore S125
 
         _webDriver = new ChromeDriver();
         _waitMax10Seconds = new WebDriverWait(_webDriver, TimeSpan.FromSeconds(10));

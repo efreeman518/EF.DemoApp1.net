@@ -14,14 +14,9 @@ public static class LoggerExtensions
 
     static LoggerExtensions()
     {
-        _infoLog = LoggerMessage.Define<string>(
-            LogLevel.Information, new EventId(1, nameof(InfoLog)),
-            "{message}");
-        _errorLog = LoggerMessage.Define<string>(
-            LogLevel.Error, new EventId(1, nameof(ErrorLog)),
-            "{message}");
-        _extLog = LoggerMessage.Define<string, string, string?, string?>(
-            LogLevel.Information, new EventId(1, nameof(ExtLog)),
+        _infoLog = LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
+        _errorLog = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1, nameof(ErrorLog)), "{message}");
+        _extLog = LoggerMessage.Define<string, string, string?, string?>(LogLevel.Information, new EventId(1, nameof(ExtLog)),
             "{message} {param1} {param2} {param3}");
 
     }

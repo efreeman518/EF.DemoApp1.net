@@ -1,4 +1,6 @@
-namespace Package.Infrastructure.Utility.Test.Unit;
+using Package.Infrastructure.Utility;
+
+namespace Package.Infrastructure.Test.Unit;
 
 [TestClass]
 public class ValidationResultTests
@@ -28,7 +30,6 @@ public class ValidationResultTests
         Assert.IsTrue(vr == vr1); //operator ==
         vr1.IsValid = !vr.IsValid;
         Assert.IsTrue(vr != vr1); //operator !=
-
 
     }
 }

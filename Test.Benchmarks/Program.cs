@@ -9,14 +9,14 @@ Console.WriteLine("Benchmarks");
 IConfigurationRoot config = Utility.Config;
 
 //DI
-Utility.Services.AddApplicationInsightsTelemetryWorkerService(config);
-Utility.Services.AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
+Utility.GetServiceCollection().AddApplicationInsightsTelemetryWorkerService(config);
+Utility.GetServiceCollection().AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
 
 //logging
 ILogger<Program> logger = Utility.GetServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.Log(LogLevel.Information, "Benchmark Run Starting.");
 
-var summary = BenchmarkRunner.Run<RulesBenchmarks>();
-Console.ReadKey();
+BenchmarkRunner.Run(new[] { typeof(RepositoryBenchmarks), typeof(RulesBenchmarks) });
 
+Console.ReadLine();
 

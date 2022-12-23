@@ -14,8 +14,9 @@ using System;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Test.Support;
 
-namespace Test.Unit.ApplicationServices;
+namespace Test.Unit.Application.Services;
 
 [TestClass]
 public class TodoServiceTests : UnitTestBase
@@ -28,7 +29,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //use Mock repo
         RepositoryMock = _mockFactory.Create<ITodoRepository>();
-        RepositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult<int>(1)); //default behavior
+        RepositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
         ServiceCollection services = new();
@@ -95,8 +96,16 @@ public class TodoServiceTests : UnitTestBase
         //arrange
 
         //InMemory setup & seed
-        TodoContext db = Utility.SetupInMemoryDB("GetItem_memory_pass", true);
-        ITodoRepository repo = new TodoRepository(db);
+        TodoContext db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(entities =>
+            {
+                //custom data scenario that default seed data does not cover
+                entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+            })
+            .GetOrBuild<TodoContext>();
+
+        ITodoRepository repo = new TodoRepository(db, _mapper);
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, repo, _mapper);
         var todo = new TodoItemDto { Name = "wash car", IsComplete = false };
 

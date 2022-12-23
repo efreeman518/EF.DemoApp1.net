@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Infrastructure.Data;
 
+[ExcludeFromCodeCoverage]
 /// <summary>
 /// Used for design time needing a DbContext (EF Migrations)
 /// First run in PMC:

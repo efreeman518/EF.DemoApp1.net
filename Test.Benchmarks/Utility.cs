@@ -6,18 +6,16 @@ namespace Test.Benchmarks;
 
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config;
-    public static readonly IServiceCollection Services;
+    public static readonly IConfigurationRoot Config = BuildConfiguration();
+    private static readonly IServiceCollection _services = new ServiceCollection();
     private static IServiceProvider? ServiceProvider;
 
     static Utility()
     {
-        Config = BuildConfiguration();
-        Services = new ServiceCollection();
         //bootstrapper container registrations - infrastructure, application and domain services
-        new SampleApp.Bootstrapper.Startup(Config).ConfigureServices(Services);
+        new SampleApp.Bootstrapper.Startup(Config).ConfigureServices(_services);
         //configure & register Automapper, application and infrastructure mapping profiles
-        ConfigureAutomapper.Configure(Services);
+        ConfigureAutomapper.Configure(_services);
     }
 
     private static IConfigurationRoot BuildConfiguration()
@@ -36,12 +34,17 @@ public static class Utility
         return config;
     }
 
+    public static IServiceCollection GetServiceCollection()
+    {
+        return _services;
+    }
+
     public static IServiceProvider GetServiceProvider()
     {
         if (ServiceProvider != null) return ServiceProvider;
 
         //build IServiceProvider for subsequent use finding/injecting services
-        ServiceProvider = Services.BuildServiceProvider(validateScopes: true);
+        ServiceProvider = _services.BuildServiceProvider(validateScopes: true);
         return ServiceProvider;
     }
 
