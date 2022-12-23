@@ -8,6 +8,7 @@ namespace Test.Unit.DomainRules;
 public class TodoItemRulesTests
 {
     [DataTestMethod]
+    [DataRow(null, 3, false)]
     [DataRow("sdfg", 5, false)]
     [DataRow("sdfg", 3, true)]
     [DataRow("sdfgsd456yrt", 5, true)]
