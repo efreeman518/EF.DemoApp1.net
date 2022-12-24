@@ -49,10 +49,24 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         {
             await Task.Delay(3000, token);
             _logger.LogInformation("Task 3 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+        });
+
+        //queue background task4
+        q.QueueBackgroundWorkItem(async token =>
+        {
+            await Task.Delay(4000, token);
+            _logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
             tcs.SetResult(true);
+        });
+
+        //queue background task5
+        q.QueueBackgroundWorkItem(async token =>
+        {
+            await Task.Delay(1000, token);
+            _logger.LogInformation("Task 5 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //await our task completion source task so that the sut will execute until tcs.SetResult(true).
@@ -66,7 +80,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(1000, token);
-            _logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            _logger.LogInformation("Task 6 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
