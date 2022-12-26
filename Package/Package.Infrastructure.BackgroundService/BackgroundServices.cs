@@ -7,10 +7,11 @@ namespace Infrastructure.BackgroundServices;
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-7.0
 
+#pragma warning disable S125
 //register
 //services.AddHostedService<BackgroundTaskService>();
 //services.AddSingleton<BackgroundTaskQueue>();
-
+#pragma warning restore S125
 
 public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
@@ -69,7 +70,7 @@ public class BackgroundTaskService : BackgroundService
         //keep checking the queue
         while (!stoppingToken.IsCancellationRequested)
         {
-            //TODO: throttle?
+            //throttle?
             var workItem = await _taskQueue.DequeueAsync(stoppingToken); //waits for a task on the queue (semaphore > 0)
             if (workItem != null)
             {
