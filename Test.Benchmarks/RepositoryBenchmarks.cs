@@ -3,6 +3,7 @@ using BenchmarkDotNet.Order;
 using Domain.Model;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Package.Infrastructure.Data.Contracts;
 using Test.Support;
 
 //https://github.com/dotnet/BenchmarkDotNet
@@ -29,7 +30,7 @@ public class RepositoryBenchmarks
             })
             .GetOrBuild<TodoContext>();
 
-        _repo = new TodoRepository(db, mapper);
+        _repo = new TodoRepository(db, mapper, new AuditDetail("Test.Benchmark"));
     }
 
     [IterationSetup]

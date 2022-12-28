@@ -2,6 +2,7 @@ using Domain.Model;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Threading.Tasks;
 using Test.Support;
@@ -31,7 +32,7 @@ public class TodoRepositoryTests : UnitTestBase
             })
             .GetOrBuild<TodoContext>();
 
-        ITodoRepository repo = new TodoRepository(db, _mapper);
+        ITodoRepository repo = new TodoRepository(db, _mapper, new AuditDetail("Test.Unit"));
 
         //act & assert
         var items = await repo.GetItemsPagedAsync(10, 1);
@@ -63,7 +64,7 @@ public class TodoRepositoryTests : UnitTestBase
             })
             .GetOrBuild<TodoContext>();
 
-        ITodoRepository repo = new TodoRepository(db, _mapper);
+        ITodoRepository repo = new TodoRepository(db, _mapper, new AuditDetail("Test.Unit"));
 
         //act & assert
         var response = await repo.GetDtosPagedAsync(10, 1);

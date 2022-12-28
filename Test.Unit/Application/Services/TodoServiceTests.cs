@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Utility.Exceptions;
 using System;
 using System.Linq.Expressions;
@@ -29,7 +30,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //use Mock repo
         RepositoryMock = _mockFactory.Create<ITodoRepository>();
-        RepositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
+        RepositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
         ServiceCollection services = new();
@@ -105,7 +106,7 @@ public class TodoServiceTests : UnitTestBase
             })
             .GetOrBuild<TodoContext>();
 
-        ITodoRepository repo = new TodoRepository(db, _mapper);
+        ITodoRepository repo = new TodoRepository(db, _mapper, new AuditDetail("Test.Unit"));
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, repo, _mapper);
         var todo = new TodoItemDto { Name = "wash car", IsComplete = false };
 

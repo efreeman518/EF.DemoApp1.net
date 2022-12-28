@@ -1,6 +1,6 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
-using Package.Infrastructure.Data;
+using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Utility;
 using Package.Infrastructure.Utility.Exceptions;
 using System.Collections.Generic;

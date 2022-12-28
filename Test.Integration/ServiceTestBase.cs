@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Data.Contracts;
 using System;
 
 namespace Test.Integration;
@@ -28,6 +29,12 @@ public abstract class ServiceTestBase
         //add logging for integration tests
         services.AddApplicationInsightsTelemetryWorkerService(Config);
         services.AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
+
+        //IAuditDetail
+        services.AddTransient<IAuditDetail>(provider =>
+        {
+            return new AuditDetail("Test.Integration");
+        });
 
         //build IServiceProvider for subsequent use finding/injecting services
         Services = services.BuildServiceProvider(validateScopes: true);

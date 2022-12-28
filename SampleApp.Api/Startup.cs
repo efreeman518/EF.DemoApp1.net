@@ -1,11 +1,17 @@
+using Application.Services;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
+using Package.Infrastructure.Data.Contracts;
 using SampleApp.Api.Middleware;
+using System.Linq;
+using System.Security.Claims;
 
 namespace SampleApp.Api;
 
@@ -31,6 +37,29 @@ public class Startup
         {
             module.EnableSqlCommandTextInstrumentation = Config.GetValue<bool>("Logging:EnableSqlCommandTextInstrumentation", false);
         });
+
+        //IAuditDetail 
+        services.AddTransient<IAuditDetail>(provider =>
+        {
+            var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
+            var user = httpContext?.User;
+
+            //Get auditId from token claim
+            //AAD bearer token
+            string? auditId = 
+                //AAD from user
+                user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
+                //AAD ObjectId from user or client AAD enterprise app [ServicePrincipal Id / Object Id]:
+                ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+                //AppId for the AAD Ent App/App Reg (client) whether its the client/secret or user with permissions on the Ent App
+                ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
+                //TODO: Remove this default
+                ?? "NoAuthImplemented"
+                ;
+
+            return new AuditDetail(auditId);
+        });
+
 
         services.AddControllers();
         services.AddSwaggerGen(c =>

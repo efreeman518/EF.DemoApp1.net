@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Package.Infrastructure.Data;
+﻿namespace Package.Infrastructure.Data.Contracts;
 
 public class EntityBase : IAuditable
 {

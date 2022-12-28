@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Application.Contracts.Model;
+﻿namespace Package.Infrastructure.Data.Contracts;
 
 public class PagedResponse<T>
 {

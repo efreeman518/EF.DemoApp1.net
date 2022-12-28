@@ -1,4 +1,5 @@
 ﻿using Application.Contracts.Model;
+using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Threading.Tasks;
 

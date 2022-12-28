@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Utility\Package.Infrastructure.Utility.csproj" />
   </ItemGroup>
 
 </Project>
