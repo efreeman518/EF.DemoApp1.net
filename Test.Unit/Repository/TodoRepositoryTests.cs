@@ -35,18 +35,19 @@ public class TodoRepositoryTests : UnitTestBase
         ITodoRepository repo = new TodoRepository(db, _mapper, new AuditDetail("Test.Unit"));
 
         //act & assert
-        var items = await repo.GetItemsPagedAsync(10, 1);
-        Assert.IsNotNull(items);
-        Assert.AreEqual(4, items.Count);
+        var response = await repo.GetPagedListAsync<TodoItem>(pageSize:10, pageIndex:1, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
 
-        items = await repo.GetItemsPagedAsync(2, 1);
-        Assert.IsNotNull(items);
-        Assert.AreEqual(2, items.Count);
+        response = await repo.GetPagedListAsync<TodoItem>(pageSize: 2, pageIndex: 1, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(2, response.Data.Count);
+        Assert.AreEqual(4, response.Total);
 
-        items = await repo.GetItemsPagedAsync(3, 2);
-        Assert.IsNotNull(items);
-        Assert.AreEqual(1, items.Count);
-
+        response = await repo.GetPagedListAsync<TodoItem>(pageSize: 3, pageIndex: 2, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(1, response.Data.Count);
+        Assert.AreEqual(4, response.Total);
     }
 
     [TestMethod]

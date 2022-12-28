@@ -4,6 +4,7 @@ using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,7 @@ using Moq;
 using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Utility.Exceptions;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +39,8 @@ public class TodoServiceTests : UnitTestBase
         services.AddTransient<ITodoRepository, TodoRepository>();
     }
 
+    delegate void MockCreateCallback(ref TodoItem output);
+
     [TestMethod]
     public async Task Todo_CRUD_mock_pass()
     {
@@ -45,12 +49,14 @@ public class TodoServiceTests : UnitTestBase
         var dbTodo = new TodoItem { Id = Guid.NewGuid(), Name = name, Status = TodoItemStatus.Accepted };
 
         RepositoryMock.Setup(
-            r => r.GetItemAsync(It.IsAny<Expression<Func<TodoItem, bool>>>(), It.IsAny<CancellationToken>()))
+            r => r.GetItemAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
+                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
+                It.IsAny<Func<IQueryable<TodoItem>,IIncludableQueryable<TodoItem, object?>>[]>()))
             .Returns(() => Task.FromResult<TodoItem?>(dbTodo));
 
-        RepositoryMock.Setup(
-            r => r.AddItem(It.IsAny<TodoItem>()))
-            .Returns(dbTodo);
+
+        RepositoryMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
+            .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryMock.Object, _mapper);
 
@@ -77,16 +83,18 @@ public class TodoServiceTests : UnitTestBase
 
         //verify call counts
         RepositoryMock.Verify(
-            r => r.AddItem(It.IsAny<TodoItem>()),
+            r => r.Create(ref It.Ref<TodoItem>.IsAny),
             Times.Once);
         RepositoryMock.Verify(
-            r => r.GetItemAsync(It.IsAny<Expression<Func<TodoItem, bool>>>(), It.IsAny<CancellationToken>()),
-            Times.Exactly(2)); //called for Update and Get
+           r => r.GetItemAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
+               It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
+               It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()),
+           Times.Exactly(2)); //called for Update and Get
         RepositoryMock.Verify(
-            r => r.UpdateItem(It.IsAny<TodoItem>()),
+            r => r.UpdateFull(ref It.Ref<TodoItem>.IsAny),
             Times.Once);
         RepositoryMock.Verify(
-            r => r.DeleteItem(It.IsAny<Guid>()),
+            r => r.Delete(It.IsAny<TodoItem>()),
             Times.Once);
 
     }

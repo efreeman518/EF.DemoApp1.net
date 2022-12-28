@@ -50,7 +50,7 @@ public class RepositoryBenchmarks
     public async Task Repo_PagedTodoResponse()
     {
         //act & assert
-        _ = await _repo.GetItemsPagedAsync(10, 1);
+        _ = await _repo.GetPagedListAsync<TodoItem>(pageSize: 10, pageIndex: 1);
     }
 
 

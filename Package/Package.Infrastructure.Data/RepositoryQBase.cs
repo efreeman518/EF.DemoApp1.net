@@ -23,7 +23,7 @@ public abstract class RepositoryQBase<TDbContext> : IRepositoryQBase where TDbCo
     /// Returns a the first T with optional related data
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="tracking">DbContext will track changes (saves to db on CommitAsync()) or not</param>
+    /// <param name="tracking">DbContext will track changes (saves to db on SaveChangesAsync()) or not</param>
     /// <param name="filter">Where clause (e => e.Id == somevalue) </param>
     /// <param name="orderBy">If filter does not identity a unique entity, use this to select the first based on some order</param>
     /// <param name="includes">get related data</param>
@@ -42,7 +42,7 @@ public abstract class RepositoryQBase<TDbContext> : IRepositoryQBase where TDbCo
     /// Returns a List<T> page of data with optional related data
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="tracking">DbContext will track changes (saves to db on CommitAsync()) or not</param>
+    /// <param name="tracking">DbContext will track changes (saves to db on SaveChangesAsync()) or not</param>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex"></param>
     /// <param name="filter">Where clause (e => e.Property == somevalue) </param>

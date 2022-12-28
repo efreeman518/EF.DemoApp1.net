@@ -28,7 +28,7 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// Create or UpdateFull entity based on the Id being a default value or not; need subsequent CommitAsync()
+    /// Create or UpdateFull entity based on the Id being a default value or not; need subsequent SaveChangesAsync()
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
@@ -57,7 +57,7 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// Creates in the DbContext; inserts to DB upon CommitAsync()
+    /// Creates in the DbContext; inserts to DB upon SaveChangesAsync()
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
@@ -67,7 +67,7 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// Prepare to update only the properties specified (subsequently updated) upon CommitAsync(); not the entire row.
+    /// Prepare to update only the properties specified (subsequently updated) upon SaveChangesAsync(); not the entire row.
     /// </summary>
     /// <param name="update"></param>
     /// <returns></returns>
@@ -79,8 +79,8 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// IF entity is not already tracked (that will automatically update the row upon CommitAsync()) 
-    /// Attaches and updates the entire row upon CommitAsync()
+    /// IF entity is not already tracked (that will automatically update the row upon SaveChangesAsync()) 
+    /// Attaches and updates the entire row upon SaveChangesAsync()
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
@@ -90,20 +90,17 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// Delete without loading first; entity must be populated with key value(s); need subsequent CommitAsync()
+    /// Delete without loading first; entity must be populated with key value(s); need subsequent SaveChangesAsync()
     /// </summary>
     /// <param name="entity"></param>
     public void Delete<T>(T entity) where T : EntityBase
     {
-        //async - using key must await since retrieval from DB is required first; still requires subsequent CommitAsync()
-        //await _dbContext.Delete<T>(entity.Id);
-
         //entity may already be attached so get that or create it in order to remove
         DB.Delete(entity);
     }
 
     /// <summary>
-    /// Retrieve tracked or from DB based on keys; subsequent CommitAsync() will delete from DB
+    /// Retrieve tracked or from DB based on keys; subsequent SaveChangesAsync() will delete from DB
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="keys"></param>
@@ -115,7 +112,7 @@ public abstract class RepositoryTBase<TDbContext> : RepositoryQBase<TDbContext>,
     }
 
     /// <summary>
-    /// Retrieves List<TDbContext> based on filter and removes them from the context; subsequent CommitAsync() will delete from DB
+    /// Retrieves List<TDbContext> based on filter and removes them from the context; subsequent SaveChangesAsync() will delete from DB
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="filter"></param>

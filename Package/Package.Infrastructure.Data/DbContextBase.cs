@@ -152,8 +152,6 @@ public abstract class DbContextBase : DbContext
             }
         }
 
-
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-
     }
 }
