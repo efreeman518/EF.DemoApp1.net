@@ -7,10 +7,10 @@ using System.Threading;
 
 namespace Infrastructure.Repositories;
 
-public class TodoRepository : RepositoryTBase<TodoContext>, ITodoRepository
+public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepositoryQuery
 {
     private readonly IMapper _mapper;
-    public TodoRepository(TodoContext dbContext, IMapper mapper, IAuditDetail audit) : base(dbContext, audit)
+    public TodoRepositoryQuery(TodoDbContextQuery dbContext, IAuditDetail audit, IMapper mapper) : base(dbContext, audit)
     {
         _mapper = mapper;
     }
@@ -23,9 +23,9 @@ public class TodoRepository : RepositoryTBase<TodoContext>, ITodoRepository
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="ValidationException"></exception>
-    public async Task<PagedResponse<TodoItemDto>> GetDtosPagedAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<TodoItemDto>> GetPageTodoItemDtoAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
     {
-        (var data, var total) = await DB.Set<TodoItem>().GetPagedListAsync(pageSize: pageSize, pageIndex: pageIndex, includeTotal: true, cancellationToken: cancellationToken);
+        (var data, var total) = await DB.Set<TodoItem>().GetPageEntityAsync(pageSize: pageSize, pageIndex: pageIndex, includeTotal: true, cancellationToken: cancellationToken);
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = pageIndex,

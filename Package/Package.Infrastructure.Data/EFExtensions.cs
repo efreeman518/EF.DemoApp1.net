@@ -112,7 +112,7 @@ public static class EFExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="context"></param>
     /// <param name="entity"></param>
-    public static async Task Upsert<T>(this DbContext context, T entity) where T : EntityBase
+    public static async Task UpsertAsync<T>(this DbContext context, T entity) where T : EntityBase
     {
         if (!await context.Set<T>().AnyAsync(e => e.Id == entity.Id))
             Create(context, ref entity);
@@ -136,7 +136,7 @@ public static class EFExtensions
     /// Retrieve tracked or from DB based on keys; subsequent SaveChangesAsync() will delete from DB
     /// </summary>
     /// <param name="keys"></param>
-    public static async Task Delete<T>(this DbContext context, CancellationToken cancellationToken = default, params object[] keys) where T : class
+    public static async Task DeleteAsync<T>(this DbContext context, CancellationToken cancellationToken = default, params object[] keys) where T : class
     {
         T? entity = await context.Set<T>().FindAsync(keys, cancellationToken);
         if (entity != null) context.Set<T>().Remove(entity);
@@ -211,7 +211,7 @@ public static class EFExtensions
     /// <param name="filter"></param>
     public static async Task DeleteAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class
     {
-        var objects = (await GetPagedListAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
+        var objects = (await GetPageEntityAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
         Parallel.ForEach(objects, o => { dbSet.Remove(o); });
     }
 
@@ -262,7 +262,7 @@ public static class EFExtensions
     /// <param name="orderBy"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public static async Task<T?> GetItemAsync<T>(this DbSet<T> dbSet, bool tracking,
+    public static async Task<T?> GetEntityAsync<T>(this DbSet<T> dbSet, bool tracking,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         CancellationToken cancellationToken = default,
@@ -287,7 +287,7 @@ public static class EFExtensions
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
-    public static async Task<(List<T>, int)> GetPagedListAsync<T>(this IQueryable<T> query, bool tracking = false,
+    public static async Task<(List<T>, int)> GetPageEntityAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -307,7 +307,7 @@ public static class EFExtensions
     /// <param name="dbSet"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public static async Task<long> GetListCountAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default) where T : class
+    public static async Task<long> GetCountAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default) where T : class
     {
         return await dbSet.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken);
     }

@@ -25,18 +25,20 @@ namespace Test.Unit.Application.Services;
 public class TodoServiceTests : UnitTestBase
 {
     //specific to this test class
-    private readonly Mock<ITodoRepository> RepositoryMock;
+    private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
+    private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
     private readonly IOptions<TodoServiceSettings> _settings = Options.Create(new TodoServiceSettings());
 
     public TodoServiceTests() : base()
     {
         //use Mock repo
-        RepositoryMock = _mockFactory.Create<ITodoRepository>();
-        RepositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
+        RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
+        RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
+        RepositoryTrxnMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
         ServiceCollection services = new();
-        services.AddTransient<ITodoRepository, TodoRepository>();
+        services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
     }
 
     delegate void MockCreateCallback(ref TodoItem output);
@@ -48,17 +50,17 @@ public class TodoServiceTests : UnitTestBase
         string name = "wash car";
         var dbTodo = new TodoItem { Id = Guid.NewGuid(), Name = name, Status = TodoItemStatus.Accepted };
 
-        RepositoryMock.Setup(
-            r => r.GetItemAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
+        RepositoryTrxnMock.Setup(
+            r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
                 It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
                 It.IsAny<Func<IQueryable<TodoItem>,IIncludableQueryable<TodoItem, object?>>[]>()))
             .Returns(() => Task.FromResult<TodoItem?>(dbTodo));
 
 
-        RepositoryMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
+        RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryMock.Object, _mapper);
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryTrxnMock.Object, RepositoryQueryMock.Object, _mapper);
 
         //act & assert
 
@@ -82,18 +84,18 @@ public class TodoServiceTests : UnitTestBase
         await svc.DeleteItemAsync(todoUpdated!.Id);
 
         //verify call counts
-        RepositoryMock.Verify(
+        RepositoryTrxnMock.Verify(
             r => r.Create(ref It.Ref<TodoItem>.IsAny),
             Times.Once);
-        RepositoryMock.Verify(
-           r => r.GetItemAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
+        RepositoryTrxnMock.Verify(
+           r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
                It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()),
            Times.Exactly(2)); //called for Update and Get
-        RepositoryMock.Verify(
+        RepositoryTrxnMock.Verify(
             r => r.UpdateFull(ref It.Ref<TodoItem>.IsAny),
             Times.Once);
-        RepositoryMock.Verify(
+        RepositoryTrxnMock.Verify(
             r => r.Delete(It.IsAny<TodoItem>()),
             Times.Once);
 
@@ -105,17 +107,24 @@ public class TodoServiceTests : UnitTestBase
         //arrange
 
         //InMemory setup & seed
-        TodoContext db = new InMemoryDbBuilder()
+        var dbTrxn = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .GetOrBuild<TodoDbContextTrxn>();
+        var dbQuery = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
                 entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
             })
-            .GetOrBuild<TodoContext>();
+            .GetOrBuild<TodoDbContextQuery>();
 
-        ITodoRepository repo = new TodoRepository(db, _mapper, new AuditDetail("Test.Unit"));
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, repo, _mapper);
+
+        var audit = new AuditDetail("Test.Unit");
+        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit);
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, audit, _mapper); //not used in this test
+
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper);
         var todo = new TodoItemDto { Name = "wash car", IsComplete = false };
 
         //act & assert

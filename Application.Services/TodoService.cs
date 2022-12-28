@@ -11,14 +11,16 @@ namespace Application.Services;
 public class TodoService : ServiceBase, ITodoService
 {
     private readonly TodoServiceSettings _settings;
-    private readonly ITodoRepository _repository;
+    private readonly ITodoRepositoryTrxn _repoTrxn;
+    private readonly ITodoRepositoryQuery _repoQuery;
     private readonly IMapper _mapper;
 
-    public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, ITodoRepository repository, IMapper mapper)
+    public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, IMapper mapper)
         : base(logger)
     {
         _settings = settings.Value;
-        _repository = repository;
+        _repoTrxn = repoTrxn;
+        _repoQuery = repoQuery;
         _mapper = mapper;
     }
 
@@ -32,14 +34,14 @@ public class TodoService : ServiceBase, ITodoService
         _ = _settings.IntValue;
 
         //return mapped domain -> app
-        return await _repository.GetDtosPagedAsync(pageSize, pageIndex);
+        return await _repoQuery.GetPageTodoItemDtoAsync(pageSize, pageIndex);
     }
 
     public async Task<TodoItemDto> GetItemAsync(Guid id)
     {
         Logger.Log(LogLevel.Information, "GetItemAsync - id:{id}", id);
 
-        var todo = await _repository.GetItemAsync<TodoItem>(filter: t => t.Id == id);
+        var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id);
         if (todo == null) throw new NotFoundException($"TodoItem.Id '{id}' not found.");
 
         //return mapped domain -> app
@@ -54,7 +56,7 @@ public class TodoService : ServiceBase, ITodoService
 
         if (dto.Name.Length < DomainConstants.RULE_NAME_LENGTH)
             throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}");
-        if (await _repository.Exists<TodoItem>(t => t.Name == dto.Name))
+        if (await _repoTrxn.ExistsAsync<TodoItem>(t => t.Name == dto.Name))
             throw new ValidationException($"{AppConstants.ERROR_ITEM_EXISTS}: '{dto.Name}'");
 
         #endregion
@@ -76,8 +78,8 @@ public class TodoService : ServiceBase, ITodoService
         var validationResult = todo.Validate();
         if (!validationResult.IsValid) throw new ValidationException(validationResult);
 
-        _repository.Create(ref todo);
-        await _repository.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        _repoTrxn.Create(ref todo);
+        await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
         Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", JsonSerializer.Serialize(todo));
 
@@ -98,7 +100,7 @@ public class TodoService : ServiceBase, ITodoService
             throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
 
         //retrieve existing
-        var dbTodo = await _repository.GetItemAsync<TodoItem>(filter: t => t.Id == dto.Id);
+        var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == dto.Id);
         if (dbTodo == null) throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
 
         var updateTodo = _mapper.Map<TodoItemDto, TodoItem>(dto);
@@ -108,8 +110,8 @@ public class TodoService : ServiceBase, ITodoService
         dbTodo.IsComplete = updateTodo.IsComplete;
         dbTodo.Status = updateTodo.Status;
 
-        _repository.UpdateFull(ref dbTodo); //update full record
-        await _repository.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        _repoTrxn.UpdateFull(ref dbTodo); //update full record
+        await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
         Logger.Log(LogLevel.Information, "UpdateItemAsync Complete - {TodoItem}", JsonSerializer.Serialize(dbTodo));
 
@@ -121,7 +123,7 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "DeleteItemAsync - {id}", id);
 
-        _repository.Delete(new TodoItem { Id = id });
-        await _repository.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        _repoTrxn.Delete(new TodoItem { Id = id });
+        await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
     }
 }

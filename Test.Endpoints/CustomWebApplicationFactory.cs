@@ -38,9 +38,9 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
             .ConfigureServices(services =>
             {
                 //Replace DbContext
-                var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<TodoContext>));
+                var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<TodoDbContextTrxn>));
                 services.Remove(descriptor);
-                services.AddDbContext<TodoContext>(options =>
+                services.AddDbContext<TodoDbContextTrxn>(options =>
                 {
                     //use in memory db
                     options.UseInMemoryDatabase($"InMemoryDbForTesting-{Guid.NewGuid()}");
@@ -61,7 +61,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 using var scope = sp.CreateScope();
                 var scopedServices = scope.ServiceProvider;
 
-                var db = scopedServices.GetRequiredService<TodoContext>();
+                var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
                 var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
 
                 db.Database.EnsureCreated();

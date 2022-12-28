@@ -16,21 +16,22 @@ namespace Test.Benchmarks;
 public class RepositoryBenchmarks
 {
     //Infrastructure
-    private readonly ITodoRepository _repo;
+    private readonly ITodoRepositoryQuery _repo;
 
     public RepositoryBenchmarks()
     {
         var mapper = SampleApp.Bootstrapper.Automapper.ConfigureAutomapper.CreateMapper();
-        TodoContext db = new InMemoryDbBuilder()
+        TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
                 entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
             })
-            .GetOrBuild<TodoContext>();
+            .GetOrBuild<TodoDbContextQuery>();
 
-        _repo = new TodoRepository(db, mapper, new AuditDetail("Test.Benchmark"));
+        var audit = new AuditDetail("Test.Unit");
+        _repo = new TodoRepositoryQuery(db, audit, mapper);
     }
 
     [IterationSetup]
@@ -42,15 +43,13 @@ public class RepositoryBenchmarks
     [Benchmark]
     public async Task Repo_PagedTodoDtoResponse()
     {
-        //act & assert
-        _ = await _repo.GetDtosPagedAsync(10, 1);
+        _ = await _repo.GetPageTodoItemDtoAsync(10, 1);
     }
 
     [Benchmark]
     public async Task Repo_PagedTodoResponse()
     {
-        //act & assert
-        _ = await _repo.GetPagedListAsync<TodoItem>(pageSize: 10, pageIndex: 1);
+        _ = await _repo.GetPageEntityAsync<TodoItem>(pageSize: 10, pageIndex: 1);
     }
 
 

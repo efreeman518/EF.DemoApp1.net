@@ -29,18 +29,40 @@ public class Startup
         ConfigureAutomapper.Configure(services);
 
         //Infrastructure Services
-        services.AddTransient<ITodoRepository, TodoRepository>();
+        services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
+        services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
-        //Database
-        string? connectionString = _config.GetConnectionString("TodoContext");
+        //Database - transaction
+        string? connectionString = _config.GetConnectionString("TodoDbContextTrxn");
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
-            services.AddDbContextPool<TodoContext>(opt => opt.UseInMemoryDatabase("TodoContext"));
+            services.AddDbContextPool<TodoDbContextTrxn>(opt => opt.UseInMemoryDatabase("TodoDbContextTrxn"));
         }
         else
         {
-            services.AddDbContextPool<TodoContext>(options =>
+            services.AddDbContextPool<TodoDbContextTrxn>(options =>
+                options.UseSqlServer(connectionString,
+                    //retry strategy does not support user initiated transactions 
+                    sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                    })
+                );
+        }
+
+        //Database - query
+        connectionString = _config.GetConnectionString("TodoDbContextQuery");
+        if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
+        {
+            //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
+            services.AddDbContextPool<TodoDbContextQuery>(opt => opt.UseInMemoryDatabase("TodoDbContextQuery"));
+        }
+        else
+        {
+            services.AddDbContextPool<TodoDbContextQuery>(options =>
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>

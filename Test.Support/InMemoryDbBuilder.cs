@@ -40,7 +40,7 @@ public class InMemoryDbBuilder
         }
 
         //Context specific setup
-        if (dbContext is TodoContext db)
+        if (dbContext is TodoDbContextBase db)
         {
             SetupContextTrxn(db);
         }
@@ -51,7 +51,7 @@ public class InMemoryDbBuilder
 
     }
 
-    private void SetupContextTrxn(TodoContext db)
+    private void SetupContextTrxn(TodoDbContextBase db)
     {
         if (_seedDefaultEntityData)
         {
