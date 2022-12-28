@@ -20,7 +20,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="auditId"></param>
-    protected RepositoryBase(TDbContext dbContext, IAuditDetail audit) 
+    protected RepositoryBase(TDbContext dbContext, IAuditDetail audit)
     {
         DB = dbContext;
         _auditId = audit.AuditId;

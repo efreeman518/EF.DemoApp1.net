@@ -4,7 +4,7 @@ namespace Infrastructure.Data;
 
 public class TodoDbContextQuery : TodoDbContextBase
 {
-    public TodoDbContextQuery(DbContextOptions options)  : base(options)
+    public TodoDbContextQuery(DbContextOptions options) : base(options)
     {
 
     }

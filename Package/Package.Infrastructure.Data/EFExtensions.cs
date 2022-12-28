@@ -269,7 +269,7 @@ public static class EFExtensions
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        IQueryable<T>  query = dbSet.ComposePagedIQueryable(tracking, null, null, filter, orderBy, includes);
+        IQueryable<T> query = dbSet.ComposePagedIQueryable(tracking, null, null, filter, orderBy, includes);
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 

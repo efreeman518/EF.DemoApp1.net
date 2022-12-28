@@ -15,7 +15,7 @@ public class ValidationException : Exception
     {
     }
 
-    public ValidationException(ValidationResult validationResult) 
+    public ValidationException(ValidationResult validationResult)
         : base(string.Join("; ", validationResult.Messages.ToArray()))
     {
     }

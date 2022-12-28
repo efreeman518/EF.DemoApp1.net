@@ -1,6 +1,4 @@
-﻿using OpenQA.Selenium;
-
-namespace Test.SpecFlow.Specs.Hooks;
+﻿namespace Test.SpecFlow.Specs.Hooks;
 [Binding]
 public sealed class HookInitialization
 {

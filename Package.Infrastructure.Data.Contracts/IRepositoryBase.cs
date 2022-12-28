@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data.Contracts;
 
-public interface IRepositoryBase 
+public interface IRepositoryBase
 {
     Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class;
 

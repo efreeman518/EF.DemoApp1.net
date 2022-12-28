@@ -16,7 +16,7 @@ public class ValidationUtilityTests
     [DataRow("abc@xyz.com", true)]
     public void IsValidEmail_returns_expected(string email, bool expectedValid)
     {
-        Assert.AreEqual(expectedValid, ValidationUtility.IsValidEmail(email));  
+        Assert.AreEqual(expectedValid, ValidationUtility.IsValidEmail(email));
 
     }
 }

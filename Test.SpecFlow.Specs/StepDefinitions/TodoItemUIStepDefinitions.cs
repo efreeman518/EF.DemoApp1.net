@@ -1,8 +1,5 @@
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
-using System.Diagnostics;
-using TechTalk.SpecFlow.Assist;
 
 namespace Test.SpecFlow.Specs.StepDefinitions;
 
@@ -17,14 +14,12 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
         _scenarioContext["random"] = RandomString(5);
     }
 
-#pragma warning disable S125 // Sections of code should not be commented out
     //[Given(@"name-value pair params")]
     //public void GivenTheClientConfiguration(Table table)
     //{
     //    dynamic data = table.CreateDynamicInstance();
     //    //use table name-value pairs
     //}
-#pragma warning restore S125 // Sections of code should not be commented out
 
     [Given(@"the client configuration (.*)")]
 

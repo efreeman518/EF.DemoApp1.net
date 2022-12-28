@@ -25,7 +25,7 @@ public class TodoRepositoryTrxnTests : UnitTestBase
         var dbTrxn = new InMemoryDbBuilder().GetOrBuild<TodoDbContextTrxn>();
 
         var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit); 
+        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit);
         var todo = new TodoItem { Name = "wash car", IsComplete = false };
 
         //act & assert

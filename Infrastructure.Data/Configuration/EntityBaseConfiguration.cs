@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.Data.Configuration;

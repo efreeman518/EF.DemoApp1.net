@@ -55,7 +55,7 @@ public class SeleniumTestBase : IDisposable
             _ => new ChromeDriver(chromeOptions),
         };
 
-        if (!_scenarioContext.TryAdd("browser",browser)) _scenarioContext.Set(browser, "browser");
+        if (!_scenarioContext.TryAdd("browser", browser)) _scenarioContext.Set(browser, "browser");
         _waitMax10Seconds = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
     }
 

@@ -53,7 +53,7 @@ public class TodoServiceTests : UnitTestBase
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
                 It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
-                It.IsAny<Func<IQueryable<TodoItem>,IIncludableQueryable<TodoItem, object?>>[]>()))
+                It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()))
             .Returns(() => Task.FromResult<TodoItem?>(dbTodo));
 
 

@@ -42,7 +42,7 @@ public class ValidationResult : IEquatable<ValidationResult>
         throw new NotImplementedException();
     }
 
-    
+
 
     public static bool operator ==(ValidationResult value1, ValidationResult value2)
     {

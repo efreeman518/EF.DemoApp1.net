@@ -7,11 +7,9 @@ namespace Infrastructure.BackgroundServices;
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-7.0
 
-#pragma warning disable S125
 //register
 //services.AddHostedService<BackgroundTaskService>();
 //services.AddSingleton<BackgroundTaskQueue>();
-#pragma warning restore S125
 
 public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
@@ -44,7 +42,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
             _workItems.Enqueue(workItem);
             return _semaphore.Release(); //semaphore +1
         }
-        else if(throwOnNullWorkitem) 
+        else if (throwOnNullWorkitem)
             throw new ArgumentNullException(nameof(workItem));
 
         return -1;

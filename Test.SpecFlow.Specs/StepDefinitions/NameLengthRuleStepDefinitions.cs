@@ -1,7 +1,5 @@
 using Domain.Model;
 using Domain.Rules;
-using System;
-using TechTalk.SpecFlow;
 
 namespace Test.SpecFlow.Specs.StepDefinitions;
 

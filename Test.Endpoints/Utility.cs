@@ -31,12 +31,12 @@ public static class Utility
 
     public static IConfigurationRoot GetConfiguration()
     {
-        if( _config != null ) return _config;
+        if (_config != null) return _config;
 
         var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettingsPre.json", true) //test project settings
             .AddJsonFile("appsettings.json", false); //from api
-            
+
 
         IConfigurationRoot config = builder.Build();
         string env = config.GetValue<string>("Environment", "development")!;

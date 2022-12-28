@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Collections.Generic;

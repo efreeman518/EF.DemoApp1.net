@@ -1,6 +1,4 @@
-﻿using Application.Contracts.Model;
-using AutoMapper;
-using Domain.Model;
+﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SampleApp.Bootstrapper.Automapper;
@@ -16,8 +14,8 @@ public static class ConfigureAutomapper
     {
         var mc = new MapperConfiguration(mc =>
         {
-                //no mapping audit properties
-                mc.AddGlobalIgnore("Created");
+            //no mapping audit properties
+            mc.AddGlobalIgnore("Created");
             mc.AddGlobalIgnore("Updated");
 
             mc.AddProfile(new MappingProfile());

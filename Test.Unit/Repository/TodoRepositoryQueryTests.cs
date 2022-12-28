@@ -74,7 +74,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
 
         //act & assert
-        var response = await repoQuery.GetPageEntityAsync<TodoItem>(pageSize:10, pageIndex:1, includeTotal:true);
+        var response = await repoQuery.GetPageEntityAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);

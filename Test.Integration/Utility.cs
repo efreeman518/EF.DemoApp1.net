@@ -6,11 +6,10 @@ namespace Test.Integration;
 
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config;
+    public static readonly IConfigurationRoot Config = BuildConfiguration();
 
     static Utility()
     {
-        Config = BuildConfiguration();
     }
 
     private static IConfigurationRoot BuildConfiguration()

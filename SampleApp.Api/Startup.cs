@@ -1,4 +1,3 @@
-using Application.Services;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using Package.Infrastructure.Data.Contracts;
 using SampleApp.Api.Middleware;
@@ -46,7 +44,7 @@ public class Startup
 
             //Get auditId from token claim
             //AAD bearer token
-            string? auditId = 
+            string? auditId =
                 //AAD from user
                 user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
                 //AAD ObjectId from user or client AAD enterprise app [ServicePrincipal Id / Object Id]:

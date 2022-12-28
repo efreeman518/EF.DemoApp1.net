@@ -1,6 +1,5 @@
-﻿using System;
-using Azure.Identity;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 namespace Infrastructure.Data.Migrations;
 

@@ -29,7 +29,7 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = pageIndex,
-            PageSize= pageSize,
+            PageSize = pageSize,
             Data = _mapper.Map<List<TodoItemDto>>(data),
             Total = total
         };
