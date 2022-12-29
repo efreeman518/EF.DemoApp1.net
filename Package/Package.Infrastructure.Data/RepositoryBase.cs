@@ -222,7 +222,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class
     {
         IQueryable<T> q = DB.Set<T>();
-        q = q.ApplyFilters<T>(request.FilterItem);
+        q = q.ApplyFilters(request.FilterItem);
         if (request.Sorts != null) q = q.OrderBy(request.Sorts);
 
         (List<T> data, int total) = await q.GetPageEntityAsync(false, request.PageSize, request.PageIndex, null, null, true, cancellationToken, includes);

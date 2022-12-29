@@ -8,11 +8,11 @@ public static class LoggerExtensions
 {
     //Performant Logging
     //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage?view=aspnetcore-6.0
-    private static readonly Action<ILogger, string, Exception?> _infoLog = 
+    private static readonly Action<ILogger, string, Exception?> _infoLog =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
-    private static readonly Action<ILogger, string, Exception?> _errorLog = 
+    private static readonly Action<ILogger, string, Exception?> _errorLog =
         LoggerMessage.Define<string>(LogLevel.Error, new EventId(1, nameof(ErrorLog)), "{message}");
-    private static readonly Action<ILogger, string, string, string?, string?, Exception?> _extLog = 
+    private static readonly Action<ILogger, string, string, string?, string?, Exception?> _extLog =
         LoggerMessage.Define<string, string, string?, string?>(LogLevel.Information, new EventId(1, nameof(ExtLog)),
             "{message} {param1} {param2} {param3}");
 

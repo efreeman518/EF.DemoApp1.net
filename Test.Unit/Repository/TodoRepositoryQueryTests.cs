@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Test.Support;
 
@@ -25,7 +26,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //custom data scenario that default seed data does not cover
         static void customData(List<TodoItem> entities)
         {
-            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow });
         }
 
         //InMemory setup & seed
@@ -61,7 +62,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         static void customData(List<TodoItem> entities)
         {
             //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow });
         }
 
         //InMemory setup & seed
@@ -88,5 +89,40 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
+    }
+
+    [TestMethod]
+    public async Task SearchAsync_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow });
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .GetOrBuild<TodoDbContextQuery>();
+
+        var audit = new AuditDetail("Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
+
+        //search criteria
+        var search = new SearchRequest<TodoItem>
+        {
+            PageSize = 3,
+            PageIndex = 1,
+            FilterItem = new TodoItem { Name = "some entity" }
+        };
+
+        //act & assert
+        var response = await repoQuery.SearchAsync(search);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(1, response.Total);
+        Assert.AreEqual("some entity", response.Data.First().Name);
+
     }
 }

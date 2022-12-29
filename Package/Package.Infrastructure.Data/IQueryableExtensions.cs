@@ -3,13 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Package.Infrastructure.Data;
 public static class IQueryableExtensions
 {
+    private static readonly ConcurrentDictionary<Type, object?> typeDefaults = new();
+
     /// <summary>
     /// Returns the IQueryable for further composition; 
     /// client code expected to subsequently call GetListAsync() with the query to run it async and return results
@@ -76,12 +80,51 @@ public static class IQueryableExtensions
         return count > 0 ? source.Provider.CreateQuery<T>(expression) : source;
     }
 
+    /// <summary>
+    /// Very basic filter builder; inspect filterItem's properties and for any that are not the default value for that property's type, 'And' it to the filter
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="q"></param>
+    /// <param name="filterItem"></param>
+    /// <returns></returns>
     public static IQueryable<T> ApplyFilters<T>(this IQueryable<T> q, T? filterItem) where T : class
     {
-        //TODO: inspect T for non-default property values and add to the query
+        object? v;
+        var predicate = PredicateBuilder.True<T>();
 
-        Expression<Func<T, bool>> filter;
+        filterItem?.GetType().GetTypeInfo().GetProperties().ToList()
+            .ForEach(delegate (PropertyInfo p)
+            {
+                v = p.GetValue(filterItem);
+                if (v != null && !v.IsDefaultTypeValue())
+                {
+                    var param = Expression.Parameter(typeof(T), "e");
+                    //e => e.Id    
+                    var property = Expression.Property(param, p.Name);
+                    var value = Expression.Constant(v);
+                    //e => e.Id == id
+                    var body = Expression.Equal(property, value);
+                    var lambda = Expression.Lambda<Func<T, bool>>(body, param);
+                    predicate = predicate.And(lambda);
+                }
+            });
 
+        q = q.Where(predicate);
         return q;
+    }
+
+    private static bool IsDefaultTypeValue(this object item)
+    {
+        return item.Equals(item.GetType().GetDefaultValue());
+    }
+
+    private static object? GetDefaultValue(this Type type)
+    {
+        if (!type.GetTypeInfo().IsValueType)
+        {
+            return null;
+        }
+
+        return typeDefaults.GetOrAdd(type, Activator.CreateInstance(type));
     }
 }
