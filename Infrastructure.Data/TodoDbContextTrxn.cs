@@ -4,7 +4,7 @@ namespace Infrastructure.Data;
 
 public class TodoDbContextTrxn : TodoDbContextBase
 {
-    public TodoDbContextTrxn(DbContextOptions options) : base(options)
+    public TodoDbContextTrxn(DbContextOptions<TodoDbContextTrxn> options) : base(options)
     {
 
     }

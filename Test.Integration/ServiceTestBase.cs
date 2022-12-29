@@ -28,7 +28,13 @@ public abstract class ServiceTestBase
 
         //add logging for integration tests
         services.AddApplicationInsightsTelemetryWorkerService(Config);
-        services.AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
+        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
+
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole().AddDebug().AddApplicationInsights();
+        });
+        services.AddSingleton(loggerFactory);
 
         //IAuditDetail
         services.AddTransient<IAuditDetail>(provider =>

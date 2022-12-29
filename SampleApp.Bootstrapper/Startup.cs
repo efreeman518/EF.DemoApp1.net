@@ -3,6 +3,7 @@ using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleApp.Bootstrapper.Automapper;
@@ -13,6 +14,9 @@ namespace SampleApp.Bootstrapper;
 public class Startup
 {
     public readonly IConfiguration _config;
+
+    //multiple in memory DbContexts use the same DB
+    private readonly InMemoryDatabaseRoot InMemoryDatabaseRoot = new();
 
     public Startup(IConfiguration config)
     {
@@ -37,7 +41,8 @@ public class Startup
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
-            services.AddDbContextPool<TodoDbContextTrxn>(opt => opt.UseInMemoryDatabase("TodoDbContextTrxn"));
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<TodoDbContextTrxn>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", InMemoryDatabaseRoot));
         }
         else
         {
@@ -58,7 +63,9 @@ public class Startup
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
-            services.AddDbContextPool<TodoDbContextQuery>(opt => opt.UseInMemoryDatabase("TodoDbContextQuery"));
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<TodoDbContextQuery>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", InMemoryDatabaseRoot));
+
         }
         else
         {

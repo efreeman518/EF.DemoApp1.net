@@ -2,7 +2,7 @@
 using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Utility.Exceptions;
 using Package.Infrastructure.Utility.Extensions;
-using System.Text.Json;
+using System.Collections.Generic;
 using AppConstants = Application.Contracts.Constants.Constants;
 using DomainConstants = Domain.Shared.Constants.Constants;
 
@@ -27,7 +27,7 @@ public class TodoService : ServiceBase, ITodoService
     public async Task<PagedResponse<TodoItemDto>> GetItemsAsync(int pageSize = 10, int pageIndex = 0)
     {
         //normal structured logging
-        Logger.Log(LogLevel.Information, "GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}", pageSize, pageIndex);
+        Logger.Log(LogLevel.Information, "GetItemsAsync Start - pageSize:{pageSize} pageIndex:{pageIndex}", pageSize, pageIndex);
         //performant logging
         Logger.InfoLog($"GetItemsAsync Start - pageSize:{pageSize} pageIndex:{pageIndex}");
 
@@ -50,7 +50,7 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<TodoItemDto> AddItemAsync(TodoItemDto dto)
     {
-        Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", JsonSerializer.Serialize(dto));
+        Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
         #region dto validation - using service code
 
@@ -81,7 +81,7 @@ public class TodoService : ServiceBase, ITodoService
         _repoTrxn.Create(ref todo);
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
-        Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", JsonSerializer.Serialize(todo));
+        Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", todo.SerializeToJson());
 
         //return mapped domain -> app
         return _mapper.Map<TodoItem, TodoItemDto>(todo);
@@ -89,7 +89,7 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<TodoItemDto?> UpdateItemAsync(TodoItemDto dto)
     {
-        Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", JsonSerializer.Serialize(dto));
+        Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
         //validate dto (using Rule classes)
         if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(dto))
@@ -113,10 +113,10 @@ public class TodoService : ServiceBase, ITodoService
         _repoTrxn.UpdateFull(ref dbTodo); //update full record
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
-        Logger.Log(LogLevel.Information, "UpdateItemAsync Complete - {TodoItem}", JsonSerializer.Serialize(dbTodo));
+        Logger.Log(LogLevel.Information, "UpdateItemAsync Complete - {TodoItem}", dbTodo.SerializeToJson());
 
         //return mapped domain -> app 
-        return _mapper.Map<TodoItem, TodoItemDto>(dbTodo);
+        return _mapper.Map<TodoItemDto>(dbTodo);
     }
 
     public async Task DeleteItemAsync(Guid id)
@@ -125,5 +125,26 @@ public class TodoService : ServiceBase, ITodoService
 
         _repoTrxn.Delete(new TodoItem { Id = id });
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+    }
+
+    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItem> request)
+    {
+        //normal structured logging
+        Logger.Log(LogLevel.Information, "SearchAsync Start - {request}", request.SerializeToJson());
+        //performant logging
+        Logger.InfoLog($"SearchAsync Start - request:{request.SerializeToJson()}");
+
+        _ = _settings.IntValue;
+
+        var response = await _repoQuery.SearchAsync(request);
+
+        //return mapped domain -> app
+        return new PagedResponse<TodoItemDto>()
+        {
+            PageIndex = response.PageIndex,
+            PageSize = response.PageSize,
+            Data = _mapper.Map<List<TodoItemDto>>(response.Data),
+            Total = response.Total
+        };
     }
 }
