@@ -22,7 +22,6 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
     /// <param name="pageIndex"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    /// <exception cref="ValidationException"></exception>
     public async Task<PagedResponse<TodoItemDto>> GetPageTodoItemDtoAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default)
     {
         (var data, var total) = await DB.Set<TodoItem>().GetPageEntityAsync(pageSize: pageSize, pageIndex: pageIndex, includeTotal: true, cancellationToken: cancellationToken);

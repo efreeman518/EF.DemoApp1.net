@@ -31,7 +31,8 @@ public class TodoService : ServiceBase, ITodoService
         //performant logging
         Logger.InfoLog($"GetItemsAsync Start - pageSize:{pageSize} pageIndex:{pageIndex}");
 
-        _ = _settings.IntValue;
+        //avoid compiler warning
+        _ = _settings.GetHashCode();
 
         //return mapped domain -> app
         return await _repoQuery.GetPageTodoItemDtoAsync(pageSize, pageIndex);
@@ -133,8 +134,6 @@ public class TodoService : ServiceBase, ITodoService
         Logger.Log(LogLevel.Information, "SearchAsync Start - {request}", request.SerializeToJson());
         //performant logging
         Logger.InfoLog($"SearchAsync Start - request:{request.SerializeToJson()}");
-
-        _ = _settings.IntValue;
 
         var response = await _repoQuery.SearchAsync(request);
 
