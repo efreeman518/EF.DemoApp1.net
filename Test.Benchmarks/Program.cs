@@ -10,7 +10,13 @@ IConfigurationRoot config = Utility.Config;
 
 //DI
 Utility.GetServiceCollection().AddApplicationInsightsTelemetryWorkerService(config);
-Utility.GetServiceCollection().AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
+
+var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddConsole().AddDebug().AddApplicationInsights();
+});
+Utility.GetServiceCollection().AddSingleton(loggerFactory);
+//Utility.GetServiceCollection().AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
 
 //logging
 ILogger<Program> logger = Utility.GetServiceProvider().GetRequiredService<ILogger<Program>>();

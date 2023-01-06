@@ -43,7 +43,7 @@ public class TodoService : ServiceBase, ITodoService
         Logger.Log(LogLevel.Information, "GetItemAsync - id:{id}", id);
 
         var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id);
-        if (todo == null) throw new NotFoundException($"TodoItem.Id '{id}' not found.");
+        if (todo == null) throw new Package.Infrastructure.Utility.Exceptions.NotFoundException($"TodoItem.Id '{id}' not found.");
 
         //return mapped domain -> app
         return _mapper.Map<TodoItem, TodoItemDto>(todo);
@@ -122,10 +122,12 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task DeleteItemAsync(Guid id)
     {
-        Logger.Log(LogLevel.Information, "DeleteItemAsync - {id}", id);
+        Logger.Log(LogLevel.Information, "DeleteItemAsync Start - {id}", id);
 
         _repoTrxn.Delete(new TodoItem { Id = id });
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+
+        Logger.Log(LogLevel.Information, "DeleteItemAsync Complete - {id}", id);
     }
 
     public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItem> request)

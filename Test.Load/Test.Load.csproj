@@ -8,12 +8,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
     <PackageReference Include="NBomber" Version="3.3.0" />
     <PackageReference Include="NBomber.Http" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Utility\Package.Infrastructure.Utility.csproj" />
+    <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
 
 </Project>

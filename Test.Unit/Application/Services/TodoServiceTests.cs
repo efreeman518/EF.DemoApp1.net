@@ -153,9 +153,10 @@ public class TodoServiceTests : UnitTestBase
         //ensure NotFoundException after delete
         try
         {
-            _ = svc.GetItemAsync(id);
+            _ = await svc.GetItemAsync(id);
+            throw new Exception("Should not have found a deleted item.");
         }
-        catch (NotFoundException ex)
+        catch (Package.Infrastructure.Utility.Exceptions.NotFoundException ex)
         {
             Assert.IsTrue(ex != null);
         }

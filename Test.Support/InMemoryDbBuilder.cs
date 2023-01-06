@@ -83,9 +83,9 @@ public class InMemoryDbBuilder
     {
         return new List<TodoItem>
         {
-                new TodoItem { Id = new Guid("7c15117d-db78-4c2f-8390-7f9bfda60a6e"), Name = "item1", IsComplete = false, Status = TodoItemStatus.Created, CreatedBy = "UnitTest", UpdatedBy = "UnitTest", CreatedDate = DateTime.UtcNow },
-                new TodoItem { Id = new Guid("8c15117d-db78-4c2f-8390-7f9bfda60a61"), Name = "item2", IsComplete = false, Status = TodoItemStatus.InProgress, CreatedBy = "UnitTest", UpdatedBy = "UnitTest", CreatedDate = DateTime.UtcNow },
-                new TodoItem { Id = new Guid("9c15117d-db78-4c2f-8390-7f9bfda60a63"), Name = "item3", IsComplete = true, Status = TodoItemStatus.Completed, CreatedBy = "UnitTest", UpdatedBy = "UnitTest", CreatedDate = DateTime.UtcNow }
+                new TodoItem { Id = new Guid("7c15117d-db78-4c2f-8390-7f9bfda60a6e"), Name = "item1", IsComplete = false, Status = TodoItemStatus.Created, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow },
+                new TodoItem { Id = new Guid("8c15117d-db78-4c2f-8390-7f9bfda60a61"), Name = "item2", IsComplete = false, Status = TodoItemStatus.InProgress, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow },
+                new TodoItem { Id = new Guid("9c15117d-db78-4c2f-8390-7f9bfda60a63"), Name = "item3", IsComplete = true, Status = TodoItemStatus.Completed, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }
         };
     }
 }

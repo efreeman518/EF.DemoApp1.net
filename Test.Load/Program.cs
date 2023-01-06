@@ -1,6 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.Extensions.Configuration;
 using Test.Load;
 
 Console.WriteLine("Load Tester");
 
-TodoLoadTest.Run();
+string baseUrl = Utility.Config.GetValue<string>("SampleApi:BaseUrl");
+baseUrl = Utility.Config.GetValue<string>("SampleApi:BaseUrl");
+TodoLoadTest.Run(baseUrl);

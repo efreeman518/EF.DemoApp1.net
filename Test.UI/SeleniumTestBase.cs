@@ -5,7 +5,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.IO;
 
 namespace Test.UI;
 
@@ -21,7 +20,7 @@ public abstract class SeleniumTestBase : IDisposable
 
     protected SeleniumTestBase()
     {
-        _config = BuildConfiguration();
+        _config = Support.Utility.BuildConfiguration().Build();
 
         //https://github.com/rosolko/WebDriverManager.Net
         //new DriverManager().SetUpDriver(new ChromeConfig());
@@ -41,15 +40,6 @@ public abstract class SeleniumTestBase : IDisposable
         //test initialize
     }
 
-    public static IConfigurationRoot BuildConfiguration()
-    {
-        var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables();
-        IConfigurationRoot config = builder.Build();
-
-        return config;
-    }
 
     protected virtual void Dispose(bool disposing)
     {

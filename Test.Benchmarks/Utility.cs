@@ -23,9 +23,7 @@ public static class Utility
         var devEnvironmentVariable = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
         var isDevelopment = devEnvironmentVariable?.ToLower() == "development";
 
-        var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-            .AddEnvironmentVariables()
-            .AddJsonFile("appsettings.json");
+        var builder = Support.Utility.BuildConfiguration();
 
         if (isDevelopment) builder.AddUserSecrets<Program>();
 

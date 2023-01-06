@@ -33,10 +33,10 @@ public static class Utility
     {
         if (_config != null) return _config;
 
+        //order matters here (last wins)
         var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettingsPre.json", true) //test project settings
             .AddJsonFile("appsettings.json", false); //from api
-
 
         IConfigurationRoot config = builder.Build();
         string env = config.GetValue<string>("Environment", "development")!;
@@ -79,40 +79,40 @@ public static class Utility
         return factory;
     }
 
-    /// <summary>
-    /// Returns searchable IHtmlDocument
-    /// </summary>
-    /// <param name="response"></param>
-    /// <returns></returns>
-    public static async Task<IHtmlDocument> GetDocumentAsync(HttpResponseMessage response)
-    {
-        var content = await response.Content.ReadAsStringAsync();
-        var document = await BrowsingContext.New().OpenAsync(ResponseFactory, CancellationToken.None);
-        return (IHtmlDocument)document;
+    ///// <summary>
+    ///// Returns searchable IHtmlDocument
+    ///// </summary>
+    ///// <param name="response"></param>
+    ///// <returns></returns>
+    //public static async Task<IHtmlDocument> GetDocumentAsync(HttpResponseMessage response)
+    //{
+    //    var content = await response.Content.ReadAsStringAsync();
+    //    var document = await BrowsingContext.New().OpenAsync(ResponseFactory, CancellationToken.None);
+    //    return (IHtmlDocument)document;
 
-        void ResponseFactory(VirtualResponse htmlResponse)
-        {
-            htmlResponse
-                .Address(response.RequestMessage!.RequestUri)
-                .Status(response.StatusCode);
+    //    void ResponseFactory(VirtualResponse htmlResponse)
+    //    {
+    //        htmlResponse
+    //            .Address(response.RequestMessage!.RequestUri)
+    //            .Status(response.StatusCode);
 
-            MapHeaders(response.Headers);
-            MapHeaders(response.Content.Headers);
+    //        MapHeaders(response.Headers);
+    //        MapHeaders(response.Content.Headers);
 
-            htmlResponse.Content(content);
+    //        htmlResponse.Content(content);
 
-            void MapHeaders(HttpHeaders headers)
-            {
-                foreach (var header in headers)
-                {
-                    foreach (var value in header.Value)
-                    {
-                        htmlResponse.Header(header.Key, value);
-                    }
-                }
-            }
-        }
-    }
+    //        void MapHeaders(HttpHeaders headers)
+    //        {
+    //            foreach (var header in headers)
+    //            {
+    //                foreach (var value in header.Value)
+    //                {
+    //                    htmlResponse.Header(header.Key, value);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     #region InMemory DbContext
 

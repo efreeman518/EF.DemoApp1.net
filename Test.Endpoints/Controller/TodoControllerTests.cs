@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Html.Dom;
 using Application.Contracts.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Utility.Extensions;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -29,7 +30,7 @@ public class TodoControllerTests : EndpointTestBase
     public async Task Get_BasicEndpoints_pass(string url, HttpStatusCode expectedStatusCode, string contentType)
     {
         // Act
-        (HttpResponseMessage httpResponse, _) = await _client.HttpRequestAndResponse<string, IHtmlDocument>(HttpMethod.Get, url, null);
+        (HttpResponseMessage httpResponse, _) = await _client.HttpRequestAndResponseAsync<string, IHtmlDocument>(HttpMethod.Get, url, null);
 
         // Assert
         httpResponse.EnsureSuccessStatusCode(); // Status Code 200-299
@@ -50,7 +51,7 @@ public class TodoControllerTests : EndpointTestBase
         //act
 
         //POST create (insert)
-        (var _, var parsedResponse) = await _client.HttpRequestAndResponse<TodoItemDto, TodoItemDto>(HttpMethod.Post, "api/todoitems", todo);
+        (var _, var parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(HttpMethod.Post, "api/todoitems", todo);
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
@@ -58,24 +59,24 @@ public class TodoControllerTests : EndpointTestBase
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponse<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null);
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
         todo.Name = $"Update {name}";
-        (_, parsedResponse) = await _client.HttpRequestAndResponse<TodoItemDto, TodoItemDto>(HttpMethod.Put, $"api/todoitems/{id}", todo);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(HttpMethod.Put, $"api/todoitems/{id}", todo);
         Assert.AreEqual(todo.Name, parsedResponse?.Name);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponse<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null);
         Assert.AreEqual(todo.Name, parsedResponse?.Name);
 
         //DELETE
-        (var httpResponse, _) = await _client.HttpRequestAndResponse<object, object>(HttpMethod.Delete, $"api/todoitems/{id}", null);
+        (var httpResponse, _) = await _client.HttpRequestAndResponseAsync<object, object>(HttpMethod.Delete, $"api/todoitems/{id}", null);
         Assert.AreEqual(HttpStatusCode.OK, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await _client.HttpRequestAndResponse<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null, null, false);
+        (httpResponse, _) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"api/todoitems/{id}", null, null, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
 
     }

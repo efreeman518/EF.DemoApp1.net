@@ -48,6 +48,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     [Then(@"verify the item exists in the list")]
     public void ThenVerifyTheItemExistsInTheList()
     {
+        //TODO - this will fail if the previous step's todo item does not show on the first page here; need to page through until found
         var found = _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//tbody[@id='todos']/tr/td[contains(text(),'" + _scenarioContext["value"] + "')]")));
         Assert.IsTrue(found != null);
     }
