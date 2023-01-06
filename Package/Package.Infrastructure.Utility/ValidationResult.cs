@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Package.Infrastructure.Utility;
-public class ValidationResult : IEquatable<ValidationResult>
+public sealed class ValidationResult : IEquatable<ValidationResult>
 {
     public bool IsValid { get; set; }
     public List<string> Messages { get; set; }

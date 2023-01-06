@@ -15,8 +15,6 @@ csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_indent_labels = one_less_than_current
 
-# S3358: Ternary operators should not be nested
-dotnet_diagnostic.S3358.severity = silent
 csharp_space_around_binary_operators = before_and_after
 csharp_style_throw_expression = true:suggestion
 csharp_style_prefer_null_check_over_type_check = true:suggestion
@@ -55,6 +53,15 @@ dotnet_diagnostic.S1135.severity = silent
 
 # S4136: Method overloads should be grouped together
 dotnet_diagnostic.S4136.severity = silent
+
+# S3358: Ternary operators should not be nested
+dotnet_diagnostic.S3358.severity = silent
+
+# CA1848: Use the LoggerMessage delegates
+dotnet_diagnostic.CA1848.severity = silent
+
+# CA2254: Template should be a static expression
+dotnet_diagnostic.CA2254.severity = silent
 
 [*.{cs,vb}]
 #### Naming styles ####

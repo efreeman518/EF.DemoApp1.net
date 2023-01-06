@@ -12,7 +12,7 @@ internal static class Utility
     public static IStep CreateStep<TRequest, TResponse>(IClientFactory<HttpClient> clientFactory, string name, string url, HttpMethod method, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, string>? urlBuilder = null, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, TRequest>? payloadBuilder = null)
     {
         TRequest? payload = default;
-        
+
         var step = Step.Create(name,
             clientFactory: clientFactory,
             execute: async context =>
@@ -22,13 +22,13 @@ internal static class Utility
                 if (urlBuilder != null) sUrl += urlBuilder(context) ?? "";
 
                 //attach payload based on previous step/request response
-                if (payloadBuilder != null)  payload = payloadBuilder(context);
-                
+                if (payloadBuilder != null) payload = payloadBuilder(context);
+
                 //hit the endpoint
-                (var responseMsg, var response)  = await context.Client.HttpRequestAndResponseAsync<TRequest, TResponse>(method, sUrl, payload, null, true);
+                (var responseMsg, var response) = await context.Client.HttpRequestAndResponseAsync<TRequest, TResponse>(method, sUrl, payload, null, true);
 
                 //convention to preserve the response so the following step can use it to build it's url and/or payload
-                context.Data[name] = response; 
+                context.Data[name] = response;
 
                 int size = response != null ? GetByteSize(response) : 0;
                 return responseMsg.IsSuccessStatusCode

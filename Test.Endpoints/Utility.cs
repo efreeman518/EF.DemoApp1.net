@@ -1,7 +1,4 @@
-﻿using AngleSharp;
-using AngleSharp.Html.Dom;
-using AngleSharp.Io;
-using Domain.Model;
+﻿using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,9 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Test.Endpoints;
 

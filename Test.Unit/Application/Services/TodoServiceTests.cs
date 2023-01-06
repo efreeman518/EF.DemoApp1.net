@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Package.Infrastructure.Data.Contracts;
-using Package.Infrastructure.Utility.Exceptions;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
