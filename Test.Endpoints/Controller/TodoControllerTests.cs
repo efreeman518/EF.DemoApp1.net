@@ -15,12 +15,16 @@ public class TodoControllerTests : EndpointTestBase
     private static HttpClient _client = null!;
 
     [ClassInitialize]
-    public static void ClassInit(TestContext testContext)
+    public static async Task ClassInit(TestContext testContext)
     {
         Console.WriteLine(testContext.TestName);
 
         //Arrange for all tests
         _client = Utility.GetClient<SampleApp.Api.Startup>();
+
+        //Authentication
+        //await ApplyBearerAuthHeader(_client);
+        await Task.CompletedTask; //compiler warning
     }
 
     //html endpoints return success and correct content type

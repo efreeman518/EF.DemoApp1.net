@@ -63,6 +63,9 @@ dotnet_diagnostic.CA1848.severity = silent
 # CA2254: Template should be a static expression
 dotnet_diagnostic.CA2254.severity = silent
 
+# CS8032: Analyzer instance could not be created (Test.Benchmarks)
+dotnet_diagnostic.CS8032.severity = silent
+
 [*.{cs,vb}]
 #### Naming styles ####
 

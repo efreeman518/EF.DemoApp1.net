@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace Test.Load;
 internal static class Utility
 {
-    public readonly static IConfigurationRoot Config = Test.Support.Utility.BuildConfiguration().Build();
+    public readonly static IConfigurationRoot Config = Support.Utility.BuildConfiguration().Build();
 
     public static IStep CreateStep<TRequest, TResponse>(IClientFactory<HttpClient> clientFactory, string name, string url, HttpMethod method, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, string>? urlBuilder = null, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, TRequest>? payloadBuilder = null)
     {

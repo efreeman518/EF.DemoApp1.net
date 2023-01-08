@@ -16,13 +16,9 @@ var loggerFactory = LoggerFactory.Create(builder =>
     builder.AddConsole().AddDebug().AddApplicationInsights();
 });
 Utility.GetServiceCollection().AddSingleton(loggerFactory);
-//Utility.GetServiceCollection().AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights());
 
 //logging
 ILogger<Program> logger = Utility.GetServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.Log(LogLevel.Information, "Benchmark Run Starting.");
 
 BenchmarkRunner.Run(new[] { typeof(RepositoryBenchmarks), typeof(RulesBenchmarks) });
-
-Console.ReadLine();
-

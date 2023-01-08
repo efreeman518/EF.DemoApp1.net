@@ -2,7 +2,7 @@
 	Add, edit, remove TodoItems
 
 #Run the api in another VS
-@ignore
+#@ignore
 @tag1
 
 Scenario: TodoItem CRUD
