@@ -36,18 +36,18 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public void Save<T>(ref T entity) where T : EntityBase
-    {
-        //dependent on Id for this logic; could also Upsert which checks db for a given Id
-        if (entity.Id == Guid.Empty)
-        {
-            Create(ref entity);
-        }
-        else
-        {
-            UpdateFull(ref entity);
-        }
-    }
+    //public void Save<T>(ref T entity) where T : EntityBase
+    //{
+    //    //dependent on Id for this logic; could also Upsert which checks db for a given Id
+    //    if (entity.Id == Guid.Empty)
+    //    {
+    //        Create(ref entity);
+    //    }
+    //    else
+    //    {
+    //        UpdateFull(ref entity);
+    //    }
+    //}
 
     /// <summary>
     /// Updates or inserts based on existence
@@ -195,7 +195,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="orderBy">Order By clause</param>
     /// <param name="includes">get related data</param>
     /// <returns></returns>
-    public async Task<PagedResponse<T>> GetPageEntityAsync<T>(bool tracking = false,
+    public async Task<PagedResponse<T>> GetPageEntitiesAsync<T>(bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -203,7 +203,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<T> data, int total) = await DB.Set<T>().GetPageEntityAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+        (List<T> data, int total) = await DB.Set<T>().GetPageEntitiesAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<T>
         {
             PageSize = pageSize ?? -1,
@@ -218,25 +218,28 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<PagedResponse<T>> SearchAsync<T>(SearchRequest<T> request,
-        CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class
-    {
-        IQueryable<T> q = DB.Set<T>();
-        q = q.ApplyFilters(request.FilterItem);
-        if (request.Sorts != null) q = q.OrderBy(request.Sorts);
+    //public async Task<PagedResponse<T>> SearchAsync<T>(IQueryable<T> q,
+    //    int pageSize, int pageIndex,
+    //    List<Sort>? sorts = null,
+    //    Expression<Func<T, bool>>? filter = null,
+    //    CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class
+    //{
+    //    //IQueryable<T> q = DB.Set<T>();
+    //    //q = q.ApplyFilters(request.FilterItem);
+    //    if (sorts != null) q = q.OrderBy(sorts);
 
-        (List<T> data, int total) = await q.GetPageEntityAsync(false, request.PageSize, request.PageIndex, null, null, true, cancellationToken, includes);
+    //    (List<T> data, int total) = await q.GetPageEntitiesAsync(false, pageSize, pageIndex, null, null, true, cancellationToken, includes);
 
-        PagedResponse<T> response = new()
-        {
-            PageSize = request.PageSize,
-            PageIndex = request.PageIndex,
-            Data = data,
-            Total = total
-        };
+    //    PagedResponse<T> response = new()
+    //    {
+    //        PageSize = pageSize,
+    //        PageIndex = pageIndex,
+    //        Data = data,
+    //        Total = total
+    //    };
 
-        return response;
-    }
+    //    return response;
+    //}
 
     /// <summary>
     /// Use only for queries with multi record results, and SetLock() after; do not use for inserts/updates/deletes

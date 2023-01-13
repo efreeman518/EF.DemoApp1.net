@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Application.Services;
+using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,7 +31,7 @@ public class TodoServiceTests : ServiceTestBase
         TodoItemDto? todo = new()
         {
             Name = name,
-            IsComplete = false
+            Status = TodoItemStatus.Created
         };
 
         //act & assert
@@ -45,12 +46,11 @@ public class TodoServiceTests : ServiceTestBase
         Assert.AreEqual(id, todo.Id);
 
         //update
-        bool isComplete = true;
         string newName = "mow lawn";
-        todo.IsComplete = isComplete;
+        todo.Status = TodoItemStatus.Completed;
         todo.Name = newName;
         var updated = await svc.UpdateItemAsync(todo);
-        Assert.AreEqual(isComplete, updated?.IsComplete);
+        Assert.AreEqual(updated!.Status, TodoItemStatus.Completed);
         Assert.AreEqual(newName, updated?.Name);
 
         //delete
@@ -86,7 +86,7 @@ public class TodoServiceTests : ServiceTestBase
         TodoItemDto? todo = new()
         {
             Name = name,
-            IsComplete = false
+            Status = TodoItemStatus.Created
         };
 
         //act & assert

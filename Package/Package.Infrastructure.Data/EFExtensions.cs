@@ -211,7 +211,7 @@ public static class EFExtensions
     /// <param name="filter"></param>
     public static async Task DeleteAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class
     {
-        var objects = (await GetPageEntityAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
+        var objects = (await GetPageEntitiesAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
         Parallel.ForEach(objects, o => { dbSet.Remove(o); });
     }
 
@@ -233,7 +233,7 @@ public static class EFExtensions
         if (entity == null)
         {
             entity = Activator.CreateInstance<T>();
-            entity.Id = id;
+            //entity.Id = id;
             dbSet.Attach(entity); //sets State = Unchanged
         }
 
@@ -287,7 +287,7 @@ public static class EFExtensions
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
-    public static async Task<(List<T>, int)> GetPageEntityAsync<T>(this IQueryable<T> query, bool tracking = false,
+    public static async Task<(List<T>, int)> GetPageEntitiesAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,

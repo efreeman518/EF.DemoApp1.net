@@ -10,9 +10,27 @@ namespace Domain.Model;
 
 public partial class TodoItem : EntityBase
 {
-    public string Name { get; set; } = null!;
-    public bool IsComplete { get; set; }
-    public TodoItemStatus Status { get; set; }
+    public string Name { get; private set; }
+    public bool IsComplete => Status == TodoItemStatus.Completed;
+    public TodoItemStatus Status { get; private set; }
+
+    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created) 
+    {
+        Name = name;
+        Status = status;
+        Validate(true);
+    }
+
+    public void SetName(string name)
+    {
+        Name = name;
+        Validate(true);
+    }
+
+    public void SetStatus(TodoItemStatus status)
+    {
+        Status = status;
+    }
 
     public ValidationResult Validate(bool throwOnInvalid = false)
     {

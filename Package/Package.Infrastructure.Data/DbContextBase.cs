@@ -111,10 +111,10 @@ public abstract class DbContextBase : DbContext
             if (entity.State != EntityState.Added) continue;
 
             // Assign Id if empty
-            if (entity.Entity.Id == Guid.Empty)
-            {
-                entity.Entity.Id = Guid.NewGuid();
-            }
+            //if (entity.Entity.Id == Guid.Empty)
+            //{
+            //    entity.Entity.Id = Guid.NewGuid();
+            //}
 
             //check entity/properties for audit
             var auditChange = Attribute.GetCustomAttribute(entity.GetType(), typeof(AuditChangeAttribute));

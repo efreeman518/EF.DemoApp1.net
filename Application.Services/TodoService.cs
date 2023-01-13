@@ -35,7 +35,14 @@ public class TodoService : ServiceBase, ITodoService
         _ = _settings.GetHashCode();
 
         //return mapped domain -> app
-        return await _repoQuery.GetPageTodoItemDtoAsync(pageSize, pageIndex);
+        var items = await _repoQuery.GetPageEntitiesAsync<TodoItem>(false, pageSize, pageIndex);
+        return new PagedResponse<TodoItemDto>
+        {
+            PageSize = pageSize,
+            PageIndex = pageIndex,
+            Data = _mapper.Map<List<TodoItemDto>>(items.Data),
+            Total = items.Total
+        };
     }
 
     public async Task<TodoItemDto> GetItemAsync(Guid id)
@@ -92,7 +99,7 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
-        //validate dto (using Rule classes)
+        //optional validate dto (using Rule classes)
         if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH).IsSatisfiedBy(dto))
             throw new ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH}.");
         if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
@@ -106,10 +113,9 @@ public class TodoService : ServiceBase, ITodoService
 
         var updateTodo = _mapper.Map<TodoItemDto, TodoItem>(dto);
 
-        //update 
-        dbTodo.Name = updateTodo.Name;
-        dbTodo.IsComplete = updateTodo.IsComplete;
-        dbTodo.Status = updateTodo.Status;
+        //update
+        dbTodo.SetName(updateTodo.Name);
+        dbTodo.SetStatus(updateTodo.Status);
 
         _repoTrxn.UpdateFull(ref dbTodo); //update full record
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
@@ -124,20 +130,20 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "DeleteItemAsync Start - {id}", id);
 
-        _repoTrxn.Delete(new TodoItem { Id = id });
+        await _repoTrxn.DeleteAsync<TodoItem>(id);
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
         Logger.Log(LogLevel.Information, "DeleteItemAsync Complete - {id}", id);
     }
 
-    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItem> request)
+    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request)
     {
         //normal structured logging
         Logger.Log(LogLevel.Information, "SearchAsync Start - {request}", request.SerializeToJson());
         //performant logging
         Logger.InfoLog($"SearchAsync Start - request:{request.SerializeToJson()}");
 
-        var response = await _repoQuery.SearchAsync(request);
+        var response = await _repoQuery.SearchTodoItemAsync(request);
 
         //return mapped domain -> app
         return new PagedResponse<TodoItemDto>()

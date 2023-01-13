@@ -1,3 +1,4 @@
+using Application.Contracts.Model;
 using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
@@ -5,7 +6,6 @@ using Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Data.Contracts;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test.Support;
@@ -20,73 +20,76 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
-    public async Task GetDtosAsync_pass()
+    public async Task SearchTodoItemAsync_pass()
     {
         //arrange
 
         //custom data scenario that default seed data does not cover
         static void customData(List<TodoItem> entities)
         {
-            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow });
+            entities.Add(new TodoItem("custom entity a"));
         }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .GetOrBuild<TodoDbContextQuery>();
+            .Build<TodoDbContextQuery>();
 
         var audit = new AuditDetail("Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
 
         //act & assert
-        var response = await repoQuery.GetPageTodoItemDtoAsync(10, 1);
+        var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
+        var response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
 
-        response = await repoQuery.GetPageTodoItemDtoAsync(2, 1);
+        search = new SearchRequest<TodoItemSearchFilter> { PageSize = 2, PageIndex = 1 };
+        response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(2, response.Data.Count);
 
-        response = await repoQuery.GetPageTodoItemDtoAsync(3, 2);
+        search = new SearchRequest<TodoItemSearchFilter> { PageSize = 3, PageIndex = 2 };
+        response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
     }
 
     [TestMethod]
-    public async Task GetPageEntityAsync_pass()
+    public async Task GetPageEntitiesAsync_pass()
     {
         //arrange
         static void customData(List<TodoItem> entities)
         {
             //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow });
+            entities.Add(new TodoItem("some entity a"));
         }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .GetOrBuild<TodoDbContextQuery>();
+            .Build<TodoDbContextQuery>();
 
         var audit = new AuditDetail("Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
 
         //act & assert
-        var response = await repoQuery.GetPageEntityAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
+        var response = await repoQuery.GetPageEntitiesAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
 
-        response = await repoQuery.GetPageEntityAsync<TodoItem>(pageSize: 2, pageIndex: 1, includeTotal: true);
+        response = await repoQuery.GetPageEntitiesAsync<TodoItem>(pageSize: 2, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(2, response.Data.Count);
 
-        response = await repoQuery.GetPageEntityAsync<TodoItem>(pageSize: 3, pageIndex: 2, includeTotal: true);
+        response = await repoQuery.GetPageEntitiesAsync<TodoItem>(pageSize: 3, pageIndex: 2, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
@@ -101,9 +104,9 @@ public class TodoRepositoryQueryTests : UnitTestBase
             //custom data scenario that default seed data does not cover
             entities.AddRange(new List<TodoItem>
                 {
-                    new TodoItem { Id = Guid.NewGuid(), Name = "A some entity", Status = TodoItemStatus.InProgress, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow },
-                    new TodoItem { Id = Guid.NewGuid(), Name = "B some entity", Status = TodoItemStatus.InProgress, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow },
-                    new TodoItem { Id = Guid.NewGuid(), Name = "C some entity", Status = TodoItemStatus.InProgress, CreatedBy = "Test.Unit", UpdatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow },
+                    new TodoItem ("A some entity a", TodoItemStatus.InProgress),
+                    new TodoItem ("B some entity a", TodoItemStatus.InProgress),
+                    new TodoItem ("C some entity a", TodoItemStatus.InProgress)
                 });
         }
 
@@ -111,22 +114,22 @@ public class TodoRepositoryQueryTests : UnitTestBase
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .GetOrBuild<TodoDbContextQuery>();
+            .Build<TodoDbContextQuery>();
 
         var audit = new AuditDetail("Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
 
         //search criteria
-        var search = new SearchRequest<TodoItem>
+        var search = new SearchRequest<TodoItemSearchFilter>
         {
             PageSize = 10,
             PageIndex = 1,
-            FilterItem = new TodoItem { Status = TodoItemStatus.InProgress, CreatedBy = "Test.Unit" },
+            Filter = new TodoItemSearchFilter { Statuses = new List<TodoItemStatus> { TodoItemStatus.InProgress }},
             Sorts = new List<Sort> { new Sort("Name", SortOrder.Descending) }
         };
 
         //act
-        var response = await repoQuery.SearchAsync(search);
+        var response = await repoQuery.SearchTodoItemAsync(search);
 
         //assert
         Assert.IsNotNull(response);

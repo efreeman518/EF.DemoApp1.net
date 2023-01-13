@@ -1,5 +1,5 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
-public class SearchRequest<T> where T : class
+public class SearchRequest<TFilter>
 {
     public int PageSize { get; set; }
 
@@ -7,5 +7,5 @@ public class SearchRequest<T> where T : class
 
     public List<Sort>? Sorts { get; set; }
 
-    public T? FilterItem { get; set; }
+    public TFilter? Filter { get; set; }
 }

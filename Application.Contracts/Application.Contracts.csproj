@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain.Shared\Domain.Shared.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
   </ItemGroup>
 

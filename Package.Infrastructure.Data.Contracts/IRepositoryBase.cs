@@ -7,7 +7,7 @@ public interface IRepositoryBase
 {
     Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class;
 
-    void Save<T>(ref T entity) where T : EntityBase;
+    //void Save<T>(ref T entity) where T : EntityBase;
 
     void Create<T>(ref T entity) where T : class;
 
@@ -32,7 +32,7 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<T>> GetPageEntityAsync<T>(bool tracking = false,
+    Task<PagedResponse<T>> GetPageEntitiesAsync<T>(bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -40,6 +40,9 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<T>> SearchAsync<T>(SearchRequest<T> request,
-        CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class;
+    //Task<PagedResponse<T>> SearchAsync<T>(IQueryable<T> q,
+    //    int pageSize, int pageIndex,
+    //    List<Sort>? sorts = null,
+    //    Expression<Func<T, bool>>? filter = null,
+    //    CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class;
 }

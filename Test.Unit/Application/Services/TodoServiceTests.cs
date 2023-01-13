@@ -45,9 +45,9 @@ public class TodoServiceTests : UnitTestBase
     [TestMethod]
     public async Task Todo_CRUD_mock_pass()
     {
-        //arrange
+        //arrange return from repo
         string name = "wash car";
-        var dbTodo = new TodoItem { Id = Guid.NewGuid(), Name = name, Status = TodoItemStatus.Accepted };
+        var dbTodo = new TodoItem (name, TodoItemStatus.Created);
 
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
@@ -64,11 +64,11 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
 
         //create
-        var todoNew = new TodoItemDto { Name = name, IsComplete = false };
-        var todoSaved = await svc.AddItemAsync(todoNew);
-        Assert.IsTrue(dbTodo.Id == todoSaved.Id);
+        var todoNew = new TodoItemDto { Name = name, Status = TodoItemStatus.Created };
+        var todoSaved = await svc.AddItemAsync(todoNew); //new Id has been assigned
+        Assert.IsTrue(todoNew.Id != todoSaved.Id); //orig dto will still have empty Guid id
         Assert.IsTrue(todoNew.Name == todoSaved.Name);
-        Assert.IsTrue(todoNew.IsComplete == todoSaved.IsComplete);
+        Assert.AreEqual(todoNew.Status, todoSaved.Status);
 
         //retrieve
         var todoGet = await svc.GetItemAsync(todoSaved.Id);
@@ -95,7 +95,7 @@ public class TodoServiceTests : UnitTestBase
             r => r.UpdateFull(ref It.Ref<TodoItem>.IsAny),
             Times.Once);
         RepositoryTrxnMock.Verify(
-            r => r.Delete(It.IsAny<TodoItem>()),
+            r => r.DeleteAsync<TodoItem>(It.IsAny<Guid>()),
             Times.Once);
 
     }
@@ -108,15 +108,16 @@ public class TodoServiceTests : UnitTestBase
         //InMemory setup & seed
         var dbTrxn = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .GetOrBuild<TodoDbContextTrxn>();
+            .Build<TodoDbContextTrxn>();
         var dbQuery = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+                entities.Add(new TodoItem ("some entity a"));
+                entities.Add(new TodoItem("some other entity a"));
             })
-            .GetOrBuild<TodoDbContextQuery>();
+            .Build<TodoDbContextQuery>();
 
 
         var audit = new AuditDetail("Test.Unit");
@@ -124,7 +125,7 @@ public class TodoServiceTests : UnitTestBase
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, audit, _mapper); //not used in this test
 
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper);
-        var todo = new TodoItemDto { Name = "wash car", IsComplete = false };
+        var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
 
         //act & assert
 
@@ -138,12 +139,11 @@ public class TodoServiceTests : UnitTestBase
         Assert.AreEqual(id, todo.Id);
 
         //update
-        bool isComplete = true;
         string newName = "mow lawn";
-        todo.IsComplete = isComplete;
+        todo.Status = TodoItemStatus.Completed;
         todo.Name = newName;
         var updated = await svc.UpdateItemAsync(todo);
-        Assert.AreEqual(isComplete, updated?.IsComplete);
+        Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         //delete

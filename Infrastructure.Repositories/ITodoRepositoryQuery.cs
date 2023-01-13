@@ -6,5 +6,5 @@ namespace Infrastructure.Repositories;
 
 public interface ITodoRepositoryQuery : IRepositoryBase
 {
-    Task<PagedResponse<TodoItemDto>> GetPageTodoItemDtoAsync(int pageSize, int pageIndex, CancellationToken cancellationToken = default);
+    Task<PagedResponse<TodoItemDto>> SearchTodoItemAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default);
 }

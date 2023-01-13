@@ -11,7 +11,7 @@ public class NameLengthRuleStepDefinitions
     public NameLengthRuleStepDefinitions(ScenarioContext scenatioContext)
     {
         _scenarioContext = scenatioContext;
-        _scenarioContext["TodoItem"] = new TodoItem();
+        _scenarioContext["TodoItem"] = new TodoItem($"a{Guid.NewGuid()}");
         _scenarioContext["TodoNameLengthRule"] = new TodoNameLengthRule();
     }
 
@@ -24,7 +24,7 @@ public class NameLengthRuleStepDefinitions
     [Given(@"the TodoItem Name is (.*)")]
     public void GivenTheTodoItemNameIs(string name)
     {
-        _scenarioContext["TodoItem"] = new TodoItem { Name = name };
+        _scenarioContext["TodoItem"] = new TodoItem (name);
     }
 
     [When(@"the TodoItem Name is validated")]

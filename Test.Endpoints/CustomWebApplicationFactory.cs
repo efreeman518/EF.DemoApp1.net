@@ -43,17 +43,17 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 services.AddDbContext<TodoDbContextTrxn>(options =>
                 {
                     //use in memory db
-                    options.UseInMemoryDatabase($"InMemoryDbForTesting-{Guid.NewGuid()}");
+                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
 
-                    //////use a different test sql db
-                    ////options.UseSqlServer(connectionString,
-                    ////    //retry strategy does not support user initiated transactions 
-                    ////    sqlServerOptionsAction: sqlOptions =>
-                    ////    {
-                    ////        sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                    ////        maxRetryDelay: TimeSpan.FromSeconds(30),
-                    ////        errorNumbersToAdd: null);
-                    ////    });
+                    //use a different sql db for test
+                    //options.UseSqlServer(connectionString,
+                    //    //retry strategy does not support user initiated transactions 
+                    //    sqlServerOptionsAction: sqlOptions =>
+                    //    {
+                    //        sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                    //        maxRetryDelay: TimeSpan.FromSeconds(30),
+                    //        errorNumbersToAdd: null);
+                    //    });
 
                 }, ServiceLifetime.Singleton); //InMemoryDatabase - each TestServer request creates a new DbContext, so keep updates around
 
@@ -69,7 +69,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 //Seed DbContext replacement
                 try
                 {
-                    Utility.SeedInMemoryDB(db);
+                    Support.Utility.SeedDefaultEntityData(db);
                 }
                 catch (Exception ex)
                 {

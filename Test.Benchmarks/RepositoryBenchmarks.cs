@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using Application.Contracts.Model;
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
 using Infrastructure.Data;
@@ -26,9 +27,9 @@ public class RepositoryBenchmarks
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem { Id = Guid.NewGuid(), Name = "some entity", CreatedBy = "unit test", UpdatedBy = "unit test", CreatedDate = DateTime.UtcNow });
+                entities.Add(new TodoItem ("some entity"));
             })
-            .GetOrBuild<TodoDbContextQuery>();
+            .Build<TodoDbContextQuery>();
 
         var audit = new AuditDetail("Test.Unit");
         _repo = new TodoRepositoryQuery(db, audit, mapper);
@@ -41,15 +42,16 @@ public class RepositoryBenchmarks
     }
 
     [Benchmark]
-    public async Task Repo_PagedTodoDtoResponse()
+    public async Task Repo_SearchTodoItemAsync()
     {
-        _ = await _repo.GetPageTodoItemDtoAsync(10, 1);
+        var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
+        _ = await _repo.SearchTodoItemAsync(search);
     }
 
     [Benchmark]
-    public async Task Repo_PagedTodoResponse()
+    public async Task Repo_GetPageEntitiesAsync()
     {
-        _ = await _repo.GetPageEntityAsync<TodoItem>(pageSize: 10, pageIndex: 1);
+        _ = await _repo.GetPageEntitiesAsync<TodoItem>(pageSize: 10, pageIndex: 1);
     }
 
 

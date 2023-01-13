@@ -8,25 +8,24 @@ namespace Test.Unit.DomainModels;
 public class TodoItemTests
 {
     [DataTestMethod]
-    [DataRow(null, false)]
-    [DataRow("sdfg", false)]
-    [DataRow("asdfg", true)]
-    [DataRow("sdfgsd4a56yrt", true)]
-    [DataRow("sdfgsd456yrt", false)]
-    public void Validate_returns_expected(string name, bool expectedValid)
+    [DataRow("asdfg")]
+    [DataRow("sdfgsd4a56yrt")]  
+    public void Validate_Success(string name)
     {
-        var item = new TodoItem { Name = name };
+        var item = new TodoItem(name);
         var response = item.Validate();
-        Assert.AreEqual(expectedValid, response.IsValid);
+        Assert.IsTrue(response.IsValid);
     }
 
     [DataTestMethod]
+    [DataRow(null)]
+    [DataRow("sdfg")]
+    [DataRow("sdfgsd456yrt")]
     [DataRow("sdfhy56u7g")]
     [DataRow("aafg")]
     [ExpectedException(typeof(ValidationException))]
     public void Validate_Throws(string name)
     {
-        var item = new TodoItem { Name = name };
-        item.Validate(true);
+        _ = new TodoItem(name);
     }
 }

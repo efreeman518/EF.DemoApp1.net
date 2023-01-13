@@ -12,5 +12,5 @@ Examples:
 | len | name              | result |
 | 5   | asdfrt            | true   |
 | 10  | asdfrt            | false  |
-| 12  | sdsfggftyfhshgfhy | true   |
-| 3   | tr                | false  |
+| 12  | adsfggftyfhshgfhy | true   |
+| 7   | atr3t             | false  |

@@ -1,4 +1,13 @@
 ﻿const uri = 'api/TodoItems';
+
+const TodoItemStatus = {
+    None: 0,
+    Created: 1,
+    Accepted: 2,
+    InProgress: 3,
+    Completed: 4,
+};
+
 let todos = [];
 
 function handleErrors(response) {
@@ -8,7 +17,7 @@ function handleErrors(response) {
     }
     return response.json().then(err => {
         document.getElementById('error').innerText = err.Message;
-        throw errMsg;
+        throw err.Message;
     });
 }
 
@@ -24,7 +33,7 @@ function addItem() {
     const addNameTextbox = document.getElementById('add-name');
 
     const item = {
-        isComplete: false,
+        status: TodoItemStatus.Created,
         name: addNameTextbox.value.trim()
     };
 
@@ -61,7 +70,7 @@ function displayEditForm(id) {
 
     document.getElementById('edit-name').value = item.name;
     document.getElementById('edit-id').value = item.id;
-    document.getElementById('edit-isComplete').checked = item.isComplete;
+    document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
     document.getElementById('editForm').style.display = 'block';
 }
 
@@ -69,7 +78,7 @@ function updateItem() {
     const itemId = document.getElementById('edit-id').value;
     const item = {
         id: itemId,
-        isComplete: document.getElementById('edit-isComplete').checked,
+        status: document.getElementById('edit-isComplete').checked ? TodoItemStatus.Completed : TodoItemStatus.Accepted,
         name: document.getElementById('edit-name').value.trim()
     };
 
@@ -112,7 +121,7 @@ function _displayItems(data) {
         let isCompleteCheckbox = document.createElement('input');
         isCompleteCheckbox.type = 'checkbox';
         isCompleteCheckbox.disabled = true;
-        isCompleteCheckbox.checked = item.isComplete;
+        isCompleteCheckbox.checked = item.status == TodoItemStatus.Completed;
 
         let editButton = button.cloneNode(false);
         editButton.innerText = 'Edit';
