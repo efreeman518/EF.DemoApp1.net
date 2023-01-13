@@ -5,7 +5,7 @@ BEGIN TRANSACTION;
 DROP TABLE [todo].[TodoItem];
 
 DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'20210623215531_InitialCreate';
+WHERE [MigrationId] = N'20230113233335_InitialCreate';
 
 COMMIT;
 

@@ -16,7 +16,6 @@ IF SCHEMA_ID(N'todo') IS NULL EXEC(N'CREATE SCHEMA [todo];');
 CREATE TABLE [todo].[TodoItem] (
     [Id] uniqueidentifier NOT NULL,
     [Name] nvarchar(100) NOT NULL,
-    [IsComplete] bit NOT NULL,
     [Status] int NOT NULL,
     [CreatedDate] datetime2(0) NOT NULL,
     [CreatedBy] nvarchar(100) NOT NULL,
@@ -28,7 +27,7 @@ CREATE TABLE [todo].[TodoItem] (
 CREATE UNIQUE CLUSTERED INDEX [IX_TodoItem_Name] ON [todo].[TodoItem] ([Name]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20210623215531_InitialCreate', N'5.0.7');
+VALUES (N'20230113233335_InitialCreate', N'7.0.1');
 
 COMMIT;
 

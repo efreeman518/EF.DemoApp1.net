@@ -4,23 +4,24 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable disable
 
 namespace Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(TodoDbContextBase))]
-    [Migration("20210623215531_InitialCreate")]
-    partial class InitialCreate
+    [DbContext(typeof(TodoDbContextTrxn))]
+    partial class TodoDbContextTrxnModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("todo")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.7")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "7.0.1")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Domain.Model.TodoItem", b =>
                 {
@@ -34,9 +35,6 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2(0)");
-
-                    b.Property<bool>("IsComplete")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -53,14 +51,16 @@ namespace Infrastructure.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2(0)");
 
-                    b.HasKey("Id")
-                        .IsClustered(false);
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .IsClustered();
+                        .IsUnique();
 
-                    b.ToTable("TodoItem");
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Name"));
+
+                    b.ToTable("TodoItem", "todo");
                 });
 #pragma warning restore 612, 618
         }
