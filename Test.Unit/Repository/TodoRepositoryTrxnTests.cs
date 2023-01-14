@@ -27,7 +27,7 @@ public class TodoRepositoryTrxnTests : UnitTestBase
 
         var audit = new AuditDetail("Test.Unit");
         ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit);
-        var todo = new TodoItem ("wash car");
+        var todo = new TodoItem("wash car");
 
         //act & assert
 

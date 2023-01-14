@@ -47,7 +47,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //arrange return from repo
         string name = "wash car";
-        var dbTodo = new TodoItem (name, TodoItemStatus.Created);
+        var dbTodo = new TodoItem(name, TodoItemStatus.Created);
 
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
@@ -114,7 +114,7 @@ public class TodoServiceTests : UnitTestBase
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem ("some entity a"));
+                entities.Add(new TodoItem("some entity a"));
                 entities.Add(new TodoItem("some other entity a"));
             })
             .Build<TodoDbContextQuery>();

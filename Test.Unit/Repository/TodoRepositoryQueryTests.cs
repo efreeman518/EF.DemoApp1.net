@@ -124,7 +124,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         {
             PageSize = 10,
             PageIndex = 1,
-            Filter = new TodoItemSearchFilter { Statuses = new List<TodoItemStatus> { TodoItemStatus.InProgress }},
+            Filter = new TodoItemSearchFilter { Statuses = new List<TodoItemStatus> { TodoItemStatus.InProgress } },
             Sorts = new List<Sort> { new Sort("Name", SortOrder.Descending) }
         };
 

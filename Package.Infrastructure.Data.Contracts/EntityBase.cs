@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Package.Infrastructure.Data.Contracts;
+﻿namespace Package.Infrastructure.Data.Contracts;
 
 public class EntityBase : IAuditable
 {
@@ -9,10 +7,10 @@ public class EntityBase : IAuditable
     {
     }
 
-    public Guid Id 
-    { 
-        get { return _id; } 
-        init { if (value != Guid.Empty) _id = value; } 
+    public Guid Id
+    {
+        get { return _id; }
+        init { if (value != Guid.Empty) _id = value; }
     }
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public string CreatedBy { get; set; } = "New";

@@ -31,20 +31,20 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
 
         //filter - build the Where clause
         var filter = request.Filter;
-        if(filter != null)
+        if (filter != null)
         {
-            if(filter.Id != null) q = q.Where(e => e.Id== filter.Id);
-            if(filter.Name != null)
+            if (filter.Id != null) q = q.Where(e => e.Id == filter.Id);
+            if (filter.Name != null)
             {
                 q = filter.Name.Contains('*')
                     ? q.Where(e => e.Name.Contains(filter.Name))
                     : q.Where(e => e.Name == filter.Name);
             }
-            if(filter.Statuses != null)
+            if (filter.Statuses != null)
             {
                 q = q.Where(e => filter.Statuses.Contains(e.Status));
             }
-            if(filter.DateStart != null)
+            if (filter.DateStart != null)
             {
                 q = q.Where(e => e.CreatedDate >= filter.DateStart);
             }

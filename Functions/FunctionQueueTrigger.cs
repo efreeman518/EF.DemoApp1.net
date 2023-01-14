@@ -3,33 +3,32 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Functions
+namespace Functions;
+
+public class FunctionQueueTrigger
 {
-    public class FunctionQueueTrigger
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<FunctionQueueTrigger> _logger;
+    private readonly Settings1 _settings;
+
+    public FunctionQueueTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
+        IOptions<Settings1> settings)
     {
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<FunctionQueueTrigger> _logger;
-        private readonly Settings1 _settings;
+        _configuration = configuration;
+        _logger = loggerFactory.CreateLogger<FunctionQueueTrigger>();
+        _settings = settings.Value;
+    }
 
-        public FunctionQueueTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
-            IOptions<Settings1> settings)
-        {
-            _configuration = configuration;
-            _logger = loggerFactory.CreateLogger<FunctionQueueTrigger>();
-            _settings = settings.Value;
-        }
+    [Function("QueueTrigger")]
+    public void Run([QueueTrigger("%QueueName%", Connection = "StorageQueue1")] string queueItem)
+    {
+        _ = _configuration.GetHashCode();
+        _ = _settings.GetHashCode();
 
-        [Function("QueueTrigger")]
-        public void Run([QueueTrigger("%QueueName%", Connection = "StorageQueue1")] string queueItem)
-        {
-            _ = _configuration.GetHashCode();
-            _ = _settings.GetHashCode();
+        _logger.Log(LogLevel.Information, "QueueTrigger - Start message: {queueItem}", queueItem);
 
-            _logger.Log(LogLevel.Information, "QueueTrigger - Start message: {queueItem}", queueItem);
+        //await some service call
 
-            //await some service call
-
-            _logger.Log(LogLevel.Information, "QueueTrigger - Finish message: {queueItem}", queueItem);
-        }
+        _logger.Log(LogLevel.Information, "QueueTrigger - Finish message: {queueItem}", queueItem);
     }
 }

@@ -24,7 +24,7 @@ public class NameLengthRuleStepDefinitions
     [Given(@"the TodoItem Name is (.*)")]
     public void GivenTheTodoItemNameIs(string name)
     {
-        _scenarioContext["TodoItem"] = new TodoItem (name);
+        _scenarioContext["TodoItem"] = new TodoItem(name);
     }
 
     [When(@"the TodoItem Name is validated")]

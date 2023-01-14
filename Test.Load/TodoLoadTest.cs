@@ -26,7 +26,7 @@ internal static class TodoLoadTest
                 //assemble payload for the request
                 (context) =>
                 {
-                    return new TodoItemDto {Name = "a" + Guid.NewGuid().ToString()};
+                    return new TodoItemDto {Name = $"a{Guid.NewGuid()}" };
                 }),
             Utility.CreateStep <object, TodoItemDto>(httpFactory,"get", $"{baseUrl}/api/TodoItems/", HttpMethod.Get, 
                 //assemble url for the request from previous response

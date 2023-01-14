@@ -9,7 +9,7 @@ public class TodoItemTests
 {
     [DataTestMethod]
     [DataRow("asdfg")]
-    [DataRow("sdfgsd4a56yrt")]  
+    [DataRow("sdfgsd4a56yrt")]
     public void Validate_Success(string name)
     {
         var item = new TodoItem(name);

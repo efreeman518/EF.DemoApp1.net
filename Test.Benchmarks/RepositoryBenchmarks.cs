@@ -27,7 +27,7 @@ public class RepositoryBenchmarks
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem ("some entity"));
+                entities.Add(new TodoItem("a entity"));
             })
             .Build<TodoDbContextQuery>();
 

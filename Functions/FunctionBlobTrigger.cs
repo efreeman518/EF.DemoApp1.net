@@ -37,6 +37,7 @@ public class FunctionBlobTrigger
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
         _ = _dbService.GetHashCode();
+        _ = fileContent.GetHashCode();
 
         //var logger = context.GetLogger<BlobTrigger>();
         _logger.Log(LogLevel.Information, "BlobTrigger - Start {FileName}", fileName);

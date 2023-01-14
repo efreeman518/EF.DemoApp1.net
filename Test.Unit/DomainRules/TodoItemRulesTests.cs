@@ -1,7 +1,6 @@
 using Domain.Model;
 using Domain.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Utility.Exceptions;
 
 namespace Test.Unit.DomainRules;
 

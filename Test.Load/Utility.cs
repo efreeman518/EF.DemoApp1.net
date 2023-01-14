@@ -41,7 +41,7 @@ internal static class Utility
 
     private static int GetByteSize(object o)
     {
-        MemoryStream ms = new MemoryStream();
+        MemoryStream ms = new();
         JsonSerializer.Serialize(ms, o);
         return ms.ToArray().Length;
     }

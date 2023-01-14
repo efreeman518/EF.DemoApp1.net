@@ -3,8 +3,6 @@ using BenchmarkDotNet.Order;
 using Domain.Model;
 using Domain.Rules;
 
-
-
 //https://github.com/dotnet/BenchmarkDotNet
 
 namespace Test.Benchmarks;
@@ -23,7 +21,7 @@ public class RulesBenchmarks
     [IterationSetup]
     public void Setup()
     {
-        _todoItemDto = new TodoItem(Utility.RandomString(NameLength));
+        _todoItemDto = new TodoItem($"a{Utility.RandomString(NameLength)}");
         _regexMatch = $"{_todoItemDto.Name[..1]}.*{_todoItemDto.Name[^3..]}";
     }
 

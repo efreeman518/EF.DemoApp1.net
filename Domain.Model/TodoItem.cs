@@ -14,7 +14,7 @@ public partial class TodoItem : EntityBase
     public bool IsComplete => Status == TodoItemStatus.Completed;
     public TodoItemStatus Status { get; private set; }
 
-    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created) 
+    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created)
     {
         Name = name;
         Status = status;
