@@ -21,13 +21,14 @@ public class FunctionTimerTrigger
 
     //hangs local VS2022?
     [Function("TimerTrigger")]
-    public void Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
         _logger.Log(LogLevel.Information, "TimerTrigger - Start {ExecutionUtc}", DateTime.UtcNow);
 
-        //do something 
+        //await some service call
+        await Task.CompletedTask;
 
         _logger.Log(LogLevel.Information, "TimerTrigger - Finish {ExecutionUtc} {NextSchedule}", DateTime.UtcNow, timerInfo.ScheduleStatus?.Next);
     }

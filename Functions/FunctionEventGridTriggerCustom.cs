@@ -27,7 +27,6 @@ public class FunctionEventGridTriggerCustom
     private readonly IConfiguration _configuration;
     private readonly ILogger<FunctionEventGridTriggerCustom> _logger;
     private readonly Settings1 _settings;
-    //private readonly IDatabaseRestoreService _dbService;
 
     public FunctionEventGridTriggerCustom(IConfiguration configuration, ILoggerFactory loggerFactory,
         IOptions<Settings1> settings)
@@ -38,7 +37,7 @@ public class FunctionEventGridTriggerCustom
     }
 
     [Function("EventGridTriggerCustom")]
-    public void Run([EventGridTrigger] EventGridEvent2 inputEvent)
+    public async Task Run([EventGridTrigger] EventGridEvent2 inputEvent)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
@@ -46,7 +45,9 @@ public class FunctionEventGridTriggerCustom
         _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {inputEvent}", JsonSerializer.Serialize(inputEvent));
 
         _ = inputEvent.Data?.ToString(); //extract from inputEvent
+
         //await some service call
+        await Task.CompletedTask;
 
         _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Finish {inputEvent}", JsonSerializer.Serialize(inputEvent));
     }

@@ -30,20 +30,17 @@ public class FunctionBlobTrigger
     /// <param name="context"></param>
     /// <returns></returns>
     [Function("BlobTrigger")]
-    public void Run(
-        [BlobTrigger("%BlobContainer%/{fileName}", Connection = "StorageBlob1")] string fileContent, string fileName)
+    public async Task Run([BlobTrigger("%BlobContainer%/{fileName}", Connection = "StorageBlob1")] string fileContent, string fileName)
     {
-
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
         _ = _dbService.GetHashCode();
         _ = fileContent.GetHashCode();
 
-        //var logger = context.GetLogger<BlobTrigger>();
         _logger.Log(LogLevel.Information, "BlobTrigger - Start {FileName}", fileName);
 
-        //do something
-        //await _dbService.RestoreAsync(fileName);
+        //await some service call
+        await Task.CompletedTask;
 
         _logger.Log(LogLevel.Information, "BlobTrigger - Finish {FileName}", fileName);
     }

@@ -32,24 +32,6 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     }
 
     /// <summary>
-    /// Create or UpdateFull entity based on the Id being a default value or not; need subsequent SaveChangesAsync()
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    //public void Save<T>(ref T entity) where T : EntityBase
-    //{
-    //    //dependent on Id for this logic; could also Upsert which checks db for a given Id
-    //    if (entity.Id == Guid.Empty)
-    //    {
-    //        Create(ref entity);
-    //    }
-    //    else
-    //    {
-    //        UpdateFull(ref entity);
-    //    }
-    //}
-
-    /// <summary>
     /// Updates or inserts based on existence
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
@@ -212,34 +194,6 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
             Total = total
         };
     }
-
-    /// <summary>
-    /// Returns data and total count based on SearchRequest param 
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    //public async Task<PagedResponse<T>> SearchAsync<T>(IQueryable<T> q,
-    //    int pageSize, int pageIndex,
-    //    List<Sort>? sorts = null,
-    //    Expression<Func<T, bool>>? filter = null,
-    //    CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class
-    //{
-    //    //IQueryable<T> q = DB.Set<T>();
-    //    //q = q.ApplyFilters(request.FilterItem);
-    //    if (sorts != null) q = q.OrderBy(sorts);
-
-    //    (List<T> data, int total) = await q.GetPageEntitiesAsync(false, pageSize, pageIndex, null, null, true, cancellationToken, includes);
-
-    //    PagedResponse<T> response = new()
-    //    {
-    //        PageSize = pageSize,
-    //        PageIndex = pageIndex,
-    //        Data = data,
-    //        Total = total
-    //    };
-
-    //    return response;
-    //}
 
     /// <summary>
     /// Use only for queries with multi record results, and SetLock() after; do not use for inserts/updates/deletes

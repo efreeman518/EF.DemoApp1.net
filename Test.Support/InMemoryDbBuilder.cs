@@ -6,9 +6,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Test.Support;
 public class InMemoryDbBuilder
 {
-    //private static readonly object _lock = new();
-    //private static readonly ConcurrentDictionary<string, DbContext> _contexts = new();
-
     //fluent config
     private bool _seedDefaultEntityData = false;
     private List<TodoItem>? _entityData;

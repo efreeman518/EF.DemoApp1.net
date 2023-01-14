@@ -20,7 +20,7 @@ public class FunctionQueueTrigger
     }
 
     [Function("QueueTrigger")]
-    public void Run([QueueTrigger("%QueueName%", Connection = "StorageQueue1")] string queueItem)
+    public async Task Run([QueueTrigger("%QueueName%", Connection = "StorageQueue1")] string queueItem)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
@@ -28,6 +28,7 @@ public class FunctionQueueTrigger
         _logger.Log(LogLevel.Information, "QueueTrigger - Start message: {queueItem}", queueItem);
 
         //await some service call
+        await Task.CompletedTask;
 
         _logger.Log(LogLevel.Information, "QueueTrigger - Finish message: {queueItem}", queueItem);
     }

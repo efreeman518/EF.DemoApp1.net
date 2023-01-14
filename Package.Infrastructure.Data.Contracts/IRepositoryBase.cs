@@ -7,8 +7,6 @@ public interface IRepositoryBase
 {
     Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class;
 
-    //void Save<T>(ref T entity) where T : EntityBase;
-
     void Create<T>(ref T entity) where T : class;
 
     void PrepareForUpdate<T>(ref T entity) where T : EntityBase;
@@ -39,10 +37,4 @@ public interface IRepositoryBase
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
-
-    //Task<PagedResponse<T>> SearchAsync<T>(IQueryable<T> q,
-    //    int pageSize, int pageIndex,
-    //    List<Sort>? sorts = null,
-    //    Expression<Func<T, bool>>? filter = null,
-    //    CancellationToken cancellationToken = default, params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes) where T : class;
 }

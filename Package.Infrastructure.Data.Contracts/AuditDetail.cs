@@ -9,5 +9,4 @@ public class AuditDetail : IAuditDetail
     {
         _auditId = auditId;
     }
-
 }

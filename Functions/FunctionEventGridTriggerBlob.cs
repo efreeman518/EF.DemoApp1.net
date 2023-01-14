@@ -44,14 +44,14 @@ public class FunctionEventGridTriggerBlob
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
 
-        await Task.CompletedTask;
-
         string? fileName = Path.GetFileName(inputEvent.Subject);
 
         _logger.Log(LogLevel.Information, "EventGridTriggerBlob - Start {fileName} {inputEvent}", fileName, JsonSerializer.Serialize(inputEvent));
 
         _ = inputEvent.Data?.ToString(); //extract from inputEvent
+
         //await some service call
+        await Task.CompletedTask;
 
         _logger.Log(LogLevel.Information, "EventGridTriggerBlob - Finish {fileName}", fileName);
     }

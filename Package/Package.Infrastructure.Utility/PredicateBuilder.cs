@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Package.Infrastructure.Data;
+namespace Package.Infrastructure.Utility;
 
 //http://www.albahari.com/nutshell/predicatebuilder.aspx
 
-internal static class PredicateBuilder
+public static class PredicateBuilder
 {
     public static Expression<Func<T, bool>> True<T>() { return f => true; }
     public static Expression<Func<T, bool>> False<T>() { return f => false; }

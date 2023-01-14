@@ -14,7 +14,8 @@ public abstract class DbContextBase : DbContext
     {
     }
 
-    //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor. This approach does not lend itself to testing (unless you target the full database).
+    //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
+    //This approach does not lend itself to testing (unless you target the full database).
     //https://docs.microsoft.com/en-us/ef/core/miscellaneous/configuring-dbcontext
 
     public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -109,12 +110,6 @@ public abstract class DbContextBase : DbContext
         {
             //assign Id
             if (entity.State != EntityState.Added) continue;
-
-            // Assign Id if empty
-            //if (entity.Entity.Id == Guid.Empty)
-            //{
-            //    entity.Entity.Id = Guid.NewGuid();
-            //}
 
             //check entity/properties for audit
             var auditChange = Attribute.GetCustomAttribute(entity.GetType(), typeof(AuditChangeAttribute));

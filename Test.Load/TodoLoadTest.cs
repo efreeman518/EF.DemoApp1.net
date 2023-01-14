@@ -68,12 +68,4 @@ internal static class TodoLoadTest
             .WithReportFormats(ReportFormat.Html)
             .Run();
     }
-
-    //private static string GenPayload<TIncoming>(IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>? context)
-    //{
-
-    //    var dto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
-    //    if (id != null) dto.Id = (Guid)id;
-    //    return JsonSerializer.Serialize(dto);
-    //}
 }
