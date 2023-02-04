@@ -74,6 +74,7 @@ public class BackgroundTaskService : BackgroundService
             {
                 try
                 {
+                    //await or not await - workItems that are not thread safe could have multiple threads
                     //https://blog.stephencleary.com/2016/12/eliding-async-await.html
                     _ = workItem(stoppingToken);
                 }

@@ -105,6 +105,5 @@ public class Startup
 
         //StartupTasks - executes once at startup
         services.AddScoped<IStartupTask, LoadCache>();
-
     }
 }

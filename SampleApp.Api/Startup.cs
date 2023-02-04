@@ -6,7 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Package.Infrastructure.BackgroundService;
 using Package.Infrastructure.Data.Contracts;
+using SampleApp.Api.Background;
 using SampleApp.Api.Middleware;
 using System.Linq;
 using System.Security.Claims;
@@ -15,9 +17,9 @@ namespace SampleApp.Api;
 
 public class Startup
 {
-    private IConfiguration Config { get; }
+    private Microsoft.Extensions.Configuration.IConfiguration Config { get; }
 
-    public Startup(IConfiguration configuration)
+    public Startup(Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
         Config = configuration;
     }
@@ -27,6 +29,10 @@ public class Startup
     {
         //register Infrastructure, Application, Domain services
         new Bootstrapper.Startup(Config).ConfigureServices(services);
+
+        //background services
+        services.AddHostedService<ScheduledService>();
+        services.Configure<ScheduledBackgroundServiceSettings<CustomCronService>>(Config.GetSection(ScheduledServiceSettings.ConfigSectionName));
 
         //Application Insights (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
@@ -57,7 +63,6 @@ public class Startup
 
             return new AuditDetail(auditId);
         });
-
 
         services.AddControllers();
         services.AddSwaggerGen(c =>
@@ -95,3 +100,4 @@ public class Startup
         });
     }
 }
+
