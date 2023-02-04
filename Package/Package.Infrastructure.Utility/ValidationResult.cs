@@ -42,8 +42,6 @@ public sealed class ValidationResult : IEquatable<ValidationResult>
         throw new NotImplementedException();
     }
 
-
-
     public static bool operator ==(ValidationResult value1, ValidationResult value2)
     {
         return value1.IsValid == value2.IsValid;
