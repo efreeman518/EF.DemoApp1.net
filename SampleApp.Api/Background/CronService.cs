@@ -25,7 +25,7 @@ public class CronService : CronBackgroundService<CustomCronJob>
     /// <returns></returns>
     protected override async Task RunOnScheduleAsync(string TraceId, CustomCronJob cronJob, CancellationToken stoppingToken = default)
     {
-        Logger.Log(LogLevel.Debug, "{ServiceName} - Start scheduled background work {Runtime}", cronJob.JobName, DateTime.Now);
+        Logger.Log(LogLevel.Debug, "{CronJob} - Start scheduled background work {Runtime}", cronJob.JobName, DateTime.Now);
 
         try
         {
