@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using static NCrontab.CrontabSchedule;
 
@@ -15,12 +14,11 @@ public abstract class CronServiceSettings
 public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosting.BackgroundService where T : CronServiceSettings
 {
     //Inheriting class must implement
-    protected abstract Task ExecuteInScopeAsync(IServiceProvider serviceProvider, string TraceId, T cronService, CancellationToken stoppingToken = default);
+    protected abstract Task ExecuteOnScheduleAsync(string TraceId, T cronService, CancellationToken stoppingToken = default);
 
-    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ScheduledBackgroundServiceSettings<T> _settings;
     private readonly Guid _lifeTimeId = Guid.NewGuid();
-    protected readonly ILogger<ScheduledBackgroundService<T>>? Logger;
+    protected readonly ILogger<ScheduledBackgroundService<T>> Logger;
 
     /// <summary>
     /// 
@@ -29,14 +27,11 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
     /// <param name="settings"></param>
     /// <param name="logger"></param>
     /// <param name="loggingSettings"></param>
-    protected ScheduledBackgroundService(IServiceScopeFactory serviceScopeFactory, IOptions<ScheduledBackgroundServiceSettings<T>> settings,
-        ILogger<ScheduledBackgroundService<T>>? logger = null) : base()
+    protected ScheduledBackgroundService(ILogger<ScheduledBackgroundService<T>> logger, IOptions<ScheduledBackgroundServiceSettings<T>> settings) : base()
     {
-        _serviceScopeFactory = serviceScopeFactory;
         _settings = settings.Value;
         Logger = logger;
     }
-
 
     //https://blog.stephencleary.com/2020/05/backgroundservice-gotcha-silent-failure.html
     protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
@@ -48,7 +43,7 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
         {
             tasks.Add(Task.Run(async () =>
             {
-                stoppingToken.Register(() => Logger?.Log(LogLevel.Information, "{ServiceName} is stopping. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId));
+                stoppingToken.Register(() => Logger.Log(LogLevel.Information, "{ServiceName} is stopping. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId));
                 await ExecuteTask1(cron, stoppingToken);
             }));
         }
@@ -59,7 +54,7 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
     {
         try
         {
-            Logger?.Log(LogLevel.Information, "{ServiceName} is starting. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
+            Logger.Log(LogLevel.Information, "{ServiceName} is starting. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
             ParseOptions o = new()
             {
                 IncludingSeconds = true
@@ -67,7 +62,7 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
             var schedule = TryParse(cron.Schedule, o);
             if (schedule == null)
             {
-                Logger?.Log(LogLevel.Warning, "'{Schedule}' is not a valid CRON expression; scheduled service will not run.", cron.Schedule);
+                Logger.Log(LogLevel.Warning, "'{Schedule}' is not a valid CRON expression; scheduled service will not run.", cron.Schedule);
                 return;
             }
             var nextRun = schedule.GetNextOccurrence(DateTime.Now);
@@ -79,12 +74,11 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
                 {
                     try
                     {
-                        using var scope = _serviceScopeFactory.CreateScope();
-                        await ExecuteInScopeAsync(scope.ServiceProvider, Guid.NewGuid().ToString(), cron, stoppingToken);
+                        await ExecuteOnScheduleAsync( Guid.NewGuid().ToString(), cron, stoppingToken);
                     }
                     catch (Exception ex)
                     {
-                        Logger?.Log(LogLevel.Error, ex, "{ServiceName} exception. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
+                        Logger.Log(LogLevel.Error, ex, "{ServiceName} exception. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
                     }
                     nextRun = schedule.GetNextOccurrence(DateTime.Now);
                 }
@@ -92,11 +86,11 @@ public abstract class ScheduledBackgroundService<T> : Microsoft.Extensions.Hosti
             }
             while (!stoppingToken.IsCancellationRequested);
 
-            Logger?.Log(LogLevel.Information, "{ServiceName} is stopping. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
+            Logger.Log(LogLevel.Information, "{ServiceName} is stopping. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
         }
         catch (Exception ex)
         {
-            Logger?.Log(LogLevel.Critical, ex, "{ServiceName} fatal error. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
+            Logger.Log(LogLevel.Critical, ex, "{ServiceName} fatal error. Lifetime {LifetimeId}", cron.ServiceName, _lifeTimeId);
             throw;
         }
     }

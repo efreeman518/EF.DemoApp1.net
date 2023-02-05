@@ -17,9 +17,9 @@ namespace SampleApp.Api;
 
 public class Startup
 {
-    private Microsoft.Extensions.Configuration.IConfiguration Config { get; }
+    private IConfiguration Config { get; }
 
-    public Startup(Microsoft.Extensions.Configuration.IConfiguration configuration)
+    public Startup(IConfiguration configuration)
     {
         Config = configuration;
     }
@@ -31,8 +31,8 @@ public class Startup
         new Bootstrapper.Startup(Config).ConfigureServices(services);
 
         //background services
-        services.AddHostedService<ScheduledService>();
-        services.Configure<ScheduledBackgroundServiceSettings<CustomCronService>>(Config.GetSection(ScheduledServiceSettings.ConfigSectionName));
+        services.AddHostedService<SchedulerService>();
+        services.Configure<ScheduledBackgroundServiceSettings<CustomCronService>>(Config.GetSection(SchedulerServiceSettings.ConfigSectionName));
 
         //Application Insights (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
