@@ -5,11 +5,11 @@ using System.Threading;
 
 namespace SampleApp.Api.Background;
 
-public class SchedulerService : ScheduledBackgroundService<CustomCronService>
+public class CronService : CronBackgroundService<CustomCronJob>
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public SchedulerService(IServiceScopeFactory serviceScopeFactory, ILogger<SchedulerService> logger, IOptions<ScheduledBackgroundServiceSettings<CustomCronService>> settings)
+    public CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronService> logger, IOptions<CronJobBackgroundServiceSettings<CustomCronJob>> settings)
         : base(logger, settings)
     {
         _serviceScopeFactory = serviceScopeFactory;
@@ -19,18 +19,18 @@ public class SchedulerService : ScheduledBackgroundService<CustomCronService>
     /// Uncaught Exception will stop the service
     /// https://docs.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
     /// </summary>
-    /// <param name="serviceProvider"></param>
     /// <param name="TraceId"></param>
+    /// <param name="cronJob"></param>
     /// <param name="stoppingToken"></param>
     /// <returns></returns>
-    protected override async Task ExecuteOnScheduleAsync(string TraceId, CustomCronService cronService, CancellationToken stoppingToken = default)
+    protected override async Task RunOnScheduleAsync(string TraceId, CustomCronJob cronJob, CancellationToken stoppingToken = default)
     {
-        Logger.Log(LogLevel.Debug, "{ServiceName} - Start scheduled background work {Runtime}", cronService.ServiceName, DateTime.Now);
+        Logger.Log(LogLevel.Debug, "{ServiceName} - Start scheduled background work {Runtime}", cronJob.JobName, DateTime.Now);
 
         try
         {
-            _ = cronService.SomeUrl;
-            _ = cronService.SomeTopicOrQueue;
+            _ = cronJob.SomeUrl;
+            _ = cronJob.SomeTopicOrQueue;
 
             //create scope if needed for scoped services
             using var scope = _serviceScopeFactory.CreateScope();
@@ -45,10 +45,10 @@ public class SchedulerService : ScheduledBackgroundService<CustomCronService>
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{ServiceName} - Failed during scheduled background work.", cronService.ServiceName);
+            Logger.LogError(ex, "{CronJob} - Failed during scheduled background work.", cronJob.JobName);
         }
 
-        Logger.Log(LogLevel.Debug, null, "{ServiceName} - Complete scheduled background work {Runtime} ", cronService.ServiceName, DateTime.Now);
+        Logger.Log(LogLevel.Debug, null, "{CronJob} - Complete scheduled background work {Runtime} ", cronJob.JobName, DateTime.Now);
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

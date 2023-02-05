@@ -31,8 +31,8 @@ public class Startup
         new Bootstrapper.Startup(Config).ConfigureServices(services);
 
         //background services
-        services.AddHostedService<SchedulerService>();
-        services.Configure<ScheduledBackgroundServiceSettings<CustomCronService>>(Config.GetSection(SchedulerServiceSettings.ConfigSectionName));
+        services.AddHostedService<CronService>();
+        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(Config.GetSection(CronServiceSettings.ConfigSectionName));
 
         //Application Insights (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
