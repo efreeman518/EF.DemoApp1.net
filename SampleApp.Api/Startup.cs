@@ -1,5 +1,6 @@
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -17,29 +18,33 @@ namespace SampleApp.Api;
 
 public class Startup
 {
-    private IConfiguration Config { get; }
+    private readonly IConfiguration _config;
 
     public Startup(IConfiguration configuration)
     {
-        Config = configuration;
+        _config = configuration;
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        //register Infrastructure, Application, Domain services
-        new Bootstrapper.Startup(Config).ConfigureServices(services);
+        //Bootstrapper registers application, domain, and infrastructure services
+        var bootstrapper = new Bootstrapper.Startup(services, _config);
+        //infrastructure, application and domain services
+        bootstrapper.ConfigureServices();
+        //runtime http services - only for Services.Api - healthchecks, startup tasks
+        bootstrapper.ConfigureRuntimeServices();
 
-        //background services
+        //background services - residing in the api
         services.AddHostedService<CronService>();
-        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(Config.GetSection(CronServiceSettings.ConfigSectionName));
+        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(_config.GetSection(CronServiceSettings.ConfigSectionName));
 
         //Application Insights (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
         //capture full sql
         services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
         {
-            module.EnableSqlCommandTextInstrumentation = Config.GetValue<bool>("Logging:EnableSqlCommandTextInstrumentation", false);
+            module.EnableSqlCommandTextInstrumentation = _config.GetValue<bool>("Logging:EnableSqlCommandTextInstrumentation", false);
         });
 
         //IAuditDetail 
@@ -97,7 +102,27 @@ public class Startup
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+
+            //health checks
+            endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+            {
+                // Exclude all checks and return a 200 - Ok.
+                Predicate = (_) => false
+            });
+            endpoints.MapHealthChecks("/health/full", BuildHealthCheckOptions("full"));
+            endpoints.MapHealthChecks("/health/db", BuildHealthCheckOptions("db"));
+            endpoints.MapHealthChecks("/health/memory", BuildHealthCheckOptions("memory"));
+            endpoints.MapHealthChecks("/health/extservice", BuildHealthCheckOptions("extservice"));
         });
+    }
+
+    private static HealthCheckOptions BuildHealthCheckOptions(string tag)
+    {
+        return new HealthCheckOptions()
+        {
+            Predicate = (check) => check.Tags.Contains(tag),
+            ResponseWriter = HealthCheckHelper.WriteHealthReportResponse
+        };
     }
 }
 

@@ -13,7 +13,7 @@ public static class Utility
     static Utility()
     {
         //bootstrapper container registrations - infrastructure, application and domain services
-        new SampleApp.Bootstrapper.Startup(Config).ConfigureServices(_services);
+        new SampleApp.Bootstrapper.Startup(_services, Config).ConfigureServices();
         //configure & register Automapper, application and infrastructure mapping profiles
         ConfigureAutomapper.Configure(_services);
     }

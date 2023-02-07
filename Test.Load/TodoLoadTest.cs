@@ -4,7 +4,6 @@ using NBomber.CSharp;
 using NBomber.Plugins.Network.Ping;
 using Package.Infrastructure.Data.Contracts;
 
-
 //https://nbomber.com/
 
 namespace Test.Load;
@@ -13,50 +12,61 @@ internal static class TodoLoadTest
 {
     public static void Run(string baseUrl)
     {
-        var httpFactory = ClientFactory.Create(
-            name: "http_factory",
-            clientCount: 1,
-            initClient: (number, context) => Task.FromResult(new HttpClient())
-        );
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri(baseUrl);
 
-        var steps = new[]
-        {
-            Utility.CreateStep<object,PagedResponse<TodoItemDto>>(httpFactory,"getpage", $"{baseUrl}/api/TodoItems", HttpMethod.Get),
-            Utility.CreateStep<TodoItemDto, TodoItemDto>(httpFactory,"post", $"{baseUrl}/api/TodoItems", HttpMethod.Post, null,
-                //assemble payload for the request
-                (context) =>
-                {
-                    return new TodoItemDto {Name = $"a{Guid.NewGuid()}" };
-                }),
-            Utility.CreateStep <object, TodoItemDto>(httpFactory,"get", $"{baseUrl}/api/TodoItems/", HttpMethod.Get, 
-                //assemble url for the request from previous response
-                (context) =>
-                {
-                    var todoItem =  (TodoItemDto)context.Data["post"];
-                    return todoItem.Id.ToString();
-                }),
-            Utility.CreateStep<TodoItemDto, TodoItemDto>(httpFactory,"put", $"{baseUrl}/api/TodoItems/", HttpMethod.Put,
-                //assemble querystring for the request from previous response
-                (context) =>
-                {
-                    var todoItem =  (TodoItemDto)context.Data["get"];
-                    return todoItem.Id.ToString();
-                },
-                //assemble payload for the request from previous response
-                (context) =>
-                {
-                    var todoItem =  (TodoItemDto)context.Data["get"];
-                    return new TodoItemDto { Id = todoItem.Id, Name = "some updated name"};
-                }),
-        };
+        var scenario = Scenario.Create("todo-crud", async context =>
+            {
+                // you can define and execute any logic here,
+                // for example: send http request, SQL query etc
+                // NBomber will measure how much time it takes to execute your logic
 
-        var scenario = ScenarioBuilder
-            .CreateScenario("todo-crud", steps)
-            .WithWarmUpDuration(TimeSpan.FromSeconds(5))
+                await Utility.RunStep<object, PagedResponse<TodoItemDto>>(context, httpClient, "getpage", HttpMethod.Get, $"{baseUrl}/api/TodoItems");
+                await Utility.RunStep<TodoItemDto, TodoItemDto>(context, httpClient, "post", HttpMethod.Post, $"{baseUrl}/api/TodoItems", null,
+                    // assemble the payload for this step request 
+                    (context) =>
+                    {
+                        return new TodoItemDto { Name = $"a{Guid.NewGuid()}" };
+                    });
+                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/TodoItems",
+                    //assemble the url for this step request using previous step response
+                    (context) =>
+                    {
+                        var todoItem = (TodoItemDto)context.Data["post"];
+                        return $"/{todoItem.Id}";
+                    });
+                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "put", HttpMethod.Put, $"{baseUrl}/api/TodoItems",
+                    //assemble the url for this step request using previous step response
+                    (context) =>
+                    {
+                        var todoItem = (TodoItemDto)context.Data["get"];
+                        return $"/{todoItem.Id}";
+                    },
+                    // assemble the payload for this step request using previous step response
+                    (context) =>
+                    {
+                        var todoItem = (TodoItemDto)context.Data["get"];
+                        return new TodoItemDto { Id = todoItem.Id, Name = "some updated name" };
+                    });
+
+                return Response.Ok();
+            })
+
+            //debug single requestor
+            //.WithoutWarmUp()
+            //.WithLoadSimulations(Simulation.KeepConstant(copies: 1, during: TimeSpan.FromSeconds(10)));
+
+            //normal load
+            .WithWarmUpDuration(TimeSpan.FromSeconds(20))
             .WithLoadSimulations(
-                //Simulation.KeepConstant(10, during: TimeSpan.FromSeconds(30))
-                Simulation.KeepConstant(1, during: TimeSpan.FromSeconds(30))
+                Simulation.RampingInject(rate: 5,
+                             interval: TimeSpan.FromSeconds(1),
+                             during: TimeSpan.FromSeconds(30)),
+                Simulation.Inject(rate: 5,
+                      interval: TimeSpan.FromSeconds(1),
+                      during: TimeSpan.FromSeconds(30))
             );
+
 
         // creates ping plugin that brings additional reporting data
         var pingPluginConfig = PingPluginConfig.CreateDefault(new[] { "localhost" });

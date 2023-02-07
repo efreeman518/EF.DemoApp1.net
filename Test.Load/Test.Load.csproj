@@ -20,8 +20,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
-    <PackageReference Include="NBomber" Version="3.3.0" />
-    <PackageReference Include="NBomber.Http" Version="3.0.3" />
+    <PackageReference Include="NBomber" Version="4.0.1" />
+    <PackageReference Include="NBomber.Http" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

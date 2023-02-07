@@ -55,7 +55,9 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
         }
 
         //sort and filter have already been applied
+        await SetNoLock();
         (var data, var total) = await q.GetPageEntitiesAsync(pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
+        await SetLock();
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = request.PageIndex,

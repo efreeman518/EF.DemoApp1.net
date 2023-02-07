@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleApp.Bootstrapper.Automapper;
+using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
 using System;
 
@@ -15,26 +16,49 @@ namespace SampleApp.Bootstrapper;
 
 public class Startup
 {
-    public readonly IConfiguration _config;
+    private readonly IServiceCollection _services;
+    private readonly IConfiguration _config;
 
     //multiple in memory DbContexts use the same DB
     private readonly InMemoryDatabaseRoot InMemoryDatabaseRoot = new();
 
-    public Startup(IConfiguration config)
+    public Startup(IServiceCollection services, IConfiguration config)
     {
+        _services = services;
         _config = config;
     }
 
-    public void ConfigureServices(IServiceCollection services)
+    /// <summary>
+    /// Register/configure services in the container
+    /// </summary>
+    public void ConfigureServices()
+    {
+        ConfigureInfrastructureServices();
+        ConfigureApplicationServices();
+    }
+
+    /// <summary>
+    /// Register/configure services in the container
+    /// </summary>
+    public void ConfigureApplicationServices()
+    {
+        //application Services
+        _services.AddTransient<ITodoService, TodoService>();
+        _services.Configure<TodoServiceSettings>(_config.GetSection(TodoServiceSettings.ConfigSectionName));
+
+        //domain services
+    }
+
+    public void ConfigureInfrastructureServices()
     {
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
-        services.AddLazyCache();
+        _services.AddLazyCache();
 
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-6.0
         string? connectionString = _config.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(connectionString))
         {
-            services.AddStackExchangeRedisCache(options =>
+            _services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = connectionString;
                 options.InstanceName = "redis1";
@@ -42,33 +66,27 @@ public class Startup
         }
         else
         {
-            services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
+            _services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
         }
 
-        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-
-        //Application Services
-        services.AddTransient<ITodoService, TodoService>();
-        services.Configure<TodoServiceSettings>(_config.GetSection(TodoServiceSettings.ConfigSectionName));
-
         //AutoMapper Configuration - map domain <-> application 
-        ConfigureAutomapper.Configure(services);
+        ConfigureAutomapper.Configure(_services);
 
         //Infrastructure Services
-        services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
-        services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>();
+        _services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
+        _services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
         //Database - transaction
         connectionString = _config.GetConnectionString("TodoDbContextTrxn");
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
-            services.AddEntityFrameworkInMemoryDatabase()
+            _services.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<TodoDbContextTrxn>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", InMemoryDatabaseRoot));
         }
         else
         {
-            services.AddDbContextPool<TodoDbContextTrxn>(options =>
+            _services.AddDbContextPool<TodoDbContextTrxn>(options =>
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
@@ -85,13 +103,13 @@ public class Startup
         if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
         {
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
-            services.AddEntityFrameworkInMemoryDatabase()
+            _services.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<TodoDbContextQuery>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", InMemoryDatabaseRoot));
 
         }
         else
         {
-            services.AddDbContextPool<TodoDbContextQuery>(options =>
+            _services.AddDbContextPool<TodoDbContextQuery>(options =>
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
@@ -102,8 +120,26 @@ public class Startup
                     })
                 );
         }
+    }
+
+    /// <summary>
+    /// Used at runtime for http services; not used for Workers/Functions/Tests
+    /// </summary>
+    public void ConfigureRuntimeServices()
+    {
+        //HealthChecks - having infrastructure references
+        //tag full will run when hitting health/full
+        _services.AddHealthChecks()
+            .AddMemoryHealthCheck("memory", tags: new[] { "full", "memory" }, thresholdInBytes: _config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
+            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: new[] { "full", "db" })
+            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: new[] { "full", "db" })
+            .AddCheck<ExternalServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
+
+        //background services - infrastructure
+        _services.AddHostedService<BackgroundTaskService>();
+        _services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
         //StartupTasks - executes once at startup
-        services.AddScoped<IStartupTask, LoadCache>();
+        _services.AddTransient<IStartupTask, LoadCache>();
     }
 }

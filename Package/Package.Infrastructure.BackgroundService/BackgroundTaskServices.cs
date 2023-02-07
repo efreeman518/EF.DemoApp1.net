@@ -7,10 +7,6 @@ namespace Infrastructure.BackgroundServices;
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-7.0
 
-//register
-//services.AddHostedService<BackgroundTaskService>();
-//services.AddSingleton<BackgroundTaskQueue>();
-
 public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
@@ -57,10 +53,10 @@ public class BackgroundTaskService : BackgroundService
     private readonly IBackgroundTaskQueue _taskQueue;
     private readonly ILogger<BackgroundTaskService> _logger;
 
-    public BackgroundTaskService(IBackgroundTaskQueue taskQueue, ILogger<BackgroundTaskService> logger)
+    public BackgroundTaskService(ILogger<BackgroundTaskService> logger, IBackgroundTaskQueue taskQueue)
     {
-        _taskQueue = taskQueue;
         _logger = logger;
+        _taskQueue = taskQueue;
     }
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)

@@ -9,13 +9,12 @@ internal static class Utility
 {
     public readonly static IConfigurationRoot Config = Support.Utility.BuildConfiguration().Build();
 
-    public static IStep CreateStep<TRequest, TResponse>(IClientFactory<HttpClient> clientFactory, string name, string url, HttpMethod method, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, string>? urlBuilder = null, Func<IStepContext<HttpClient, Microsoft.FSharp.Core.Unit>, TRequest>? payloadBuilder = null)
+    public static async Task<Response<object>> RunStep<TRequest, TResponse>(IScenarioContext context, HttpClient httpClient, string stepName, HttpMethod method, string url,Func<IScenarioContext, string>? urlBuilder = null, Func<IScenarioContext, TRequest>? payloadBuilder = null)
     {
         TRequest? payload = default;
 
-        var step = Step.Create(name,
-            clientFactory: clientFactory,
-            execute: async context =>
+        return await Step.Run(stepName, context,
+            async () =>
             {
                 var sUrl = url;
                 //append url based on previous step/request response
@@ -25,18 +24,17 @@ internal static class Utility
                 if (payloadBuilder != null) payload = payloadBuilder(context);
 
                 //hit the endpoint
-                (var responseMsg, var response) = await context.Client.HttpRequestAndResponseAsync<TRequest, TResponse>(method, sUrl, payload, null, true);
+                (HttpResponseMessage responseMsg, TResponse? response) = await httpClient.HttpRequestAndResponseAsync<TRequest, TResponse>(method, sUrl, payload);
 
                 //convention to preserve the response so the following step can use it to build it's url and/or payload
-                context.Data[name] = response;
+                context.Data[stepName] = response;
 
                 int size = response != null ? GetByteSize(response) : 0;
                 return responseMsg.IsSuccessStatusCode
-                    ? Response.Ok(sizeBytes: size, statusCode: (int)responseMsg.StatusCode)
-                    : Response.Fail(error: responseMsg.ReasonPhrase, statusCode: (int)responseMsg.StatusCode, sizeBytes: size);
+                    ? Response.Ok(sizeBytes: size, statusCode: responseMsg.StatusCode.ToString())
+                    : Response.Fail(message: responseMsg.ReasonPhrase, statusCode: responseMsg.StatusCode.ToString(), sizeBytes: size);
 
             });
-        return step;
     }
 
     private static int GetByteSize(object o)

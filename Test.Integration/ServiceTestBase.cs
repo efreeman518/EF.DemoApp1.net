@@ -23,18 +23,18 @@ public abstract class ServiceTestBase
         //DI
         ServiceCollection services = new();
 
-        //register infrastructure and domain services (non-http)
-        new SampleApp.Bootstrapper.Startup(Config).ConfigureServices(services);
-
-        //add logging for integration tests
-        services.AddApplicationInsightsTelemetryWorkerService(Config);
-        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
-
         var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole().AddDebug().AddApplicationInsights();
         });
         services.AddSingleton(loggerFactory);
+
+        //register infrastructure and domain services (non-http)
+        new SampleApp.Bootstrapper.Startup(services, Config).ConfigureServices();
+
+        //add logging for integration tests
+        services.AddApplicationInsightsTelemetryWorkerService(Config);
+        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
         //IAuditDetail
         services.AddTransient<IAuditDetail>(provider =>
