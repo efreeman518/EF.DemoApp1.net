@@ -5,7 +5,7 @@ using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Utility.Exceptions;
+using Package.Infrastructure.Common.Exceptions;
 using System;
 using System.Threading.Tasks;
 

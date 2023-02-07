@@ -1,4 +1,4 @@
-using Package.Infrastructure.Utility;
+using Package.Infrastructure.Common;
 
 namespace Package.Infrastructure.Test.Unit;
 

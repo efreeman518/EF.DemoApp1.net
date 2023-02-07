@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Package.Infrastructure.Utility.Extensions;
+namespace Package.Infrastructure.Common.Extensions;
 
 public static class LoggerExtensions
 {

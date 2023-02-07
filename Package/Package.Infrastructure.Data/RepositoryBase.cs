@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,10 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="auditId"></param>
-    protected RepositoryBase(TDbContext dbContext, IAuditDetail audit)
+    protected RepositoryBase(TDbContext dbContext, ServiceRequestContext src)
     {
         DB = dbContext;
-        _auditId = audit.AuditId;
+        _auditId = src.AuditId;
     }
 
     public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class

@@ -5,6 +5,7 @@ using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -36,8 +37,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
+        var src = new ServiceRequestContext("Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -75,8 +76,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
+        var src = new ServiceRequestContext("Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         var response = await repoQuery.GetPageEntitiesAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
@@ -116,8 +117,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, audit, _mapper);
+        var src = new ServiceRequestContext("Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //search criteria
         var search = new SearchRequest<TodoItemSearchFilter>

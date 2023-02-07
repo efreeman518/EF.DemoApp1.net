@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Html.Dom;
 using Application.Contracts.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Utility.Extensions;
+using Package.Infrastructure.Common.Extensions;
 using System;
 using System.Net;
 using System.Net.Http;

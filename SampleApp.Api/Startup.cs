@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Package.Infrastructure.BackgroundService;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common;
 using SampleApp.Api.Background;
 using SampleApp.Api.Middleware;
 using System.Linq;
@@ -48,11 +48,14 @@ public class Startup
         });
 
         //IAuditDetail 
-        services.AddTransient<IAuditDetail>(provider =>
+        services.AddTransient<ServiceRequestContext>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
-            var user = httpContext?.User;
 
+            //TraceId from possible header used for correllation across multiple service calls
+            var traceId = Guid.NewGuid().ToString();
+
+            var user = httpContext?.User;
             //Get auditId from token claim
             //AAD bearer token
             string? auditId =
@@ -66,7 +69,7 @@ public class Startup
                 ?? "NoAuthImplemented"
                 ;
 
-            return new AuditDetail(auditId);
+            return new ServiceRequestContext(auditId, traceId);
         });
 
         services.AddControllers();

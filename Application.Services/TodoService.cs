@@ -1,7 +1,7 @@
 ﻿using Application.Services.Rules;
+using Package.Infrastructure.Common.Exceptions;
+using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
-using Package.Infrastructure.Utility.Exceptions;
-using Package.Infrastructure.Utility.Extensions;
 using System.Collections.Generic;
 using AppConstants = Application.Contracts.Constants.Constants;
 using DomainConstants = Domain.Shared.Constants.Constants;
@@ -50,7 +50,7 @@ public class TodoService : ServiceBase, ITodoService
         Logger.Log(LogLevel.Information, "GetItemAsync - id:{id}", id);
 
         var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id);
-        if (todo == null) throw new Package.Infrastructure.Utility.Exceptions.NotFoundException($"TodoItem.Id '{id}' not found.");
+        if (todo == null) throw new Package.Infrastructure.Common.Exceptions.NotFoundException($"TodoItem.Id '{id}' not found.");
 
         //return mapped domain -> app
         return _mapper.Map<TodoItem, TodoItemDto>(todo);

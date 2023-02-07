@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Utility;
+using Package.Infrastructure.Common;
 using System.Net.Http;
 using System.Threading.Tasks;
 

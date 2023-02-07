@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common;
 using System;
 
 namespace Test.Integration;
@@ -37,9 +37,9 @@ public abstract class ServiceTestBase
         //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
         //IAuditDetail
-        services.AddTransient<IAuditDetail>(provider =>
+        services.AddTransient(provider =>
         {
-            return new AuditDetail("Test.Integration");
+            return new ServiceRequestContext("Test.Integration");
         });
 
         //build IServiceProvider for subsequent use finding/injecting services

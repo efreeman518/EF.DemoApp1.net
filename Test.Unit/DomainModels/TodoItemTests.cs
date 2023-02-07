@@ -1,6 +1,6 @@
 using Domain.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Utility.Exceptions;
+using Package.Infrastructure.Common.Exceptions;
 
 namespace Test.Unit.DomainModels;
 

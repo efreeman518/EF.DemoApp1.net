@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Package.Infrastructure.Utility;
+namespace Package.Infrastructure.Common;
 
 public static class ValidationUtility
 {

@@ -13,7 +13,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Package.Infrastructure.Utility.Extensions;
+namespace Package.Infrastructure.Common.Extensions;
 public static class HttpClientExtensions
 {
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Package.Infrastructure.Utility.Attributes;
+namespace Package.Infrastructure.Common.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property)]
 public class MaskAttribute : Attribute

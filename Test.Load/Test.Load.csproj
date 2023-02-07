@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
-    <ProjectReference Include="..\Package\Package.Infrastructure.Utility\Package.Infrastructure.Utility.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
 

@@ -4,6 +4,7 @@ using BenchmarkDotNet.Order;
 using Domain.Model;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using Test.Support;
 
@@ -31,8 +32,8 @@ public class RepositoryBenchmarks
             })
             .Build<TodoDbContextQuery>();
 
-        var audit = new AuditDetail("Test.Unit");
-        _repo = new TodoRepositoryQuery(db, audit, mapper);
+        var src = new ServiceRequestContext("Test.Unit");
+        _repo = new TodoRepositoryQuery(db, src, mapper);
     }
 
     [IterationSetup]

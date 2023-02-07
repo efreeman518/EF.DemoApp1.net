@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Package.Infrastructure.Utility;
+namespace Package.Infrastructure.Common;
 public sealed class ValidationResult : IEquatable<ValidationResult>
 {
     public bool IsValid { get; set; }

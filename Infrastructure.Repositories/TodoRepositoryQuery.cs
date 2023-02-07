@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using AutoMapper;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
 using System.Threading;
@@ -9,7 +10,7 @@ namespace Infrastructure.Repositories;
 public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepositoryQuery
 {
     private readonly IMapper _mapper;
-    public TodoRepositoryQuery(TodoDbContextQuery dbContext, IAuditDetail audit, IMapper mapper) : base(dbContext, audit)
+    public TodoRepositoryQuery(TodoDbContextQuery dbContext, ServiceRequestContext src, IMapper mapper) : base(dbContext, src)
     {
         _mapper = mapper;
     }
@@ -55,9 +56,9 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
         }
 
         //sort and filter have already been applied
-        await SetNoLock();
+        //await SetNoLock(); //InMemoryDbContext does not support
         (var data, var total) = await q.GetPageEntitiesAsync(pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
-        await SetLock();
+        //await SetLock(); //InMemoryDbContext does not support
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = request.PageIndex,

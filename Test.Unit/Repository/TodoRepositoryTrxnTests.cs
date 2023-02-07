@@ -3,6 +3,7 @@ using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Threading.Tasks;
@@ -25,8 +26,8 @@ public class TodoRepositoryTrxnTests : UnitTestBase
         //InMemory setup & seed
         var dbTrxn = new InMemoryDbBuilder().Build<TodoDbContextTrxn>();
 
-        var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit);
+        var src = new ServiceRequestContext("Test.Unit");
+        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         var todo = new TodoItem("wash car");
 
         //act & assert

@@ -1,6 +1,6 @@
 ﻿using Domain.Model;
 using Domain.Shared.Constants;
-using Package.Infrastructure.Utility;
+using Package.Infrastructure.Common;
 using System.Text.RegularExpressions;
 
 namespace Domain.Rules;

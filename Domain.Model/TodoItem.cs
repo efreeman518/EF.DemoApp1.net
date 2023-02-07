@@ -1,8 +1,8 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
+using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
-using Package.Infrastructure.Utility;
-using Package.Infrastructure.Utility.Exceptions;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 

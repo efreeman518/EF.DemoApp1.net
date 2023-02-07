@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Linq;
@@ -120,9 +121,9 @@ public class TodoServiceTests : UnitTestBase
             .Build<TodoDbContextQuery>();
 
 
-        var audit = new AuditDetail("Test.Unit");
-        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, audit);
-        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, audit, _mapper); //not used in this test
+        var src = new ServiceRequestContext("Test.Unit");
+        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 
         var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper);
         var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
@@ -155,7 +156,7 @@ public class TodoServiceTests : UnitTestBase
             _ = await svc.GetItemAsync(id);
             throw new Exception("Should not have found a deleted item.");
         }
-        catch (Package.Infrastructure.Utility.Exceptions.NotFoundException ex)
+        catch (Package.Infrastructure.Common.Exceptions.NotFoundException ex)
         {
             Assert.IsTrue(ex != null);
         }

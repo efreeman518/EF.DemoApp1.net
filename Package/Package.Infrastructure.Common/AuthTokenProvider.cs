@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Package.Infrastructure.Utility;
+namespace Package.Infrastructure.Common;
 public static class AuthTokenProvider
 {
     /// <summary>

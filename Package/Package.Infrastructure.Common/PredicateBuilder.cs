@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Package.Infrastructure.Utility;
+namespace Package.Infrastructure.Common;
 
 //http://www.albahari.com/nutshell/predicatebuilder.aspx
 

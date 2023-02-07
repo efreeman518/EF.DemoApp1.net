@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Package.Infrastructure.Utility.Exceptions;
+namespace Package.Infrastructure.Common.Exceptions;
 
 [Serializable]
 public class ValidationException : Exception

@@ -1,11 +1,11 @@
-﻿using Package.Infrastructure.Utility.Attributes;
+﻿using Package.Infrastructure.Common.Attributes;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace Package.Infrastructure.Utility.Extensions;
+namespace Package.Infrastructure.Common.Extensions;
 public static class SerializeExtensions
 {
     /// <summary>
