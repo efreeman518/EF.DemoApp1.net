@@ -41,12 +41,11 @@ public class MemoryHealthCheck : IHealthCheck
                 { "Gen2Collections", GC.CollectionCount(2) },
             };
 
-        var status = (allocated < options.Threshold) ? HealthStatus.Healthy : HealthStatus.Unhealthy;
+        var status = (allocated < options.Threshold) ? HealthStatus.Healthy : HealthStatus.Degraded;
 
         return Task.FromResult(new HealthCheckResult(
             status,
-            description: "Reports degraded status if allocated bytes " +
-                $">= {options.Threshold} bytes.",
+            description: $"Reports degraded status if allocated bytes >= {options.Threshold} bytes.",
             exception: null,
             data: data));
     }
