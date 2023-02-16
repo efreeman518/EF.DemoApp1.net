@@ -120,6 +120,9 @@ public class Startup
                     })
                 );
         }
+
+        //infrastructure service
+        _services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
     }
 
     /// <summary>
@@ -137,7 +140,6 @@ public class Startup
 
         //background services - infrastructure
         _services.AddHostedService<BackgroundTaskService>();
-        _services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
         //StartupTasks - executes once at startup
         _services.AddTransient<IStartupTask, LoadCache>();

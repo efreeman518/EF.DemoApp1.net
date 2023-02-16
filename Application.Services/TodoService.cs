@@ -1,4 +1,5 @@
 ﻿using Application.Services.Rules;
+using Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
@@ -14,14 +15,17 @@ public class TodoService : ServiceBase, ITodoService
     private readonly ITodoRepositoryTrxn _repoTrxn;
     private readonly ITodoRepositoryQuery _repoQuery;
     private readonly IMapper _mapper;
+    private readonly IBackgroundTaskQueue _taskQueue;
 
-    public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, IMapper mapper)
+    public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery,
+        IMapper mapper, IBackgroundTaskQueue taskQueue)
         : base(logger)
     {
         _settings = settings.Value;
         _repoTrxn = repoTrxn;
         _repoQuery = repoQuery;
         _mapper = mapper;
+        _taskQueue = taskQueue;
     }
 
     public async Task<PagedResponse<TodoItemDto>> GetItemsAsync(int pageSize = 10, int pageIndex = 0)
@@ -88,6 +92,14 @@ public class TodoService : ServiceBase, ITodoService
 
         _repoTrxn.Create(ref todo);
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+
+        //queue some external work - fire and forget (notification)
+        _taskQueue.QueueBackgroundWorkItem(async token =>
+        {
+            //await some work
+            await Task.Delay(3000, token);
+            Logger.LogInformation("Some work done at {Time}", DateTime.UtcNow.TimeOfDay);
+        });
 
         Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", todo.SerializeToJson());
 

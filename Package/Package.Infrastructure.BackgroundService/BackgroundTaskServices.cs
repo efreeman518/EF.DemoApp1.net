@@ -64,7 +64,7 @@ public class BackgroundTaskService : BackgroundService
         //keep checking the queue
         while (!stoppingToken.IsCancellationRequested)
         {
-            //throttle?
+            //throttle if not awaiting workItem
             var workItem = await _taskQueue.DequeueAsync(stoppingToken); //waits for a task on the queue (semaphore > 0)
             if (workItem != null)
             {

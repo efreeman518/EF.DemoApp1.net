@@ -16,6 +16,27 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         _logger = LoggerFactory.CreateLogger<BackgroundTaskServiceTests>();
     }
 
+    //[TestMethod]
+    public async Task RunBackgroundTaskX_pass()
+    {
+        var sut = Services.GetService<IHostedService>() as BackgroundTaskService;
+        var q = Services.GetRequiredService<IBackgroundTaskQueue>();
+
+        await sut!.StartAsync(CancellationToken.None);
+        var isExecuted = false;
+
+        //queue background task1
+        q.QueueBackgroundWorkItem(async token =>
+        {
+            await Task.Delay(1000, token);
+            isExecuted = true;
+            _logger.LogInformation("Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+        });
+
+        Assert.IsTrue(isExecuted);
+
+    }
+
     [TestMethod]
     public async Task RunBackgroundTask_pass()
     {

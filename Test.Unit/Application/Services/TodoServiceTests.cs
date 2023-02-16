@@ -2,6 +2,7 @@ using Application.Contracts.Model;
 using Application.Services;
 using Domain.Model;
 using Domain.Shared.Enums;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Query;
@@ -27,6 +28,7 @@ public class TodoServiceTests : UnitTestBase
     //specific to this test class
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
+    private readonly Mock<IBackgroundTaskQueue> BackgroundTaskQueueMock;
     private readonly IOptions<TodoServiceSettings> _settings = Options.Create(new TodoServiceSettings());
 
     public TodoServiceTests() : base()
@@ -34,6 +36,7 @@ public class TodoServiceTests : UnitTestBase
         //use Mock repo
         RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
         RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
+        BackgroundTaskQueueMock = _mockFactory.Create<IBackgroundTaskQueue>();
         RepositoryTrxnMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
@@ -60,7 +63,8 @@ public class TodoServiceTests : UnitTestBase
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryTrxnMock.Object, RepositoryQueryMock.Object, _mapper);
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryTrxnMock.Object, RepositoryQueryMock.Object,
+            _mapper, BackgroundTaskQueueMock.Object);
 
         //act & assert
 
@@ -125,7 +129,7 @@ public class TodoServiceTests : UnitTestBase
         ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper);
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper, new BackgroundTaskQueue());
         var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
 
         //act & assert
