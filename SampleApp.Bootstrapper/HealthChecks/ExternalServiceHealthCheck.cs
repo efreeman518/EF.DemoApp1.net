@@ -28,7 +28,7 @@ public class ExternalServiceHealthCheck : IHealthCheck
 #pragma warning restore CS0162 // Unreachable code detected
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             status = HealthStatus.Unhealthy;
             _logger.LogError(ex, "ExternalServiceHealthCheck - Error");
