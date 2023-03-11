@@ -15,8 +15,6 @@ public sealed class GlobalExceptionHandler
     /// </summary>
     /// <param name="next"></param>
     /// <param name="loggerFactory"></param>
-    /// <param name="loggingSettings"></param>
-    /// <param name="settings"></param>
     public GlobalExceptionHandler(RequestDelegate next, ILoggerFactory loggerFactory)
     {
         _next = next;

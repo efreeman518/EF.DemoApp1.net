@@ -1,4 +1,4 @@
-﻿const uri = 'api/TodoItems';
+﻿const uri = 'api/v1/TodoItems';
 
 const TodoItemStatus = {
     None: 0,

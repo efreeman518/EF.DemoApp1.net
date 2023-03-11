@@ -3,14 +3,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Package.Infrastructure.BackgroundService;
 using Package.Infrastructure.Common;
 using SampleApp.Api.Background;
 using SampleApp.Api.Middleware;
+using SampleApp.Api.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
 using System.Security.Claims;
 
@@ -19,10 +23,12 @@ namespace SampleApp.Api;
 public class Startup
 {
     private readonly IConfiguration _config;
+    private readonly IWebHostEnvironment _env;
 
-    public Startup(IConfiguration configuration)
+    public Startup(IConfiguration configuration, IWebHostEnvironment env)
     {
         _config = configuration;
+        _env = env;
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -72,21 +78,47 @@ public class Startup
             return new ServiceRequestContext(auditId, traceId);
         });
 
-        services.AddControllers();
-        services.AddSwaggerGen(c =>
+        // api versioning
+        services.AddApiVersioning(options =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "SampleApp.Api", Version = "v1" });
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+            options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method
         });
+
+        services.AddControllers();
+
+        if (_env.IsDevelopment())
+        {
+            //enable swagger
+            //https://markgossa.com/2022/05/asp-net-6-api-versioning-swagger.html
+            services.AddVersionedApiExplorer(o =>
+            {
+                o.GroupNameFormat = "'v'VV";
+                o.SubstituteApiVersionInUrl = true;
+            });
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
+            services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o));
+        }
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
     {
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+
+            //enable swagger
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SampleApp.Api v1"));
+            app.UseSwaggerUI(options =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+            });
         }
 
         //serve html UI

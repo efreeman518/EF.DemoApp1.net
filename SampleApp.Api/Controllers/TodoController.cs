@@ -8,8 +8,10 @@ using AppConstants = Application.Contracts.Constants.Constants;
 namespace SampleApp.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 [Produces("application/json")]
+[ApiVersion("1.0")]
+[ApiVersion("1.1")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class TodoItemsController : ControllerBase
 {
     private readonly ITodoService _todoService;
@@ -18,8 +20,23 @@ public class TodoItemsController : ControllerBase
         _todoService = todoService;
     }
 
+    /// <summary>
+    /// Gets a paged list of TodoItems
+    /// </summary>
+    /// <param name="pageSize"></param>
+    /// <param name="pageIndex"></param>
+    /// <returns></returns>
+    [MapToApiVersion("1.0")]
     [HttpGet]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems(int pageSize = 10, int pageIndex = 1)
+    {
+        var items = await _todoService.GetItemsAsync(pageSize, pageIndex);
+        return Ok(items);
+    }
+
+    [MapToApiVersion("1.1")]
+    [HttpGet]
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems_1_1(int pageSize = 20, int pageIndex = 1)
     {
         var items = await _todoService.GetItemsAsync(pageSize, pageIndex);
         return Ok(items);
@@ -54,7 +71,7 @@ public class TodoItemsController : ControllerBase
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
         {
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
-            ///throw new ValidationException($"{Constants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
+            //throw new ValidationException($"{Constants.ERROR_URL_BODY_ID_MISMATCH}: {id} != {todoItem.Id}");
         }
 
         todoItem.Id = id;

@@ -4,5 +4,5 @@ using Test.Load;
 
 Console.WriteLine("Load Tester");
 
-string baseUrl = Utility.Config.GetValue<string>("SampleApi:BaseUrl");
+string baseUrl = Utility.Config.GetValue<string>("SampleApi:BaseUrl")!;
 TodoLoadTest.Run(baseUrl);
