@@ -25,7 +25,7 @@ internal class SwaggerGenConfigurationOptions : IConfigureOptions<SwaggerGenOpti
                 description.GroupName,
                 new OpenApiInfo
                 {
-                    Title = "Core API",
+                    Title = "Sample API",
                     Version = description.ApiVersion.ToString()
                 });
         }
