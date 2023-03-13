@@ -23,12 +23,10 @@ namespace SampleApp.Api;
 public class Startup
 {
     private readonly IConfiguration _config;
-    private readonly IWebHostEnvironment _env;
 
-    public Startup(IConfiguration configuration, IWebHostEnvironment env)
+    public Startup(IConfiguration configuration)
     {
         _config = configuration;
-        _env = env;
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -89,7 +87,7 @@ public class Startup
 
         services.AddControllers();
 
-        if (_env.IsDevelopment())
+        if (_config.GetValue("SwaggerEnable", false))
         {
             //enable swagger
             //https://markgossa.com/2022/05/asp-net-6-api-versioning-swagger.html
@@ -109,15 +107,18 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+        }
 
+        if (_config.GetValue("SwaggerEnable", false))
+        { 
             //enable swagger
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                foreach (var description in provider.ApiVersionDescriptions)
+                provider.ApiVersionDescriptions.ToList().ForEach(description =>
                 {
                     options.SwaggerEndpoint($"{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                }
+                });
             });
         }
 
