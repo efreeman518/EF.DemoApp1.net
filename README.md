@@ -14,3 +14,4 @@
 2. This sample uses Entity Framework Core in-memory DbContext, so restarting the app clears the DB
 3. This solution provides a possible starting template for building service apis and is not production-ready (in-memory database, no authentication, etc)
 4. Package.Infrastructure projects are meant to reside in a nuget package feed, but for simplicity of this sample, the source projects are included and referenced
+5. Infrastructure.RapidApi services and associated integration tests require credentials (key & host headers) from https://rapidapi.com/ (set up free account)
