@@ -29,7 +29,7 @@ public abstract class ServiceTestBase
         });
         services.AddSingleton(loggerFactory);
 
-        //register infrastructure and domain services (non-http)
+        //register infrastructure, application, and domain services (non-http)
         new SampleApp.Bootstrapper.Startup(services, Config).ConfigureServices();
 
         //add logging for integration tests
