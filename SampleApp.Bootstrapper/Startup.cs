@@ -2,6 +2,7 @@
 using Application.Services;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
+using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -42,8 +43,12 @@ public class Startup
     /// </summary>
     public void ConfigureApplicationServices()
     {
+        //infrastructure services
+        _services.AddScoped<IWeatherService, WeatherServiceBadPractice>();
+        _services.Configure<WeatherServiceSettings>(_config.GetSection(WeatherServiceSettings.ConfigSectionName));
+
         //application Services
-        _services.AddTransient<ITodoService, TodoService>();
+        _services.AddScoped<ITodoService, TodoService>();
         _services.Configure<TodoServiceSettings>(_config.GetSection(TodoServiceSettings.ConfigSectionName));
 
         //domain services
