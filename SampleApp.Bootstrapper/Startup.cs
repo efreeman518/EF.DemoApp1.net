@@ -84,23 +84,16 @@ public class Startup
 
         _services.Configure<WeatherServiceSettings>(_config.GetSection(WeatherServiceSettings.ConfigSectionName));
 
-        //bad practice
-        //_services.AddScoped<IWeatherService, WeatherServiceBadPractice>();
-
-        //better practice
-        //_services.AddScoped<IWeatherService, WeatherServiceBetterPractice>();
-        //_services.AddHttpClient(); //registers IHttpClientFactory
-
-        //best practice
-        _services.AddScoped<IWeatherService, WeatherServiceBestPractice>();
-        _services.AddHttpClient<IWeatherService, WeatherServiceBestPractice>(client =>
+        //external weather service
+        _services.AddScoped<IWeatherService, WeatherService>();
+        _services.AddHttpClient<IWeatherService, WeatherService>(client =>
         {
             client.BaseAddress = new Uri(_config.GetValue<string>("WeatherSettings:BaseUrl")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", _config.GetValue<string>("WeatherSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", _config.GetValue<string>("WeatherSettings:Host")!);
         })
-        .AddPolicyHandler(GetRetryPolicy(5, 2))
-        .AddPolicyHandler(GetCircuitBreakerPolicy(20, 30));
+        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler(GetCircuitBreakerPolicy());
 
         //Database - transaction
         connectionString = _config.GetConnectionString("TodoDbContextTrxn");
@@ -182,7 +175,7 @@ public class Startup
             );
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
+    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()
