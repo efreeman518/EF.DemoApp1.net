@@ -83,7 +83,7 @@ public class WeatherServiceTests : ServiceTestBase
         WeatherServiceBetterPractice svc = (WeatherServiceBetterPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
 
         //act
-        var weather = await svc.GetForecastAsync("San Diego, CA", 3);
+        var weather = await svc.GetCurrentAsync("San Diego, CA");
 
         //assert 
         Assert.IsNotNull(weather);
@@ -124,9 +124,11 @@ public class WeatherServiceTests : ServiceTestBase
 
         //act
         var weather = await svc.GetForecastAsync("San Diego, CA", 3);
-
+        var weather2 = await svc.GetCurrentAsync("Paris, France");
+       
         //assert 
         Assert.IsNotNull(weather);
+        Assert.IsNotNull(weather2);
 
         Logger.LogInformation("BestPractice_GetForecastAsync_pass - Complete: {0}", weather.SerializeToJson());
     }
