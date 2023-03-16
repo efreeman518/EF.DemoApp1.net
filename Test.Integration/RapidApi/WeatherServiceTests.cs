@@ -30,7 +30,7 @@ public class WeatherServiceTests : ServiceTestBase
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("BadPractice_GetCurrentAsync_pass - Complete: {Weather}", weather);
+        Logger.LogInformation("BadPractice_GetCurrentAsync_pass - Complete: {0}", weather);
     }
 
     [TestMethod]
@@ -48,7 +48,7 @@ public class WeatherServiceTests : ServiceTestBase
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("BadPractice_GetForecastAsync_pass - Complete: {Weather}", weather);
+        Logger.LogInformation("BadPractice_GetForecastAsync_pass - Complete: {0}", weather);
     }
 
     #endregion
@@ -62,7 +62,7 @@ public class WeatherServiceTests : ServiceTestBase
 
         //arrange
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        WeatherServiceBadPractice svc = (WeatherServiceBadPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+        WeatherServiceBetterPractice svc = (WeatherServiceBetterPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
 
         //act
         var weather = await svc.GetCurrentAsync("San Diego, CA");
@@ -70,7 +70,7 @@ public class WeatherServiceTests : ServiceTestBase
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("BetterPractice_GetCurrentAsync_pass - Complete: {Weather}", weather.SerializeToJson());
+        Logger.LogInformation("BetterPractice_GetCurrentAsync_pass - Complete: {0}", weather.SerializeToJson());
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class WeatherServiceTests : ServiceTestBase
 
         //arrange
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        WeatherServiceBadPractice svc = (WeatherServiceBadPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+        WeatherServiceBetterPractice svc = (WeatherServiceBetterPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
 
         //act
         var weather = await svc.GetForecastAsync("San Diego, CA", 3);
@@ -88,8 +88,48 @@ public class WeatherServiceTests : ServiceTestBase
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("BetterPractice_GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
+        Logger.LogInformation("BetterPractice_GetForecastAsync_pass - Complete: {0}", weather.SerializeToJson());
     }
 
-#endregion
+    #endregion
+
+    #region Best Practice
+
+    [TestMethod]
+    public async Task BestPractice_GetCurrentAsync_pass()
+    {
+        Logger.LogInformation("BestPractice_GetCurrentAsync_pass - Start");
+
+        //arrange
+        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
+        WeatherServiceBestPractice svc = (WeatherServiceBestPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+
+        //act
+        var weather = await svc.GetCurrentAsync("San Diego, CA");
+
+        //assert 
+        Assert.IsNotNull(weather);
+
+        Logger.LogInformation("BestPractice_GetCurrentAsync_pass - Complete: {0}", weather.SerializeToJson());
+    }
+
+    [TestMethod]
+    public async Task BestPractice_GetForecastAsync_pass()
+    {
+        Logger.LogInformation("BestPractice_GetForecastAsync_pass - Start");
+
+        //arrange
+        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
+        WeatherServiceBestPractice svc = (WeatherServiceBestPractice)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+
+        //act
+        var weather = await svc.GetForecastAsync("San Diego, CA", 3);
+
+        //assert 
+        Assert.IsNotNull(weather);
+
+        Logger.LogInformation("BestPractice_GetForecastAsync_pass - Complete: {0}", weather.SerializeToJson());
+    }
+
+    #endregion
 }

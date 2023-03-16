@@ -33,7 +33,7 @@ public class WeatherServiceBadPractice : IWeatherService
 
     public async Task<WeatherRoot?> GetWeatherAsync(string url)
     {
-        using var client = new HttpClient();
+        using var httpClient = new HttpClient();
         var request = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
@@ -45,14 +45,14 @@ public class WeatherServiceBadPractice : IWeatherService
             }
         };
 
-        _logger.LogInformation("Weather service call start: {Url}", request.RequestUri);
+        _logger.LogInformation("GetWeatherAsync start: {Url}", request.RequestUri);
 
-        using var response = await client.SendAsync(request);
+        using var response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<WeatherRoot>(body);
 
-        _logger.LogInformation("Weather service call complete: {data}", data.SerializeToJson());
+        _logger.LogInformation("GetWeatherAsync complete: {data}", data.SerializeToJson());
         return data;
     } 
 }

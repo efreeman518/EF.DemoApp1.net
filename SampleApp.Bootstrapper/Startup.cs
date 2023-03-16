@@ -43,10 +43,6 @@ public class Startup
     /// </summary>
     public void ConfigureApplicationServices()
     {
-        //infrastructure services
-        _services.AddScoped<IWeatherService, WeatherServiceBadPractice>();
-        _services.Configure<WeatherServiceSettings>(_config.GetSection(WeatherServiceSettings.ConfigSectionName));
-
         //application Services
         _services.AddScoped<ITodoService, TodoService>();
         _services.Configure<TodoServiceSettings>(_config.GetSection(TodoServiceSettings.ConfigSectionName));
@@ -80,6 +76,24 @@ public class Startup
         //Infrastructure Services
         _services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         _services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>();
+
+        _services.Configure<WeatherServiceSettings>(_config.GetSection(WeatherServiceSettings.ConfigSectionName));
+
+        //bad practice
+        //_services.AddScoped<IWeatherService, WeatherServiceBadPractice>();
+
+        //better practice
+        //_services.AddScoped<IWeatherService, WeatherServiceBetterPractice>();
+        //_services.AddHttpClient(); //registers IHttpClientFactory
+
+        //best practice
+        _services.AddScoped<IWeatherService, WeatherServiceBestPractice>();
+        _services.AddHttpClient<IWeatherService, WeatherServiceBestPractice>(client =>
+        {
+            client.BaseAddress = new Uri(_config.GetValue<string>("WeatherSettings:BaseUrl")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Key", _config.GetValue<string>("WeatherSettings:Key")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Host", _config.GetValue<string>("WeatherSettings:Host")!);
+        });
 
         //Database - transaction
         connectionString = _config.GetConnectionString("TodoDbContextTrxn");
