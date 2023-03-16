@@ -12,6 +12,11 @@ using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
 using System;
+using System.Net.Http;
+using System.Net;
+using Polly;
+using Polly.Extensions.Http;
+using System.Linq;
 
 namespace SampleApp.Bootstrapper;
 
@@ -93,7 +98,9 @@ public class Startup
             client.BaseAddress = new Uri(_config.GetValue<string>("WeatherSettings:BaseUrl")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", _config.GetValue<string>("WeatherSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", _config.GetValue<string>("WeatherSettings:Host")!);
-        });
+        })
+        .AddPolicyHandler(GetRetryPolicy(5, 2))
+        .AddPolicyHandler(GetCircuitBreakerPolicy(20, 30));
 
         //Database - transaction
         connectionString = _config.GetConnectionString("TodoDbContextTrxn");
@@ -162,5 +169,23 @@ public class Startup
 
         //StartupTasks - executes once at startup
         _services.AddTransient<IStartupTask, LoadCache>();
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
+    {
+        Random jitterer = new Random();
+        return HttpPolicyExtensions
+            .HandleTransientHttpError() //known transient errors
+                                        //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
+            .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
+                + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
+            );
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
     }
 }
