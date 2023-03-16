@@ -52,7 +52,7 @@ public class WeatherServiceBadPractice : IWeatherService
         var body = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<WeatherRoot>(body);
 
-        _logger.LogInformation("Weather service call complete: {data}", data.SerializeToJson(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
+        _logger.LogInformation("Weather service call complete: {data}", data.SerializeToJson());
         return data;
     } 
 }

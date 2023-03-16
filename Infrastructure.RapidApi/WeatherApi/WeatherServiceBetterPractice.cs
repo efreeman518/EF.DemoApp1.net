@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Extensions;
+using System.Collections.Specialized;
 
 namespace Infrastructure.RapidApi.WeatherApi;
 
@@ -35,24 +37,16 @@ public class WeatherServiceBetterPractice : IWeatherService
     public async Task<WeatherRoot?> GetWeatherAsync(string url)
     {
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage
+        var headers = new NameValueCollection
         {
-            Method = HttpMethod.Get,
-            RequestUri = new Uri(url),
-            Headers =
-            {
-                { "X-RapidAPI-Key", _settings.Key },
-                { "X-RapidAPI-Host", _settings.Host },
-            }
+            { "X-RapidAPI-Key", _settings.Key },
+            { "X-RapidAPI-Host", _settings.Host }
         };
+        _logger.LogInformation("Weather service call start: {Url}", url);
 
-        _logger.LogInformation("Weather service call start: {Url}", request.RequestUri);
+        (HttpResponseMessage _, WeatherRoot? data) = await client.HttpRequestAndResponseAsync<object, WeatherRoot?>(HttpMethod.Get, url, null, headers);
 
-        using var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadAsStringAsync();
-
-        _logger.LogInformation("Weather service call complete: {Url}", request.RequestUri);
-        return null;
-    } 
+        _logger.LogInformation("Weather service call complete: {Url}", data?.SerializeToJson());
+        return data;
+    }
 }
