@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LazyCache" Version="2.4.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.51.0" />
+  </ItemGroup>
+
+</Project>

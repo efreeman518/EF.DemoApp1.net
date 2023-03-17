@@ -72,6 +72,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Comm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Data.Contracts", "Package\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj", "{E000F31F-8BFB-4E22-8283-C9901A4FB580}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Auth", "Package\Package.Infrastructure.Auth\Package.Infrastructure.Auth.csproj", "{C1C1355E-EFA4-4063-B0CA-E7E099915C5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +176,10 @@ Global
 		{E000F31F-8BFB-4E22-8283-C9901A4FB580}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E000F31F-8BFB-4E22-8283-C9901A4FB580}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E000F31F-8BFB-4E22-8283-C9901A4FB580}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1C1355E-EFA4-4063-B0CA-E7E099915C5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1C1355E-EFA4-4063-B0CA-E7E099915C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1C1355E-EFA4-4063-B0CA-E7E099915C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1C1355E-EFA4-4063-B0CA-E7E099915C5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -203,6 +209,7 @@ Global
 		{8DD1C6FB-FA32-42C3-AD64-FB5C1870EDA8} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{112EC86F-D0F1-4EC6-8AC4-172922ABE51E} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{E000F31F-8BFB-4E22-8283-C9901A4FB580} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
+		{C1C1355E-EFA4-4063-B0CA-E7E099915C5C} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}
