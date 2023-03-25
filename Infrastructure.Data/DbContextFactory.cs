@@ -20,6 +20,9 @@ public class DbContextFactory : IDesignTimeDbContextFactory<TodoDbContextTrxn>
 {
     public TodoDbContextTrxn CreateDbContext(string[] args)
     {
+        //Attach debugger?
+        //System.Diagnostics.Debugger.Launch();
+
         string? connString = Environment.GetEnvironmentVariable("EFCORETOOLSDB");
 
         if (string.IsNullOrEmpty(connString))

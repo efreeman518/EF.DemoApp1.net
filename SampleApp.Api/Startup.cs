@@ -76,6 +76,8 @@ public class Startup
             return new ServiceRequestContext(auditId, traceId);
         });
 
+        services.AddHeaderPropagation(options => options.Headers.Add("x-correlation-id"));
+
         // api versioning
         services.AddApiVersioning(options =>
         {
