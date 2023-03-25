@@ -161,7 +161,7 @@ public class Startup
         _services.AddHostedService<BackgroundTaskService>();
 
         //StartupTasks - executes once at startup
-        _services.AddTransient<IStartupTask, LoadCache>();
+        _services.AddTransient<IStartupTask, LoadCache>(); 
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
