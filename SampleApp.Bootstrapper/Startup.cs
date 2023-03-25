@@ -92,6 +92,7 @@ public class Startup
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", _config.GetValue<string>("WeatherSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", _config.GetValue<string>("WeatherSettings:Host")!);
         })
+        //.AddHeaderPropagation() //integration testing breaks
         .AddPolicyHandler(GetRetryPolicy())
         .AddPolicyHandler(GetCircuitBreakerPolicy());
 
@@ -161,7 +162,10 @@ public class Startup
         _services.AddHostedService<BackgroundTaskService>();
 
         //StartupTasks - executes once at startup
-        _services.AddTransient<IStartupTask, LoadCache>(); 
+        _services.AddTransient<IStartupTask, LoadCache>();
+
+        //header propagation
+        _services.AddHeaderPropagation(); // (options => options.Headers.Add("x-correlation-id"));
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
