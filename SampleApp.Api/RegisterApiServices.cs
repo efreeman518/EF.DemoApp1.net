@@ -23,7 +23,7 @@ public static partial class WebApplicationBuilderExtensions
         var config = builder.Configuration;
         var services = builder.Services;
 
-        //background services - residing in the api
+        //background services - defined in the api project
         services.AddHostedService<CronService>();
         services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(config.GetSection(CronServiceSettings.ConfigSectionName));
 
@@ -68,6 +68,9 @@ public static partial class WebApplicationBuilderExtensions
             options.ReportApiVersions = true;
             options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method
         });
+
+        //header propagation
+        services.AddHeaderPropagation(); // (options => options.Headers.Add("x-correlation-id"));
 
         services.AddControllers();
 

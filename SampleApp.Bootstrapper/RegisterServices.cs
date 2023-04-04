@@ -14,7 +14,6 @@ using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
 using System;
-using System.Net;
 using System.Net.Http;
 
 namespace SampleApp.Bootstrapper;
@@ -146,9 +145,6 @@ public static class RegisterServices
 
         //StartupTasks - executes once at startup
         services.AddTransient<IStartupTask, LoadCache>();
-
-        //header propagation
-        services.AddHeaderPropagation(); // (options => options.Headers.Add("x-correlation-id"));
 
         return services;
     }
