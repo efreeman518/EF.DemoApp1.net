@@ -36,22 +36,22 @@ public class Auth0TokenProvider : IOAuth2TokenProvider
             var responseContent = await response.Content.ReadAsStringAsync();
             var tokenResponse = JsonSerializer.Deserialize<Auth0TokenResponse>(responseContent);
 
-            return tokenResponse.AccessToken;
+            return tokenResponse!.AccessToken;
         });
 
         return accessToken;
     }
 
-    private class Auth0TokenResponse
+    private sealed class Auth0TokenResponse
     {
-        public string AccessToken { get; set; }
+        public string AccessToken { get; set; } = null!;
     }
 }
 
 public class Auth0Options
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string Domain { get; set; }
-    public string Audience { get; set; }
+    public string ClientId { get; set; } = null!;
+    public string ClientSecret { get; set; } = null!;
+    public string Domain { get; set; } = null!;
+    public string Audience { get; set; } = null!;
 }

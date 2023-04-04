@@ -19,18 +19,19 @@ namespace Test.Endpoints;
 public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
     where TStartup : class
 {
-    //Set the ASPNETCORE_ENVIRONMENT environment variable (for example, Staging, Production, or other custom value, such as Testing).
-    //Override CreateHostBuilder in the test app to read environment variables prefixed with ASPNETCORE
-    protected override IHostBuilder CreateHostBuilder() =>
-        base.CreateHostBuilder()!
-            .ConfigureHostConfiguration(config => config.AddEnvironmentVariables("ASPNETCORE"));
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         //The SUT's services (repos, DbContext, etc) are registered in its Startup.ConfigureServices method.
         //The test app's builder.ConfigureServices callback is executed after the app's Startup.ConfigureServices code is executed.
         //To use a different service for the tests, the app's service must be replaced here in builder.ConfigureServices
         //This methed enables replacing the endpoint project's registered services with test-purposed services
+
+        builder.ConfigureAppConfiguration(config =>
+        {
+            // Add custom configuration sources
+            config.AddJsonFile("appsettings.json", optional: false);
+            config.AddEnvironmentVariables(prefix: "ASPNETCORE_");
+        });
 
         string env = Utility.GetConfiguration().GetValue<string>("Environment", "development")!;
         builder

@@ -20,7 +20,7 @@ public class TodoControllerTests : EndpointTestBase
         Console.WriteLine(testContext.TestName);
 
         //Arrange for all tests
-        _client = Utility.GetClient<SampleApp.Api.Startup>();
+        _client = Utility.GetClient<SampleApp.Api.Program>();
 
         //Authentication
         //await ApplyBearerAuthHeader(_client);
