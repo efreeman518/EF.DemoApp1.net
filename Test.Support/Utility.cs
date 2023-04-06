@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 namespace Test.Support;
 public static class Utility
 {
-    public static IConfigurationBuilder BuildConfiguration(string? path = "appsettings.json", 
+    public static IConfigurationBuilder BuildConfiguration(string? path = "appsettings.json",
         bool includeEnvironmentVars = true, bool includeUserSecrets = true)
     {
         var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());

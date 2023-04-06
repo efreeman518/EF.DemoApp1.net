@@ -18,6 +18,8 @@ public class WeatherService : IWeatherService
         _logger = logger;
         _settings = settings.Value;
         _httpClient = httpClient;
+
+        _ = _settings.GetHashCode();
     }
 
     public async Task<WeatherRoot?> GetCurrentAsync(string location)

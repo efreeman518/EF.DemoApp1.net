@@ -1,12 +1,11 @@
 ﻿using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Common;
-using SampleApp.Api.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Linq;
@@ -65,7 +64,7 @@ internal static class IServiceCollectionExtensions
 
         services.AddControllers();
 
-        if (config.GetValue("SwaggerEnable", false))
+        if (config.GetValue("SwaggerSettings:Enable", false))
         {
             //enable swagger
             //https://markgossa.com/2022/05/asp-net-6-api-versioning-swagger.html
@@ -74,9 +73,11 @@ internal static class IServiceCollectionExtensions
                 o.GroupNameFormat = "'v'VV";
                 o.SubstituteApiVersionInUrl = true;
             });
+            services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
-            services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o));
             services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
+            var xmlCommentsFileName = config.GetValue<string>("SwaggerSettings:XmlCommentsFileName");
+            if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
 
         return services;

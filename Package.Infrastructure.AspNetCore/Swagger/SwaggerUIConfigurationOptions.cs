@@ -1,21 +1,22 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using System.Linq;
 
-namespace SampleApp.Api.Swagger;
+namespace Package.Infrastructure.AspNetCore.Swagger;
 
-internal class SwaggerUIConfigurationOptions : IConfigureOptions<SwaggerUIOptions>
+public class SwaggerUIConfigurationOptions : IConfigureOptions<SwaggerUIOptions>
 {
-    private readonly IApiVersionDescriptionProvider provider;
+    private readonly IApiVersionDescriptionProvider _provider;
+
     public SwaggerUIConfigurationOptions(IApiVersionDescriptionProvider provider)
     {
-        this.provider = provider;
+        _provider = provider;
     }
 
     public void Configure(SwaggerUIOptions options)
     {
-        provider.ApiVersionDescriptions.Select(desc => desc.GroupName).ToList().ForEach(groupName =>
+        _provider.ApiVersionDescriptions.Select(desc => desc.GroupName).ToList().ForEach(groupName =>
             options.SwaggerEndpoint($"{groupName}/swagger.json", groupName.ToUpperInvariant())
         );
     }

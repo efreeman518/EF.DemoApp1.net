@@ -1,7 +1,5 @@
-using Microsoft.ApplicationInsights.Channel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SampleApp.Bootstrapper;
@@ -27,7 +25,7 @@ public class Program
         }
 
         //logging
-        builder.Logging.ClearProviders(); 
+        builder.Logging.ClearProviders();
         builder.Logging.AddApplicationInsights();
         if (builder.Environment.IsDevelopment())
         {

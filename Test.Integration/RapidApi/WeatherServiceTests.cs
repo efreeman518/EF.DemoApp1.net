@@ -43,7 +43,7 @@ public class WeatherServiceTests : ServiceTestBase
         //act
         var weather = await svc.GetForecastAsync("San Diego, CA", 3);
         var weather2 = await svc.GetCurrentAsync("Paris, France");
-       
+
         //assert 
         Assert.IsNotNull(weather);
         Assert.IsNotNull(weather2);

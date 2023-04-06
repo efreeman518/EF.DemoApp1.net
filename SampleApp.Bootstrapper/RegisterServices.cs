@@ -91,7 +91,7 @@ public static class IServiceCollectionExtensions
             //multiple in memory DbContexts use the same DB
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
             var inMemoryDatabaseRoot = new InMemoryDatabaseRoot();
-            
+
             services.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<TodoDbContextTrxn>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
 

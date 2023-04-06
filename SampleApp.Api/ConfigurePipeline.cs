@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using SampleApp.Api.Middleware;
 using Package.Infrastructure.AspNetCore;
+using SampleApp.Api.Middleware;
 
 namespace SampleApp.Api;
 
@@ -19,7 +19,7 @@ public static partial class WebApplicationBuilderExtensions
             app.UseDeveloperExceptionPage();
         }
 
-        if (config.GetValue("SwaggerEnable", false))
+        if (config.GetValue("SwaggerSettings:Enable", false))
         {
             //enable swagger
             app.UseSwagger();

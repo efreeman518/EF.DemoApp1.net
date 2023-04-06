@@ -2,9 +2,8 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Linq;
 
-namespace SampleApp.Api.Swagger;
+namespace Package.Infrastructure.AspNetCore.Swagger;
 
 /// <summary>
 /// https://markgossa.com/2022/05/asp-net-6-api-versioning-swagger.html
