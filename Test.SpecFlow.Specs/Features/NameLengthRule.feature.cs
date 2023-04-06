@@ -137,12 +137,12 @@ this.ScenarioInitialize(scenarioInfo);
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("mytag")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:len", "5")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "asdfrt")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "asdfrx")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:result", "true")]
         public void ValidateTodoItemNameLength_5()
         {
 #line 5
-this.ValidateTodoItemNameLength("5", "asdfrt", "true", ((string[])(null)));
+this.ValidateTodoItemNameLength("5", "asdfrx", "true", ((string[])(null)));
 #line hidden
         }
         
@@ -152,12 +152,12 @@ this.ValidateTodoItemNameLength("5", "asdfrt", "true", ((string[])(null)));
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("mytag")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "10")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:len", "10")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "asdfrt")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "asdfrx")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:result", "false")]
         public void ValidateTodoItemNameLength_10()
         {
 #line 5
-this.ValidateTodoItemNameLength("10", "asdfrt", "false", ((string[])(null)));
+this.ValidateTodoItemNameLength("10", "asdfrx", "false", ((string[])(null)));
 #line hidden
         }
         
@@ -167,12 +167,12 @@ this.ValidateTodoItemNameLength("10", "asdfrt", "false", ((string[])(null)));
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("mytag")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "12")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:len", "12")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "adsfggftyfhshgfhy")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:name", "adsfxjtyfhshgfhy")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:result", "true")]
         public void ValidateTodoItemNameLength_12()
         {
 #line 5
-this.ValidateTodoItemNameLength("12", "adsfggftyfhshgfhy", "true", ((string[])(null)));
+this.ValidateTodoItemNameLength("12", "adsfxjtyfhshgfhy", "true", ((string[])(null)));
 #line hidden
         }
         

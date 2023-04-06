@@ -10,7 +10,7 @@ Scenario: Validate TodoItem Name Length
 
 Examples: 
 | len | name              | result |
-| 5   | asdfrt            | true   |
-| 10  | asdfrt            | false  |
-| 12  | adsfggftyfhshgfhy | true   |
+| 5   | asdfrx            | true   |
+| 10  | asdfrx            | false  |
+| 12  | adsfxjtyfhshgfhy  | true   |
 | 7   | atr3t             | false  |
