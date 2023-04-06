@@ -21,21 +21,21 @@ internal static class TodoLoadTest
                 // for example: send http request, SQL query etc
                 // NBomber will measure how much time it takes to execute your logic
 
-                await Utility.RunStep<object, PagedResponse<TodoItemDto>>(context, httpClient, "getpage", HttpMethod.Get, $"{baseUrl}/api/TodoItems");
-                await Utility.RunStep<TodoItemDto, TodoItemDto>(context, httpClient, "post", HttpMethod.Post, $"{baseUrl}/api/TodoItems", null,
+                await Utility.RunStep<object, PagedResponse<TodoItemDto>>(context, httpClient, "getpage", HttpMethod.Get, $"{baseUrl}/api/v1.1/TodoItems");
+                await Utility.RunStep<TodoItemDto, TodoItemDto>(context, httpClient, "post", HttpMethod.Post, $"{baseUrl}/api/v1.1/TodoItems", null,
                     // assemble the payload for this step request 
                     (context) =>
                     {
                         return new TodoItemDto { Name = $"a{Guid.NewGuid()}" };
                     });
-                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/TodoItems",
+                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/v1.1/TodoItems",
                     //assemble the url for this step request using previous step response
                     (context) =>
                     {
                         var todoItem = (TodoItemDto)context.Data["post"];
                         return $"/{todoItem.Id}";
                     });
-                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "put", HttpMethod.Put, $"{baseUrl}/api/TodoItems",
+                await Utility.RunStep<object, TodoItemDto>(context, httpClient, "put", HttpMethod.Put, $"{baseUrl}/api/v1.1/TodoItems",
                     //assemble the url for this step request using previous step response
                     (context) =>
                     {
@@ -62,7 +62,7 @@ internal static class TodoLoadTest
                 Simulation.RampingInject(rate: 5,
                              interval: TimeSpan.FromSeconds(1),
                              during: TimeSpan.FromSeconds(30)),
-                Simulation.Inject(rate: 5,
+                Simulation.Inject(rate: 10,
                       interval: TimeSpan.FromSeconds(1),
                       during: TimeSpan.FromSeconds(30))
             );
