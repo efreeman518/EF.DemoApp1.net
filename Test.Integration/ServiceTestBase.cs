@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
+using SampleApp.Bootstrapper;
 using System;
 
 namespace Test.Integration;
@@ -29,8 +30,11 @@ public abstract class ServiceTestBase
         });
         services.AddSingleton(loggerFactory);
 
-        //register infrastructure, application, and domain services (non-http)
-        new SampleApp.Bootstrapper.Startup(services, Config).ConfigureServices();
+        //bootstrapper service registrations - infrastructure, domain, application 
+        services
+            .RegisterInfrastructureServices(Config)
+            .RegisterDomainServices(Config)
+            .RegisterApplicationServices(Config);
 
         //add logging for integration tests
         services.AddApplicationInsightsTelemetryWorkerService(Config);

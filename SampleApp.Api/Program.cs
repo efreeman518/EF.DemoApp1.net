@@ -1,5 +1,7 @@
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SampleApp.Bootstrapper;
@@ -13,7 +15,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        //defaults: config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json
+        //CreateBuilder defaults:
+        //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json
+        //- logging gets Console
         var builder = WebApplication.CreateBuilder(args);
 
         //configuration
@@ -23,7 +27,7 @@ public class Program
         }
 
         //logging
-        builder.Logging.ClearProviders(); //console default
+        builder.Logging.ClearProviders(); 
         builder.Logging.AddApplicationInsights();
         if (builder.Environment.IsDevelopment())
         {
@@ -31,11 +35,10 @@ public class Program
             builder.Logging.AddConsole();
         }
 
-        //controllers, versioning, swagger, telemetry
-        builder.RegisterApiServices();
-
         var config = builder.Configuration;
         builder.Services
+            //api services - controllers, versioning, swagger, telemetry
+            .RegisterApiServices(config)
             //infrastructure - caches, DbContexts, repos, external service proxies
             .RegisterInfrastructureServices(config)
             //domain services
@@ -48,6 +51,5 @@ public class Program
         var app = builder.Build().ConfigurePipeline();
         await app.RunStartupTasks();
         await app.RunAsync();
-
     }
 }

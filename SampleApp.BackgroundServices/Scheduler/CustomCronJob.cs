@@ -1,6 +1,6 @@
 ﻿using Package.Infrastructure.BackgroundService;
 
-namespace SampleApp.Api.Background;
+namespace SampleApp.BackgroundServices.Scheduler;
 
 public class CustomCronJob : CronJobSettings
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SampleApp.Bootstrapper;
 using SampleApp.Bootstrapper.Automapper;
 
 namespace Test.Benchmarks;
@@ -12,8 +13,12 @@ public static class Utility
 
     static Utility()
     {
-        //bootstrapper container registrations - infrastructure, application and domain services
-        new SampleApp.Bootstrapper.Startup(_services, Config).ConfigureServices();
+        //bootstrapper service registrations - infrastructure, domain, application 
+        _services
+            .RegisterInfrastructureServices(Config)
+            .RegisterDomainServices(Config)
+            .RegisterApplicationServices(Config);
+
         //configure & register Automapper, application and infrastructure mapping profiles
         ConfigureAutomapper.Configure(_services);
     }

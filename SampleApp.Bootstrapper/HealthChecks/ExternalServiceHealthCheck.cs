@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Infrastructure.RapidApi.WeatherApi;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -9,10 +10,12 @@ namespace SampleApp.Bootstrapper.HealthChecks;
 public class ExternalServiceHealthCheck : IHealthCheck
 {
     private readonly ILogger<ExternalServiceHealthCheck> _logger;
+    private readonly IWeatherService _weatherService;
 
-    public ExternalServiceHealthCheck(ILogger<ExternalServiceHealthCheck> logger)
+    public ExternalServiceHealthCheck(ILogger<ExternalServiceHealthCheck> logger, IWeatherService weatherService)
     {
         _logger = logger;
+        _weatherService = weatherService;
     }
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -22,11 +25,9 @@ public class ExternalServiceHealthCheck : IHealthCheck
         var status = HealthStatus.Healthy;
         try
         {
-            //external resource/dependency health check
-#pragma warning disable CS0162 // Unreachable code detected
-            if (false) status = HealthStatus.Unhealthy;
-#pragma warning restore CS0162 // Unreachable code detected
-
+            var response = _weatherService.GetCurrentAsync("San Diego, CA");
+            if (response == null) status = HealthStatus.Unhealthy;
+            _logger.LogInformation("ExternalServiceHealthCheck - Complete");
         }
         catch (Exception ex)
         {

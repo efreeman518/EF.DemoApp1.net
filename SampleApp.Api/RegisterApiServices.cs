@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.BackgroundService;
 using Package.Infrastructure.Common;
-using SampleApp.Api.Background;
 using SampleApp.Api.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -16,17 +14,10 @@ using System.Security.Claims;
 
 namespace SampleApp.Api;
 
-public static partial class WebApplicationBuilderExtensions
+internal static class IServiceCollectionExtensions
 {
-    public static WebApplicationBuilder RegisterApiServices(this WebApplicationBuilder builder)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config)
     {
-        var config = builder.Configuration;
-        var services = builder.Services;
-
-        //background services - defined in the api project
-        services.AddHostedService<CronService>();
-        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(config.GetSection(CronServiceSettings.ConfigSectionName));
-
         //Application Insights (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
         //capture full sql
@@ -88,6 +79,6 @@ public static partial class WebApplicationBuilderExtensions
             services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
         }
 
-        return builder;
+        return services;
     }
 }

@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace SampleApp.Api;
+namespace Package.Infrastructure.AspNetCore;
 
 public static class HealthCheckHelper
 {
@@ -29,5 +29,13 @@ public static class HealthCheckHelper
         string report = ParseReport(result);
         httpContext.Response.ContentType = "application/json";
         return httpContext.Response.WriteAsync(report);
+    }
+    public static HealthCheckOptions BuildHealthCheckOptions(string tag)
+    {
+        return new HealthCheckOptions()
+        {
+            Predicate = (check) => check.Tags.Contains(tag),
+            ResponseWriter = HealthCheckHelper.WriteHealthReportResponse
+        };
     }
 }

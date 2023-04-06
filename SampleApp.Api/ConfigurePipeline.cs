@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SampleApp.Api.Middleware;
+using Package.Infrastructure.AspNetCore;
 
 namespace SampleApp.Api;
 
@@ -40,33 +41,20 @@ public static partial class WebApplicationBuilderExtensions
         //global error handler - http requests
         app.UseMiddleware(typeof(GlobalExceptionHandler));
 
-#pragma warning disable ASP0014 //minimal api endpoints
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
+        app.MapControllers();
 
-            //health checks
-            endpoints.MapHealthChecks("/health", new HealthCheckOptions()
-            {
-                // Exclude all checks and return a 200 - Ok.
-                Predicate = (_) => false
-            });
-            endpoints.MapHealthChecks("/health/full", BuildHealthCheckOptions("full"));
-            endpoints.MapHealthChecks("/health/db", BuildHealthCheckOptions("db"));
-            endpoints.MapHealthChecks("/health/memory", BuildHealthCheckOptions("memory"));
-            endpoints.MapHealthChecks("/health/extservice", BuildHealthCheckOptions("extservice"));
+        app.MapHealthChecks("/health", new HealthCheckOptions()
+        {
+            // Exclude all checks and return a 200 - Ok.
+            Predicate = (_) => false,
+
         });
-#pragma warning restore ASP0014
+        app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
+        app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
+        app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
+        app.MapHealthChecks("/health/extservice", HealthCheckHelper.BuildHealthCheckOptions("extservice"));
 
         return app;
     }
 
-    private static HealthCheckOptions BuildHealthCheckOptions(string tag)
-    {
-        return new HealthCheckOptions()
-        {
-            Predicate = (check) => check.Tags.Contains(tag),
-            ResponseWriter = HealthCheckHelper.WriteHealthReportResponse
-        };
-    }
 }

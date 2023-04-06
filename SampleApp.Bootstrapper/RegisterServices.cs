@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Package.Infrastructure.BackgroundService;
 using Polly;
 using Polly.Extensions.Http;
+using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
@@ -18,7 +20,7 @@ using System.Net.Http;
 
 namespace SampleApp.Bootstrapper;
 
-public static class RegisterServices
+public static class IServiceCollectionExtensions
 {
     /// <summary>
     /// Register/configure domain services in the container
@@ -121,8 +123,12 @@ public static class RegisterServices
                 );
         }
 
-        //infrastructure service
+        //background services
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+        services.AddHostedService<CronService>();
+        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(config.GetSection(CronServiceSettings.ConfigSectionName));
+
 
         return services;
     }

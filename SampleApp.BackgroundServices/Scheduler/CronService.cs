@@ -1,9 +1,8 @@
 ﻿using Application.Contracts.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundService;
-using System.Threading;
 
-namespace SampleApp.Api.Background;
+namespace SampleApp.BackgroundServices.Scheduler;
 
 public class CronService : CronBackgroundService<CustomCronJob>
 {
