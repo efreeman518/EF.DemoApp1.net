@@ -32,7 +32,7 @@ public class RepositoryBenchmarks
             })
             .Build<TodoDbContextQuery>();
 
-        var src = new ServiceRequestContext("Test.Unit");
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         _repo = new TodoRepositoryQuery(db, src, mapper);
     }
 

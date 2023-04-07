@@ -20,11 +20,11 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// 
     /// </summary>
     /// <param name="dbContext"></param>
-    /// <param name="auditId"></param>
-    protected RepositoryBase(TDbContext dbContext, ServiceRequestContext src)
+    /// <param name="requestContext"></param>
+    protected RepositoryBase(TDbContext dbContext, IRequestContext requestContext)
     {
         DB = dbContext;
-        _auditId = src.AuditId;
+        _auditId = requestContext.AuditId;
     }
 
     public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class

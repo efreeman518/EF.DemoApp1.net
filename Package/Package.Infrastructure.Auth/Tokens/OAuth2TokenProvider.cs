@@ -8,17 +8,17 @@ namespace Package.Infrastructure.Http.Tokens;
 public class OAuth2TokenProvider : IOAuth2TokenProvider
 {
     private readonly OAuth2Options _oauth2Options;
-    private readonly IAppCache _memoryCache;
+    private readonly IAppCache _appCache;
 
-    public OAuth2TokenProvider(IOptions<OAuth2Options> oauth2Options, IAppCache memoryCache)
+    public OAuth2TokenProvider(IOptions<OAuth2Options> oauth2Options, IAppCache appCache)
     {
         _oauth2Options = oauth2Options.Value;
-        _memoryCache = memoryCache;
+        _appCache = appCache;
     }
 
     public async Task<string> GetAccessTokenAsync()
     {
-        var accessToken = await _memoryCache.GetOrAddAsync("access_token", async entry =>
+        var accessToken = await _appCache.GetOrAddAsync<string>("access_token", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
@@ -32,30 +32,33 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
             var responseContent = await response.Content.ReadAsStringAsync();
             var tokenResponse = JsonSerializer.Deserialize<OAuth2TokenResponse>(responseContent);
 
-            return tokenResponse.AccessToken;
+            if (tokenResponse?.AccessToken == null) 
+                throw new InvalidDataException($"Token retrieval was null {_oauth2Options.TokenEndpoint}");
+
+            return tokenResponse.AccessToken!;
         });
 
         return accessToken;
     }
 
-    private IEnumerable<KeyValuePair<string, string>> GetTokenRequestBody()
+    private IEnumerable<KeyValuePair<string, string?>> GetTokenRequestBody()
     {
-        var requestBody = new List<KeyValuePair<string, string>>
+        var requestBody = new List<KeyValuePair<string, string?>>
         {
-            new KeyValuePair<string, string>("grant_type", _oauth2Options.GrantType),
-            new KeyValuePair<string, string>("client_id", _oauth2Options.ClientId),
-            new KeyValuePair<string, string>("client_secret", _oauth2Options.ClientSecret)
+            new KeyValuePair<string, string?>("grant_type", _oauth2Options?.GrantType),
+            new KeyValuePair<string, string?>("client_id", _oauth2Options?.ClientId),
+            new KeyValuePair<string, string?>("client_secret", _oauth2Options?.ClientSecret)
         };
 
-        if (!string.IsNullOrEmpty(_oauth2Options.Scope))
+        if (!string.IsNullOrEmpty(_oauth2Options?.Scope))
         {
-            requestBody.Add(new KeyValuePair<string, string>("scope", _oauth2Options.Scope));
+            requestBody.Add(new KeyValuePair<string, string?>("scope", _oauth2Options?.Scope));
         }
 
-        if (!string.IsNullOrEmpty(_oauth2Options.Username) && !string.IsNullOrEmpty(_oauth2Options.Password))
+        if (!string.IsNullOrEmpty(_oauth2Options?.Username) && !string.IsNullOrEmpty(_oauth2Options?.Password))
         {
-            requestBody.Add(new KeyValuePair<string, string>("username", _oauth2Options.Username));
-            requestBody.Add(new KeyValuePair<string, string>("password", _oauth2Options.Password));
+            requestBody.Add(new KeyValuePair<string, string?>("username", _oauth2Options.Username));
+            requestBody.Add(new KeyValuePair<string, string?>("password", _oauth2Options.Password));
         }
 
         return requestBody;
@@ -63,17 +66,17 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
 
     private sealed class OAuth2TokenResponse
     {
-        public string? AccessToken { get; set; }
+        public string? AccessToken { get; } = null;
     }
 }
 
 public class OAuth2Options
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string TokenEndpoint { get; set; }
-    public string GrantType { get; set; }
-    public string Scope { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
+    public string? TokenEndpoint { get; set; }
+    public string? GrantType { get; set; }
+    public string? Scope { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
 }

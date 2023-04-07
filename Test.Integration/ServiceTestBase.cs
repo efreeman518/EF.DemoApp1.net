@@ -40,10 +40,11 @@ public abstract class ServiceTestBase
         services.AddApplicationInsightsTelemetryWorkerService(Config);
         //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
-        //IAuditDetail
-        services.AddTransient(provider =>
+        //IRequestContext
+        services.AddTransient<IRequestContext>(provider =>
         {
-            return new ServiceRequestContext("Test.Integration");
+            var correlationId = Guid.NewGuid().ToString();
+            return new RequestContext(correlationId, $"Test.Integration-{correlationId}");
         });
 
         //build IServiceProvider for subsequent use finding/injecting services

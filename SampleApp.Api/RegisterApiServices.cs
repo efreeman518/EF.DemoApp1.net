@@ -1,4 +1,7 @@
-﻿using Microsoft.ApplicationInsights.DependencyCollector;
+﻿using Application.Services;
+using CorrelationId.Abstractions;
+using CorrelationId.DependencyInjection;
+using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -25,17 +28,22 @@ internal static class IServiceCollectionExtensions
             module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("Logging:EnableSqlCommandTextInstrumentation", false);
         });
 
-        //IAuditDetail 
-        services.AddTransient<ServiceRequestContext>(provider =>
+        //IRequestContext 
+        services.AddScoped<IRequestContext>(provider =>
         {
-            var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
+            var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+            var correlationContext = provider.GetRequiredService<ICorrelationContextAccessor>().CorrelationContext;
 
-            //TraceId from possible header used for correllation across multiple service calls
-            var traceId = Guid.NewGuid().ToString();
+            //Background services will not have an http context
+            if (httpContext == null)
+            {
+                var correlationId = Guid.NewGuid().ToString();
+                return new RequestContext(correlationId, $"BackgroundService-{correlationId}");
+            }
 
             var user = httpContext?.User;
-            //Get auditId from token claim
-            //AAD bearer token
+
+            //Get auditId from token claim /header
             string? auditId =
                 //AAD from user
                 user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
@@ -43,11 +51,11 @@ internal static class IServiceCollectionExtensions
                 ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
                 //AppId for the AAD Ent App/App Reg (client) whether its the client/secret or user with permissions on the Ent App
                 ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
-                //TODO: Remove this default
+                //TODO: Remove this default or specify a system audit identity (for background services)
                 ?? "NoAuthImplemented"
                 ;
 
-            return new ServiceRequestContext(auditId, traceId);
+            return new RequestContext(correlationContext!.CorrelationId, auditId);
         });
 
         // api versioning
@@ -60,7 +68,14 @@ internal static class IServiceCollectionExtensions
         });
 
         //header propagation
-        services.AddHeaderPropagation(); // (options => options.Headers.Add("x-correlation-id"));
+        services.AddHeaderPropagation(); // (options => options.Headers.Add("x-username-etc"));
+
+        //https://github.com/stevejgordon/CorrelationId/wiki
+        services.AddDefaultCorrelationId(options =>
+        {
+            //options.EnforceHeader = false;
+            options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
+        });
 
         services.AddControllers();
 

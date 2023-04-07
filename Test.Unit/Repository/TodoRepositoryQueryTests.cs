@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test.Support;
@@ -37,7 +38,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var src = new ServiceRequestContext("Test.Unit");
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -76,7 +77,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var src = new ServiceRequestContext("Test.Unit");
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -117,7 +118,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .Build<TodoDbContextQuery>();
 
-        var src = new ServiceRequestContext("Test.Unit");
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //search criteria

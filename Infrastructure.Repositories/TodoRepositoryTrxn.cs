@@ -5,7 +5,7 @@ namespace Infrastructure.Repositories;
 
 public class TodoRepositoryTrxn : RepositoryBase<TodoDbContextTrxn>, ITodoRepositoryTrxn
 {
-    public TodoRepositoryTrxn(TodoDbContextTrxn dbContext, ServiceRequestContext src) : base(dbContext, src)
+    public TodoRepositoryTrxn(TodoDbContextTrxn dbContext, IRequestContext src) : base(dbContext, src)
     {
     }
 }

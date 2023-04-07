@@ -18,12 +18,11 @@ public class WeatherService : IWeatherService
         _logger = logger;
         _settings = settings.Value;
         _httpClient = httpClient;
-
-        _ = _settings.GetHashCode();
     }
 
     public async Task<WeatherRoot?> GetCurrentAsync(string location)
     {
+        _ = _settings.GetHashCode();
         string url = $"/current.json?q={location}";
         return await GetWeatherAsync(url);
     }

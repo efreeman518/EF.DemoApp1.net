@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Services;
 using Application.Services;
+using CorrelationId.HttpClient;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
@@ -67,8 +68,8 @@ public static class IServiceCollectionExtensions
         ConfigureAutomapper.Configure(services);
 
         //Infrastructure Services
-        services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
-        services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>();
+        services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
+        services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
         services.Configure<WeatherServiceSettings>(config.GetSection(WeatherServiceSettings.ConfigSectionName));
 
@@ -80,7 +81,10 @@ public static class IServiceCollectionExtensions
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherSettings:Host")!);
         })
-        //.AddHeaderPropagation() //integration testing breaks
+        //integration testing breaks since there is no header to propagate (just a sample, doesn't apply to RapidAPI)
+        //.AddHeaderPropagation() 
+        //.AddCorrelationIdForwarding()
+
         .AddPolicyHandler(GetRetryPolicy())
         .AddPolicyHandler(GetCircuitBreakerPolicy());
 

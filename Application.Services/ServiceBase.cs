@@ -1,4 +1,6 @@
-﻿namespace Application.Services;
+﻿using Package.Infrastructure.Common;
+
+namespace Application.Services;
 
 public abstract class ServiceBase
 {

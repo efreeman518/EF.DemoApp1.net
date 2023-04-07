@@ -125,7 +125,7 @@ public class TodoServiceTests : UnitTestBase
             .Build<TodoDbContextQuery>();
 
 
-        var src = new ServiceRequestContext("Test.Unit");
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 

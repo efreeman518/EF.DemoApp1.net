@@ -37,8 +37,8 @@ public class AzureAdTokenProvider : IOAuth2TokenProvider
 
 public class AzureAdOptions
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string Authority { get; set; }
-    public string Resource { get; set; }
+    public string ClientId { get; set; } = null!;
+    public string ClientSecret { get; set; } = null!;
+    public string Authority { get; set; } = null!;
+    public string Resource { get; set; } = null!;
 }

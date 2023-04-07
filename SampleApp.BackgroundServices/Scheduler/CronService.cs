@@ -34,10 +34,7 @@ public class CronService : CronBackgroundService<CustomCronJob>
             //create scope if needed for scoped services
             using var scope = _serviceScopeFactory.CreateScope();
 
-            //do something - based on cronService properties
-            //message to topic/queue
-            //or
-            //get a scoped service and call a method
+            //do something - get a scoped service and call a method
             _ = scope.ServiceProvider.GetRequiredService<ITodoService>();
 
             await Task.CompletedTask;

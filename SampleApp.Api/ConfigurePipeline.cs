@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using CorrelationId;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -31,6 +32,8 @@ public static partial class WebApplicationBuilderExtensions
         app.UseStaticFiles();
 
         app.UseHttpsRedirection();
+
+        app.UseCorrelationId();
 
         app.UseRouting();
 
