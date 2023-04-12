@@ -81,7 +81,8 @@ public static class IServiceCollectionExtensions
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherSettings:Host")!);
         })
-        //integration testing breaks since there is no header to propagate (just a sample, doesn't apply to RapidAPI)
+        //integration testing breaks since there is no header to propagate
+        //apply to internal service proxies as needed; just a sample, doesn't apply to RapidAPI
         //.AddHeaderPropagation() 
         //.AddCorrelationIdForwarding()
 
