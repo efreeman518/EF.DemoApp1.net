@@ -2,7 +2,6 @@ using Infrastructure.BackgroundServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Test.Integration;
 
 namespace Package.Infrastructure.Test.Integration;
 

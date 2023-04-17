@@ -5,11 +5,13 @@ using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundService;
+using Package.Infrastructure.CosmosDb;
 using Polly;
 using Polly.Extensions.Http;
 using SampleApp.BackgroundServices.Scheduler;
@@ -18,6 +20,7 @@ using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
 using System;
 using System.Net.Http;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SampleApp.Bootstrapper;
 
@@ -127,6 +130,17 @@ public static class IServiceCollectionExtensions
                     })
                 );
         }
+
+        //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
+        services.AddSingleton(provider =>
+        {
+            return new CosmosDbRepositorySettings
+            {
+                CosmosClient = new CosmosClient(config.GetConnectionString("CosmosDB")),
+                DbId = config.GetValue<string>("CosmosDbId")
+            };
+        });
+        services.AddScoped<CosmosDbRepository>();
 
         //background services
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
