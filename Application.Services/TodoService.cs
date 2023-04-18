@@ -53,7 +53,7 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "GetItemAsync - id:{id}", id);
 
-        var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id) 
+        var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id)
             ?? throw new NotFoundException($"TodoItem.Id '{id}' not found.");
 
         //return mapped domain -> app
@@ -120,7 +120,7 @@ public class TodoService : ServiceBase, ITodoService
             throw new ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
 
         //retrieve existing
-        var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == dto.Id) 
+        var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == dto.Id)
             ?? throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
         var updateTodo = _mapper.Map<TodoItemDto, TodoItem>(dto);
 

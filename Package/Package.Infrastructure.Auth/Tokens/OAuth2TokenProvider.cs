@@ -32,7 +32,7 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
             var responseContent = await response.Content.ReadAsStringAsync();
             var tokenResponse = JsonSerializer.Deserialize<OAuth2TokenResponse>(responseContent);
 
-            if (tokenResponse?.AccessToken == null) 
+            if (tokenResponse?.AccessToken == null)
                 throw new InvalidDataException($"Token retrieval was null {_oauth2Options.TokenEndpoint}");
 
             return tokenResponse.AccessToken!;

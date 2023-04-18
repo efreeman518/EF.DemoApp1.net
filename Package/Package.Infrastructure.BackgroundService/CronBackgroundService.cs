@@ -74,7 +74,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
                     {
                         Logger.Log(LogLevel.Error, ex, "{CronJob} exception. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
                     }
-                    finally 
+                    finally
                     {
                         if (cronJob.LockSingleInstance)
                         {
@@ -86,7 +86,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
                 }
                 await Task.Delay(cronJob.SleepIntervalSeconds, stoppingToken); //async delay between schedule check
             }
-            
+
 
             Logger.Log(LogLevel.Information, "{CronJob} is stopping. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
         }

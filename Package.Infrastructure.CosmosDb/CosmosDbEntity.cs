@@ -12,7 +12,7 @@ public abstract class CosmosDbEntity : EntityBase
 
     //Audit fields?
 
-    
-    
+
+
 
 }

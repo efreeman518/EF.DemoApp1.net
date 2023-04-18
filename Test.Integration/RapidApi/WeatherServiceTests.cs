@@ -28,7 +28,7 @@ public class WeatherServiceTests : ServiceTestBase
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("GetCurrentAsync_pass - Complete: {0}", weather.SerializeToJson());
+        Logger.LogInformation("GetCurrentAsync_pass - Complete: {Weather}", weather.SerializeToJson());
     }
 
     [TestMethod]
@@ -48,6 +48,6 @@ public class WeatherServiceTests : ServiceTestBase
         Assert.IsNotNull(weather);
         Assert.IsNotNull(weather2);
 
-        Logger.LogInformation("GetForecastAsync_pass - Complete: {0}", weather.SerializeToJson());
+        Logger.LogInformation("GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
     }
 }

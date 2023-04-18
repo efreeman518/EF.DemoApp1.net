@@ -67,7 +67,7 @@ public class Program
                 .RegisterApplicationServices(config)
                 //background services
                 .RegisterBackgroundServices(config);
- 
+
             var app = builder.Build().ConfigurePipeline();
             await app.RunStartupTasks();
             await app.RunAsync();
