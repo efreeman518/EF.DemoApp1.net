@@ -9,7 +9,7 @@ namespace Package.Infrastructure.Test.Integration;
 /// <summary>
 /// CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 /// </summary>
-[Ignore("CosmosDb emulator needs to be running.")]
+//[Ignore("CosmosDb emulator needs to be running.")]
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {

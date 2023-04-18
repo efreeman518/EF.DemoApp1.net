@@ -55,24 +55,38 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
             var nextRun = schedule.GetNextOccurrence(DateTime.Now);
             DateTime now;
 
-            do
+            SemaphoreSlim semaphore = new(1);
+
+            while (!stoppingToken.IsCancellationRequested)
             {
                 now = DateTime.Now;
                 if (now > nextRun)
                 {
                     try
                     {
+                        if (cronJob.LockSingleInstance)
+                        {
+                            await semaphore.WaitAsync(stoppingToken);
+                        }
                         await RunOnScheduleAsync(Guid.NewGuid().ToString(), cronJob, stoppingToken);
                     }
                     catch (Exception ex)
                     {
                         Logger.Log(LogLevel.Error, ex, "{CronJob} exception. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
                     }
+                    finally 
+                    {
+                        if (cronJob.LockSingleInstance)
+                        {
+                            semaphore.Release();
+                        }
+                    }
+
                     nextRun = schedule.GetNextOccurrence(DateTime.Now);
                 }
                 await Task.Delay(cronJob.SleepIntervalSeconds, stoppingToken); //async delay between schedule check
             }
-            while (!stoppingToken.IsCancellationRequested);
+            
 
             Logger.Log(LogLevel.Information, "{CronJob} is stopping. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
         }

@@ -1,64 +1,36 @@
-﻿using Application.Services;
-using CorrelationId.Abstractions;
-using CorrelationId.DependencyInjection;
+﻿using CorrelationId.DependencyInjection;
+using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.AspNetCore.Swagger;
-using Package.Infrastructure.Common;
+using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using System.Linq;
-using System.Security.Claims;
 
 namespace SampleApp.Api;
 
 internal static class IServiceCollectionExtensions
 {
+    /// <summary>
+    /// Used at runtime for http services; not used for Workers/Functions/Tests
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <returns></returns>
     public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config)
     {
-        //Application Insights (for logging telemetry directly to AI)
+        //Application Insights telemtry for http services (for logging telemetry directly to AI)
         services.AddApplicationInsightsTelemetry();
         //capture full sql
         services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
         {
-            module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("Logging:EnableSqlCommandTextInstrumentation", false);
+            module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("EnableSqlCommandTextInstrumentation", false);
         });
 
-        //IRequestContext 
-        services.AddScoped<IRequestContext>(provider =>
-        {
-            var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
-            var correlationContext = provider.GetRequiredService<ICorrelationContextAccessor>().CorrelationContext;
-
-            //Background services will not have an http context
-            if (httpContext == null)
-            {
-                var correlationId = Guid.NewGuid().ToString();
-                return new RequestContext(correlationId, $"BackgroundService-{correlationId}");
-            }
-
-            var user = httpContext?.User;
-
-            //Get auditId from token claim /header
-            string? auditId =
-                //AAD from user
-                user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
-                //AAD ObjectId from user or client AAD enterprise app [ServicePrincipal Id / Object Id]:
-                ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
-                //AppId for the AAD Ent App/App Reg (client) whether its the client/secret or user with permissions on the Ent App
-                ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
-                //TODO: Remove this default or specify a system audit identity (for background services)
-                ?? "NoAuthImplemented"
-                ;
-
-            return new RequestContext(correlationContext!.CorrelationId, auditId);
-        });
-
-        // api versioning
+        //api versioning
         services.AddApiVersioning(options =>
         {
             options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -94,6 +66,14 @@ internal static class IServiceCollectionExtensions
             var xmlCommentsFileName = config.GetValue<string>("SwaggerSettings:XmlCommentsFileName");
             if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
+
+        //HealthChecks - having infrastructure references
+        //tag full will run when hitting health/full
+        services.AddHealthChecks()
+            .AddMemoryHealthCheck("memory", tags: new[] { "full", "memory" }, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
+            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: new[] { "full", "db" })
+            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: new[] { "full", "db" })
+            .AddCheck<ExternalServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
 
         return services;
     }

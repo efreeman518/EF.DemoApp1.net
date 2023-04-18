@@ -33,12 +33,13 @@ public abstract class ServiceTestBase
         //bootstrapper service registrations - infrastructure, domain, application 
         services
             .RegisterInfrastructureServices(Config)
+            .RegisterBackgroundServices(Config)
             .RegisterDomainServices(Config)
             .RegisterApplicationServices(Config);
 
         //add logging for integration tests
-        services.AddApplicationInsightsTelemetryWorkerService(Config);
-        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
+        //services.AddApplicationInsightsTelemetryWorkerService(Config);
+        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
         //IRequestContext
         services.AddTransient<IRequestContext>(provider =>

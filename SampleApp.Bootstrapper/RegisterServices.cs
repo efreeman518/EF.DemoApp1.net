@@ -1,26 +1,28 @@
 ﻿using Application.Contracts.Services;
 using Application.Services;
-using CorrelationId.HttpClient;
+using CorrelationId.Abstractions;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundService;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
 using Polly;
 using Polly.Extensions.Http;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
-using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Bootstrapper.StartupTasks;
 using System;
+using System.Linq;
 using System.Net.Http;
-using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 
 namespace SampleApp.Bootstrapper;
 
@@ -142,34 +144,51 @@ public static class IServiceCollectionExtensions
         });
         services.AddScoped<CosmosDbRepository>();
 
-        //background services
-        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+        //StartupTasks - executes once at startup
+        services.AddTransient<IStartupTask, LoadCache>();
 
-        services.AddHostedService<CronService>();
-        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(config.GetSection(CronServiceSettings.ConfigSectionName));
+        //IRequestContext 
+        services.AddScoped<IRequestContext>(provider =>
+        {
+            var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
+            var correlationContext = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext;
 
+            //Background services will not have an http context
+            if (httpContext == null)
+            {
+                var correlationId = Guid.NewGuid().ToString();
+                return new RequestContext(correlationId, $"BackgroundService-{correlationId}");
+            }
+
+            var user = httpContext?.User;
+
+            //Get auditId from token claim /header
+            string? auditId =
+                //AAD from user
+                user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
+                //AAD ObjectId from user or client AAD enterprise app [ServicePrincipal Id / Object Id]:
+                ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+                //AppId for the AAD Ent App/App Reg (client) whether its the client/secret or user with permissions on the Ent App
+                ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
+                //TODO: Remove this default or specify a system audit identity (for background services)
+                ?? "NoAuthImplemented"
+                ;
+
+            return new RequestContext(correlationContext!.CorrelationId, auditId);
+        });
 
         return services;
     }
 
-    /// <summary>
-    /// Used at runtime for http services; not used for Workers/Functions/Tests
-    /// </summary>
-    public static IServiceCollection RegisterRuntimeServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection RegisterBackgroundServices(this IServiceCollection services, IConfiguration config)
     {
-        //HealthChecks - having infrastructure references
-        //tag full will run when hitting health/full
-        services.AddHealthChecks()
-            .AddMemoryHealthCheck("memory", tags: new[] { "full", "memory" }, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
-            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: new[] { "full", "db" })
-            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: new[] { "full", "db" })
-            .AddCheck<ExternalServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
-
-        //background services - infrastructure
+        //background task
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundTaskService>();
 
-        //StartupTasks - executes once at startup
-        services.AddTransient<IStartupTask, LoadCache>();
+        //scheduler
+        services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(config.GetSection(CronServiceSettings.ConfigSectionName));
+        services.AddHostedService<CronService>();
 
         return services;
     }
