@@ -16,7 +16,7 @@ try
 {
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
-    IHost host = Host.CreateDefaultBuilder(args)
+    var host = Host.CreateDefaultBuilder(args)
         .ConfigureLogging((hostContext, logging) =>
         {
             loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);
@@ -50,6 +50,7 @@ try
         })
         .Build();
 
+    await host.RunStartupTasks();
     await host.RunAsync();
 
 }

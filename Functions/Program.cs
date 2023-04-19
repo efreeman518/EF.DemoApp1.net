@@ -1,79 +1,64 @@
+using Functions;
 using Functions.Infrastructure;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SampleApp.Bootstrapper;
 
-namespace Functions;
+//namespace Functions;
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
 /// net7 now supported in isolated mode - https://devblogs.microsoft.com/dotnet/dotnet-7-comes-to-azure-functions/
 /// </summary>
 /// 
-public class Program
+
+const string SERVICE_NAME = "Functions net7/v4";
+
+ILogger<Program> loggerStartup;
+using var loggerFactory = LoggerFactory.Create(builder =>
 {
-    private const string ServiceName = "Functions net7/v4";
-    private static ILogger<Program> _logger = null!;
-    private static IConfigurationRoot _config = null!;
+    builder.SetMinimumLevel(LogLevel.Information);
+    builder.AddConsole();
+    builder.AddApplicationInsights();
+});
+loggerStartup = loggerFactory.CreateLogger<Program>();
 
-    protected Program()
-    {
-    }
+try
+{
+    loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
-    public static async Task Main()
-    {
-        //logging for initialization
-        using var loggerFactory = LoggerFactory.Create(builder =>
+    var host = Host.CreateDefaultBuilder(args)
+        .ConfigureServices((hostContext, services) =>
         {
-            builder.SetMinimumLevel(LogLevel.Information);
-            builder.AddConsole();
-        });
-        _logger = loggerFactory.CreateLogger<Program>();
+            var config = hostContext.Configuration;
 
-        try
+            services
+                //app insights telemetry logging for non-http service
+                .AddApplicationInsightsTelemetryWorkerService(config)
+                //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
+                .RegisterInfrastructureServices(config)
+                //domain services
+                .RegisterDomainServices(config)
+                //app servives
+                .RegisterApplicationServices(config)
+                //function app specific registrations
+                .AddTransient<IDatabaseService, DatabaseService>()
+                .Configure<Settings1>(config.GetSection("Settings1"));
+        })
+        .ConfigureFunctionsWorkerDefaults(workerApplication =>
         {
-            Log(LogLevel.Information, null, $"Starting {ServiceName}.");
+            workerApplication.UseMiddleware<GlobalExceptionHandler>();
+        })
+        .Build();
 
-            var host = new HostBuilder()
-                .ConfigureHostConfiguration(ConfigConfiguration)
-                .ConfigureServices(services =>
-                {
-                    //app insights telemetry logging for non-http service
-                    services.AddApplicationInsightsTelemetryWorkerService(_config);
-                    services.AddTransient<IDatabaseService, DatabaseService>();
-                    services.Configure<Settings1>(_config.GetSection("Settings1"));
-                })
-                .ConfigureFunctionsWorkerDefaults(workerApplication =>
-                {
-                    workerApplication.UseMiddleware<GlobalExceptionHandler>();
-                })
-                .Build();
-
-            await host.RunAsync();
-        }
-        catch (Exception ex)
-        {
-            Log(LogLevel.Critical, ex, $"{ServiceName} Host terminated unexpectedly.");
-        }
-        finally
-        {
-            Log(LogLevel.Information, null, $"Ending worker {ServiceName}.");
-        }
-    }
-
-    private static void ConfigConfiguration(IConfigurationBuilder builder)
-    {
-        builder
-          .SetBasePath(Directory.GetCurrentDirectory())
-          .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-          .AddEnvironmentVariables(); //load AppService - Configuration - AppSettings
-
-        _config = builder.Build();
-    }
-
-    private static void Log(LogLevel logLevel, Exception? ex = null, string message = "", params object?[] args)
-    {
-        _logger?.Log(logLevel, ex, message, args);
-    }
+    await host.RunAsync();
+}
+catch (Exception ex)
+{
+    loggerStartup.LogCritical(ex, "{ServiceName} - Host terminated unexpectedly.", SERVICE_NAME);
+}
+finally
+{
+    loggerStartup.LogInformation("{ServiceName} - Ending application.", SERVICE_NAME);
 }
