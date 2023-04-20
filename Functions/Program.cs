@@ -5,15 +5,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SampleApp.Bootstrapper;
 
-//namespace Functions;
-
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
 /// net7 now supported in isolated mode - https://devblogs.microsoft.com/dotnet/dotnet-7-comes-to-azure-functions/
 /// </summary>
 /// 
 
-const string SERVICE_NAME = "Functions net7/v4";
+const string SERVICE_NAME = "Functions v4/net7";
 
 ILogger<Program> loggerStartup;
 using var loggerFactory = LoggerFactory.Create(builder =>
@@ -42,6 +40,8 @@ try
                 .RegisterDomainServices(config)
                 //app servives
                 .RegisterApplicationServices(config)
+                //BackgroundTaskQueue needed by other services
+                .RegisterBackgroundServices(config)
                 //function app specific registrations
                 .AddTransient<IDatabaseService, DatabaseService>()
                 .Configure<Settings1>(config.GetSection("Settings1"));

@@ -19,7 +19,6 @@ public class FunctionTimerTrigger
         _settings = settings.Value;
     }
 
-    //hangs local VS2022?
     [Function("TimerTrigger")]
     public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
     {
