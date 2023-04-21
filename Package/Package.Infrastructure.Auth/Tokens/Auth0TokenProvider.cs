@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using LazyCache;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text;
@@ -8,17 +8,17 @@ namespace Package.Infrastructure.Http.Tokens;
 public class Auth0TokenProvider : IOAuth2TokenProvider
 {
     private readonly Auth0Options _auth0Options;
-    private readonly IMemoryCache _memoryCache;
+    private readonly IAppCache _appCache;
 
-    public Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IMemoryCache memoryCache)
+    public Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IAppCache appCache)
     {
         _auth0Options = auth0Options.Value;
-        _memoryCache = memoryCache;
+        _appCache = appCache;
     }
 
-    public async Task<string> GetAccessTokenAsync()
+    public async Task<string> GetAccessTokenAsync(string[] scopes)
     {
-        var accessToken = await _memoryCache.GetOrCreateAsync("access_token", async entry =>
+        var accessToken = await _appCache.GetOrAddAsync("access_token", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 

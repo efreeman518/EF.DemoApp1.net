@@ -16,7 +16,7 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
         _appCache = appCache;
     }
 
-    public async Task<string> GetAccessTokenAsync()
+    public async Task<string> GetAccessTokenAsync(string[] scopes)
     {
         var accessToken = await _appCache.GetOrAddAsync<string>("access_token", async entry =>
         {

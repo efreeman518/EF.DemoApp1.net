@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using LazyCache;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Http.Tokens;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -12,19 +14,32 @@ namespace Test.Endpoints;
 [TestClass]
 public abstract class EndpointTestBase
 {
-    protected static readonly IConfigurationRoot _config = Utility.GetConfiguration();
-
+    protected readonly IConfigurationRoot _config = Utility.GetConfiguration();
+    protected readonly IAppCache _appcache;
+    protected readonly IOAuth2TokenProvider _tokenProvider;
+    
     protected EndpointTestBase()
     {
+        _appcache = new CachingService();
+        var options = new AzureAdOptions
+        {
+            Authority = _config.GetValue<string>("Auth:Authority")!,
+            ClientId = _config.GetValue<string>("Auth:ClientId")!,
+            ClientSecret = _config.GetValue<string>("Auth:ClientSecret")!
+        };
+        _ = options.GetHashCode();
+
+        //no auth - not currently used
+        //_tokenProvider = new AzureAdTokenProvider(Options.Create(options), _appcache);
+        _tokenProvider = null!;
     }
 
-    protected async static Task ApplyBearerAuthHeader(HttpClient client)
+    //no auth - not currently used
+    protected async Task ApplyBearerAuthHeader(HttpClient client)
     {
-        var authResult = await AuthTokenProvider.GetAuthResultClient(
-               $"{_config.GetValue<string>("Auth:Instance")}{_config.GetValue<string>("Auth:Tenant")}",
-               _config.GetValue<string>("ClientId")!,
-               _config.GetValue<string>("ClientSecret")!,
-               new string[] { _config.GetValue<string>("Auth:Scope")! }); //auth scope in service with "/.default"
-        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResult?.AccessToken);
+        //scopes = new string[] { _azureAdOptions.Resource + ".default" };
+        var scopes = _config.GetValue("Auth:Scopes", new string[] {""})!;
+        var token = await _tokenProvider.GetAccessTokenAsync(scopes);
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
 }
