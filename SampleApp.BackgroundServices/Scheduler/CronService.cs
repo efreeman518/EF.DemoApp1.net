@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.BackgroundService;
+using Package.Infrastructure.BackgroundServices;
 
 namespace SampleApp.BackgroundServices.Scheduler;
 

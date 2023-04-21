@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Package.Infrastructure.BackgroundService;
+namespace Package.Infrastructure.BackgroundServices;
+
 public abstract class ScopedBackgroundService : Microsoft.Extensions.Hosting.BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;

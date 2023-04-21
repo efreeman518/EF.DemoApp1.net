@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Services;
 using Application.Services;
 using CorrelationId.Abstractions;
-using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
@@ -11,9 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.BackgroundService;
+using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
+using Package.Infrastructure.Storage;
 using Polly;
 using Polly.Extensions.Http;
 using SampleApp.BackgroundServices.Scheduler;
@@ -143,6 +143,10 @@ public static class IServiceCollectionExtensions
             };
         });
         services.AddScoped<CosmosDbRepository>();
+
+        //BlobStorage
+        services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
+        services.Configure<AzureBlobStorageManagerSettings>(config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName));
 
         //StartupTasks - executes once at startup
         services.AddTransient<IStartupTask, LoadCache>();

@@ -1,5 +1,5 @@
 ﻿using Application.Services.Rules;
-using Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;

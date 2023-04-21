@@ -30,7 +30,8 @@
     <ProjectReference Include="..\Application.Services\Application.Services.csproj" />
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
     <ProjectReference Include="..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
-    <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundService.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
     <ProjectReference Include="..\SampleApp.BackgroundServices\SampleApp.BackgroundServices.csproj" />
   </ItemGroup>
 

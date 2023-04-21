@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
-namespace Infrastructure.BackgroundServices;
+namespace Package.Infrastructure.BackgroundServices;
 
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-7.0

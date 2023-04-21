@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using static NCrontab.CrontabSchedule;
 
-namespace Package.Infrastructure.BackgroundService;
+namespace Package.Infrastructure.BackgroundServices;
 
 public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.BackgroundService where T : CronJobSettings
 {

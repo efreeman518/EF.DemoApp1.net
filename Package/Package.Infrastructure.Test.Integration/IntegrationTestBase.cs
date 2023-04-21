@@ -1,9 +1,10 @@
-﻿using Infrastructure.BackgroundServices;
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.CosmosDb;
+using Package.Infrastructure.Storage;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -27,6 +28,10 @@ public abstract class IntegrationTestBase
         //queued background service - fire and forget 
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+        //BlobStorage
+        services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
+        services.Configure<AzureBlobStorageManagerSettings>(Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName));
 
         //CosmosDb
         services.AddSingleton(provider =>

@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.BackgroundServices;
+﻿namespace Package.Infrastructure.BackgroundServices;
 
 public interface IBackgroundTaskQueue
 {

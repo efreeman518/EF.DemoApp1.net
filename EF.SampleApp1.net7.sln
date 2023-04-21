@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApp", "SampleApp", "{E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{582A744C-28BF-4AD2-9485-597390A53596}"
 EndProject
@@ -52,7 +52,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.UI", "Test.UI\Test.UI.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.SpecFlow.Specs", "Test.SpecFlow.Specs\Test.SpecFlow.Specs.csproj", "{CA31AFBE-48AB-4C6F-A07A-1B2BEB27A1BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.BackgroundService", "Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundService.csproj", "{0D94D3C7-0228-4E68-8C67-4FECBCBB3174}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.BackgroundServices", "Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj", "{0D94D3C7-0228-4E68-8C67-4FECBCBB3174}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Test.Integration", "Package\Package.Infrastructure.Test.Integration\Package.Infrastructure.Test.Integration.csproj", "{AB7CB23A-B83B-4337-B416-F9A1121DA1CD}"
 EndProject
@@ -80,11 +80,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp.BackgroundService
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.AspNetCore", "Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj", "{0424856A-E29C-428A-9732-7C4B226FFC7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package.Infrastructure.CosmosDb", "Package.Infrastructure.CosmosDb\Package.Infrastructure.CosmosDb.csproj", "{198C6A1A-BFD9-4090-9C9F-02584C625D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.CosmosDb", "Package.Infrastructure.CosmosDb\Package.Infrastructure.CosmosDb.csproj", "{198C6A1A-BFD9-4090-9C9F-02584C625D9B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Worker", "Worker", "{C437D483-567A-4D51-B719-194959357BCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker.Scheduler", "Worker.Scheduler\Worker.Scheduler.csproj", "{50A3488A-2C68-4510-BAA0-826A462D2163}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Worker.Scheduler", "Worker.Scheduler\Worker.Scheduler.csproj", "{50A3488A-2C68-4510-BAA0-826A462D2163}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package.Infrastructure.Storage", "Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj", "{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -212,6 +214,10 @@ Global
 		{50A3488A-2C68-4510-BAA0-826A462D2163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50A3488A-2C68-4510-BAA0-826A462D2163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50A3488A-2C68-4510-BAA0-826A462D2163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,6 +253,7 @@ Global
 		{0424856A-E29C-428A-9732-7C4B226FFC7B} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{198C6A1A-BFD9-4090-9C9F-02584C625D9B} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{50A3488A-2C68-4510-BAA0-826A462D2163} = {C437D483-567A-4D51-B719-194959357BCB}
+		{4F2C0D2D-91B1-4571-BE9E-D0B702F334F6} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

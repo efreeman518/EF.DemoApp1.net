@@ -1,4 +1,5 @@
-﻿namespace Package.Infrastructure.BackgroundService;
+﻿namespace Package.Infrastructure.BackgroundServices;
+
 public abstract class CronJobSettings
 {
     public string JobName { get; set; } = $"CronJob-{Guid.NewGuid()}";
