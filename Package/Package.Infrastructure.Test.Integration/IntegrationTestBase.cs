@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.CosmosDb;
+using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
 
 namespace Package.Infrastructure.Test.Integration;
@@ -43,6 +44,10 @@ public abstract class IntegrationTestBase
             };
         });
         services.AddScoped<CosmosDbRepository>();
+
+        //OpenAI chat service
+        services.AddScoped<IChatService, ChatService>();
+        services.Configure<ChatServiceSettings>(Config.GetSection(ChatServiceSettings.ConfigSectionName));
 
         services.AddLogging(configure => configure.AddConsole().AddDebug());
 

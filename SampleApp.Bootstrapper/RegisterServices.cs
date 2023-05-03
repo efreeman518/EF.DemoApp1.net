@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
+using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
 using Polly;
 using Polly.Extensions.Http;
@@ -73,12 +74,17 @@ public static class IServiceCollectionExtensions
         ConfigureAutomapper.Configure(services);
 
         //Infrastructure Services
+
+        //EF-sql repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
-        services.Configure<WeatherServiceSettings>(config.GetSection(WeatherServiceSettings.ConfigSectionName));
+        //OpenAI chat service
+        services.AddScoped<IChatService, ChatService>();
+        services.Configure<ChatServiceSettings>(config.GetSection(ChatServiceSettings.ConfigSectionName));
 
         //external weather service
+        services.Configure<WeatherServiceSettings>(config.GetSection(WeatherServiceSettings.ConfigSectionName));
         services.AddScoped<IWeatherService, WeatherService>();
         services.AddHttpClient<IWeatherService, WeatherService>(client =>
         {
@@ -134,15 +140,20 @@ public static class IServiceCollectionExtensions
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
-        services.AddSingleton(provider =>
+        connectionString = config.GetConnectionString("CosmosDB");
+        if (string.IsNullOrEmpty(connectionString))
         {
-            return new CosmosDbRepositorySettings
+            services.AddSingleton(provider =>
             {
-                CosmosClient = new CosmosClient(config.GetConnectionString("CosmosDB")),
-                DbId = config.GetValue<string>("CosmosDbId")
-            };
-        });
-        services.AddScoped<CosmosDbRepository>();
+                return new CosmosDbRepositorySettings
+                {
+                    CosmosClient = new CosmosClient(config.GetConnectionString("CosmosDB")),
+                    DbId = config.GetValue<string>("CosmosDbId")
+                };
+            });
+            services.AddScoped<CosmosDbRepository>();
+        }
+        
 
         //BlobStorage
         services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();

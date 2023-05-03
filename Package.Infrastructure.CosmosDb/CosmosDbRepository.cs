@@ -91,6 +91,21 @@ public class CosmosDbRepository : ICosmosDbRepository
         return items;
     }
 
+    public async Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false)
+    {
+        Container container = DbClient3.GetContainer(DbId, containerId);
+        if(container == null && createIfNotExist)
+        {
+            ContainerProperties containerProperties = new(containerId, partitionKeyPath)
+            {
+                PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
+            };
+            var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
+            container = response.Container;
+        }
+        return container!;
+    }
+
     //sdk4 ? no linq (yet)
     //public async Task<List<T>> GetListAsync<T>(string query)
     //{

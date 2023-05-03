@@ -1,6 +1,10 @@
 ﻿using Package.Infrastructure.Data.Contracts;
 
 namespace Package.Infrastructure.CosmosDb;
+
+/// <summary>
+/// Inheriting from EntityBase forces this package to a higher level of infrastructure packages
+/// </summary>
 public abstract class CosmosDbEntity : EntityBase
 {
     //CosmosDB required
