@@ -11,6 +11,7 @@ public abstract class EntityBaseConfiguration<T> : IEntityTypeConfiguration<T> w
         //Guid PK
         builder.HasKey(c => c.Id).IsClustered(false);
         builder.Property(c => c.Id).ValueGeneratedNever();
+        builder.Property(p => p.RowVersion).IsRowVersion().IsConcurrencyToken(true);
 
         builder.Property(b => b.CreatedBy).HasMaxLength(100);
         builder.Property(b => b.UpdatedBy).HasMaxLength(100);

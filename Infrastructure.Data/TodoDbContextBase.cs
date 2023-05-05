@@ -18,7 +18,7 @@ namespace Infrastructure.Data;
 /*
  * Migrations applied during design time use the design time factory to create a DBContext; 
  * set the env variable for connection string in PMC before running commands
- * $env:EFCORETOOLSDB = "Server=localhost;Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;"
+ * $env:EFCORETOOLSDB = "Server=localhost;Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;TrustServerCertificate=true"
  * 
  * if EF6 and EFCore tools both installed, prefix with EntityFrameworkCore\
  * EntityFrameworkCore\update-database -migration 0  -Context TodoDbContextQuery : Db back to ground zero
