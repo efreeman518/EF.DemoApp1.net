@@ -45,7 +45,7 @@ internal static class IServiceCollectionExtensions
         //https://github.com/stevejgordon/CorrelationId/wiki
         services.AddDefaultCorrelationId(options =>
         {
-            //options.EnforceHeader = false;
+            options.AddToLoggingScope = true;
             options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
         });
 
@@ -73,7 +73,7 @@ internal static class IServiceCollectionExtensions
             .AddMemoryHealthCheck("memory", tags: new[] { "full", "memory" }, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
             .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: new[] { "full", "db" })
             .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: new[] { "full", "db" })
-            .AddCheck<ExternalServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
+            .AddCheck<WeatherServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
 
         return services;
     }

@@ -149,6 +149,7 @@ public static class EFExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="dbContext"></param>
     /// <param name="entity"></param>
+    /// <param name="replaceAttached">if already attached, replace with incoming entity</param>
     /// <returns>true if newly attached, otherwise false (already attached)</returns>
     public static bool GetLocalOrAttach<T>(this DbContext dbContext, ref T entity, bool replaceAttached = true) where T : EntityBase
     {

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace SampleApp.Bootstrapper.HealthChecks;
 
-public class ExternalServiceHealthCheck : IHealthCheck
+public class WeatherServiceHealthCheck : IHealthCheck
 {
-    private readonly ILogger<ExternalServiceHealthCheck> _logger;
+    private readonly ILogger<WeatherServiceHealthCheck> _logger;
     private readonly IWeatherService _weatherService;
 
-    public ExternalServiceHealthCheck(ILogger<ExternalServiceHealthCheck> logger, IWeatherService weatherService)
+    public WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger, IWeatherService weatherService)
     {
         _logger = logger;
         _weatherService = weatherService;
@@ -20,23 +20,23 @@ public class ExternalServiceHealthCheck : IHealthCheck
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("ExternalServiceHealthCheck - Start");
+        _logger.LogInformation("WeatherServiceHealthCheck - Start");
 
         var status = HealthStatus.Healthy;
         try
         {
             var response = _weatherService.GetCurrentAsync("San Diego, CA");
             if (response == null) status = HealthStatus.Unhealthy;
-            _logger.LogInformation("ExternalServiceHealthCheck - Complete");
+            _logger.LogInformation("WeatherServiceHealthCheck - Complete");
         }
         catch (Exception ex)
         {
             status = HealthStatus.Unhealthy;
-            _logger.LogError(ex, "ExternalServiceHealthCheck - Error");
+            _logger.LogError(ex, "WeatherServiceHealthCheck - Error");
         }
 
         return Task.FromResult(new HealthCheckResult(status,
-            description: $"ExternalService is {status}.",
+            description: $"WeatherService is {status}.",
             exception: null,
             data: null));
     }

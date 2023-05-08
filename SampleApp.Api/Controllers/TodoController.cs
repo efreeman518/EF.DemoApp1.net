@@ -56,7 +56,7 @@ public class TodoItemsController : ControllerBase
 
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ExceptionResponse))]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoItem)
     {
         todoItem = await _todoService.AddItemAsync(todoItem);
@@ -65,7 +65,7 @@ public class TodoItemsController : ControllerBase
 
     [HttpPut("{id:Guid}")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ExceptionResponse))]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PutTodoItem(Guid id, TodoItemDto todoItem)
     {
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)

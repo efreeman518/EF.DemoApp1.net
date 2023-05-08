@@ -88,9 +88,9 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IWeatherService, WeatherService>();
         services.AddHttpClient<IWeatherService, WeatherService>(client =>
         {
-            client.BaseAddress = new Uri(config.GetValue<string>("WeatherSettings:BaseUrl")!);
-            client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherSettings:Key")!);
-            client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherSettings:Host")!);
+            client.BaseAddress = new Uri(config.GetValue<string>("WeatherServiceSettings:BaseUrl")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherServiceSettings:Key")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherServiceSettings:Host")!);
         })
         //integration testing breaks since there is no header to propagate
         //apply to internal service proxies as needed; just a sample, doesn't apply to RapidAPI

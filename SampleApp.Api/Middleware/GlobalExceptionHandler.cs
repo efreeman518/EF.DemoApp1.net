@@ -1,5 +1,6 @@
-﻿using Application.Contracts.Model;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -9,16 +10,19 @@ public sealed class GlobalExceptionHandler
 {
     private readonly RequestDelegate _next;
     private readonly ILogger _logger;
+    private readonly IHostEnvironment _hostEnvironment;
 
     /// <summary>
     /// Middleware is Singleton, so can only inject Singleton (not Scoped)
     /// </summary>
     /// <param name="next"></param>
     /// <param name="loggerFactory"></param>
-    public GlobalExceptionHandler(RequestDelegate next, ILoggerFactory loggerFactory)
+    /// <param name="hostEnvironment"></param>
+    public GlobalExceptionHandler(RequestDelegate next, ILoggerFactory loggerFactory, IHostEnvironment hostEnvironment)
     {
         _next = next;
         _logger = loggerFactory.CreateLogger<GlobalExceptionHandler>();
+        _hostEnvironment = hostEnvironment;
     }
 
 
@@ -64,9 +68,20 @@ public sealed class GlobalExceptionHandler
             _ => StatusCodes.Status500InternalServerError
         };
 
-        ExceptionResponse response = new() { Message = ex.Message };
+        var problemDetails = new ProblemDetails
+        {
+            Title = ex.GetType().Name,
+            Detail = ex.Message,
+            Status = context.Response.StatusCode
+        };
+        problemDetails.Extensions.Add("traceidentifier", context.TraceIdentifier);
+        if (_hostEnvironment.IsDevelopment())
+        {
+            problemDetails.Extensions.Add("stacktrace", ex.StackTrace );
+        }
+
         context.Response.ContentType = new MediaTypeHeaderValue("application/json").ToString();
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
     }
 }
 

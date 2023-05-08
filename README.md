@@ -25,7 +25,7 @@
 5. Infrastructure.RapidApi services and associated integration tests require credentials (key & host headers) from https://rapidapi.com/ (set up free account)
 6. Package.Infrastructure.Storage & Functions.FunctionBlobTrigger - install and run latest azurite storage emulator (https://www.npmjs.com/package/azurite)
    * npm install -g azurite
-   * Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+   * (if needed for Powershell) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    * azurite -s -l c:\azurite -d c:\azurite\debug.log
 7. Package.Infrastructure.CosmosDb - install and run latest CosmosDB emulator
    * https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
