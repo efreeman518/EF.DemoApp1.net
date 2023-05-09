@@ -151,7 +151,7 @@ public static class IServiceCollectionExtensions
                     DbId = config.GetValue<string>("CosmosDbId")
                 };
             });
-            services.AddScoped<CosmosDbRepository>();
+            services.AddScoped<CosmosDbRepositoryBase>();
         }
         
 

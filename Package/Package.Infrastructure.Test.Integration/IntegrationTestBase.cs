@@ -43,7 +43,7 @@ public abstract class IntegrationTestBase
                 DbId = Config.GetValue<string>("CosmosDbId")
             };
         });
-        services.AddScoped<CosmosDbRepository>();
+        services.AddScoped<CosmosDbRepo1>();
 
         //OpenAI chat service
         services.AddScoped<IChatService, ChatService>();

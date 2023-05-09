@@ -16,7 +16,7 @@ function handleErrors(response) {
         return response;
     }
     return response.json().then(err => {
-        document.getElementById('error').innerText = err.Message;
+        document.getElementById('error').innerText = err.detail;
         throw err.Message;
     });
 }

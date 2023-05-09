@@ -2,7 +2,7 @@
 
 namespace Package.Infrastructure.CosmosDb;
 
-public interface ICosmosDbRepository
+public interface ICosmosDbRepositoryBase
 {
     Task<List<T>> GetListAsync<T>(string query, string? continuationToken = null);
     Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, string? continuationToken = null, int maxConcurrency = -1);

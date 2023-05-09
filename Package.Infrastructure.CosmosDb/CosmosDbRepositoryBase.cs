@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 namespace Package.Infrastructure.CosmosDb;
 
 //https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.cosmos.cosmosclient?view=azure-dotnet
-public class CosmosDbRepository : ICosmosDbRepository
+public abstract class CosmosDbRepositoryBase : ICosmosDbRepositoryBase
 {
-    readonly string? DbId;
-    readonly CosmosClient DbClient3;
+    public readonly string? DbId;
+    public readonly CosmosClient DbClient3;
 
-    public CosmosDbRepository(CosmosDbRepositorySettings settings)
+    protected CosmosDbRepositoryBase(CosmosDbRepositorySettings settings)
     {
         DbClient3 = settings.CosmosClient;
         DbId = settings.DbId;
@@ -42,7 +42,6 @@ public class CosmosDbRepository : ICosmosDbRepository
         {
             return default;
         }
-
     }
 
     //using SDK3 for linq
