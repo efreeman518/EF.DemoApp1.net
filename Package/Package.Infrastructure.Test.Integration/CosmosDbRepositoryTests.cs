@@ -11,18 +11,7 @@ namespace Package.Infrastructure.Test.Integration;
 
 // CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
-
-/// <summary>
-/// Need implementation of abstract base class for tests
-/// </summary>
-//public class CosmosDbRepo1 : CosmosDbRepositoryBase
-//{
-//    public CosmosDbRepo1(CosmosDbRepositorySettings settings) : base(settings)
-//    {
-//    }
-//}
-
-//[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
+[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {
