@@ -16,7 +16,7 @@ public static partial class WebApplicationBuilderExtensions
         //serve sample html/js UI
         app.UseDefaultFiles();
         app.UseStaticFiles();
-        
+
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();

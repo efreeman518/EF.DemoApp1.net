@@ -17,7 +17,7 @@ public class ChatService : IChatService
 
     public async Task<List<string>> ChatStream(Request request)
     {
-        var chat = _openApi.Chat.CreateConversation(new ChatRequest { Model= "gpt-3.5-turbo" });
+        var chat = _openApi.Chat.CreateConversation(new ChatRequest { Model = "gpt-3.5-turbo" });
         chat.AppendUserInput(request.Prompt);
 
         List<string> response = new();

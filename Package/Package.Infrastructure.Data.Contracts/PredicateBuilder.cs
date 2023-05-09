@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
-namespace Package.Infrastructure.Data;
+namespace Package.Infrastructure.Data.Contracts;
 
 //http://www.albahari.com/nutshell/predicatebuilder.aspx
 

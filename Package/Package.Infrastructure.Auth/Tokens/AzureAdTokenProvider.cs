@@ -1,7 +1,6 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using LazyCache;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 

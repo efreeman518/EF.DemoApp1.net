@@ -35,6 +35,7 @@ public abstract class IntegrationTestBase
         services.Configure<AzureBlobStorageManagerSettings>(Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName));
 
         //CosmosDb
+        services.AddTransient<ICosmosDbRepository, CosmosDbRepository>();
         services.AddSingleton(provider =>
         {
             return new CosmosDbRepositorySettings
@@ -43,10 +44,10 @@ public abstract class IntegrationTestBase
                 DbId = Config.GetValue<string>("CosmosDbId")
             };
         });
-        services.AddScoped<CosmosDbRepo1>();
+
 
         //OpenAI chat service
-        services.AddScoped<IChatService, ChatService>();
+        services.AddTransient<IChatService, ChatService>();
         services.Configure<ChatServiceSettings>(Config.GetSection(ChatServiceSettings.ConfigSectionName));
 
         services.AddLogging(configure => configure.AddConsole().AddDebug());

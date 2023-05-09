@@ -151,9 +151,9 @@ public static class IServiceCollectionExtensions
                     DbId = config.GetValue<string>("CosmosDbId")
                 };
             });
-            services.AddScoped<CosmosDbRepositoryBase>();
+            services.AddScoped<CosmosDbRepository>();
         }
-        
+
 
         //BlobStorage
         services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();

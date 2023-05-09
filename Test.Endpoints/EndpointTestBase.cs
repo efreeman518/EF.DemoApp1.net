@@ -1,6 +1,5 @@
 ﻿using LazyCache;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Http.Tokens;
 using System.Net.Http;
@@ -17,7 +16,7 @@ public abstract class EndpointTestBase
     protected readonly IConfigurationRoot _config = Utility.GetConfiguration();
     protected readonly IAppCache _appcache;
     protected readonly IOAuth2TokenProvider _tokenProvider;
-    
+
     protected EndpointTestBase()
     {
         _appcache = new CachingService();
@@ -38,7 +37,7 @@ public abstract class EndpointTestBase
     protected async Task ApplyBearerAuthHeader(HttpClient client)
     {
         //scopes = new string[] { _azureAdOptions.Resource + ".default" };
-        var scopes = _config.GetValue("Auth:Scopes", new string[] {""})!;
+        var scopes = _config.GetValue("Auth:Scopes", new string[] { "" })!;
         var token = await _tokenProvider.GetAccessTokenAsync(scopes);
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }

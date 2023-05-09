@@ -77,7 +77,7 @@ public sealed class GlobalExceptionHandler
         problemDetails.Extensions.Add("traceidentifier", context.TraceIdentifier);
         if (_hostEnvironment.IsDevelopment())
         {
-            problemDetails.Extensions.Add("stacktrace", ex.StackTrace );
+            problemDetails.Extensions.Add("stacktrace", ex.StackTrace);
         }
 
         context.Response.ContentType = new MediaTypeHeaderValue("application/json").ToString();

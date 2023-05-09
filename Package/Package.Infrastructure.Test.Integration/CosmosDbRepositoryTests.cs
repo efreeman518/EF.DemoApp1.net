@@ -1,7 +1,6 @@
 ﻿using Domain.Model;
 using Domain.Shared.Enums;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.CosmosDb;
@@ -16,24 +15,24 @@ namespace Package.Infrastructure.Test.Integration;
 /// <summary>
 /// Need implementation of abstract base class for tests
 /// </summary>
-public class CosmosDbRepo1 : CosmosDbRepositoryBase
-{
-    public CosmosDbRepo1(CosmosDbRepositorySettings settings) : base(settings)
-    {
-    }
-}
+//public class CosmosDbRepo1 : CosmosDbRepositoryBase
+//{
+//    public CosmosDbRepo1(CosmosDbRepositorySettings settings) : base(settings)
+//    {
+//    }
+//}
 
 //[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {
     readonly ILogger<CosmosDbRepositoryTests> _logger;
-    readonly ICosmosDbRepositoryBase _repo;
+    readonly ICosmosDbRepository _repo;
 
     public CosmosDbRepositoryTests() : base()
     {
         _logger = LoggerFactory.CreateLogger<CosmosDbRepositoryTests>();
-        _repo = (CosmosDbRepo1)Services.GetRequiredService(typeof(CosmosDbRepo1));
+        _repo = (ICosmosDbRepository)Services.GetRequiredService(typeof(ICosmosDbRepository));
     }
 
     /// <summary>
@@ -45,7 +44,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     {
         _logger.Log(LogLevel.Information, "Todo_crud_pass - Start");
 
-        TodoItemNoSql? todo = new("testToDoItema"); //EntityBase - Id created on instantiation 
+        TodoItemNoSql? todo = new(Guid.NewGuid().ToString() + "a"); //EntityBase - Id created on instantiation 
         Guid id = todo.Id;
 
         //create
@@ -65,13 +64,36 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         Assert.IsNotNull(todo);
         Assert.AreEqual(todo.Status, TodoItemStatus.Completed);
 
-        //query by expression
-        List<TodoItemNoSql> todos = await _repo.GetListAsync<TodoItemNoSql>(t => t.Status == TodoItemStatus.Completed);
-        Assert.IsTrue(todos.Count > 0);
+        //LINQ - page with filter and sort
 
-        //query by sql
-        todos = await _repo.GetListAsync<TodoItemNoSql>("Select * FROM Todo t Where t.Status = 1");
-        Assert.IsTrue(todos.Count > 0);
+        //filter
+        Expression<Func<TodoItemNoSql, bool>> filter = t => t.Status == TodoItemStatus.Completed;
+        //sort
+        List<Sort> sorts = new() { new Sort("PartitionKey", SortOrder.Ascending) };
+        //page size
+        int pageSize = 10;
+
+        List<TodoItemNoSql> todos;
+        string? continuationToken = null;
+        do
+        {
+            (todos, continuationToken) = await _repo.GetPagedListAsync(continuationToken, pageSize, filter, sorts);
+            Assert.IsTrue(todos.Count > 0);
+        }
+        while (continuationToken != null);
+
+        //SQL - page with filter and sort
+        string sql = "SELECT * FROM t WHERE t.Status=@Status ORDER BY t.Name ASC";
+        Dictionary<string, object> parameters = new()
+        {
+            {"@Status", TodoItemStatus.Completed }
+        };
+        do
+        {
+            (todos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql>(sql, parameters, continuationToken, pageSize);
+            Assert.IsTrue(todos.Count > 0);
+        }
+        while (continuationToken != null);
 
         //delete & validate
         await _repo.DeleteItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);

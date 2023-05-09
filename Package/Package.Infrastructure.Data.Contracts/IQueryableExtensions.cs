@@ -1,15 +1,11 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Package.Infrastructure.Data.Contracts;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Package.Infrastructure.Data;
+namespace Package.Infrastructure.Data.Contracts;
 public static class IQueryableExtensions
 {
     private static readonly ConcurrentDictionary<Type, object?> typeDefaults = new();
