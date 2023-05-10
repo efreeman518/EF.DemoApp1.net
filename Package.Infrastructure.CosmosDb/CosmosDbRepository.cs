@@ -63,10 +63,10 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <param name="sorts"></param>
     /// <param name="maxConcurrency"></param>
     /// <returns></returns>
-    public async Task<(List<T>, string?)> GetPagedListAsync<T>(string? continuationToken = null, int pageSize = 10,
-        Expression<Func<T, bool>>? filter = null,
+    public async Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null, int pageSize = 10,
+        Expression<Func<TProject, bool>>? filter = null,
         List<Sort>? sorts = null,
-        int maxConcurrency = -1) where T : CosmosDbEntity
+        int maxConcurrency = -1) 
     {
         QueryRequestOptions o = new()
         {
@@ -74,12 +74,12 @@ public class CosmosDbRepository : ICosmosDbRepository
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
 
-        var queryable = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemLinqQueryable<T>(false, continuationToken, o);
+        var queryable = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemLinqQueryable<TProject>(false, continuationToken, o);
 
         filter ??= i => true;
         var query = queryable.Where(filter);
         if (sorts != null) query = query.OrderBy(sorts.AsEnumerable());
-        List<T> items = new();
+        List<TProject> items = new();
 
         using var feedIterator = query.ToFeedIterator();
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount
@@ -104,10 +104,10 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <param name="pageSize"></param>
     /// <param name="maxConcurrency"></param>
     /// <returns></returns>
-    public async Task<(List<T>, string?)> GetPagedListAsync<T>(
+    public async Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(
         string sql, Dictionary<string, object>? parameters = null,
         string? continuationToken = null, int pageSize = 10,
-        int maxConcurrency = -1) where T : CosmosDbEntity
+        int maxConcurrency = -1) 
     {
         QueryDefinition query = new(sql);
         if (parameters != null)
@@ -123,9 +123,9 @@ public class CosmosDbRepository : ICosmosDbRepository
             MaxItemCount = pageSize,
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
-        List<T> items = new();
+        List<TProject> items = new();
 
-        using var feedIterator = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemQueryIterator<T>(query, continuationToken, o);
+        using var feedIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<TProject>(query, continuationToken, o);
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize
         {
             var response = await feedIterator.ReadNextAsync(); //this will load based on MaxItemCount/pageSize)

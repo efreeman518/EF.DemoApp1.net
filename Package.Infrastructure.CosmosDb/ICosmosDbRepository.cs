@@ -10,14 +10,14 @@ public interface ICosmosDbRepository
     Task DeleteItemAsync<T>(string id, string partitionKey);
     Task DeleteItemAsync<T>(T item) where T : CosmosDbEntity;
 
-    Task<(List<T>, string?)> GetPagedListAsync<T>(string? continuationToken = null, int pageSize = 10,
-        Expression<Func<T, bool>>? filter = null,
+    Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null, int pageSize = 10,
+        Expression<Func<TProject, bool>>? filter = null,
         List<Sort>? sorts = null,
-        int maxConcurrency = -1) where T : CosmosDbEntity;
-    Task<(List<T>, string?)> GetPagedListAsync<T>(
+        int maxConcurrency = -1); 
+    Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(
         string sql, Dictionary<string, object>? parameters = null,
         string? continuationToken = null, int pageSize = 10,
-        int maxConcurrency = -1) where T : CosmosDbEntity;
+        int maxConcurrency = -1); 
 
     Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false);
 }

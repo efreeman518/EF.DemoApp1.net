@@ -11,7 +11,7 @@ namespace Package.Infrastructure.Test.Integration;
 
 // CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
-[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
+//[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {
@@ -53,34 +53,35 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         Assert.IsNotNull(todo);
         Assert.AreEqual(todo.Status, TodoItemStatus.Completed);
 
-        //LINQ - page with filter and sort
+        //LINQ - page projection with filter and sort
 
         //filter
-        Expression<Func<TodoItemNoSql, bool>> filter = t => t.Status == TodoItemStatus.Completed;
+        Expression<Func<TodoDto, bool>> filter = t => t.Status == TodoItemStatus.Completed;
         //sort
-        List<Sort> sorts = new() { new Sort("PartitionKey", SortOrder.Ascending) };
+        List<Sort> sorts = new() { new Sort("Name", SortOrder.Ascending) };
         //page size
         int pageSize = 10;
 
-        List<TodoItemNoSql> todos;
+        List<TodoDto> todos;
         string? continuationToken = null;
         do
         {
-            (todos, continuationToken) = await _repo.GetPagedListAsync(continuationToken, pageSize, filter, sorts);
+            (todos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(continuationToken, pageSize, filter, sorts);
             Assert.IsTrue(todos.Count > 0);
         }
         while (continuationToken != null);
 
-        //SQL - page with filter and sort
-        string sql = "SELECT * FROM t WHERE t.Status=@Status ORDER BY t.Name ASC";
+        //SQL - page projection with filter and sort
+
+        string sql = "SELECT t.Id, t.Name, t.Status FROM TodoItemNoSql t WHERE t.Status=@Status ORDER BY t.Name ASC";
         Dictionary<string, object> parameters = new()
         {
             {"@Status", TodoItemStatus.Completed }
         };
         do
         {
-            (todos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql>(sql, parameters, continuationToken, pageSize);
-            Assert.IsTrue(todos.Count > 0);
+            (var dtos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql,TodoDto>(sql, parameters, continuationToken, pageSize);
+            Assert.IsTrue(dtos.Count > 0);
         }
         while (continuationToken != null);
 
