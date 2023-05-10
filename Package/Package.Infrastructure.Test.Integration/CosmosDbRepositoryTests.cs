@@ -11,7 +11,8 @@ namespace Package.Infrastructure.Test.Integration;
 
 // CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
-//[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
+[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
+
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {
@@ -24,6 +25,28 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         _repo = (ICosmosDbRepository)Services.GetRequiredService(typeof(ICosmosDbRepository));
     }
 
+    [TestMethod]
+    public async Task PopulateContainer()
+    {
+        //CosmosDB Database must already exist (SampleDB)
+
+        //create container if not exist
+        await _repo.GetOrAddContainer(typeof(TodoItemNoSql).Name, "/PartitionKey", true);
+
+        //randomize status
+        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
+        Random random = new();
+
+        //populate cosmosDb container
+        for (var i = 0; i < 100; i++)
+        {
+            TodoItemStatus status = (TodoItemStatus)(statuses.GetValue(random.Next(statuses.Length)) ?? TodoItemStatus.Created);
+            TodoItemNoSql todo1 = new($"todo-a-{i}", status); //EntityBase - Id created on instantiation 
+            await _repo.SaveItemAsync(todo1);
+        }
+
+        Assert.IsTrue(true);
+    }
     /// <summary>
     /// CosmosDb - create Db 'SampleDB' and container 'TodoItemNoSql'
     /// </summary>
