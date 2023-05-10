@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Test.Integration;
 
-// CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
+//CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
 [Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
 

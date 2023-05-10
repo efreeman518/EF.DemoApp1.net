@@ -140,16 +140,13 @@ public class CosmosDbRepository : ICosmosDbRepository
 
     public async Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false)
     {
-        Container container = DbClient3.GetContainer(DbId, containerId);
-        if (container == null && createIfNotExist)
+        ContainerProperties containerProperties = new(containerId, partitionKeyPath)
         {
-            ContainerProperties containerProperties = new(containerId, partitionKeyPath)
-            {
-                PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
-            };
-            var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
-            container = response.Container;
-        }
+            PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
+        };
+
+        var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
+        var container = response.Container;
         return container!;
     }
 
