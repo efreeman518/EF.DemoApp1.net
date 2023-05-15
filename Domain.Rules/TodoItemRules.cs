@@ -7,7 +7,7 @@ namespace Domain.Rules;
 
 public class TodoNameLengthRule : Specification<TodoItem>
 {
-    public TodoNameLengthRule(int nameLengthRequirement = Constants.RULE_NAME_LENGTH)
+    public TodoNameLengthRule(int nameLengthRequirement = Constants.RULE_NAME_LENGTH_MIN)
         : base(item => item?.Name?.Length >= nameLengthRequirement) { }
 }
 

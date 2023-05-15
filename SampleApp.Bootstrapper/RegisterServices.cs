@@ -1,6 +1,9 @@
-﻿using Application.Contracts.Services;
+﻿using Application.Contracts.Model;
+using Application.Contracts.Services;
 using Application.Services;
+using Application.Services.Validators;
 using CorrelationId.Abstractions;
+using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
@@ -46,6 +49,9 @@ public static class IServiceCollectionExtensions
     {
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
+
+        services.AddSingleton<IValidationHelper, ValidationHelper>();
+        services.AddScoped<IValidator<TodoItemDto>,TodoItemValidator>();
 
         return services;
     }
