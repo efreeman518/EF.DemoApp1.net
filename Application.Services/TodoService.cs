@@ -1,13 +1,10 @@
-﻿using Application.Services.Rules;
-using FluentValidation;
-using Package.Infrastructure.BackgroundServices;
+﻿using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
 using System.Collections.Generic;
 using AppConstants = Application.Contracts.Constants.Constants;
-using DomainConstants = Domain.Shared.Constants.Constants;
 
 namespace Application.Services;
 
@@ -15,20 +12,17 @@ public class TodoService : ServiceBase, ITodoService
 {
     private readonly TodoServiceSettings _settings;
     private readonly IValidationHelper _validationHelper;
-    private readonly IValidator<TodoItemDto> _val;
     private readonly ITodoRepositoryTrxn _repoTrxn;
     private readonly ITodoRepositoryQuery _repoQuery;
     private readonly IMapper _mapper;
     private readonly IBackgroundTaskQueue _taskQueue;
 
     public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, IValidationHelper validationHelper,
-        IValidator<TodoItemDto> val,
         ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, IMapper mapper, IBackgroundTaskQueue taskQueue)
         : base(logger)
     {
         _settings = settings.Value;
         _validationHelper = validationHelper;
-        _val = val;
         _repoTrxn = repoTrxn;
         _repoQuery = repoQuery;
         _mapper = mapper;
@@ -37,13 +31,11 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<PagedResponse<TodoItemDto>> GetItemsAsync(int pageSize = 10, int pageIndex = 0)
     {
-        //normal structured logging
-        Logger.Log(LogLevel.Information, "GetItemsAsync Start - pageSize:{pageSize} pageIndex:{pageIndex}", pageSize, pageIndex);
-        //performant logging
-        Logger.InfoLog($"GetItemsAsync Start - pageSize:{pageSize} pageIndex:{pageIndex}");
-
         //avoid compiler warning
         _ = _settings.GetHashCode();
+
+        //performant logging
+        Logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
         var items = await _repoQuery.GetPageEntitiesAsync<TodoItem>(false, pageSize, pageIndex);
@@ -58,10 +50,11 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<TodoItemDto> GetItemAsync(Guid id)
     {
-        Logger.Log(LogLevel.Information, "GetItemAsync - id:{id}", id);
+        //performant logging
+        Logger.InfoLog($"GetItemAsync - id:{id}");
 
         var todo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id)
-            ?? throw new NotFoundException($"TodoItem.Id '{id}' not found.");
+            ?? throw new NotFoundException($"Id '{id}' not found.");
 
         //return mapped domain -> app
         return _mapper.Map<TodoItem, TodoItemDto>(todo);
@@ -69,40 +62,17 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<TodoItemDto> AddItemAsync(TodoItemDto dto)
     {
+        //structured logging
         Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
-        #region dto validation - using FluentValidation
-
-        await _val.ValidateAndThrowAsync(dto);
-        //await _validationHelper.ValidateAndThrowAsync(dto);
-
-        #endregion
-
-        #region dto validation - using service code
-
-        if (dto.Name.Length < DomainConstants.RULE_NAME_LENGTH_MIN)
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH_MIN}");
-        if (await _repoTrxn.ExistsAsync<TodoItem>(t => t.Name == dto.Name))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_ITEM_EXISTS}: '{dto.Name}'");
-
-        #endregion
-
-        #region dto validation - using rule classes
-
-        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH_MIN).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH_MIN}.");
-        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
-        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH_MIN, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
-
-        #endregion
+        //FluentValidation
+        await _validationHelper.ValidateAndThrowAsync(dto);
 
         //map app -> domain
         var todo = _mapper.Map<TodoItemDto, TodoItem>(dto);
 
         var validationResult = todo.Validate();
-        if (!validationResult.IsValid) throw new Package.Infrastructure.Common.Exceptions.ValidationException(validationResult);
+        if (!validationResult.IsValid) throw new ValidationException(validationResult);
 
         _repoTrxn.Create(ref todo);
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
@@ -125,22 +95,16 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
-        //optional validate dto (using Rule classes)
-        if (!new TodoNameLengthRule(DomainConstants.RULE_NAME_LENGTH_MIN).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_RULE_NAME_LENGTH_MESSAGE} {DomainConstants.RULE_NAME_LENGTH_MIN}.");
-        if (!new TodoNameRegexRule(DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException($"{AppConstants.ERROR_RULE_NAME_INVALID_MESSAGE}; '{DomainConstants.RULE_NAME_REGEX}'.");
-        if (!new TodoCompositeRule(DomainConstants.RULE_NAME_LENGTH_MIN, DomainConstants.RULE_NAME_REGEX).IsSatisfiedBy(dto))
-            throw new Package.Infrastructure.Common.Exceptions.ValidationException(AppConstants.ERROR_RULE_INVALID_MESSAGE);
+        //FluentValidation
+        await _validationHelper.ValidateAndThrowAsync(dto);
 
         //retrieve existing
         var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == dto.Id)
             ?? throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
-        var updateTodo = _mapper.Map<TodoItemDto, TodoItem>(dto);
 
         //update
-        dbTodo.SetName(updateTodo.Name);
-        dbTodo.SetStatus(updateTodo.Status);
+        dbTodo.SetName(dto.Name);
+        dbTodo.SetStatus(dto.Status);
 
         _repoTrxn.UpdateFull(ref dbTodo); //update full record
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
@@ -163,10 +127,7 @@ public class TodoService : ServiceBase, ITodoService
 
     public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request)
     {
-        //normal structured logging
-        Logger.Log(LogLevel.Information, "SearchAsync Start - {request}", request.SerializeToJson());
-        //performant logging
-        Logger.InfoLog($"SearchAsync Start - request:{request.SerializeToJson()}");
+        Logger.Log(LogLevel.Information, "SearchAsync - {request}", request.SerializeToJson());
 
         var response = await _repoQuery.SearchTodoItemAsync(request);
 

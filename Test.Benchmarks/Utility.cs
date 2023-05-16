@@ -45,7 +45,6 @@ public static class Utility
     public static IServiceProvider GetServiceProvider()
     {
         if (ServiceProvider != null) return ServiceProvider;
-
         //build IServiceProvider for subsequent use finding/injecting services
         ServiceProvider = _services.BuildServiceProvider(validateScopes: true);
         return ServiceProvider;

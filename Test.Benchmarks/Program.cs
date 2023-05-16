@@ -21,4 +21,4 @@ Utility.GetServiceCollection().AddSingleton(loggerFactory);
 ILogger<Program> logger = Utility.GetServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.Log(LogLevel.Information, "Benchmark Run Starting.");
 
-BenchmarkRunner.Run(new[] { typeof(RepositoryBenchmarks), typeof(RulesBenchmarks) });
+BenchmarkRunner.Run(new[] { typeof(RepositoryBenchmarks), typeof(RulesBenchmarks), typeof(ValidatorBenchmarks), typeof(TodoItemBenchmarks) });

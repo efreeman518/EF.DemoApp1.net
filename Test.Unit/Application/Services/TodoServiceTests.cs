@@ -1,7 +1,9 @@
 using Application.Contracts.Model;
 using Application.Services;
+using Application.Services.Validators;
 using Domain.Model;
 using Domain.Shared.Enums;
+using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Query;
@@ -26,6 +28,7 @@ namespace Test.Unit.Application.Services;
 public class TodoServiceTests : UnitTestBase
 {
     //specific to this test class
+    private readonly Mock<IValidationHelper>ValidationHelperMock;
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
     private readonly Mock<IBackgroundTaskQueue> BackgroundTaskQueueMock;
@@ -34,6 +37,7 @@ public class TodoServiceTests : UnitTestBase
     public TodoServiceTests() : base()
     {
         //use Mock repo
+        ValidationHelperMock = _mockFactory.Create<IValidationHelper>();
         RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
         RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
         BackgroundTaskQueueMock = _mockFactory.Create<IBackgroundTaskQueue>();
@@ -63,8 +67,8 @@ public class TodoServiceTests : UnitTestBase
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, RepositoryTrxnMock.Object, RepositoryQueryMock.Object,
-            _mapper, BackgroundTaskQueueMock.Object);
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, ValidationHelperMock.Object,
+            RepositoryTrxnMock.Object, RepositoryQueryMock.Object, _mapper, BackgroundTaskQueueMock.Object);
 
         //act & assert
 
@@ -129,7 +133,13 @@ public class TodoServiceTests : UnitTestBase
         ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, repoTrxn, repoQuery, _mapper, new BackgroundTaskQueue());
+        IServiceCollection services = new ServiceCollection();
+        services.AddTransient<IValidationHelper, ValidationHelper>();
+        services.AddTransient<IValidator<TodoItemDto>, TodoItemValidator>();
+        services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>(provider => (TodoRepositoryQuery)repoQuery);
+        IValidationHelper validationHelper = new ValidationHelper(services.BuildServiceProvider());
+
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, validationHelper, repoTrxn, repoQuery, _mapper, new BackgroundTaskQueue());
         var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
 
         //act & assert

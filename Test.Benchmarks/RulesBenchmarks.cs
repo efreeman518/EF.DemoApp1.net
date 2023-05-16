@@ -42,11 +42,4 @@ public class RulesBenchmarks
     {
         return new TodoCompositeRule(NameLength, _regexMatch).IsSatisfiedBy(_todoItemDto);
     }
-
-    [Benchmark]
-    public bool TodoItemValidation()
-    {
-        return _todoItemDto.Validate();
-    }
-
 }

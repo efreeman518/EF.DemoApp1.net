@@ -73,7 +73,7 @@ public class TodoServiceTests : ServiceTestBase
     [DataRow("sdfg")]
     [DataRow("sdfgsd456yrt")]
     [DataRow("sdfgs")]
-    [ExpectedException(typeof(ValidationException))]
+    [ExpectedException(typeof(FluentValidation.ValidationException))]
     public async Task Todo_AddItem_fail(string name)
     {
         Logger.Log(LogLevel.Information, "Starting Todo_AddItem_fail");

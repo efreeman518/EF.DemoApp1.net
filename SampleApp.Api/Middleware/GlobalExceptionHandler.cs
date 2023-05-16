@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
@@ -24,7 +25,6 @@ public sealed class GlobalExceptionHandler
         _logger = loggerFactory.CreateLogger<GlobalExceptionHandler>();
         _hostEnvironment = hostEnvironment;
     }
-
 
     public async Task Invoke(HttpContext context)
     {
@@ -61,6 +61,10 @@ public sealed class GlobalExceptionHandler
         //REST Response
         //ex = ex.GetBaseException(); //holds info that caused the exception
 
+        string detail = (ex is ValidationException exFluentValidation)
+            ? string.Join(Environment.NewLine, exFluentValidation.Errors)
+            : ex.Message;
+        
         context.Response.StatusCode = ex.GetType().Name switch
         {
             "ValidationException" => StatusCodes.Status400BadRequest,
@@ -71,7 +75,7 @@ public sealed class GlobalExceptionHandler
         var problemDetails = new ProblemDetails
         {
             Title = ex.GetType().Name,
-            Detail = ex.Message,
+            Detail = detail,
             Status = context.Response.StatusCode
         };
         problemDetails.Extensions.Add("traceidentifier", context.TraceIdentifier);
