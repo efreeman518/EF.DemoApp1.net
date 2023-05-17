@@ -17,15 +17,16 @@ public class ValidatorBenchmarks : IDisposable
     private IValidationHelper _validationHelper = null!;
     TodoItemDto _todoItemDto = null!;
 
-    [Params(5, 10)]
-    public int NameLength { get; set; }
+    //[Params(5, 10)]
+    //public int NameLength { get; set; }
 
     [IterationSetup]
     public void Setup()
     {
         _serviceScope = Utility.GetServiceProvider().CreateScope();
         _validationHelper = _serviceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
-        _todoItemDto = new TodoItemDto { Name = $"a{Utility.RandomString(NameLength)}" };
+        //_todoItemDto = new TodoItemDto { Name = $"a{Utility.RandomString(NameLength)}" };
+        _todoItemDto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
     }
 
     [IterationCleanup] 
@@ -50,6 +51,12 @@ public class ValidatorBenchmarks : IDisposable
     [Benchmark]
     public async Task TodoItemValidateAndThrowAsync()
     {
-        await _validationHelper.ValidateAndThrowAsync(_todoItemDto);
+        try
+        {
+            await _validationHelper.ValidateAndThrowAsync(_todoItemDto);
+        }
+        catch (Exception) {
+            //ignore for benchmark test
+        }
     }
 }

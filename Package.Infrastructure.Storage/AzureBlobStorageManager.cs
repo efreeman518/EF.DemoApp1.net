@@ -15,7 +15,13 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     private readonly ILogger<AzureBlobStorageManager> _logger;
     private readonly ConcurrentDictionary<string, BlobServiceClient> _blobServiceClients = new();
     private static readonly object _lock = new();
+
+#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable S4487 // Unread "private" fields should be removed
+    //timer is never read; it is used to trigger logic 
     private readonly Timer _clearTimer;
+#pragma warning restore S4487 // Unread "private" fields should be removed
+#pragma warning restore IDE0052 // Remove unread private members
 
     public AzureBlobStorageManager(ILogger<AzureBlobStorageManager> logger, IOptions<AzureBlobStorageManagerSettings> settings)
     {
