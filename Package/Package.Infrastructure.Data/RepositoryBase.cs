@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
@@ -188,6 +189,42 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     {
         (List<T> data, int total) = await DB.Set<T>().GetPageEntitiesAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<T>
+        {
+            PageSize = pageSize ?? -1,
+            PageIndex = pageIndex ?? -1,
+            Data = data,
+            Total = total
+        };
+    }
+
+    /// <summary>
+    /// Returns a List<TProject> page of data with optional related data
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
+    /// <param name="mapperConfigProvider"></param>
+    /// <param name="tracking"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="pageIndex"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includeTotal"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public async Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
+        IConfigurationProvider mapperConfigProvider,
+        bool tracking = false,
+        int? pageSize = null, int? pageIndex = null,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        CancellationToken cancellationToken = default,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        (List<TProject> data, int total) = await DB.Set<T>().GetPageProjectionAsync<T, TProject>(mapperConfigProvider, 
+            tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+        return new PagedResponse<TProject>
         {
             PageSize = pageSize ?? -1,
             PageIndex = pageIndex ?? -1,

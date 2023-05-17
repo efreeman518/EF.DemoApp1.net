@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data.Contracts;
@@ -31,6 +32,16 @@ public interface IRepositoryBase
         where T : class;
 
     Task<PagedResponse<T>> GetPageEntitiesAsync<T>(bool tracking = false,
+        int? pageSize = null, int? pageIndex = null,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        CancellationToken cancellationToken = default,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class;
+
+    Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
+        IConfigurationProvider mapperConfigProvider,
+        bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,

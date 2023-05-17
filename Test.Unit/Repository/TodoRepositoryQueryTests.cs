@@ -98,6 +98,42 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
+    public async Task GetPageProjectionAsync_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .Build<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        var response = await repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 10, pageIndex: 1, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(4, response.Data.Count);
+
+        response = await repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 2, pageIndex: 1, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(2, response.Data.Count);
+
+        response = await repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 3, pageIndex: 2, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(1, response.Data.Count);
+    }
+
+    [TestMethod]
     public async Task SearchWithFilterAndSort_pass()
     {
         //arrange

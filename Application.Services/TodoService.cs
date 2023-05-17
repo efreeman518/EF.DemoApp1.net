@@ -38,14 +38,7 @@ public class TodoService : ServiceBase, ITodoService
         Logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
-        var items = await _repoQuery.GetPageEntitiesAsync<TodoItem>(false, pageSize, pageIndex);
-        return new PagedResponse<TodoItemDto>
-        {
-            PageSize = pageSize,
-            PageIndex = pageIndex,
-            Data = _mapper.Map<List<TodoItemDto>>(items.Data),
-            Total = items.Total
-        };
+        return await _repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, false, pageSize, pageIndex);
     }
 
     public async Task<TodoItemDto> GetItemAsync(Guid id)
@@ -129,15 +122,6 @@ public class TodoService : ServiceBase, ITodoService
     {
         Logger.Log(LogLevel.Information, "SearchAsync - {request}", request.SerializeToJson());
 
-        var response = await _repoQuery.SearchTodoItemAsync(request);
-
-        //return mapped domain -> app
-        return new PagedResponse<TodoItemDto>()
-        {
-            PageIndex = response.PageIndex,
-            PageSize = response.PageSize,
-            Data = _mapper.Map<List<TodoItemDto>>(response.Data),
-            Total = response.Total
-        };
+        return await _repoQuery.SearchTodoItemAsync(request);
     }
 }

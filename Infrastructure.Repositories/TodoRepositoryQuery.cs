@@ -57,13 +57,14 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
 
         //sort and filter have already been applied
         //await SetNoLock(); //InMemoryDbContext does not support
-        (var data, var total) = await q.GetPageEntitiesAsync(pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
+        (var data, var total) = await q.GetPageProjectionAsync<TodoItem, TodoItemDto>(
+            _mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
         //await SetLock(); //InMemoryDbContext does not support
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = request.PageIndex,
             PageSize = request.PageSize,
-            Data = _mapper.Map<List<TodoItemDto>>(data),
+            Data = data, //_mapper.Map<List<TodoItemDto>>(data),
             Total = total
         };
     }

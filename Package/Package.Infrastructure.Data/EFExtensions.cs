@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
@@ -299,6 +301,35 @@ public static class EFExtensions
         int total = includeTotal ? await query.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
         query = query.ComposePagedIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
         return (await query.ToListAsync(cancellationToken), total);
+    }
+
+    /// <summary>
+    /// IQueryable<typeparamref name="T"/> extension takes the query, applies filter, order, paging, runs the query and returns results 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="query"></param>
+    /// <param name="tracking"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="pageIndex"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includeTotal"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="includes"></param>
+    /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
+    public static async Task<(List<TProject>, int)> GetPageProjectionAsync<T, TProject>(this IQueryable<T> query,
+        IConfigurationProvider mapperConfigProvider, bool tracking = false,
+        int? pageSize = null, int? pageIndex = null,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        CancellationToken cancellationToken = default,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        int total = includeTotal ? await query.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
+        query = query.ComposePagedIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
+        var results = await query.ProjectTo<TProject>(mapperConfigProvider).ToListAsync(cancellationToken);
+        return (results, total);
     }
 
     /// <summary>
