@@ -6,14 +6,14 @@ using Microsoft.Identity.Client;
 
 namespace Package.Infrastructure.Http.Tokens;
 
-public class AzureAdTokenProvider : IOAuth2TokenProvider
+public class AzureAdTokenProviderConfidentialClientApp : IOAuth2TokenProvider
 {
     private readonly IAppCache _appCache;
 
     //todo - make this a thread safe collection (ConcurrentDictionary) to hold multiple target app tokens
     private readonly IConfidentialClientApplication _app;
 
-    public AzureAdTokenProvider(IOptions<AzureAdOptions> azureAdOptions, IAppCache appCache)
+    public AzureAdTokenProviderConfidentialClientApp(IOptions<AzureAdOptions> azureAdOptions, IAppCache appCache)
     {
         _appCache = appCache;
 
