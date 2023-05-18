@@ -318,7 +318,7 @@ public static class EFExtensions
     /// <param name="includes"></param>
     /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
     public static async Task<(List<TProject>, int)> GetPageProjectionAsync<T, TProject>(this IQueryable<T> query,
-        IConfigurationProvider mapperConfigProvider, bool tracking = false,
+        IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -327,7 +327,7 @@ public static class EFExtensions
         where T : class
     {
         int total = includeTotal ? await query.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
-        query = query.ComposePagedIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
+        query = query.ComposePagedIQueryable(false, pageSize, pageIndex, filter, orderBy, includes);
         var results = await query.ProjectTo<TProject>(mapperConfigProvider).ToListAsync(cancellationToken);
         return (results, total);
     }

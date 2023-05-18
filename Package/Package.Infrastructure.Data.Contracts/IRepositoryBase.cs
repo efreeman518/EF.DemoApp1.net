@@ -41,7 +41,6 @@ public interface IRepositoryBase
 
     Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
         IConfigurationProvider mapperConfigProvider,
-        bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,

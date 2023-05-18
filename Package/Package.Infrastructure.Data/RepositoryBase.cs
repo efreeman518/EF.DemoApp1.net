@@ -214,7 +214,6 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public async Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
         IConfigurationProvider mapperConfigProvider,
-        bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -223,7 +222,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         where T : class
     {
         (List<TProject> data, int total) = await DB.Set<T>().GetPageProjectionAsync<T, TProject>(mapperConfigProvider, 
-            tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+            pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<TProject>
         {
             PageSize = pageSize ?? -1,
