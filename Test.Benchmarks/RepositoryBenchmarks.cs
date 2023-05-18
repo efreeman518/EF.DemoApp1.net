@@ -30,7 +30,7 @@ public class RepositoryBenchmarks
                 //custom data scenario that default seed data does not cover
                 entities.Add(new TodoItem("a entity"));
             })
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         _repo = new TodoRepositoryQuery(db, src, mapper);

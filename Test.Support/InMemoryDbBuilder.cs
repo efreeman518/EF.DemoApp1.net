@@ -1,6 +1,7 @@
 ﻿using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Test.Support;
@@ -16,7 +17,7 @@ public class InMemoryDbBuilder
     /// <typeparam name="T">Specify the type of DbContext</typeparam>
     /// <param name="dbName">Enables retrieving an existing DbContext</param>
     /// <returns></returns>
-    public T Build<T>(string? dbName = null) where T : DbContext
+    public T BuildInMemory<T>(string? dbName = null) where T : DbContext
     {
         dbName ??= Guid.NewGuid().ToString();
         //InMemoryDB is like static, not created with each new DbContext, stays in memory for subsequent DbContexts for a given name
@@ -35,6 +36,31 @@ public class InMemoryDbBuilder
 
     }
 
+    public T BuildSQLite<T>() where T : DbContext
+    {
+        var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        var options = new DbContextOptionsBuilder<T>().UseSqlite(connection).Options;
+        T dbContext = (Activator.CreateInstance(typeof(T), options) as T)!;
+
+        if (dbContext != null)
+        {
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+        }
+
+        //Context specific setup
+        if (dbContext is TodoDbContextBase db)
+        {
+            SetupContextTrxn(db);
+        }
+
+        dbContext!.SaveChanges();
+
+        return dbContext;
+    }
+
     private void SetupContextTrxn(TodoDbContextBase db)
     {
         if (_seedDefaultEntityData)
@@ -45,7 +71,7 @@ public class InMemoryDbBuilder
 
         if (_entityData != null)
         {
-            db.TodoItems.RemoveRange(db.TodoItems);
+            //db.TodoItems.RemoveRange(db.TodoItems);
             db.TodoItems.AddRange(_entityData);
         }
     }
@@ -65,11 +91,20 @@ public class InMemoryDbBuilder
 
     private static List<TodoItem> CreateDefaultSeedEntityData()
     {
+        //RowVersion value required for SQLite insert = 'NOT NULL constraint failed: RowVersion'
         return new List<TodoItem>
         {
             new TodoItem ("item1a", TodoItemStatus.Created),
             new TodoItem ("item2a", TodoItemStatus.InProgress),
             new TodoItem ("item3a", TodoItemStatus.Completed)
         };
+    }
+
+    public static byte[] GetByteArray(int sizeInBytes)
+    {
+        Random rnd = new();
+        byte[] b = new byte[sizeInBytes]; // convert kb to byte
+        rnd.NextBytes(b);
+        return b;
     }
 }

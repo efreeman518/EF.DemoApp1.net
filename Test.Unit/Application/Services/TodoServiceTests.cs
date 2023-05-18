@@ -117,7 +117,7 @@ public class TodoServiceTests : UnitTestBase
         //InMemory setup & seed
         var dbTrxn = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .Build<TodoDbContextTrxn>();
+            .BuildInMemory<TodoDbContextTrxn>();
         var dbQuery = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>
@@ -126,7 +126,7 @@ public class TodoServiceTests : UnitTestBase
                 entities.Add(new TodoItem("some entity a"));
                 entities.Add(new TodoItem("some other entity a"));
             })
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
 
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");

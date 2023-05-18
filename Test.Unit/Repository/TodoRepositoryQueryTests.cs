@@ -22,7 +22,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
-    public async Task SearchTodoItemAsync_pass()
+    public async Task InMemory_SearchTodoItemAsync_pass()
     {
         //arrange
 
@@ -36,7 +36,47 @@ public class TodoRepositoryQueryTests : UnitTestBase
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
+        var response = await repoQuery.SearchTodoItemAsync(search);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(4, response.Data.Count);
+
+        search = new SearchRequest<TodoItemSearchFilter> { PageSize = 2, PageIndex = 1 };
+        response = await repoQuery.SearchTodoItemAsync(search);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(2, response.Data.Count);
+
+        search = new SearchRequest<TodoItemSearchFilter> { PageSize = 3, PageIndex = 2 };
+        response = await repoQuery.SearchTodoItemAsync(search);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(1, response.Data.Count);
+    }
+
+    [TestMethod]
+    public async Task SQLite_SearchTodoItemAsync_pass()
+    {
+        //arrange
+
+        //custom data scenario that default seed data does not cover
+        static void customData(List<TodoItem> entities)
+        {
+            entities.Add(new TodoItem("custom entity a"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildSQLite<TodoDbContextQuery>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
@@ -75,7 +115,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
@@ -111,7 +151,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
@@ -152,7 +192,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(customData)
-            .Build<TodoDbContextQuery>();
+            .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
