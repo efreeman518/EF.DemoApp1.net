@@ -16,6 +16,8 @@ public class AzureAdTokenProvider : IOAuth2TokenProvider
     public AzureAdTokenProvider(IOptions<AzureAdOptions> azureAdOptions, IAppCache appCache)
     {
         _appCache = appCache;
+
+        //ConfidentialClientApplicationBuilder has many options
         _app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.Value.ClientId)
             .WithClientSecret(azureAdOptions.Value.ClientSecret)
             .WithAuthority(azureAdOptions.Value.Authority)

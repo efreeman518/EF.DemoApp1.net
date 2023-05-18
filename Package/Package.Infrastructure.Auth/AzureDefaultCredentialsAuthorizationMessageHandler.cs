@@ -10,10 +10,11 @@ namespace Package.Infrastructure.Auth;
  
  services
   .AddScoped<AzureDefaultCredentialsAuthorizationMessageHandler>()
-  .AddHttpClient<YourClassUsingTheHttpClient>((serviceProvider, httpClient) => 
+  .AddHttpClient<ClassUsingHttpClient>((serviceProvider, httpClient) => 
   {
-    httpClient.BaseAddress = "https://yourfunctionappname.azurewebsites.net/api/targetfunctionname";
-  }).AddHttpMessageHandler<AzureDefaultCredentialsAuthorizationMessageHandler>();  
+    httpClient.BaseAddress = "https://[appname].azurewebsites.net/api/[targetfunctionname]";
+  })
+  .AddHttpMessageHandler<AzureDefaultCredentialsAuthorizationMessageHandler>();  
  */
 
 public class AzureDefaultCredentialsAuthorizationMessageHandler : DelegatingHandler
@@ -24,13 +25,14 @@ public class AzureDefaultCredentialsAuthorizationMessageHandler : DelegatingHand
     public AzureDefaultCredentialsAuthorizationMessageHandler()
     {
         //TokenRequestContext supports other options
-        //This parameter is a list of scopes; if your target App Service/Function has defined scopes then you should use them here.
+        //This parameter is a list of scopes; if your target App Service/Function has defined scopes then use them here.
         TokenRequestContext = new(new[] { "targetAADAppRegistrationApplicationId" });
         Credentials = new DefaultAzureCredential();
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        //todo - cache token?
         var tokenResult = await Credentials.GetTokenAsync(TokenRequestContext, cancellationToken);
         var authorizationHeader = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
         request.Headers.Authorization = authorizationHeader;
