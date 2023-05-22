@@ -13,9 +13,6 @@ public class EntityBase : IEntityBase, IAuditable
         init { if (value != Guid.Empty) _id = value; }
     }
 
-    //SQLite complains unless nullable
-    public byte[]? RowVersion { get; set; } = Array.Empty<byte>();
-
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public string CreatedBy { get; set; } = "New";
     public DateTime UpdatedDate { get; set; }
