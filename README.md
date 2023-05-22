@@ -30,3 +30,5 @@
 7. Package.Infrastructure.CosmosDb - install and run latest CosmosDB emulator
    * https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 8. Azure Storage Explorer is usefull for blobs/queues/tables
+9. ngrok to https://localhost:port IIS express
+   * ngrok http https://localhost:44339 --host-header="localhost:44339"

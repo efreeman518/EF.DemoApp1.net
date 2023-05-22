@@ -2,6 +2,7 @@
 using Microsoft.Azure.Cosmos.Linq;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Package.Infrastructure.CosmosDb;
 
@@ -56,17 +57,19 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <summary>
     /// LINQ paged with filter and sort
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TSource"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
     /// <param name="continuationToken"></param>
     /// <param name="pageSize"></param>
     /// <param name="filter"></param>
     /// <param name="sorts"></param>
+    /// <param name="includeTotal">incurs potentially significant cost</param>
     /// <param name="maxConcurrency"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null, int pageSize = 10,
-        Expression<Func<TProject, bool>>? filter = null,
-        List<Sort>? sorts = null,
-        int maxConcurrency = -1) 
+    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null, 
+        int pageSize = 10, Expression<Func<TProject, bool>>? filter = null,
+        List<Sort>? sorts = null, bool includeTotal = false, int maxConcurrency = -1, CancellationToken cancellationToken = default) 
     {
         QueryRequestOptions o = new()
         {
@@ -78,46 +81,44 @@ public class CosmosDbRepository : ICosmosDbRepository
 
         filter ??= i => true;
         var query = queryable.Where(filter);
+        int total = includeTotal ? (await query.CountAsync(cancellationToken)).Resource : -1;
         if (sorts != null) query = query.OrderBy(sorts.AsEnumerable());
         List<TProject> items = new();
 
         using var feedIterator = query.ToFeedIterator();
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount
         {
-            var response = await feedIterator.ReadNextAsync(); //this will load based on MaxItemCount/pageSize)
+            var response = await feedIterator.ReadNextAsync(cancellationToken); //this will load based on MaxItemCount/pageSize)
             continuationToken = response.ContinuationToken;
             foreach (var item in response)
             {
                 items.Add(item);
             }
         }
-        return (items, continuationToken);
+        return (items, total, continuationToken);
     }
 
     /// <summary>
     /// SQL paged (sql can contain filter and sort)
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TSource"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
     /// <param name="sql">SELECT... FROM... WHERE</param>
     /// <param name="parameters"></param>
-    /// <param name="continuationToken"></param>
     /// <param name="pageSize"></param>
+    /// <param name="includeTotal">incurs potentially significant cost</param>
     /// <param name="maxConcurrency"></param>
+    /// <param name="continuationToken"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(List<TProject>, string?)> GetPagedListAsync<TSource, TProject>(
-        string sql, Dictionary<string, object>? parameters = null,
-        string? continuationToken = null, int pageSize = 10,
-        int maxConcurrency = -1) 
+    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(
+        string? continuationToken = null, int pageSize = 10, string? sql = null,
+        string? sqlCount = null, Dictionary<string, object>? parameters = null,  
+        int maxConcurrency = -1, CancellationToken cancellationToken = default) 
     {
-        QueryDefinition query = new(sql);
-        if (parameters != null)
-        {
-            foreach (var param in parameters)
-            {
-                query.WithParameter(param.Key, param.Value);
-            }
-        }
+        _ = sql ?? throw new ArgumentNullException(nameof(sql));
 
+        var  query = BuildSqlQueryDefinition(sql, parameters);
         QueryRequestOptions o = new()
         {
             MaxItemCount = pageSize,
@@ -128,14 +129,26 @@ public class CosmosDbRepository : ICosmosDbRepository
         using var feedIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<TProject>(query, continuationToken, o);
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize
         {
-            var response = await feedIterator.ReadNextAsync(); //this will load based on MaxItemCount/pageSize)
+            var response = await feedIterator.ReadNextAsync(cancellationToken); //this will load based on MaxItemCount/pageSize)
             continuationToken = response.ContinuationToken;
             foreach (var item in response)
             {
                 items.Add(item);
             }
         }
-        return (items, continuationToken);
+
+        int total = -1;
+        if(sqlCount != null)
+        {
+            query = BuildSqlQueryDefinition(sqlCount, parameters);
+            using var countIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<int>(query);
+            if (countIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize
+            {
+                var response = await countIterator.ReadNextAsync(cancellationToken);
+                total = response.FirstOrDefault();
+            }
+        }
+        return (items, total, continuationToken);
     }
 
     public async Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false)
@@ -148,6 +161,19 @@ public class CosmosDbRepository : ICosmosDbRepository
         var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
         var container = response.Container;
         return container!;
+    }
+
+    private static QueryDefinition BuildSqlQueryDefinition(string sql, Dictionary<string, object>? parameters = null)
+    {
+        QueryDefinition query = new(sql);
+        if (parameters != null)
+        {
+            foreach (var param in parameters)
+            {
+                query.WithParameter(param.Key, param.Value);
+            }
+        }
+        return query;
     }
 
     //sdk4 ? no linq (yet)

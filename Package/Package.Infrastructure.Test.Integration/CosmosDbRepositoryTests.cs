@@ -11,7 +11,7 @@ namespace Package.Infrastructure.Test.Integration;
 
 //CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
-[Ignore("CosmosDb emulator needs to be running, with connection string in settings and SampleDB created")]
+[Ignore("CosmosDb or the emulator needs to be running, with connection string in settings and SampleDB created")]
 
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
@@ -77,34 +77,43 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         Assert.AreEqual(todo.Status, TodoItemStatus.Completed);
 
         //LINQ - page projection with filter and sort
-
         //filter
         Expression<Func<TodoDto, bool>> filter = t => t.Status == TodoItemStatus.Completed;
         //sort
         List<Sort> sorts = new() { new Sort("Name", SortOrder.Ascending) };
         //page size
         int pageSize = 10;
+        //total
+        bool includeTotal = true;
 
         List<TodoDto> todos;
+        int total = 0;
         string? continuationToken = null;
         do
         {
-            (todos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(continuationToken, pageSize, filter, sorts);
+            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(continuationToken, pageSize, filter, sorts, includeTotal);
             Assert.IsTrue(todos.Count > 0);
+            Assert.IsTrue(!includeTotal || total > 0);
+            includeTotal = false; //retrieve once, not repeatedly
         }
         while (continuationToken != null);
 
         //SQL - page projection with filter and sort
-
         string sql = "SELECT t.Id, t.Name, t.Status FROM TodoItemNoSql t WHERE t.Status=@Status ORDER BY t.Name ASC";
+        string? sqlCount = "SELECT VALUE COUNT(1) FROM TodoItemNoSql t WHERE t.Status=@Status";
+
+        continuationToken = null;
         Dictionary<string, object> parameters = new()
         {
             {"@Status", TodoItemStatus.Completed }
         };
         do
         {
-            (var dtos, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql,TodoDto>(sql, parameters, continuationToken, pageSize);
-            Assert.IsTrue(dtos.Count > 0);
+            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql,TodoDto>(
+                continuationToken, pageSize, sql, sqlCount, parameters);
+            Assert.IsTrue(todos.Count > 0);
+            Assert.IsTrue(sqlCount == null || total > 0);
+            sqlCount = null; //retrieve once, not repeatedly
         }
         while (continuationToken != null);
 
