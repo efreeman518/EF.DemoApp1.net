@@ -23,6 +23,8 @@ public class AzureAdTokenProviderDefaultAzureCred : IAzureAdTokenRetriever
 
     public async Task<string> GetAccessTokenAsync(string resourceId, string scope = "/.default", CancellationToken cancellationToken = default)
     {
+        _ = _logger.GetHashCode();
+
         var resourceIdentifier = resourceId + scope;
         var key = $"access_token:{resourceIdentifier}";
         var accessToken = await _appCache.GetOrAddAsync(key, async entry =>

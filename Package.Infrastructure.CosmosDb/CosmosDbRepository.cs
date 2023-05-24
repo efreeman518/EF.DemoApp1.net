@@ -2,7 +2,6 @@
 using Microsoft.Azure.Cosmos.Linq;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
-using System.Threading;
 
 namespace Package.Infrastructure.CosmosDb;
 
@@ -67,9 +66,9 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <param name="maxConcurrency"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null, 
+    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null,
         int pageSize = 10, Expression<Func<TProject, bool>>? filter = null,
-        List<Sort>? sorts = null, bool includeTotal = false, int maxConcurrency = -1, CancellationToken cancellationToken = default) 
+        List<Sort>? sorts = null, bool includeTotal = false, int maxConcurrency = -1, CancellationToken cancellationToken = default)
     {
         QueryRequestOptions o = new()
         {
@@ -113,12 +112,12 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <returns></returns>
     public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(
         string? continuationToken = null, int pageSize = 10, string? sql = null,
-        string? sqlCount = null, Dictionary<string, object>? parameters = null,  
-        int maxConcurrency = -1, CancellationToken cancellationToken = default) 
+        string? sqlCount = null, Dictionary<string, object>? parameters = null,
+        int maxConcurrency = -1, CancellationToken cancellationToken = default)
     {
         _ = sql ?? throw new ArgumentNullException(nameof(sql));
 
-        var  query = BuildSqlQueryDefinition(sql, parameters);
+        var query = BuildSqlQueryDefinition(sql, parameters);
         QueryRequestOptions o = new()
         {
             MaxItemCount = pageSize,
@@ -138,7 +137,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         }
 
         int total = -1;
-        if(sqlCount != null)
+        if (sqlCount != null)
         {
             query = BuildSqlQueryDefinition(sqlCount, parameters);
             using var countIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<int>(query);

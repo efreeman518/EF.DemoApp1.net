@@ -28,7 +28,7 @@ namespace Test.Unit.Application.Services;
 public class TodoServiceTests : UnitTestBase
 {
     //specific to this test class
-    private readonly Mock<IValidationHelper>ValidationHelperMock;
+    private readonly Mock<IValidationHelper> ValidationHelperMock;
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
     private readonly Mock<IBackgroundTaskQueue> BackgroundTaskQueueMock;

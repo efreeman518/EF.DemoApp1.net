@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Package.Infrastructure.AspNetCore;
+using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
 
 namespace SampleApp.Api;
@@ -30,6 +31,8 @@ public static partial class WebApplicationBuilderExtensions
         app.UseMiddleware(typeof(GlobalExceptionHandler));
 
         app.MapControllers();
+
+        app.MapGrpcService<TodoGrpcService>();
 
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {

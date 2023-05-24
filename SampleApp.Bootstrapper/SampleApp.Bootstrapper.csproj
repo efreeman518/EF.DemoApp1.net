@@ -34,6 +34,7 @@
     <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
     <ProjectReference Include="..\SampleApp.BackgroundServices\SampleApp.BackgroundServices.csproj" />
+    <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />
   </ItemGroup>
 
 </Project>

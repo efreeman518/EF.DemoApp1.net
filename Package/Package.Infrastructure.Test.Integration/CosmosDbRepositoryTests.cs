@@ -109,7 +109,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         };
         do
         {
-            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql,TodoDto>(
+            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(
                 continuationToken, pageSize, sql, sqlCount, parameters);
             Assert.IsTrue(todos.Count > 0);
             Assert.IsTrue(sqlCount == null || total > 0);

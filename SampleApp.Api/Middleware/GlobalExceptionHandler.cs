@@ -64,7 +64,7 @@ public sealed class GlobalExceptionHandler
         string detail = (ex is ValidationException exFluentValidation)
             ? string.Join(Environment.NewLine, exFluentValidation.Errors)
             : ex.Message;
-        
+
         context.Response.StatusCode = ex.GetType().Name switch
         {
             "ValidationException" => StatusCodes.Status400BadRequest,

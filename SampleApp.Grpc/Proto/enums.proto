@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "SampleApp.Grpc.Proto";
+
+enum ResponseCode {
+	Unknown = 0;
+	Success = 1;
+	Failure = 2;
+}
+
+enum TodoItemStatus{
+	None = 0;
+    Created = 1;
+    Accepted = 2;
+    InProgress = 3;
+    Completed = 4;
+}

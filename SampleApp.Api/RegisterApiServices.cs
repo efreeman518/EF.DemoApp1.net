@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.AspNetCore.Swagger;
+using Package.Infrastructure.Grpc;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -50,6 +51,17 @@ internal static class IServiceCollectionExtensions
         });
 
         services.AddControllers();
+
+        //Add gRPC framework services
+        services.AddGrpc(options =>
+        {
+            options.EnableDetailedErrors = true;
+            options.MaxReceiveMessageSize = 100000; //bytes
+            options.Interceptors.Add<ServiceErrorInterceptor>();
+        });
+        services.AddScoped<ServiceErrorInterceptor>();
+
+        services.AddRouting(options => options.LowercaseUrls = true);
 
         if (config.GetValue("SwaggerSettings:Enable", false))
         {

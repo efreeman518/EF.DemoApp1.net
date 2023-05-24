@@ -221,7 +221,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<TProject> data, int total) = await DB.Set<T>().GetPageProjectionAsync<T, TProject>(mapperConfigProvider, 
+        (List<TProject> data, int total) = await DB.Set<T>().GetPageProjectionAsync<T, TProject>(mapperConfigProvider,
             pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<TProject>
         {

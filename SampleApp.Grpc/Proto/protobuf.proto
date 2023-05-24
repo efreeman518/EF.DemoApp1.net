@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option csharp_namespace = "SampleApp.Grpc.Proto";
+
+import "enums.proto";
+import "google/protobuf/empty.proto";
+
+service TodoService {
+  rpc Get (ServiceRequestId) returns (ServiceResponseTodoItem);
+  rpc Save (ServiceRequestTodoItem) returns (ServiceResponseTodoItem);
+  rpc Delete (ServiceRequestId) returns (google.protobuf.Empty);
+}
+
+message TodoItemDto {
+	NullableString id = 1;
+	NullableString name = 2;
+	TodoItemStatus status = 3;
+}
+
+message ServiceRequestId {
+	string id = 1;
+}
+
+message ServiceRequestTodoItem {
+	TodoItemDto data = 1;
+}
+
+message ServiceResponseTodoItem {
+	ResponseCode responseCode = 1;
+	string message = 2;
+	TodoItemDto data = 3;
+	repeated ResponseError errors = 4;
+}
+
+message ResponseError {
+	string message = 1;
+	string type = 2;
+	string stacktrace = 3;
+}
+
+message NullableString {
+  oneof kind {
+    bool isnull = 1; // set this to "true" when null
+    string data = 2;
+  }
+}

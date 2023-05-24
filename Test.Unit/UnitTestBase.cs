@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Moq;
+using SampleApp.Bootstrapper.Automapper;
 
 namespace Test.Unit;
 
@@ -16,7 +17,11 @@ public abstract class UnitTestBase
         //MockBehavior.Default = Loose - not have to Setup all called methods in the mock
         _mockFactory = new MockRepository(MockBehavior.Default) { DefaultValue = DefaultValue.Mock };
 
-        _mapper = SampleApp.Bootstrapper.Automapper.ConfigureAutomapper.CreateMapper();
+        _mapper = ConfigureAutomapper.CreateMapper(
+            new System.Collections.Generic.List<Profile>
+            {
+                new MappingProfile()
+            });
     }
 
 }

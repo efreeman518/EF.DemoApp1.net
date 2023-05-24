@@ -23,6 +23,7 @@ using Polly.Extensions.Http;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
+using SampleApp.Grpc;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -51,7 +52,7 @@ public static class IServiceCollectionExtensions
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
         services.AddScoped<IValidationHelper, ValidationHelper>();
-        services.AddScoped<IValidator<TodoItemDto>,TodoItemValidator>();
+        services.AddScoped<IValidator<TodoItemDto>, TodoItemValidator>();
 
         return services;
     }
@@ -76,8 +77,13 @@ public static class IServiceCollectionExtensions
             services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
         }
 
-        //AutoMapper Configuration - map domain <-> application 
-        ConfigureAutomapper.Configure(services);
+        //AutoMapper Configuration
+        ConfigureAutomapper.Configure(services,
+            new System.Collections.Generic.List<AutoMapper.Profile>
+            {
+                new MappingProfile(),  //map domain <-> app 
+                new GrpcMappingProfile() // map grpc <-> app 
+            });
 
         //Infrastructure Services
 

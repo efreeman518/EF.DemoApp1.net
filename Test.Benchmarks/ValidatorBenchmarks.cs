@@ -29,8 +29,8 @@ public class ValidatorBenchmarks : IDisposable
         _todoItemDto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
     }
 
-    [IterationCleanup] 
-    public void Dispose() 
+    [IterationCleanup]
+    public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -55,7 +55,8 @@ public class ValidatorBenchmarks : IDisposable
         {
             await _validationHelper.ValidateAndThrowAsync(_todoItemDto);
         }
-        catch (Exception) {
+        catch (Exception)
+        {
             //ignore for benchmark test
         }
     }
