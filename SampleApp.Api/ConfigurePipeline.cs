@@ -25,7 +25,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseCorrelationId(); //internal service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
         app.UseHeaderPropagation();
 
-        //exception handler when no global
+        //exception handler when not using UseExceptionHandler 
         //https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors?view=aspnetcore-7.0
         //global error handler
         app.UseMiddleware(typeof(GlobalExceptionHandler));

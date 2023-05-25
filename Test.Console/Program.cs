@@ -46,7 +46,8 @@ services.AddGrpcClient2<SampleAppGrpc.TodoService.TodoServiceClient>(
 IServiceProvider serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
 //REST
-var restClient = serviceProvider.GetRequiredService<SampleApiRestClient>(); 
+var restClient = serviceProvider.GetRequiredService<SampleApiRestClient>();
+//GRPC
 var grpcClient = serviceProvider.GetRequiredService<SampleAppGrpc.TodoService.TodoServiceClient>();
 
 //Console UI
@@ -77,10 +78,15 @@ while (true)
             }
 
             if (command.Contains("r-"))
+            {
+                //REST
                 await AttemptRest(() => restClient.GetTodoItem(id));
+            }
             else
+            {
+                //GRPC
                 await AttemptGrpc(async () => await grpcClient.GetAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
-
+            }
             break;
 
         case "r-save":
@@ -95,8 +101,13 @@ while (true)
             Console.WriteLine("Name:");
             input2 = Console.ReadLine();
             if (command.Contains("r-"))
+            {
+                //REST
                 await AttemptRest(() => restClient.SaveEntity(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+            }
             else
+            {
+                //GRPC
                 await AttemptGrpc(async () => await grpcClient.SaveAsync(new SampleAppGrpc.ServiceRequestTodoItem
                 {
                     Data = new SampleAppGrpc.TodoItemDto
@@ -106,6 +117,7 @@ while (true)
                         Name = new SampleAppGrpc.NullableString { Data = input2 }
                     }
                 }));
+            }
             break;
 
         case "r-delete":
@@ -118,9 +130,15 @@ while (true)
                 break;
             }
             if (command.Contains("r-"))
+            {
+                //REST
                 await AttemptRest(() => (Task<object>)restClient.DeleteEntity(id));
+            }
             else
+            {
+                //GRPC
                 await AttemptGrpc<Empty>(async () => await grpcClient.DeleteAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
+            }
             break;
         default:
             Console.WriteLine("Enter a valid command.");
@@ -176,5 +194,5 @@ static void ShowCommands()
     Console.WriteLine("g-get    - GRPC context/entity/{id}");
     Console.WriteLine("g-save   - GRPC context/saveentity/{id?}");
     Console.WriteLine("g-delete - GRPC context/deleteentity {id}");
-    Console.WriteLine("exit   - Exit");
+    Console.WriteLine("exit     - Exit");
 }
