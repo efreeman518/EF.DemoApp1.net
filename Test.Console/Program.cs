@@ -147,7 +147,7 @@ while (true)
     }
 }
 
-async Task AttemptRest<T>(Func<Task<T>> method) //where T : class
+async Task AttemptRest<T>(Func<Task<T>> method)
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------REST Client initiate request -----------");
@@ -168,7 +168,7 @@ async Task AttemptRest<T>(Func<Task<T>> method) //where T : class
     }
 }
 
-async Task AttemptGrpc<T>(Func<Task<T>> method) where T : class
+async Task AttemptGrpc<T>(Func<Task<T>> method)
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------GRPC Client initiate request -----------");
