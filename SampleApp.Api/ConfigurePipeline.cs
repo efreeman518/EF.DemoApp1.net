@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
 using Package.Infrastructure.AspNetCore;
 using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SampleApp.Api;
 
@@ -16,9 +20,21 @@ public static partial class WebApplicationBuilderExtensions
 
         //serve sample html/js UI
         app.UseDefaultFiles();
-        app.UseStaticFiles();
+        app.UseStaticFiles(); //Serve files from wwwroot
 
+        if (config.GetValue("ChatGPT_Plugin:Enable", false))
+        {
+            app.UseCors("ChatGPT");
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known")),
+                    RequestPath = "/.well-known"
+            });
+        }
+
+        //ChatGPT https not supported
         app.UseHttpsRedirection();
+
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -46,7 +62,17 @@ public static partial class WebApplicationBuilderExtensions
 
         if (config.GetValue("SwaggerSettings:Enable", false))
         {
-            app.UseSwagger();
+            app.UseSwagger(o =>
+            {
+                //ChatGPT plugin
+                if (config.GetValue("ChatGPT_Plugin:Enable", false))
+                {
+                    o.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                    {
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" } };
+                    });
+                }
+            });
             app.UseSwaggerUI();
         }
 

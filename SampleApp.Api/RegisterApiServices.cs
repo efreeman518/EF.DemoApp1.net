@@ -79,6 +79,18 @@ internal static class IServiceCollectionExtensions
             if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
 
+        //ChatGPT plugin
+        if (config.GetValue("ChatGPT_Plugin:Enable", false))
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("ChatGPT", policy =>
+                {
+                    policy.WithOrigins("https://chat.openai.com", config.GetValue<string>("ChatGPT_Plugin:Url")!).AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+        }
+
         //HealthChecks - having infrastructure references
         //tag full will run when hitting health/full
         services.AddHealthChecks()

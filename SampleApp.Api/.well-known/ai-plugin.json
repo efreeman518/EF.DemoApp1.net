@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Todo Plugin",
+  "name_for_model": "todo",
+  "description_for_human": "Plugin for managing a todo list - insert, update, delete, search.",
+  "description_for_model": "Plugin for managing a todo list - insert, update, delete, search.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:44318/swagger/v1.0/swagger.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "http://localhost:44318/wwwroot/.well-known/logo.png",
+  "contact_email": "eben.freeman@gmail.com",
+  "legal_info_url": "http://www.example.com/legal"
+}

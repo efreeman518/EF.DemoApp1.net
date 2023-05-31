@@ -19,6 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include=".well-known\ai-plugin.json" />
+    <Content Include=".well-known\favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CorrelationId" Version="3.0.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />

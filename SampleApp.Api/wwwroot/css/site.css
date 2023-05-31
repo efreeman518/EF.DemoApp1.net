@@ -1,5 +1,8 @@
-﻿body {
+﻿body 
+{
     font-family: Arial, sans-serif;
+    background-color: #222222;
+    color: #b7b7b7;
 }
 
 input[type='submit'], button, [aria-label] {
@@ -16,13 +19,14 @@ input[type='submit'], button, [aria-label] {
 
 table {
     font-family: Arial, sans-serif;
-    border: 1px solid;
+    border: 1px solid #001dff;
     border-collapse: collapse;
 }
 
 th {
-    background-color: #f8f8f8;
+    background-color: #a8a8a8;
     padding: 5px;
+    color: #3838ff;
 }
 
 td {
