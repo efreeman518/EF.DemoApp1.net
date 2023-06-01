@@ -34,8 +34,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
-    <ProjectReference Include="..\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
-    <ProjectReference Include="..\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
     <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />
   </ItemGroup>

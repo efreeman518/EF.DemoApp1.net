@@ -40,10 +40,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Domain.Model\Domain.Model.csproj" />
-    <ProjectReference Include="..\..\Package.Infrastructure.CosmosDb\Package.Infrastructure.CosmosDb.csproj" />
-    <ProjectReference Include="..\..\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />
-    <ProjectReference Include="..\..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
   </ItemGroup>
 
 </Project>

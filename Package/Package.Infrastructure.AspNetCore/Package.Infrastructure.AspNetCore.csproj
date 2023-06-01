@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Filters\" />
   </ItemGroup>
 

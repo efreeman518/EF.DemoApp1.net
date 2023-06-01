@@ -28,8 +28,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
-    <ProjectReference Include="..\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
     <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
