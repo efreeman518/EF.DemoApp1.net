@@ -18,7 +18,7 @@ public static class IQueryableExtensions
     /// <param name="query"></param>
     /// <param name="tracking"></param>
     /// <param name="pageSize"></param>
-    /// <param name="pageIndex"></param>
+    /// <param name="pageIndex">1-based</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includes"></param>

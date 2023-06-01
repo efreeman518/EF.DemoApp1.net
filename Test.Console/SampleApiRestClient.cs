@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Data.Contracts;
+using System.Collections.Generic;
 
 namespace Test.Console;
 internal class SampleApiRestClient
@@ -19,18 +21,25 @@ internal class SampleApiRestClient
         _httpClient = httpClient;
     }
 
-    public async Task<TodoItemDto?> GetTodoItem(Guid id)
+    public async Task<PagedResponse<TodoItemDto>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
         _ = _logger.GetHashCode();
         _ = _settings.GetHashCode();
+        string qs = $"?pagesize={pageSize}&pageindex={pageIndex}";
+        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object, PagedResponse<TodoItemDto>>(HttpMethod.Get, $"{urlSegment}{qs}", null);
+        return parsedResponse!;
+    }
 
+    public async Task<TodoItemDto?> GetTodoItem(Guid id)
+    {
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"{urlSegment}/{id}", null);
         return parsedResponse;
     }
 
     public async Task<TodoItemDto?> SaveEntity(TodoItemDto todo)
     {
-        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(HttpMethod.Post, $"{urlSegment}", todo);
+        HttpMethod httpMethod = todo.Id == Guid.Empty ? HttpMethod.Post : HttpMethod.Put;
+        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(httpMethod, $"{urlSegment}", todo);
         return parsedResponse;
     }
 

@@ -67,6 +67,14 @@ while (true)
 
     switch (command)
     {
+        case "r-page":
+            //REST
+            await AttemptRestAsync(() => restClient.GetPage());
+            break;
+        case "g-page":
+            //GRPC
+            await AttemptGrpcAsync(async () => await grpcClient.PageAsync(new SampleAppGrpc.ServiceRequestPage { Pagesize = 10, Pageindex = 1 }));
+            break;
         case "r-get":
         case "g-get":
             Console.WriteLine("Id (Enter for null):");
@@ -80,12 +88,12 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRest(() => restClient.GetTodoItem(id));
+                await AttemptRestAsync(() => restClient.GetTodoItem(id));
             }
             else
             {
                 //GRPC
-                await AttemptGrpc(async () => await grpcClient.GetAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
+                await AttemptGrpcAsync(async () => await grpcClient.GetAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
             }
             break;
 
@@ -100,15 +108,16 @@ while (true)
             }
             Console.WriteLine("Name:");
             input2 = Console.ReadLine();
+
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRest(() => restClient.SaveEntity(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+                await AttemptRestAsync(() => restClient.SaveEntity(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
             }
             else
             {
                 //GRPC
-                await AttemptGrpc(async () => await grpcClient.SaveAsync(new SampleAppGrpc.ServiceRequestTodoItem
+                await AttemptGrpcAsync(async () => await grpcClient.SaveAsync(new SampleAppGrpc.ServiceRequestTodoItem
                 {
                     Data = new SampleAppGrpc.TodoItemDto
                     {
@@ -129,15 +138,16 @@ while (true)
                 Console.WriteLine("Id must be a valid Guid.");
                 break;
             }
+
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRest(() => (Task<object>)restClient.DeleteEntity(id));
+                await AttemptRestAsync(() => (Task<object>)restClient.DeleteEntity(id));
             }
             else
             {
                 //GRPC
-                await AttemptGrpc<Empty>(async () => await grpcClient.DeleteAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
+                await AttemptGrpcAsync<Empty>(async () => await grpcClient.DeleteAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
             }
             break;
         default:
@@ -147,7 +157,7 @@ while (true)
     }
 }
 
-async Task AttemptRest<T>(Func<Task<T>> method)
+async Task AttemptRestAsync<T>(Func<Task<T>> method)
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------REST Client initiate request -----------");
@@ -168,7 +178,7 @@ async Task AttemptRest<T>(Func<Task<T>> method)
     }
 }
 
-async Task AttemptGrpc<T>(Func<Task<T>> method)
+async Task AttemptGrpcAsync<T>(Func<Task<T>> method)
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------GRPC Client initiate request -----------");
@@ -188,11 +198,13 @@ async Task AttemptGrpc<T>(Func<Task<T>> method)
 static void ShowCommands()
 {
     Console.WriteLine("Commands:");
-    Console.WriteLine("r-get    - HTTP GET context/entity/{id}");
-    Console.WriteLine("r-save   - HTTP POST context/saveentity/{id?}");
-    Console.WriteLine("r-delete - HTTP DELETE context/deleteentity {id}");
-    Console.WriteLine("g-get    - GRPC context/entity/{id}");
-    Console.WriteLine("g-save   - GRPC context/saveentity/{id?}");
-    Console.WriteLine("g-delete - GRPC context/deleteentity {id}");
+    Console.WriteLine("r-page   - HTTP GET todoitems");
+    Console.WriteLine("r-get    - HTTP GET todoitems/{id}");
+    Console.WriteLine("r-save   - HTTP POST/PUT todoitems/{id?}");
+    Console.WriteLine("r-delete - HTTP DELETE todoitems/{id}");
+    Console.WriteLine("g-page   - GRPC PageAsync");
+    Console.WriteLine("g-get    - GRPC GetAsync");
+    Console.WriteLine("g-save   - GRPC SaveAsync");
+    Console.WriteLine("g-delete - GRPC DeleteAsync");
     Console.WriteLine("exit     - Exit");
 }

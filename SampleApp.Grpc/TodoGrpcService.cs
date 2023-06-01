@@ -25,6 +25,28 @@ public class TodoGrpcService : SampleAppGrpc.TodoService.TodoServiceBase
         _mapper = mapper;
     }
 
+    public override async Task<SampleAppGrpc.ServiceResponsePageTodoItems> Page(SampleAppGrpc.ServiceRequestPage request, ServerCallContext context)
+    {
+        var page = await _todoService.GetItemsAsync(request.Pagesize, request.Pageindex);
+
+        var response = new SampleAppGrpc.ServiceResponsePageTodoItems
+        {
+            ResponseCode = SampleAppGrpc.ResponseCode.Success,
+            Data = new SampleAppGrpc.PagedResponseTodo
+            {
+                Pagesize = page.PageSize,
+                Pageindex = page.PageIndex,
+                Total = page.Total
+            }
+        };
+        //grps repeated is 'readonly' so the collection can't be assigned, only added to
+        foreach (var todo in page.Data)
+        {
+            response.Data.Data.Add(_mapper.Map<SampleAppModel.TodoItemDto, SampleAppGrpc.TodoItemDto>(todo));
+        }
+        return response;
+    }
+
     public override async Task<SampleAppGrpc.ServiceResponseTodoItem> Get(SampleAppGrpc.ServiceRequestId request, ServerCallContext context)
     {
         SampleAppModel.TodoItemDto? todo = await _todoService.GetItemAsync(new Guid(request.Id));

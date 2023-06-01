@@ -6,6 +6,7 @@ import "enums.proto";
 import "google/protobuf/empty.proto";
 
 service TodoService {
+  rpc Page(ServiceRequestPage) returns (ServiceResponsePageTodoItems);
   rpc Get (ServiceRequestId) returns (ServiceResponseTodoItem);
   rpc Save (ServiceRequestTodoItem) returns (ServiceResponseTodoItem);
   rpc Delete (ServiceRequestId) returns (google.protobuf.Empty);
@@ -25,11 +26,32 @@ message ServiceRequestTodoItem {
 	TodoItemDto data = 1;
 }
 
+message ServiceRequestEmpty {}
+
+message ServiceRequestPage {
+	int32 pagesize = 1;
+	int32 pageindex = 2;
+}
+
 message ServiceResponseTodoItem {
 	ResponseCode responseCode = 1;
 	string message = 2;
 	TodoItemDto data = 3;
 	repeated ResponseError errors = 4;
+}
+
+message ServiceResponsePageTodoItems {
+	ResponseCode responseCode = 1;
+	string message = 2;
+	PagedResponseTodo data = 3;
+	repeated ResponseError errors = 4;
+}
+
+message PagedResponseTodo{
+	int32 pagesize = 1;
+	int32 pageindex = 2;
+	int32 total = 3;
+	repeated TodoItemDto data = 4;
 }
 
 message ResponseError {

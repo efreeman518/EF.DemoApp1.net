@@ -283,7 +283,7 @@ public static class EFExtensions
     /// <param name="query"></param>
     /// <param name="tracking"></param>
     /// <param name="pageSize"></param>
-    /// <param name="pageIndex"></param>
+    /// <param name="pageIndex">1-based</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includeTotal"></param>
@@ -310,7 +310,7 @@ public static class EFExtensions
     /// <param name="query"></param>
     /// <param name="tracking"></param>
     /// <param name="pageSize"></param>
-    /// <param name="pageIndex"></param>
+    /// <param name="pageIndex">1-based</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includeTotal"></param>
