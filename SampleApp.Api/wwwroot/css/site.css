@@ -1,8 +1,7 @@
-﻿body 
-{
+﻿body {
     font-family: Arial, sans-serif;
-    background-color: #222222;
-    color: #b7b7b7;
+    background-color: #222;
+    color: #ccc;
 }
 
 input[type='submit'], button, [aria-label] {
@@ -14,7 +13,7 @@ input[type='submit'], button, [aria-label] {
 }
 
 #error {
-    color:red;
+    color: red;
 }
 
 table {
@@ -24,12 +23,13 @@ table {
 }
 
 th {
-    background-color: #a8a8a8;
+    background-color: #333;
     padding: 5px;
-    color: #3838ff;
+    color: #30f9ff;
+    border: 2px solid #92fbfe;
 }
 
 td {
-    border: 1px solid;
+    border: 2px solid #92fbfe;
     padding: 5px;
 }

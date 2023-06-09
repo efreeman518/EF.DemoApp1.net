@@ -12,4 +12,5 @@ public interface ITodoService
     Task<TodoItemDto> AddItemAsync(TodoItemDto dto);
     Task<TodoItemDto?> UpdateItemAsync(TodoItemDto dto);
     Task DeleteItemAsync(Guid id);
+    Task<PagedResponse<TodoItemDto>> GetItemsExternalAsync(int pageSize = 10, int pageIndex = 0);
 }

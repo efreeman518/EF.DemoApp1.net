@@ -1,30 +1,30 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using LazyCache;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Package.Infrastructure.Http.Tokens;
 
-public class AzureAdTokenProviderConfidentialClientApp : IOAuth2TokenProvider
+public class AzureAdTokenProviderConfidentialClientApp //: IOAuth2TokenProvider
 {
     private readonly IAppCache _appCache;
 
     //todo - make this a thread safe collection (ConcurrentDictionary) to hold multiple target app tokens
     private readonly IConfidentialClientApplication _app;
 
-    public AzureAdTokenProviderConfidentialClientApp(IOptions<AzureAdOptions> azureAdOptions, IAppCache appCache)
+    public AzureAdTokenProviderConfidentialClientApp(AzureADOptions azureAdOptions, IAppCache appCache)
     {
         _appCache = appCache;
 
         //ConfidentialClientApplicationBuilder has many options
-        _app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.Value.ClientId)
-            .WithClientSecret(azureAdOptions.Value.ClientSecret)
-            .WithAuthority(azureAdOptions.Value.Authority)
+        _app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
+            .WithClientSecret(azureAdOptions.ClientSecret)
+            .WithAuthority(azureAdOptions.AADInstance, azureAdOptions.TenantId)
+            //.WithAuthority("https://login.microsoftonline.com/c32ce235-4d9a-4296-a647-a9edb2912ac9")
             .Build();
     }
 
-    public async Task<string> GetAccessTokenAsync(string[] scopes)
+    public async Task<string> GetAccessTokenAsync(string[] scopes, bool forceRefresh = false)
     {
         var key = $"access_token:{string.Join(",", scopes)}";
         try
@@ -32,7 +32,7 @@ public class AzureAdTokenProviderConfidentialClientApp : IOAuth2TokenProvider
             var accessToken = await _appCache.GetOrAddAsync(key, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                var result = await _app.AcquireTokenForClient(scopes).ExecuteAsync();
+                var result = await _app.AcquireTokenForClient(scopes).WithForceRefresh(forceRefresh).ExecuteAsync();
                 return result.AccessToken;
             });
 
@@ -57,8 +57,10 @@ public class AzureAdTokenProviderConfidentialClientApp : IOAuth2TokenProvider
 
     /// <summary>
     /// Get token for an Azure resource using built in DefaultAzureCredential
-    /// Need to define an "App Role" in the target app registration's manifest. This is the app registration which is used to represent the resource (taget api App Service).
-    /// Then you use the Azure CLI to grant permission for that "App Role" to the Enterprise App (The one generated when you setup a managed identity for the client app)
+    /// Need to define an "App Role" in the target app registration's manifest. 
+    /// This is the app registration which is used to represent the resource (target api App Service).
+    /// Then you use the Azure CLI to grant permission for that "App Role" to the Enterprise App 
+    /// (The one generated when you setup a managed identity for the client app)
     /// https://blog.yannickreekmans.be/secretless-applications-add-permissions-to-a-managed-identity/
     /// </summary>
     /// <param name="resourceId"></param>
@@ -79,9 +81,10 @@ public class AzureAdTokenProviderConfidentialClientApp : IOAuth2TokenProvider
     }
 }
 
-public class AzureAdOptions
+public class AzureADOptions
 {
-    public string Authority { get; set; } = null!;
+    public AzureCloudInstance AADInstance { get; set; } = AzureCloudInstance.AzurePublic;
+    public Guid TenantId { get; set; }
     public string ClientId { get; set; } = null!;
     public string ClientSecret { get; set; } = null!;
 }

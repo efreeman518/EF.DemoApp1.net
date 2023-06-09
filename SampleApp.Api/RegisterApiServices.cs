@@ -50,6 +50,16 @@ internal static class IServiceCollectionExtensions
             options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
         });
 
+        services.AddCors(opt =>
+        {
+            opt.AddPolicy(name: "AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
         services.AddControllers();
 
         //Add gRPC framework services

@@ -6,6 +6,7 @@ using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
+using SampleApp.Bootstrapper.Automapper;
 using Test.Support;
 
 //https://github.com/dotnet/BenchmarkDotNet
@@ -22,7 +23,13 @@ public class RepositoryBenchmarks
 
     public RepositoryBenchmarks()
     {
-        var mapper = SampleApp.Bootstrapper.Automapper.ConfigureAutomapper.CreateMapper();
+        var mapper = ConfigureAutomapper.CreateMapper(
+            new List<AutoMapper.Profile>
+           {
+                new MappingProfile(),  //map domain <-> app 
+                //new GrpcMappingProfile() // map grpc <-> app 
+           });
+
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
             .UseEntityData(entities =>

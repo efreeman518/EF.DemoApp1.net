@@ -2,7 +2,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,17 +15,9 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     private readonly ConcurrentDictionary<string, BlobServiceClient> _blobServiceClients = new();
     private static readonly object _lock = new();
 
-#pragma warning disable IDE0052 // Remove unread private members
-#pragma warning disable S4487 // Unread "private" fields should be removed
-    //timer is never read; it is used to trigger logic 
-    private readonly Timer _clearTimer;
-#pragma warning restore S4487 // Unread "private" fields should be removed
-#pragma warning restore IDE0052 // Remove unread private members
-
-    public AzureBlobStorageManager(ILogger<AzureBlobStorageManager> logger, IOptions<AzureBlobStorageManagerSettings> settings)
+    public AzureBlobStorageManager(ILogger<AzureBlobStorageManager> logger)
     {
         _logger = logger;
-        _clearTimer = new(ClearTimerRun, null, TimeSpan.FromSeconds(settings.Value.RefreshIntervalSeconds), TimeSpan.FromSeconds(settings.Value.RefreshIntervalSeconds));
     }
 
     /// <summary>
@@ -178,9 +169,11 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
             if (request.StorageAccountUrl == null && request.ConnectionString == null)
                 throw new InvalidOperationException($"Azure Storage Request Container {request.ContainerName} needs either StorageAccountQueueUrl or ConnectionString. Both are null.");
 
-            // Fetch data from source (async), update cache and return.
+            //create, update cache, and return.
+            //Acquired tokens are cached by the credential instance. Token lifetime and refreshing is handled automatically.
+            //https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet#methods
             blobServiceClient = (request.StorageAccountUrl != null)
-            ? new BlobServiceClient(new Uri(request.StorageAccountUrl), new DefaultAzureCredential(false), null)
+            ? new BlobServiceClient(new Uri(request.StorageAccountUrl), new DefaultAzureCredential(), null)
             : new BlobServiceClient(request.ConnectionString);
 
             _blobServiceClients.TryAdd(key, blobServiceClient);
@@ -225,14 +218,4 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
         }
         return sb.ToString();
     }
-
-    /// <summary>
-    /// Empty the dictionary essentially forcing subsequent BlobServiceClient creation with new token
-    /// </summary>
-    /// <param name="state"></param>
-    private void ClearTimerRun(object? state)
-    {
-        _blobServiceClients.Clear();
-    }
-
 }

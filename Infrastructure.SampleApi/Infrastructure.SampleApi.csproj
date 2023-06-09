@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Auth\Package.Infrastructure.Auth.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

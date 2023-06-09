@@ -20,7 +20,7 @@ public class TodoControllerTests : EndpointTestBase
         Console.WriteLine(testContext.TestName);
 
         //Arrange for all tests
-        _client = Utility.GetClient<SampleApp.Api.Program>();
+        _client = Utility.GetClient<Program>();
 
         //Authentication
         //await ApplyBearerAuthHeader(_client);
@@ -34,7 +34,7 @@ public class TodoControllerTests : EndpointTestBase
     public async Task Get_BasicEndpoints_pass(string url, HttpStatusCode expectedStatusCode, string contentType)
     {
         // Act
-        (HttpResponseMessage httpResponse, _) = await _client.HttpRequestAndResponseAsync<string, IHtmlDocument>(HttpMethod.Get, url, null);
+        (HttpResponseMessage httpResponse, _) = await _client.HttpRequestAndResponseAsync<IHtmlDocument>(HttpMethod.Get, url, null);
 
         // Assert
         httpResponse.EnsureSuccessStatusCode(); // Status Code 200-299
@@ -56,7 +56,7 @@ public class TodoControllerTests : EndpointTestBase
         //act
 
         //POST create (insert)
-        (var _, var parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(HttpMethod.Post, urlBase, todo);
+        (var _, var parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
@@ -64,24 +64,24 @@ public class TodoControllerTests : EndpointTestBase
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
         todo.Name = $"Update {name}";
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto, TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo);
         Assert.AreEqual(todo.Name, parsedResponse?.Name);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(todo.Name, parsedResponse?.Name);
 
         //DELETE
-        (var httpResponse, _) = await _client.HttpRequestAndResponseAsync<object, object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
+        (var httpResponse, _) = await _client.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
         Assert.AreEqual(HttpStatusCode.OK, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await _client.HttpRequestAndResponseAsync<object, TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false);
+        (httpResponse, _) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
 
     }

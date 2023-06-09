@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Test.Integration.Application;
 
-[Ignore("RapidApi credentials need to be in config settings")]
+//[Ignore("RapidApi credentials need to be in config settings")]
 [TestClass]
 public class WeatherServiceTests : ServiceTestBase
 {

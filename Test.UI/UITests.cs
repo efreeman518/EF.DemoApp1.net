@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Test.UI;
 
 //Run the api in another VS
-[Ignore("api needs to be running somewhere")]
+//[Ignore("api needs to be running somewhere")]
 [TestClass]
 public class UITests : SeleniumTestBase
 {

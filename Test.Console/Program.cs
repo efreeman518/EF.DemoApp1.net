@@ -1,8 +1,10 @@
 ﻿//logging for initialization
 using Google.Protobuf.WellKnownTypes;
+using Infrastructure.SampleApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Grpc;
 using Test.Console;
@@ -28,26 +30,60 @@ services
     .AddApplicationInsightsTelemetryWorkerService(config);
 
 //Rest Client
-services.AddHttpClient<SampleApiRestClient>(options =>
+//if config has ClientId/ClientSecret, use that, otherwise DefaultAzureCredential
+//var adOptions = Options.Create(new AzureADOptions
+//{
+//    TenantId = config.GetValue<Guid>("SampleApiRestClientSettings:Auth:TenantId"), 
+//    ClientId = config.GetValue<string>("SampleApiRestClientSettings:Auth:ClientId")!,
+//    ClientSecret = config.GetValue<string>("SampleApiRestClientSettings:Auth:ClientSecret")!
+//});
+//var tokenClient = new AzureAdTokenProviderConfidentialClientApp(adOptions, new LazyCache.CachingService());
+//var scopes = config.GetSection("SampleApiRestClientSettings:Auth:Scopes").Get<string[]>();
+//var token = await tokenClient.GetAccessTokenAsync(scopes!.ToArray(), true);
+
+//this doesn't work for logged in VS user
+//var cred = new DefaultAzureCredential();
+//token = (await cred.GetTokenAsync(new Azure.Core.TokenRequestContext(new string[] { "api://105684a3-a969-4f3e-89f4-3da2ff0b0a16" }))).Token;
+
+services.Configure<SampleApiRestClientSettings>(config.GetSection(SampleApiRestClientSettings.ConfigSectionName));
+services.AddTransient(provider =>
+{
+    //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+    //so if we need a 'client' AAD App Reg, set the env vars
+    if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+    {
+        Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+        Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+        Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+    }
+    var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+    return new SampleRestApiAuthMessageHandler(scopes!);
+});
+services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
 {
     options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
-});
-services.Configure<SampleApiRestClientSettings>(config.GetSection(SampleApiRestClientSettings.ConfigSectionName));
+    //options.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+}).AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+
 
 //GRPC Client
 services.AddTransient<ClientErrorInterceptor>(); //should be scoped in prod
 services.AddGrpcClient2<SampleAppGrpc.TodoService.TodoServiceClient>(
     baseAddress: new Uri(config.GetValue<string>("SampleApiGrpcClientSettings:ServiceUrl")!)
-    //authHeaderValue: new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", authResult?.AccessToken)
+    //authHeaderValue: new AuthenticationHeaderValue("bearer", token)
     )
 .AddInterceptor<ClientErrorInterceptor>();
+
+//LazyCache needed for AzureAdTokenProviderDefaultAzureCred
+services.AddLazyCache();
+services.AddSingleton<IAzureAdTokenRetriever, AzureAdTokenProviderDefaultAzureCred>();
 
 //build IServiceProvider for subsequent use finding / injecting services
 IServiceProvider serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
 //REST
-var restClient = serviceProvider.GetRequiredService<SampleApiRestClient>();
-//GRPC
+var restClient = serviceProvider.GetRequiredService<ISampleApiRestClient>();
+//GRPC - Azure App Service requires config setting Http Version = 2, Http 2.0 Proxy = On, and an app setting HTTP20_ONLY_PORT to any? port number
 var grpcClient = serviceProvider.GetRequiredService<SampleAppGrpc.TodoService.TodoServiceClient>();
 
 //Console UI
@@ -112,7 +148,7 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => restClient.SaveEntity(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+                await AttemptRestAsync(() => restClient.SaveTodoItem(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
             }
             else
             {
@@ -142,13 +178,19 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => (Task<object>)restClient.DeleteEntity(id));
+                await AttemptRestAsync(() => (Task<object>)restClient.DeleteTodoItem(id));
             }
             else
             {
                 //GRPC
                 await AttemptGrpcAsync<Empty>(async () => await grpcClient.DeleteAsync(new SampleAppGrpc.ServiceRequestId { Id = id.ToString() }));
             }
+            break;
+        case "r-getuser":
+            await AttemptRestAsync(() => restClient.GetUser());
+            break;
+        case "r-getuserclaims":
+            await AttemptRestAsync(() => restClient.GetUserClaims());
             break;
         default:
             Console.WriteLine("Enter a valid command.");

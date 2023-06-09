@@ -2,6 +2,7 @@
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Extensions;
 using System.Runtime.CompilerServices;
 
 namespace Package.Infrastructure.Grpc;

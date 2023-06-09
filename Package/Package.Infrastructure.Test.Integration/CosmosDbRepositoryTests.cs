@@ -65,7 +65,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         //retrieve & validate 
         todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
         Assert.IsNotNull(todo);
-        Assert.AreEqual(todo.Status, TodoItemStatus.Created);
+        Assert.AreEqual(TodoItemStatus.Created, todo.Status);
 
         //update
         todo.SetStatus(TodoItemStatus.Completed);
@@ -74,7 +74,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         //retrieve & validate 
         todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
         Assert.IsNotNull(todo);
-        Assert.AreEqual(todo.Status, TodoItemStatus.Completed);
+        Assert.AreEqual(TodoItemStatus.Completed, todo.Status);
 
         //LINQ - page projection with filter and sort
         //filter

@@ -31,8 +31,14 @@ public class AzureAdTokenProviderDefaultAzureCred : IAzureAdTokenRetriever
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             var tokenCredential = new DefaultAzureCredential();
+            //var accessToken = await tokenCredential.GetTokenAsync(
+            //    new TokenRequestContext(new[] { resourceIdentifier }), cancellationToken); //.ConfigureAwait(false);
+
+            //"api://105684a3-a969-4f3e-89f4-3da2ff0b0a16" //.default
             var accessToken = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext(new[] { resourceIdentifier }), cancellationToken); //.ConfigureAwait(false);
+                new TokenRequestContext(new[] { scope }),
+                cancellationToken
+            );
             return accessToken;
         });
 

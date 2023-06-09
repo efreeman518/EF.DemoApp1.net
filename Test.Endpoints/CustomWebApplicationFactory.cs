@@ -15,9 +15,9 @@ namespace Test.Endpoints;
 /// <summary>
 /// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0
 /// </summary>
-/// <typeparam name="TStartup"></typeparam>
-public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
-    where TStartup : class
+/// <typeparam name="TProgram"></typeparam>
+public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
+    where TProgram : class
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -63,7 +63,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 var scopedServices = scope.ServiceProvider;
 
                 var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
-                var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
+                var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
 
                 db.Database.EnsureCreated();
 

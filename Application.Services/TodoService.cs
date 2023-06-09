@@ -1,4 +1,5 @@
-﻿using Package.Infrastructure.BackgroundServices;
+﻿using Infrastructure.SampleApi;
+using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
@@ -13,17 +14,19 @@ public class TodoService : ServiceBase, ITodoService
     private readonly IValidationHelper _validationHelper;
     private readonly ITodoRepositoryTrxn _repoTrxn;
     private readonly ITodoRepositoryQuery _repoQuery;
+    private readonly ISampleApiRestClient _sampleApiRestClient;
     private readonly IMapper _mapper;
     private readonly IBackgroundTaskQueue _taskQueue;
 
     public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, IValidationHelper validationHelper,
-        ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, IMapper mapper, IBackgroundTaskQueue taskQueue)
+        ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
         : base(logger)
     {
         _settings = settings.Value;
         _validationHelper = validationHelper;
         _repoTrxn = repoTrxn;
         _repoQuery = repoQuery;
+        _sampleApiRestClient = sampleApiRestClient;
         _mapper = mapper;
         _taskQueue = taskQueue;
     }
@@ -122,5 +125,11 @@ public class TodoService : ServiceBase, ITodoService
         Logger.Log(LogLevel.Information, "SearchAsync - {request}", request.SerializeToJson());
 
         return await _repoQuery.SearchTodoItemAsync(request);
+    }
+
+    public async Task<PagedResponse<TodoItemDto>> GetItemsExternalAsync(int pageSize = 10, int pageIndex = 0)
+    {
+        Logger.Log(LogLevel.Information, "GetItemsExternalAsync");
+        return await _sampleApiRestClient.GetPage(pageSize, pageIndex);
     }
 }

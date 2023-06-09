@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Http.Tokens;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -20,9 +21,9 @@ public abstract class EndpointTestBase
     protected EndpointTestBase()
     {
         _appcache = new CachingService();
-        var options = new AzureAdOptions
+        var options = new AzureADOptions
         {
-            Authority = _config.GetValue<string>("Auth:Authority")!,
+            TenantId = _config.GetValue<Guid>("Auth:TenantId")!,
             ClientId = _config.GetValue<string>("Auth:ClientId")!,
             ClientSecret = _config.GetValue<string>("Auth:ClientSecret")!
         };

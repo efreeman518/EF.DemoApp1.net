@@ -2,12 +2,11 @@
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
 using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -27,16 +26,16 @@ public static class HttpClientExtensions
     /// <param name="payload"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TRequest, TResponse>(this HttpClient client,
-        System.Net.Http.HttpMethod method, string url, TRequest? payload, NameValueCollection? headers = null, bool ensureSuccessStatusCode = true)
+    public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TResponse>(this HttpClient client,
+        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null, bool ensureSuccessStatusCode = true)
     {
         var httpRequest = new HttpRequestMessage(method, url);
         if (payload != null)
             httpRequest.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"); //CONTENT-TYPE header
 
-        headers?.AllKeys.ToList().ForEach(key =>
+        headers?.ToList().ForEach(entry =>
         {
-            client.DefaultRequestHeaders.Add(key!, headers[key]);
+            client.DefaultRequestHeaders.Add(entry.Key, entry.Value);
         });
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
 
@@ -44,7 +43,7 @@ public static class HttpClientExtensions
         if (ensureSuccessStatusCode)
             httpResponse.EnsureSuccessStatusCode();
 
-        if (typeof(TResponse).GetTypeInfo().IsAssignableFrom(typeof(IHtmlDocument).Ge‌​tTypeInfo()))
+        if (typeof(TResponse) == typeof(IHtmlDocument))
         {
             return (httpResponse, (TResponse)await GetDocumentAsync(httpResponse)); //must cast even though we know TResponse is IHtmlDocument
         }
@@ -66,9 +65,11 @@ public static class HttpClientExtensions
         }
         else
         {
-            response = await JsonSerializer.DeserializeAsync<TResponse>(s, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (s.Length > 0)
+                response = await JsonSerializer.DeserializeAsync<TResponse>(s, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
-        if (response == null) throw new InvalidOperationException("null response");
+        //might not be expecting a response payload (Http Delete - TResponse = object)
+        //if (response == null) throw new InvalidOperationException("empty response");
         return (httpResponse, response);
     }
 

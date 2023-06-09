@@ -37,7 +37,7 @@ public class WeatherService : IWeatherService
     {
         _logger.LogInformation("GetWeatherAsync start: {Url}", url);
 
-        (HttpResponseMessage _, WeatherRoot? data) = await _httpClient.HttpRequestAndResponseAsync<object, WeatherRoot?>(HttpMethod.Get, url, null);
+        (HttpResponseMessage _, WeatherRoot? data) = await _httpClient.HttpRequestAndResponseAsync<WeatherRoot?>(HttpMethod.Get, url, null);
 
         _logger.LogInformation("GetWeatherAsync complete: {Url}", data?.SerializeToJson());
         return data;

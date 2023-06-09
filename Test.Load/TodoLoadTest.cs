@@ -69,7 +69,7 @@ internal static class TodoLoadTest
 
 
         // creates ping plugin that brings additional reporting data
-        var pingPluginConfig = PingPluginConfig.CreateDefault(new[] { "localhost" });
+        var pingPluginConfig = PingPluginConfig.CreateDefault("localhost");
         var pingPlugin = new PingPlugin(pingPluginConfig);
 
         NBomberRunner

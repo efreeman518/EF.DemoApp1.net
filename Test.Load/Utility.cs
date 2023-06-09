@@ -24,7 +24,7 @@ internal static class Utility
                 if (payloadBuilder != null) payload = payloadBuilder(context);
 
                 //hit the endpoint
-                (HttpResponseMessage responseMsg, TResponse? response) = await httpClient.HttpRequestAndResponseAsync<TRequest, TResponse>(method, sUrl, payload);
+                (HttpResponseMessage responseMsg, TResponse? response) = await httpClient.HttpRequestAndResponseAsync<TResponse>(method, sUrl, payload);
 
                 //convention to preserve the response so the following step can use it to build it's url and/or payload
                 context.Data[stepName] = response;

@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Domain.Rules\Domain.Rules.csproj" />
     <ProjectReference Include="..\Domain.Shared\Domain.Shared.csproj" />
     <ProjectReference Include="..\Infrastructure.Repositories\Infrastructure.Repositories.csproj" />
+    <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
   </ItemGroup>
 

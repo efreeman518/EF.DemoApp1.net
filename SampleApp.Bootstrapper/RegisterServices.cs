@@ -7,6 +7,7 @@ using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
+using Infrastructure.SampleApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
@@ -90,6 +91,27 @@ public static class IServiceCollectionExtensions
         //EF-sql repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
+
+        //external SampleAppApi
+        services.Configure<SampleApiRestClientSettings>(config.GetSection(SampleApiRestClientSettings.ConfigSectionName));
+        services.AddScoped(provider =>
+        {
+            //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+            //so if we need a 'client' AAD App Reg, set the env vars
+            if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+            {
+                Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+                Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+                Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+            }
+            var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+            return new SampleRestApiAuthMessageHandler(scopes!);
+        });
+        services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
+        {
+            options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
+                                                                                                            //options.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+        }).AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
 
         //OpenAI chat service
         services.AddScoped<IChatService, ChatService>();

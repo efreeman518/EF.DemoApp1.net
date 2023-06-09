@@ -1,13 +1,12 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client;
-using Grpc.Net.ClientFactory;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+
+//https://github.com/Azure/app-service-linux-docs/blob/master/HowTo/gRPC/use_gRPC_with_dotnet.md
 
 namespace Package.Infrastructure.Grpc;
 
@@ -20,25 +19,27 @@ public static class IServiceCollectionExtensions
         HttpClientHandler? primaryHttpMessageHandler2 = primaryHttpMessageHandler;
         Func<HttpRequestMessage, X509Certificate2?, X509Chain?, SslPolicyErrors, bool>? serverCertificateCustomValidationCallback2 = serverCertificateCustomValidationCallback;
         ICollection<string>? certSecrets2 = certSecrets;
-        return services.AddGrpcClient<TClient>(delegate (GrpcClientFactoryOptions options)
+        var httpClientBuilder = services.AddGrpcClient<TClient>(o =>
         {
             if (baseAddress2 != null)
             {
-                options.Address = baseAddress2;
+                o.Address = baseAddress2;
             }
-        }).ConfigureChannel(delegate (GrpcChannelOptions o)
-        {
-            CallCredentials callCredentials = CallCredentials.FromInterceptor(delegate (AuthInterceptorContext context, Metadata metadata)
-            {
-                if (authHeaderValue2 != null)
-                {
-                    metadata.Add("Authorization", authHeaderValue2.Scheme + " " + authHeaderValue2.Parameter);
-                }
+        })
+        //.ConfigureChannel(o =>
+        //{
+        //    CallCredentials callCredentials = CallCredentials.FromInterceptor(async delegate (AuthInterceptorContext context, Metadata metadata)
+        //    {
+        //        if (authHeaderValue2 != null)
+        //        {
+        //            metadata.Add("Authorization", authHeaderValue2.Scheme + " " + authHeaderValue2.Parameter);
+        //        }
 
-                return Task.CompletedTask;
-            });
-            o.Credentials = ChannelCredentials.Create(new SslCredentials(), callCredentials);
-        }).ConfigurePrimaryHttpMessageHandler((Func<HttpMessageHandler>)delegate
+        //        await Task.CompletedTask;
+        //    });
+        //    o.Credentials = ChannelCredentials.Create(new SslCredentials(), callCredentials);
+        //})
+        .ConfigurePrimaryHttpMessageHandler((Func<HttpMessageHandler>)delegate
         {
             HttpClientHandler? h = primaryHttpMessageHandler2;
             h ??= new HttpClientHandler();
@@ -58,9 +59,20 @@ public static class IServiceCollectionExtensions
             });
             return h;
         })
-            .SetHandlerLifetime(TimeSpan.FromSeconds(handlerLifeTimeSeconds))
-            .AddPolicyHandler(GetRetryPolicy(numRetries, retryWaitSeconds, retryHttpStatusCodes))
-            .AddPolicyHandler(GetCircuitBreakerPolicy(circuitBreakerNum, circuitBreakerWaitSeconds));
+        .SetHandlerLifetime(TimeSpan.FromSeconds(handlerLifeTimeSeconds))
+        .AddPolicyHandler(GetRetryPolicy(numRetries, retryWaitSeconds, retryHttpStatusCodes))
+        .AddPolicyHandler(GetCircuitBreakerPolicy(circuitBreakerNum, circuitBreakerWaitSeconds));
+
+        if (authHeaderValue2 != null)
+        {
+            httpClientBuilder.AddCallCredentials((context, metadata) =>
+            {
+                metadata.Add("Authorization", $"{authHeaderValue2.Scheme} {authHeaderValue2.Parameter}");
+                return Task.CompletedTask;
+            });
+        }
+
+        return httpClientBuilder;
     }
 
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)

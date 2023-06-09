@@ -50,7 +50,7 @@ public class TodoServiceTests : ServiceTestBase
         todo.Status = TodoItemStatus.Completed;
         todo.Name = newName;
         var updated = await svc.UpdateItemAsync(todo);
-        Assert.AreEqual(updated!.Status, TodoItemStatus.Completed);
+        Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         //delete

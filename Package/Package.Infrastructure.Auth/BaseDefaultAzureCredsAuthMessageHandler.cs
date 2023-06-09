@@ -9,30 +9,30 @@ namespace Package.Infrastructure.Auth;
  * Inject HttpClient to the service where it is used
  
  services
-  .AddScoped<AzureDefaultCredentialsAuthorizationMessageHandler>()
+  .AddScoped<InheritFromBaseDefaultCredsAuthMessageHandler>()
   .AddHttpClient<ClassUsingHttpClient>((serviceProvider, httpClient) => 
   {
     httpClient.BaseAddress = "https://[appname].azurewebsites.net/api/[targetfunctionname]";
   })
-  .AddHttpMessageHandler<AzureDefaultCredentialsAuthorizationMessageHandler>();  
+  .AddHttpMessageHandler<InheritFromBaseDefaultCredsAuthMessageHandler>();  
  */
 
-public class AzureDefaultCredentialsAuthorizationMessageHandler : DelegatingHandler
+public abstract class BaseDefaultAzureCredsAuthMessageHandler : DelegatingHandler
 {
     private readonly TokenRequestContext TokenRequestContext;
     private readonly DefaultAzureCredential Credentials;
 
-    public AzureDefaultCredentialsAuthorizationMessageHandler()
+    protected BaseDefaultAzureCredsAuthMessageHandler(string[] scopes)
     {
         //TokenRequestContext supports other options
         //This parameter is a list of scopes; if your target App Service/Function has defined scopes then use them here.
-        TokenRequestContext = new(new[] { "targetAADAppRegistrationApplicationId" });
+        TokenRequestContext = new(scopes);
         Credentials = new DefaultAzureCredential();
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        //todo - cache token?
+        //DefaultAzureCredential caches internally and knows when to refresh
         var tokenResult = await Credentials.GetTokenAsync(TokenRequestContext, cancellationToken);
         var authorizationHeader = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
         request.Headers.Authorization = authorizationHeader;

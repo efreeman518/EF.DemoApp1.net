@@ -3,6 +3,7 @@ using Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;
@@ -60,7 +61,7 @@ public class TodoItemsController : ControllerBase
     public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoItem)
     {
         todoItem = await _todoService.AddItemAsync(todoItem);
-        return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
+        return CreatedAtAction(nameof(PostTodoItem), new { id = todoItem.Id }, todoItem);
     }
 
     [HttpPut("{id:Guid}")]
@@ -87,5 +88,28 @@ public class TodoItemsController : ControllerBase
     {
         await _todoService.DeleteItemAsync(id);
         return Ok();
+    }
+
+    [HttpGet("getuser")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
+    public IActionResult GetUser()
+    {
+        var user = HttpContext.User;
+        return new JsonResult(user, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    [HttpGet("getuserclaims")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
+    public IActionResult GetUserClaims()
+    {
+        var user = HttpContext.User;
+        return new JsonResult(user.Claims, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    [HttpGet("pageexternal")]
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItemsExternal(int pageSize = 10, int pageIndex = 1)
+    {
+        var items = await _todoService.GetItemsExternalAsync(pageSize, pageIndex);
+        return Ok(items);
     }
 }
