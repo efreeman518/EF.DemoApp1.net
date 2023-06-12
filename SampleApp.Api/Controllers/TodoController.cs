@@ -106,6 +106,14 @@ public class TodoItemsController : ControllerBase
         return new JsonResult(user.Claims, new JsonSerializerOptions { WriteIndented = true });
     }
 
+    [HttpGet("getauthheader")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
+    public IActionResult GetAuthHeader()
+    {
+        var authHeaders = HttpContext.Request.Headers.Authorization;
+        return new JsonResult(authHeaders, new JsonSerializerOptions { WriteIndented = true });
+    }
+
     [HttpGet("pageexternal")]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItemsExternal(int pageSize = 10, int pageIndex = 1)
     {

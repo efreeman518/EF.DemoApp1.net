@@ -11,4 +11,5 @@ public interface ISampleApiRestClient
     Task DeleteTodoItem(Guid id);
     Task<object?> GetUser();
     Task<object?> GetUserClaims();
+    Task<object?> GetAuthHeader();
 }

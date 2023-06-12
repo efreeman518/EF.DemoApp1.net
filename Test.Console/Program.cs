@@ -30,26 +30,11 @@ services
     .AddApplicationInsightsTelemetryWorkerService(config);
 
 //Rest Client
-//if config has ClientId/ClientSecret, use that, otherwise DefaultAzureCredential
-//var adOptions = Options.Create(new AzureADOptions
-//{
-//    TenantId = config.GetValue<Guid>("SampleApiRestClientSettings:Auth:TenantId"), 
-//    ClientId = config.GetValue<string>("SampleApiRestClientSettings:Auth:ClientId")!,
-//    ClientSecret = config.GetValue<string>("SampleApiRestClientSettings:Auth:ClientSecret")!
-//});
-//var tokenClient = new AzureAdTokenProviderConfidentialClientApp(adOptions, new LazyCache.CachingService());
-//var scopes = config.GetSection("SampleApiRestClientSettings:Auth:Scopes").Get<string[]>();
-//var token = await tokenClient.GetAccessTokenAsync(scopes!.ToArray(), true);
-
-//this doesn't work for logged in VS user
-//var cred = new DefaultAzureCredential();
-//token = (await cred.GetTokenAsync(new Azure.Core.TokenRequestContext(new string[] { "api://105684a3-a969-4f3e-89f4-3da2ff0b0a16" }))).Token;
-
 services.Configure<SampleApiRestClientSettings>(config.GetSection(SampleApiRestClientSettings.ConfigSectionName));
 services.AddTransient(provider =>
 {
     //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-    //so if we need a 'client' AAD App Reg, set the env vars
+    //so if we need to use client/secret (client AAD App Reg), set the env vars
     if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
     {
         Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));

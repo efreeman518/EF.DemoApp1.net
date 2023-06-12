@@ -58,4 +58,10 @@ public class SampleApiRestClient : ISampleApiRestClient
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getuserclaims", null);
         return parsedResponse;
     }
+
+    public async Task<object?> GetAuthHeader()
+    {
+        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getauthheader", null);
+        return parsedResponse;
+    }
 }
