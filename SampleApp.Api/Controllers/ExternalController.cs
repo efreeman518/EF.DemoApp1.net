@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
+using Infrastructure.SampleApi;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
@@ -13,12 +14,12 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class TodoItemsController : ControllerBase
+public class ExternalController : ControllerBase
 {
-    private readonly ITodoService _todoService;
-    public TodoItemsController(ITodoService todoService)
+    private readonly ISampleApiRestClient _apiClient;
+    public ExternalController(ISampleApiRestClient apiClient)
     {
-        _todoService = todoService;
+        _apiClient = apiClient;
     }
 
     /// <summary>
@@ -29,17 +30,17 @@ public class TodoItemsController : ControllerBase
     /// <returns></returns>
     [MapToApiVersion("1.0")]
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems(int pageSize = 10, int pageIndex = 1)
     {
-        var items = await _todoService.GetPageAsync(pageSize, pageIndex);
+        var items = await _apiClient.GetPageAsync(pageSize, pageIndex);
         return Ok(items);
     }
 
     [MapToApiVersion("1.1")]
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage_1_1(int pageSize = 20, int pageIndex = 1)
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems_1_1(int pageSize = 20, int pageIndex = 1)
     {
-        var items = await _todoService.GetPageAsync(pageSize, pageIndex);
+        var items = await _apiClient.GetPageAsync(pageSize, pageIndex);
         return Ok(items);
     }
 
@@ -49,7 +50,7 @@ public class TodoItemsController : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
-        var todoItem = await _todoService.GetItemAsync(id);
+        var todoItem = await _apiClient.GetItemAsync(id);
         return (todoItem != null)
             ? Ok(todoItem)
             : NotFound(id);
@@ -58,10 +59,10 @@ public class TodoItemsController : ControllerBase
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
-    public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoItem)
+    public async Task<ActionResult<TodoItemDto>> SaveTodoItem(TodoItemDto todoItem)
     {
-        todoItem = await _todoService.AddItemAsync(todoItem);
-        return CreatedAtAction(nameof(PostTodoItem), new { id = todoItem.Id }, todoItem);
+        todoItem = (await _apiClient.SaveItemAsync(todoItem))!;
+        return CreatedAtAction(nameof(SaveTodoItem), new { id = todoItem.Id }, todoItem);
     }
 
     [HttpPut("{id:Guid}")]
@@ -76,7 +77,7 @@ public class TodoItemsController : ControllerBase
         }
 
         todoItem.Id = id;
-        TodoItemDto? todoUpdated = await _todoService.UpdateItemAsync(todoItem);
+        TodoItemDto? todoUpdated = await _apiClient.SaveItemAsync(todoItem);
 
         return Ok(todoUpdated);
     }
@@ -86,32 +87,29 @@ public class TodoItemsController : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult> DeleteTodoItem(Guid id)
     {
-        await _todoService.DeleteItemAsync(id);
+        await _apiClient.DeleteItemAsync(id);
         return Ok();
     }
 
     [HttpGet("getuser")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    public IActionResult GetUser()
+    public async Task<ActionResult> GetUser()
     {
-        var user = HttpContext.User;
-        return new JsonResult(user, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(await _apiClient.GetUserAsync());
     }
 
     [HttpGet("getuserclaims")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    public IActionResult GetUserClaims()
+    public async Task<ActionResult> GetUserClaims()
     {
-        var user = HttpContext.User;
-        return new JsonResult(user.Claims, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(await _apiClient.GetUserClaimsAsync());
     }
 
     [HttpGet("getauthheader")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    public IActionResult GetAuthHeader()
+    public async Task<ActionResult> GetAuthHeader()
     {
-        var authHeaders = HttpContext.Request.Headers.Authorization;
-        return new JsonResult(authHeaders, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(await _apiClient.GetAuthHeaderAsync());
     }
 
 }

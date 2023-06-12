@@ -27,7 +27,7 @@ public class TodoGrpcService : SampleAppGrpc.TodoService.TodoServiceBase
 
     public override async Task<SampleAppGrpc.ServiceResponsePageTodoItems> Page(SampleAppGrpc.ServiceRequestPage request, ServerCallContext context)
     {
-        var page = await _todoService.GetItemsAsync(request.Pagesize, request.Pageindex);
+        var page = await _todoService.GetPageAsync(request.Pagesize, request.Pageindex);
 
         var response = new SampleAppGrpc.ServiceResponsePageTodoItems
         {

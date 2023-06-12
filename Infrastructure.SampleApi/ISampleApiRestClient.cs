@@ -5,11 +5,11 @@ namespace Infrastructure.SampleApi;
 
 public interface ISampleApiRestClient
 {
-    Task<PagedResponse<TodoItemDto>> GetPage(int pageSize = 10, int pageIndex = 1);
-    Task<TodoItemDto?> GetTodoItem(Guid id);
-    Task<TodoItemDto?> SaveTodoItem(TodoItemDto todo);
-    Task DeleteTodoItem(Guid id);
-    Task<object?> GetUser();
-    Task<object?> GetUserClaims();
-    Task<object?> GetAuthHeader();
+    Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 1);
+    Task<TodoItemDto?> GetItemAsync(Guid id);
+    Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo);
+    Task DeleteItemAsync(Guid id);
+    Task<object?> GetUserAsync();
+    Task<object?> GetUserClaimsAsync();
+    Task<object?> GetAuthHeaderAsync();
 }

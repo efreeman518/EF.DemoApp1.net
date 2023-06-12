@@ -31,7 +31,7 @@ public class TodoService : ServiceBase, ITodoService
         _taskQueue = taskQueue;
     }
 
-    public async Task<PagedResponse<TodoItemDto>> GetItemsAsync(int pageSize = 10, int pageIndex = 0)
+    public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0)
     {
         //avoid compiler warning
         _ = _settings.GetHashCode();
@@ -127,9 +127,11 @@ public class TodoService : ServiceBase, ITodoService
         return await _repoQuery.SearchTodoItemAsync(request);
     }
 
-    public async Task<PagedResponse<TodoItemDto>> GetItemsExternalAsync(int pageSize = 10, int pageIndex = 0)
+    public async Task<PagedResponse<TodoItemDto>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0)
     {
-        Logger.Log(LogLevel.Information, "GetItemsExternalAsync");
-        return await _sampleApiRestClient.GetPage(pageSize, pageIndex);
+        //performant logging
+        Logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
+
+        return await _sampleApiRestClient.GetPageAsync(pageSize, pageIndex);
     }
 }

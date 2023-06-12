@@ -90,7 +90,7 @@ while (true)
     {
         case "r-page":
             //REST
-            await AttemptRestAsync(() => restClient.GetPage());
+            await AttemptRestAsync(() => restClient.GetPageAsync());
             break;
         case "g-page":
             //GRPC
@@ -109,7 +109,7 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => restClient.GetTodoItem(id));
+                await AttemptRestAsync(() => restClient.GetItemAsync(id));
             }
             else
             {
@@ -133,7 +133,7 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => restClient.SaveTodoItem(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+                await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
             }
             else
             {
@@ -163,7 +163,7 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => (Task<object>)restClient.DeleteTodoItem(id));
+                await AttemptRestAsync(() => (Task<object>)restClient.DeleteItemAsync(id));
             }
             else
             {
@@ -172,10 +172,10 @@ while (true)
             }
             break;
         case "r-getuser":
-            await AttemptRestAsync(() => restClient.GetUser());
+            await AttemptRestAsync(() => restClient.GetUserAsync());
             break;
         case "r-getuserclaims":
-            await AttemptRestAsync(() => restClient.GetUserClaims());
+            await AttemptRestAsync(() => restClient.GetUserClaimsAsync());
             break;
         default:
             Console.WriteLine("Enter a valid command.");

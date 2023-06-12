@@ -19,7 +19,7 @@ public class SampleApiRestClient : ISampleApiRestClient
         _httpClient = httpClient;
     }
 
-    public async Task<PagedResponse<TodoItemDto>> GetPage(int pageSize = 10, int pageIndex = 1)
+    public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 1)
     {
         _ = _logger.GetHashCode();
         _ = _settings.GetHashCode();
@@ -29,37 +29,37 @@ public class SampleApiRestClient : ISampleApiRestClient
         return parsedResponse!;
     }
 
-    public async Task<TodoItemDto?> GetTodoItem(Guid id)
+    public async Task<TodoItemDto?> GetItemAsync(Guid id)
     {
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/{id}", null);
         return parsedResponse;
     }
 
-    public async Task<TodoItemDto?> SaveTodoItem(TodoItemDto todo)
+    public async Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo)
     {
         HttpMethod httpMethod = todo.Id == Guid.Empty ? HttpMethod.Post : HttpMethod.Put;
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(httpMethod, $"{urlSegment}", todo);
         return parsedResponse;
     }
 
-    public async Task DeleteTodoItem(Guid id)
+    public async Task DeleteItemAsync(Guid id)
     {
         (var _, var _) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Delete, $"{urlSegment}/{id}", null);
     }
 
-    public async Task<object?> GetUser()
+    public async Task<object?> GetUserAsync()
     {
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getuser", null);
         return parsedResponse;
     }
 
-    public async Task<object?> GetUserClaims()
+    public async Task<object?> GetUserClaimsAsync()
     {
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getuserclaims", null);
         return parsedResponse;
     }
 
-    public async Task<object?> GetAuthHeader()
+    public async Task<object?> GetAuthHeaderAsync()
     {
         (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getauthheader", null);
         return parsedResponse;
