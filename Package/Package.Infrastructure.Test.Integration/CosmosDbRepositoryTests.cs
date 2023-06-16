@@ -11,7 +11,7 @@ namespace Package.Infrastructure.Test.Integration;
 
 //CosmosDb emulator: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 
-[Ignore("CosmosDb or the emulator needs to be running, with connection string in settings and SampleDB created")]
+//[Ignore("CosmosDb or emulator connection string required.")]
 
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
@@ -28,10 +28,10 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     [TestMethod]
     public async Task PopulateContainer()
     {
-        //CosmosDB Database must already exist (SampleDB)
+        await _repo.SetOrCreateDatabaseAsync("SampleDB");
 
         //create container if not exist
-        await _repo.GetOrAddContainer(typeof(TodoItemNoSql).Name, "/PartitionKey", true);
+        await _repo.GetOrAddContainerAsync(typeof(TodoItemNoSql).Name, "/PartitionKey");
 
         //randomize status
         Array statuses = Enum.GetValues(typeof(TodoItemStatus));
@@ -55,6 +55,13 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     public async Task Todo_crud_pass()
     {
         _logger.Log(LogLevel.Information, "Todo_crud_pass - Start");
+
+        //Create CosmosDB Database
+        var dbId = Guid.NewGuid().ToString();
+        await _repo.SetOrCreateDatabaseAsync(dbId);
+        //ensure container exists
+        var containerName = nameof(TodoItemNoSql);
+        await _repo.GetOrAddContainerAsync(containerName, "/PartitionKey");
 
         TodoItemNoSql? todo = new(Guid.NewGuid().ToString() + "a"); //EntityBase - Id created on instantiation 
         Guid id = todo.Id;
@@ -121,6 +128,11 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         await _repo.DeleteItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
         todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
         Assert.IsNull(todo);
+
+        //delete container
+        await _repo.DeleteContainerAsync(containerName);
+        //delete database
+        await _repo.DeleteDatabaseAsync(dbId);
     }
 }
 

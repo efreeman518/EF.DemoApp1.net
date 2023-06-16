@@ -110,8 +110,10 @@ public static class IServiceCollectionExtensions
         services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
         {
             options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
-                                                                                                            //options.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-        }).AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+        })
+        .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>()
+        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler(GetCircuitBreakerPolicy()); 
 
         //OpenAI chat service
         services.AddScoped<IChatService, ChatService>();
@@ -126,13 +128,13 @@ public static class IServiceCollectionExtensions
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherServiceSettings:Key")!);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherServiceSettings:Host")!);
         })
+        .AddPolicyHandler(GetRetryPolicy())
+        .AddPolicyHandler(GetCircuitBreakerPolicy());
         //integration testing breaks since there is no header to propagate
         //apply to internal service proxies as needed; just a sample, doesn't apply to RapidAPI
         //.AddHeaderPropagation() 
         //.AddCorrelationIdForwarding()
 
-        .AddPolicyHandler(GetRetryPolicy())
-        .AddPolicyHandler(GetCircuitBreakerPolicy());
 
         //Database 
         connectionString = config.GetConnectionString("TodoDbContextTrxn");

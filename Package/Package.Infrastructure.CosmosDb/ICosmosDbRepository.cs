@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace Package.Infrastructure.CosmosDb;
 public interface ICosmosDbRepository
@@ -20,5 +21,9 @@ public interface ICosmosDbRepository
         Dictionary<string, object>? parameters = null, int maxConcurrency = -1,
          CancellationToken cancellationToken = default);
 
-    Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false);
+    Task<Container> GetOrAddContainerAsync(string containerId, string? partitionKeyPath = null);
+    Task<HttpStatusCode?> DeleteContainerAsync(string containerId, CancellationToken cancellationToken = default);
+    Task<HttpStatusCode> SetOrCreateDatabaseAsync(string dbId, int? throughput = null, CancellationToken cancellationToken = default);
+    Task<HttpStatusCode> DeleteDatabaseAsync(string? dbId = null, CancellationToken cancellationToken = default);
+
 }

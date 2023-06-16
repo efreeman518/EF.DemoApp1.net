@@ -2,6 +2,7 @@
 using Microsoft.Azure.Cosmos.Linq;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace Package.Infrastructure.CosmosDb;
 
@@ -12,8 +13,8 @@ namespace Package.Infrastructure.CosmosDb;
 /// </summary>
 public class CosmosDbRepository : ICosmosDbRepository
 {
-    public readonly string? DbId;
-    public readonly CosmosClient DbClient3;
+    private string? DbId;
+    private readonly CosmosClient DbClient3;
 
     public CosmosDbRepository(CosmosDbRepositorySettings settings)
     {
@@ -150,7 +151,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         return (items, total, continuationToken);
     }
 
-    public async Task<Container> GetOrAddContainer(string containerId, string? partitionKeyPath = null, bool createIfNotExist = false)
+    public async Task<Container> GetOrAddContainerAsync(string containerId, string? partitionKeyPath = null)
     {
         ContainerProperties containerProperties = new(containerId, partitionKeyPath)
         {
@@ -160,6 +161,44 @@ public class CosmosDbRepository : ICosmosDbRepository
         var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
         var container = response.Container;
         return container!;
+    }
+
+    /// <summary>
+    /// Delete a CosmosDB Database Container
+    /// </summary>
+    /// <param name="containerId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>204-NoContent</returns>
+    public async Task<HttpStatusCode?> DeleteContainerAsync(string containerId, CancellationToken cancellationToken = default)
+    {
+        var container = DbClient3.GetDatabase(DbId).GetContainer(containerId);
+        return container != null ? (await container.DeleteContainerAsync(cancellationToken: cancellationToken)).StatusCode : null;
+    }
+
+    /// <summary>
+    /// Enables creating a CosmosDB database which will be set to the repository instance
+    /// </summary>
+    /// <param name="dbId"></param>
+    /// <param name="throughput"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>201-Created or 200-OK existing</returns>
+    public async Task<HttpStatusCode> SetOrCreateDatabaseAsync(string dbId, int? throughput = null, CancellationToken cancellationToken = default)
+    {
+        var response = await DbClient3.CreateDatabaseIfNotExistsAsync(dbId, throughput, null, cancellationToken);
+        DbId = dbId;
+        return response.StatusCode;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dbId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>204-NoContent</returns>
+    public async Task<HttpStatusCode> DeleteDatabaseAsync(string? dbId = null, CancellationToken cancellationToken = default)
+    {
+        dbId ??= DbId;
+        return (await DbClient3.GetDatabase(dbId).DeleteAsync(null, cancellationToken)).StatusCode;
     }
 
     private static QueryDefinition BuildSqlQueryDefinition(string sql, Dictionary<string, object>? parameters = null)
