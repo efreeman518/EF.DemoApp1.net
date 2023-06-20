@@ -3,6 +3,7 @@ using Application.Contracts.Services;
 using Application.Services;
 using Application.Services.Validators;
 using CorrelationId.Abstractions;
+using CorrelationId.HttpClient;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
@@ -94,26 +96,43 @@ public static class IServiceCollectionExtensions
 
         //external SampleAppApi
         services.Configure<SampleApiRestClientSettings>(config.GetSection(SampleApiRestClientSettings.ConfigSectionName));
-        services.AddScoped(provider =>
+        //check auth configured
+        var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+        if (scopes != null)
         {
-            //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-            //so if we need a 'client' AAD App Reg, set the env vars
-            if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+            services.AddScoped(provider =>
             {
-                Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
-                Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
-                Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
-            }
-            var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
-            return new SampleRestApiAuthMessageHandler(scopes!);
-        });
-        services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
+                //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+                //so if we need a 'client' AAD App Reg, set the env vars
+                if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+                {
+                    Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+                    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+                    Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+                }
+                return new SampleRestApiAuthMessageHandler(scopes);
+            });
+        }
+        var httpClientBuilder = services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
         {
             options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
         })
-        .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>()
         .AddPolicyHandler(GetRetryPolicy())
-        .AddPolicyHandler(GetCircuitBreakerPolicy()); 
+        .AddPolicyHandler(GetCircuitBreakerPolicy());
+        //integration testing breaks since there is no existing http request, so no headers to propagate
+        //'app.UseHeaderPropagation()' required. Header propagation can only be used within the context of an HTTP request, not a test.
+        //.AddHeaderPropagation(options =>
+        //{
+        //    options.Headers.Add("x-request-id");
+        //    options.Headers.Add("x-correlation-id");
+        //}); 
+        //.AddCorrelationIdForwarding();
+
+        //auth is configured
+        if (scopes != null)
+        {
+            httpClientBuilder.AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+        }
 
         //OpenAI chat service
         services.AddScoped<IChatService, ChatService>();
@@ -130,11 +149,6 @@ public static class IServiceCollectionExtensions
         })
         .AddPolicyHandler(GetRetryPolicy())
         .AddPolicyHandler(GetCircuitBreakerPolicy());
-        //integration testing breaks since there is no header to propagate
-        //apply to internal service proxies as needed; just a sample, doesn't apply to RapidAPI
-        //.AddHeaderPropagation() 
-        //.AddCorrelationIdForwarding()
-
 
         //Database 
         connectionString = config.GetConnectionString("TodoDbContextTrxn");

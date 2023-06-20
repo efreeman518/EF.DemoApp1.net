@@ -38,7 +38,8 @@ public class SampleApiRestClient : ISampleApiRestClient
     public async Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo)
     {
         HttpMethod httpMethod = todo.Id == Guid.Empty ? HttpMethod.Post : HttpMethod.Put;
-        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(httpMethod, $"{urlSegment}", todo);
+        string idSegment = httpMethod == HttpMethod.Put ? $"/{todo.Id}" : ""; //PUT requires Id in the url
+        (var _, var parsedResponse) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(httpMethod, $"{urlSegment}{idSegment}", todo);
         return parsedResponse;
     }
 

@@ -52,9 +52,9 @@ internal static class IServiceCollectionExtensions
 
         services.AddCors(opt =>
         {
-            opt.AddPolicy(name: "AllowAll", builder =>
+            opt.AddPolicy(name: "AllowSpecific", options =>
             {
-                builder.AllowAnyOrigin()
+                options.AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });

@@ -1,10 +1,8 @@
 ﻿using Application.Contracts.Model;
-using Application.Contracts.Services;
 using Infrastructure.SampleApi;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;
@@ -30,7 +28,7 @@ public class ExternalController : ControllerBase
     /// <returns></returns>
     [MapToApiVersion("1.0")]
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems(int pageSize = 10, int pageIndex = 1)
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
         var items = await _apiClient.GetPageAsync(pageSize, pageIndex);
         return Ok(items);
@@ -38,7 +36,7 @@ public class ExternalController : ControllerBase
 
     [MapToApiVersion("1.1")]
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetTodoItems_1_1(int pageSize = 20, int pageIndex = 1)
+    public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage_1_1(int pageSize = 20, int pageIndex = 1)
     {
         var items = await _apiClient.GetPageAsync(pageSize, pageIndex);
         return Ok(items);
