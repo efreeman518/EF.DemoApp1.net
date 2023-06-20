@@ -26,7 +26,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task PopulateContainer()
+    public async Task Populate_db_container_run_page_queries_pass()
     {
         await _repo.SetOrCreateDatabaseAsync("SampleDB");
 
@@ -37,51 +37,13 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         Array statuses = Enum.GetValues(typeof(TodoItemStatus));
         Random random = new();
 
-        //populate cosmosDb container
+        //populate cosmosDb container with docs (random Status)
         for (var i = 0; i < 100; i++)
         {
             TodoItemStatus status = (TodoItemStatus)(statuses.GetValue(random.Next(statuses.Length)) ?? TodoItemStatus.Created);
             TodoItemNoSql todo1 = new($"todo-a-{i}", status); //EntityBase - Id created on instantiation 
             await _repo.SaveItemAsync(todo1);
         }
-
-        Assert.IsTrue(true);
-    }
-    /// <summary>
-    /// CosmosDb - create Db 'SampleDB' and container 'TodoItemNoSql'
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Todo_crud_pass()
-    {
-        _logger.Log(LogLevel.Information, "Todo_crud_pass - Start");
-
-        //Create CosmosDB Database
-        var dbId = Guid.NewGuid().ToString();
-        await _repo.SetOrCreateDatabaseAsync(dbId);
-        //ensure container exists
-        var containerName = nameof(TodoItemNoSql);
-        await _repo.GetOrAddContainerAsync(containerName, "/PartitionKey");
-
-        TodoItemNoSql? todo = new(Guid.NewGuid().ToString() + "a"); //EntityBase - Id created on instantiation 
-        Guid id = todo.Id;
-
-        //create
-        await _repo.SaveItemAsync(todo);
-
-        //retrieve & validate 
-        todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
-        Assert.IsNotNull(todo);
-        Assert.AreEqual(TodoItemStatus.Created, todo.Status);
-
-        //update
-        todo.SetStatus(TodoItemStatus.Completed);
-        await _repo.SaveItemAsync(todo);
-
-        //retrieve & validate 
-        todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
-        Assert.IsNotNull(todo);
-        Assert.AreEqual(TodoItemStatus.Completed, todo.Status);
 
         //LINQ - page projection with filter and sort
         //filter
@@ -123,6 +85,43 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
             sqlCount = null; //retrieve once, not repeatedly
         }
         while (continuationToken != null);
+    }
+
+    /// <summary>
+    /// CosmosDb - create Db 'SampleDB' and container 'TodoItemNoSql'
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Todo_crud_pass()
+    {
+        _logger.Log(LogLevel.Information, "Todo_crud_pass - Start");
+
+        //Create CosmosDB Database
+        var dbId = Guid.NewGuid().ToString();
+        await _repo.SetOrCreateDatabaseAsync(dbId);
+        //ensure container exists
+        var containerName = nameof(TodoItemNoSql);
+        await _repo.GetOrAddContainerAsync(containerName, "/PartitionKey");
+
+        TodoItemNoSql? todo = new(Guid.NewGuid().ToString() + "a"); //EntityBase - Id created on instantiation 
+        Guid id = todo.Id;
+
+        //create
+        await _repo.SaveItemAsync(todo);
+
+        //retrieve & validate 
+        todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
+        Assert.IsNotNull(todo);
+        Assert.AreEqual(TodoItemStatus.Created, todo.Status);
+
+        //update
+        todo.SetStatus(TodoItemStatus.Completed);
+        await _repo.SaveItemAsync(todo);
+
+        //retrieve & validate 
+        todo = await _repo.GetItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
+        Assert.IsNotNull(todo);
+        Assert.AreEqual(TodoItemStatus.Completed, todo.Status);
 
         //delete & validate
         await _repo.DeleteItemAsync<TodoItemNoSql>(id.ToString(), id.ToString()[..5]);
