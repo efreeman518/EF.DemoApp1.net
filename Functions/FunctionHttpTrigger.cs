@@ -40,7 +40,7 @@ public class FunctionHttpTrigger
         _logger.Log(LogLevel.Information, "HttpTrigger - Start url: {url}", url);
         _ = await new StreamReader(req.Body).ReadToEndAsync();
 
-        //await some service call
+        //await some service call with retry
 
         _logger.Log(LogLevel.Information, "HttpTrigger - Finish url: {url}", url);
 

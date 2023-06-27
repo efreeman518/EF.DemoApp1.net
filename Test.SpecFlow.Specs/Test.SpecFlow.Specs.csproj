@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
     <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" />
     <PackageReference Include="Selenium.Support" Version="4.10.0" />
@@ -30,7 +30,7 @@
     <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.33.0" />
     <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.10.0" />
     <PackageReference Include="Selenium.WebDriver.MicrosoftDriver" Version="17.17134.0" />
-    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="113.0.1774.50" />
+    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="114.0.1823.58" />
     <PackageReference Include="SpecFlow.Assist.Dynamic" Version="1.4.2" />
     <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageReference Include="SpecFlow.MsTest" Version="3.9.74" />

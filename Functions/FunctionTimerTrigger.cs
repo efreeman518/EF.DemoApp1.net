@@ -20,6 +20,7 @@ public class FunctionTimerTrigger
     }
 
     [Function("TimerTrigger")]
+    [ExponentialBackoffRetry(5, "00:00:05", "00:15:00")]
     public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
     {
         _ = _configuration.GetHashCode();

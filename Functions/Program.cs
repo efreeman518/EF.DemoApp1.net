@@ -7,7 +7,8 @@ using SampleApp.Bootstrapper;
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
-/// net7 now supported in isolated mode - https://devblogs.microsoft.com/dotnet/dotnet-7-comes-to-azure-functions/
+/// net7 isolated mode - https://devblogs.microsoft.com/dotnet/dotnet-7-comes-to-azure-functions/
+/// retries - https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-error-pages?tabs=fixed-delay%2Cin-process&pivots=programming-language-csharp#retries
 /// </summary>
 /// 
 

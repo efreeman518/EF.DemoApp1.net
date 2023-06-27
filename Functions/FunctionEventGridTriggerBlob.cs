@@ -23,6 +23,8 @@ namespace Functions;
 /// Azure
 ///     - deploy to Azure and create EventGrid subscription with the target being the EventGridTriggerBlob
 ///     - run test that creates event (upload blob)
+///     
+/// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
 public class FunctionEventGridTriggerBlob
 {

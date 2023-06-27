@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace Functions;
 
+/// <summary>
+/// If all five attempts fail, the functions runtime adds a message to a queue named <originalqueuename>-poison
+/// https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue-trigger?tabs=python-v2%2Cin-process%2Cextensionv5&pivots=programming-language-csharp#poison-messages
+/// </summary>
 public class FunctionQueueTrigger
 {
     private readonly IConfiguration _configuration;

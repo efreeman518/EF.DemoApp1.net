@@ -90,10 +90,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         {
             var response = await feedIterator.ReadNextAsync(cancellationToken); //this will load based on MaxItemCount/pageSize)
             continuationToken = response.ContinuationToken;
-            foreach (var item in response)
-            {
-                items.Add(item);
-            }
+            items.AddRange(response.ToList());
         }
         return (items, total, continuationToken);
     }
@@ -131,10 +128,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         {
             var response = await feedIterator.ReadNextAsync(cancellationToken); //this will load based on MaxItemCount/pageSize)
             continuationToken = response.ContinuationToken;
-            foreach (var item in response)
-            {
-                items.Add(item);
-            }
+            items.AddRange(response.ToList());
         }
 
         int total = -1;

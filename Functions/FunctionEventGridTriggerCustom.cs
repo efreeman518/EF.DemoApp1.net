@@ -21,6 +21,8 @@ namespace Functions;
 /// Azure
 ///     - deploy to Azure and create EventGrid subscription with the target being the EventGridTriggerCustom
 ///     - run test that sends event to the EventGrid topic
+///     
+/// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
 public class FunctionEventGridTriggerCustom
 {

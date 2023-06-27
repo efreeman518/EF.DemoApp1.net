@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Test.Integration.Application;
 
-//[Ignore("SampleApi must be running somewhere with any credentials required in config settings.")]
+[Ignore("SampleApi must be running somewhere with any credentials required in config settings.")]
 
 [TestClass]
 public class SampleApiRestClientTests : ServiceTestBase

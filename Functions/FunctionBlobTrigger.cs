@@ -24,6 +24,7 @@ public class FunctionBlobTrigger
 
     /// <summary>
     /// large blobs - dont want the fileContent as string
+    /// If all (default) 5 tries fail, Azure Functions adds a message to a Storage queue named webjobs-blobtrigger-poison
     /// </summary>
     /// <param name="fileContent"></param>
     /// <param name="fileName"></param>
