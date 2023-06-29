@@ -10,7 +10,7 @@ namespace Infrastructure.Repositories;
 public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepositoryQuery
 {
     private readonly IMapper _mapper;
-    public TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext src, IMapper mapper) : base(dbContext, src)
+    public TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext rc, IMapper mapper) : base(dbContext, rc)
     {
         _mapper = mapper;
     }

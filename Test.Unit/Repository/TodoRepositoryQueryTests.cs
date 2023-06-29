@@ -8,7 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Test.Support;
 
@@ -38,8 +40,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
-        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var rc = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, rc, _mapper);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -217,5 +219,42 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var indexOfC = response.Data.FindIndex(e => e.Name.StartsWith("C"));
         Assert.IsTrue(indexOfC < indexOfB);
         Assert.IsTrue(indexOfB < indexOfA);
+    }
+
+    [TestMethod]
+    public async Task ProcessResultSetConcurrent_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        var response = await repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 10, pageIndex: 1, includeTotal: true);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(4, response.Total);
+        Assert.AreEqual(4, response.Data.Count);
+
+        var cBag = new ConcurrentBag<Guid>();
+        //concurrent processing should run multiple threads concurrently, take about 1 sec total
+        var tasks = response.Data.Select(async t => 
+        {
+            //some awaitable task; not EF DbContext which can only handle one at a time
+            await Task.Delay(1000);
+            cBag.Add(t.Id);
+        });
+        await Task.WhenAll(tasks);
+        Assert.AreEqual(4, cBag.Count);
     }
 }
