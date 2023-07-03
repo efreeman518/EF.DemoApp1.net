@@ -60,7 +60,7 @@ public class SampleApiRestClientTests : ServiceTestBase
         {
             todoResponse = await svc.GetItemAsync(id);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Assert.IsNotNull(ex);
         }

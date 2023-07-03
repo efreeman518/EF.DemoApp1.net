@@ -248,7 +248,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
 
         var cBag = new ConcurrentBag<Guid>();
         //concurrent processing should run multiple threads concurrently, take about 1 sec total
-        var tasks = response.Data.Select(async t => 
+        var tasks = response.Data.Select(async t =>
         {
             //some awaitable task; not EF DbContext which can only handle one at a time
             await Task.Delay(1000);

@@ -1,9 +1,13 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Azure;
+using Azure.Identity;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.CosmosDb;
+using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
 
@@ -30,9 +34,32 @@ public abstract class IntegrationTestBase
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
-        //BlobStorage
+        //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
+        //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
+        //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+        services.AddAzureClients(builder =>
+        {
+            // Set up any default settings
+            builder.ConfigureDefaults(Config.GetSection("AzureClientDefaults"));
+            // Use DefaultAzureCredential by default
+            builder.UseCredential(new DefaultAzureCredential());
+
+            //Ideally use ServiceUri (w/DefaultAzureCredential)
+            builder.AddBlobServiceClient(Config.GetSection("ConnectionStrings:BlobStorage")).WithName("AzureBlobStorageAccount1");
+
+            //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
+            builder.AddEventGridPublisherClient(new Uri(Config.GetValue<string>("EventGridTopicEvent1:TopicEndpoint")!),
+                new AzureKeyCredential(Config.GetValue<string>("EventGridTopicEvent1:Key")!))
+                .WithName("EventGridTopicEvent1");
+        });
+
+        //BlobStorageManager (injected with IAzureClientFactory<BlobServiceClient>)
         services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
         services.Configure<AzureBlobStorageManagerSettings>(Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName));
+
+        //EventGridPublisherManager (injected with IAzureClientFactory<BlobServiceClient>)
+        services.AddSingleton<IEventGridPublisherManager, EventGridPublisherManager>();
+        services.Configure<EventGridPublisherManagerSettings>(Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName));
 
         //CosmosDb
         services.AddTransient<ICosmosDbRepository, CosmosDbRepository>();
@@ -44,7 +71,6 @@ public abstract class IntegrationTestBase
                 DbId = Config.GetValue<string>("CosmosDbId")
             };
         });
-
 
         //OpenAI chat service
         services.AddTransient<IChatService, ChatService>();

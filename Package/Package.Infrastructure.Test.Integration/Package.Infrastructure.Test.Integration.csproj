@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.17.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
@@ -41,6 +42,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Domain.Model\Domain.Model.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
   </ItemGroup>

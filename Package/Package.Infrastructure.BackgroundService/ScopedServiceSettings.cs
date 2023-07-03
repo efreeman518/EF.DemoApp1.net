@@ -1,5 +1,5 @@
-﻿namespace Package.Infrastructure.BackgroundServices;
+﻿//namespace Package.Infrastructure.BackgroundServices;
 
-public class ScopedServiceSettings
-{
-}
+//public class ScopedServiceSettings
+//{
+//}

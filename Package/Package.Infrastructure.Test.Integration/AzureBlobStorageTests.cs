@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Storage;
 using System.Text;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("Storage account required - Azurite storage emulator or a real Azure storage account.")]
+//[Ignore("Storage account required - Azurite storage emulator or a real Azure storage account.")]
 
 [TestClass]
 public class AzureBlobStorageTests : IntegrationTestBase
@@ -31,7 +30,8 @@ public class AzureBlobStorageTests : IntegrationTestBase
 
         BlobStorageRequest request = new()
         {
-            ConnectionString = Config.GetValue<string>("ConnectionStrings:BlobStorage"),
+            //ConnectionString = Config.GetValue<string>("ConnectionStrings:BlobStorage"),
+            ClientName = "AzureBlobStorageAccount1",
             ContainerName = containerName,
             ContainerPublicAccessType = ContainerPublicAccessType.None,
             CreateContainerIfNotExist = true
