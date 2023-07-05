@@ -30,9 +30,9 @@ public class EventGridPublisherManager : IEventGridPublisherManager
         };
 
         var client = _clientFactory.CreateClient(request.ClientName);
-        _logger.LogInformation("SendAsync Start - {Event}", _settings.LogEventData ? JsonSerializer.Serialize(egEvent.Data?.ToString()) : "LogEventData = false");
+        _logger.LogInformation("SendAsync Start - {EventId} {Event}", egEvent.Id, _settings.LogEventData ? JsonSerializer.Serialize(egEvent.ToString()) : "LogEventData = false");
         var response = await client.SendEventAsync(egEvent, cancellationToken);
-        _logger.LogInformation("SendAsync Finish - {EventId}", _settings.LogEventData ? JsonSerializer.Serialize(egEvent.Data?.ToString()) : "LogEventData = false");
+        _logger.LogInformation("SendAsync Finish - {EventId}", egEvent.Id);
         return response.Status;
     }
 }

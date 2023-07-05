@@ -21,13 +21,12 @@ public class EventGridPublisherManagerTests : IntegrationTestBase
         var e = new EventGridEvent2(subject: "SubjectEntity", eventType: "DomainEvent1", dataVersion: "1.0",
           data: new
           {
-              EventType = "Enterprise/Domain",
               SubjectType = "SubjectType",
               SubjectId = $"{Guid.NewGuid()}",
               Event = "Something happened",
               Metadata = "whatever"
           });
-        var evRequest = new EventGridRequest("EventGridTopicEvent1", e);
+        var evRequest = new EventGridRequest("EventGridPublisher1", e);
         var status = await _eventGridPublisherManager.SendAsync(evRequest);
         Assert.IsNotNull(status);
     }

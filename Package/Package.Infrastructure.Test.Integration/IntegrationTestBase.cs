@@ -37,6 +37,8 @@ public abstract class IntegrationTestBase
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
         //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+        //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.azure.azureclientfactorybuilder?view=azure-dotnet
+        //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Microsoft.Extensions.Azure/1.0.0/index.html
         services.AddAzureClients(builder =>
         {
             // Set up any default settings
@@ -48,9 +50,9 @@ public abstract class IntegrationTestBase
             builder.AddBlobServiceClient(Config.GetSection("ConnectionStrings:BlobStorage")).WithName("AzureBlobStorageAccount1");
 
             //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
-            builder.AddEventGridPublisherClient(new Uri(Config.GetValue<string>("EventGridTopicEvent1:TopicEndpoint")!),
-                new AzureKeyCredential(Config.GetValue<string>("EventGridTopicEvent1:Key")!))
-                .WithName("EventGridTopicEvent1");
+            builder.AddEventGridPublisherClient(new Uri(Config.GetValue<string>("EventGridPublisher1:TopicEndpoint")!),
+                new AzureKeyCredential(Config.GetValue<string>("EventGridPublisher1:Key")!))
+                .WithName("EventGridPublisher1");
         });
 
         //BlobStorageManager (injected with IAzureClientFactory<BlobServiceClient>)
