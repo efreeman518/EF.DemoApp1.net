@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("Storage account required - Azurite storage emulator or a real Azure storage account.")]
+[Ignore("Storage account required - Azurite storage emulator or a real Azure storage account.")]
 
 [TestClass]
 public class AzureBlobStorageTests : IntegrationTestBase
