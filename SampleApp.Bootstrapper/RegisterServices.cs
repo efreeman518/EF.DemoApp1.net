@@ -2,6 +2,8 @@
 using Application.Contracts.Services;
 using Application.Services;
 using Application.Services.Validators;
+using Azure;
+using Azure.Identity;
 using CorrelationId.Abstractions;
 using FluentValidation;
 using Infrastructure.Data;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices;
@@ -202,6 +205,26 @@ public static class IServiceCollectionExtensions
             services.AddScoped<CosmosDbRepository>();
         }
 
+        //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
+        //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
+        //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+        //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.azure.azureclientfactorybuilder?view=azure-dotnet
+        //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Microsoft.Extensions.Azure/1.0.0/index.html
+        services.AddAzureClients(builder =>
+        {
+            // Set up any default settings
+            builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
+            // Use DefaultAzureCredential by default
+            builder.UseCredential(new DefaultAzureCredential());
+
+            //Ideally use ServiceUri (w/DefaultAzureCredential)
+            builder.AddBlobServiceClient(config.GetSection("ConnectionStrings:BlobStorage")).WithName("AzureBlobStorageAccount1");
+
+            //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
+            builder.AddEventGridPublisherClient(new Uri(config.GetValue<string>("EventGridPublisher1:TopicEndpoint")!),
+                new AzureKeyCredential(config.GetValue<string>("EventGridPublisher1:Key")!))
+                .WithName("EventGridPublisher1");
+        });
 
         //BlobStorage
         services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
@@ -220,7 +243,7 @@ public static class IServiceCollectionExtensions
             if (httpContext == null)
             {
                 var correlationId = Guid.NewGuid().ToString();
-                return new RequestContext(correlationId, $"BackgroundService-{correlationId}");
+                return new Package.Infrastructure.Common.RequestContext(correlationId, $"BackgroundService-{correlationId}");
             }
 
             var user = httpContext?.User;
@@ -237,7 +260,7 @@ public static class IServiceCollectionExtensions
                 ?? "NoAuthImplemented"
                 ;
 
-            return new RequestContext(correlationContext!.CorrelationId, auditId);
+            return new Package.Infrastructure.Common.RequestContext(correlationContext!.CorrelationId, auditId);
         });
 
         return services;
