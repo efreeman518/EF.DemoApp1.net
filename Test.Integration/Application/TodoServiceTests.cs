@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Test.Integration.Application;
 
 [TestClass]
-public class TodoServiceTests : ServiceTestBase
+public class TodoServiceTests : IntegrationTestBase
 {
     public TodoServiceTests() : base()
     { }

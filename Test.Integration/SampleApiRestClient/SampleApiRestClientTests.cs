@@ -10,7 +10,7 @@ namespace Test.Integration.Application;
 [Ignore("SampleApi must be running somewhere with any credentials required in config settings.")]
 
 [TestClass]
-public class SampleApiRestClientTests : ServiceTestBase
+public class SampleApiRestClientTests : IntegrationTestBase
 {
     public SampleApiRestClientTests() : base()
     { }

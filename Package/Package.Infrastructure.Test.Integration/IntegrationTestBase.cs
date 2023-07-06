@@ -1,15 +1,19 @@
 ﻿using Azure;
 using Azure.Identity;
+using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -34,6 +38,8 @@ public abstract class IntegrationTestBase
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
+        IConfigurationSection configSection;
+
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
         //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
@@ -46,37 +52,77 @@ public abstract class IntegrationTestBase
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
-            //Ideally use ServiceUri (w/DefaultAzureCredential)
-            builder.AddBlobServiceClient(Config.GetSection("ConnectionStrings:BlobStorage")).WithName("AzureBlobStorageAccount1");
+            configSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
+            if (configSection.Exists())
+            {
+                //Ideally use ServiceUri (w/DefaultAzureCredential)
+                builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
+            }
 
-            //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
-            builder.AddEventGridPublisherClient(new Uri(Config.GetValue<string>("EventGridPublisher1:TopicEndpoint")!),
-                new AzureKeyCredential(Config.GetValue<string>("EventGridPublisher1:Key")!))
+            configSection = Config.GetSection("EventGridPublisher1");
+            if (configSection.Exists())
+            {
+                //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
+                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
+                    new AzureKeyCredential(configSection.GetValue<string>("Key")!))
                 .WithName("EventGridPublisher1");
+            }
         });
 
-        //BlobStorageManager (injected with IAzureClientFactory<BlobServiceClient>)
-        services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
-        services.Configure<AzureBlobStorageManagerSettings>(Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName));
+        //BlobStorage
+        configSection = Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
+            services.Configure<AzureBlobStorageManagerSettings>(configSection);
+        }
 
-        //EventGridPublisherManager (injected with IAzureClientFactory<BlobServiceClient>)
-        services.AddSingleton<IEventGridPublisherManager, EventGridPublisherManager>();
-        services.Configure<EventGridPublisherManagerSettings>(Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName));
+        //EventGridPublisher
+        configSection = Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddSingleton<IEventGridPublisherManager, EventGridPublisherManager>();
+            services.Configure<EventGridPublisherManagerSettings>(configSection);
+        }
 
         //CosmosDb
-        services.AddTransient<ICosmosDbRepository, CosmosDbRepository>();
-        services.AddSingleton(provider =>
+        var connectionString = Config.GetConnectionString("CosmosDB");
+        if (string.IsNullOrEmpty(connectionString))
         {
-            return new CosmosDbRepositorySettings
+            services.AddTransient<ICosmosDbRepository, CosmosDbRepository>();
+            services.AddSingleton(provider =>
             {
-                CosmosClient = new CosmosClient(Config.GetConnectionString("CosmosDB")),
-                DbId = Config.GetValue<string>("CosmosDbId")
-            };
-        });
+                return new CosmosDbRepositorySettings
+                {
+                    CosmosClient = new CosmosClient(connectionString),
+                    DbId = Config.GetValue<string>("CosmosDbId")
+                };
+            });
+        }
+
+        //external weather service
+        configSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.Configure<WeatherServiceSettings>(configSection);
+            services.AddScoped<IWeatherService, WeatherService>();
+            services.AddHttpClient<IWeatherService, WeatherService>(client =>
+            {
+                client.BaseAddress = new Uri(Config.GetValue<string>("WeatherServiceSettings:BaseUrl")!);
+                client.DefaultRequestHeaders.Add("X-RapidAPI-Key", Config.GetValue<string>("WeatherServiceSettings:Key")!);
+                client.DefaultRequestHeaders.Add("X-RapidAPI-Host", Config.GetValue<string>("WeatherServiceSettings:Host")!);
+            })
+            .AddPolicyHandler(GetRetryPolicy())
+            .AddPolicyHandler(GetCircuitBreakerPolicy());
+        }
 
         //OpenAI chat service
-        services.AddTransient<IChatService, ChatService>();
-        services.Configure<ChatServiceSettings>(Config.GetSection(ChatServiceSettings.ConfigSectionName));
+        configSection = Config.GetSection(ChatServiceSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddTransient<IChatService, ChatService>();
+            services.Configure<ChatServiceSettings>(configSection);
+        }
 
         services.AddLogging(configure => configure.AddConsole().AddDebug());
 
@@ -86,4 +132,21 @@ public abstract class IntegrationTestBase
         LoggerFactory = Services.GetRequiredService<ILoggerFactory>();
     }
 
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2) //, HttpStatusCode[]? retryHttpStatusCodes = null)
+    {
+        Random jitterer = new();
+        return HttpPolicyExtensions
+            .HandleTransientHttpError() //known transient errors
+                                        //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
+            .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
+                + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
+            );
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
+    }
 }

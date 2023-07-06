@@ -16,7 +16,7 @@ public static class Utility
         //var isDevelopment = devEnvironmentVariable?.ToLower() == "development";
 
         var builder = Support.Utility.BuildConfiguration();
-        builder.AddUserSecrets<ServiceTestBase>();
+        builder.AddUserSecrets<IntegrationTestBase>();
         IConfigurationRoot config = builder.Build();
         return config;
     }

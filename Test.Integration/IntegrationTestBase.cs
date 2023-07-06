@@ -11,15 +11,15 @@ namespace Test.Integration;
 /// <summary>
 /// Testing Application and Domain services and logic; not http endpoints
 /// </summary>
-public abstract class ServiceTestBase
+public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
 
     protected static IConfigurationRoot Config => Utility.Config;
     protected readonly IServiceProvider Services;
-    protected readonly ILogger<ServiceTestBase> Logger;
+    protected readonly ILogger<IntegrationTestBase> Logger;
 
-    protected ServiceTestBase()
+    protected IntegrationTestBase()
     {
         //DI
         ServiceCollection services = new();
@@ -41,7 +41,7 @@ public abstract class ServiceTestBase
         //services.AddApplicationInsightsTelemetryWorkerService(Config);
         services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
-        //IRequestContext
+        //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         services.AddTransient<IRequestContext>(provider =>
         {
             var correlationId = Guid.NewGuid().ToString();
@@ -52,7 +52,7 @@ public abstract class ServiceTestBase
         Services = services.BuildServiceProvider(validateScopes: true);
 
         //logging
-        Logger = Services.GetRequiredService<ILogger<ServiceTestBase>>();
+        Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
 
         Logger.Log(LogLevel.Information, "Test Initialized.");
     }
