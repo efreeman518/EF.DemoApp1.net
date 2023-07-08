@@ -15,8 +15,8 @@
    * AzureBlobStorageTests needs either Azurite (https://www.npmjs.com/package/azurite) or an Azure storage account
    * CosmosDbTests needs either the CosmosDb emulator (https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21) or an Azure CosmosDb Account
 3. Functions - running these require various integrations set up
-   * Blob/Queue functions - run Azurite or a real storage account
-   * EventGrid functions - tunnel back using VS or ngrok
+   * Blob/Queue Functions - run Azurite or a real storage account
+   * EventGrid Functions - tunnel back to local using VS Tunnels (public) or ngrok url (auto-validate) EventGrid-Topic-Subscription url/runtime/webhooks/EventGrid?functionName=EventGridTriggerCustom
 
 # Notes
 1. Started from Microsoft's Todo sample api (<a href="https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-7.0&tabs=visual-studio" target="_blank">https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-7.0&tabs=visual-studio</a>)
