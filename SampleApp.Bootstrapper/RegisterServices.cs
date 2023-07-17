@@ -253,8 +253,8 @@ public static class IServiceCollectionExtensions
             {
                 options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
             })
-            .AddPolicyHandler(GetRetryPolicy())
-            .AddPolicyHandler(GetCircuitBreakerPolicy());
+            .AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
+            .AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
             //TODO - move this to register Api services
             //integration testing breaks since there is no existing http request, so no headers to propagate
             //'app.UseHeaderPropagation()' required. Header propagation can only be used within the context of an HTTP request, not a test.
@@ -292,8 +292,8 @@ public static class IServiceCollectionExtensions
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherServiceSettings:Key")!);
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherServiceSettings:Host")!);
             })
-            .AddPolicyHandler(GetRetryPolicy())
-            .AddPolicyHandler(GetCircuitBreakerPolicy());
+            .AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
+            .AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
         }
 
         //StartupTasks - executes once at startup
@@ -317,24 +317,5 @@ public static class IServiceCollectionExtensions
         }
 
         return services;
-    }
-
-    //https://stackoverflow.com/questions/73037947/can-we-use-polly-retry-instead-of-exponentialbackoffretry-in-service-bus-topic-t
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2) //, HttpStatusCode[]? retryHttpStatusCodes = null)
-    {
-        Random jitterer = new();
-        return HttpPolicyExtensions
-            .HandleTransientHttpError() //known transient errors
-                                        //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
-            .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
-                + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
-            );
-    }
-
-    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
-    {
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Polly;
 using Polly.CircuitBreaker;
 using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
 using Polly.Retry;
 using System;
 using System.Collections.Generic;
@@ -16,22 +17,97 @@ namespace Package.Infrastructure.Common;
 public class RetrySettings
 {
     public bool IncludeDefaultTransientHttpErrors { get; set; }
-    public int RetryMaxAttempts { get; set; } = 5;
+    public int MaxAttempts { get; set; } = 5;
     public double MedianFirstRetryDelaySeconds { get; set; } = 2;
 }
 
 public class CircuitBreakerSettings
 {
     //circuit breaker
-    public double CircuitBreakerFailureThreshold { get; set; } = 0.5;
-    public int CircuitBreakerSamplingDurationSeconds { get; set; } = 10;
-    public int CircuitBreakerMinThroughput { get; set; } = 20;
-    public int CircuitBreakerBreakDurationSeconds { get; set; } = 30;
+    public double FailureThreshold { get; set; } = 0.5;
+    public int SamplingDurationSeconds { get; set; } = 10;
+    public int MinThroughput { get; set; } = 20;
+    public int BreakDurationSeconds { get; set; } = 30;
 }
 
 public static class PollyRetry
 {
-    //http - return T
+    /// <summary>
+    /// Typical Http Retry - Network Failures, 5XX, 408 (known transient errors)
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <param name="httpStatusCodes">other status codes to consider - 404, etc.</param>
+    /// <returns></returns>
+    public static IAsyncPolicy<HttpResponseMessage> GetHttpRetryPolicy(RetrySettings? settings = null, List<HttpStatusCode>? httpStatusCodes = null)
+    {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings?.MedianFirstRetryDelaySeconds ?? 1), retryCount: settings?.MaxAttempts ?? 5);
+        var policyBuilder = HttpPolicyExtensions.HandleTransientHttpError(); //known transient errors
+        if (httpStatusCodes != null)
+            policyBuilder.OrResult(msg => httpStatusCodes.Contains(msg.StatusCode)); 
+        return policyBuilder.WaitAndRetryAsync(delay);
+    }
+
+    /// <summary>
+    /// Typical Http Circuit Breaker - Network Failures, 5XX, 408 (known transient errors)
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <param name="httpStatusCodes">other status codes to consider - 404, etc.</param></param>
+    /// <returns></returns>
+    public static IAsyncPolicy<HttpResponseMessage> GetHttpCircuitBreakerPolicy(CircuitBreakerSettings? settings = null, List<HttpStatusCode>? httpStatusCodes = null)
+    {
+        var policyBuilder = HttpPolicyExtensions.HandleTransientHttpError(); //known transient errors
+        if (httpStatusCodes != null)
+            policyBuilder.OrResult(msg => httpStatusCodes.Contains(msg.StatusCode));
+        return policyBuilder.AdvancedCircuitBreakerAsync(settings?.FailureThreshold ?? .5,
+                TimeSpan.FromSeconds(settings?.SamplingDurationSeconds ?? 10),
+                settings?.MinThroughput ?? 20,
+                TimeSpan.FromSeconds(settings?.BreakDurationSeconds ?? 30));
+    }
+
+    /// <summary>
+    /// Generic Retry, return T
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="settings"></param>
+    /// <param name="retryExceptions"></param>
+    /// <param name="includeInner"></param>
+    /// <param name="exceptionCallback"></param>
+    /// <param name="returnCallback"></param>
+    /// <returns></returns>
+    public static IAsyncPolicy<T> GetWaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null,
+        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
+    {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.MaxAttempts);
+        return GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
+            .WaitAndRetryAsync(delay);
+    }
+
+    /// <summary>
+    /// Generic circuit breaker, return T
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="settings"></param>
+    /// <param name="retryExceptions"></param>
+    /// <param name="includeInner"></param>
+    /// <param name="exceptionCallback"></param>
+    /// <param name="returnCallback"></param>
+    /// <returns></returns>
+    public static IAsyncPolicy<T> GetCiruitBreakerAsyncPolicy<T>(CircuitBreakerSettings settings, ICollection<Type>? retryExceptions = null,
+        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null) =>
+        GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
+        .AdvancedCircuitBreakerAsync(settings.FailureThreshold,
+                TimeSpan.FromSeconds(settings.SamplingDurationSeconds),
+                settings.MinThroughput,
+                TimeSpan.FromSeconds(settings.BreakDurationSeconds));
+
+    /// <summary>
+    /// Wrap the retry here and return HttpResponseMessage
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="retrySettings"></param>
+    /// <param name="circuitBreakerSettings"></param>
+    /// <param name="retryHttpStatusCodes"></param>
+    /// <returns></returns>
     public async static Task<HttpResponseMessage> RetryHttpAsync(Func<Task<HttpResponseMessage>> factory,
         RetrySettings? retrySettings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
         HttpStatusCode[]? retryHttpStatusCodes = null)
@@ -49,9 +125,16 @@ public static class PollyRetry
         return await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
     }
 
-    //http - no return
+    /// <summary>
+    /// Wrap the retry and return nothing
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="retrySettings"></param>
+    /// <param name="circuitBreakerSettings"></param>
+    /// <param name="retryHttpStatusCodes"></param>
+    /// <returns></returns>
     public async static Task RetryHttpNoReturnAsync(Func<Task<HttpResponseMessage>> factory,
-        RetrySettings? settings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
+        RetrySettings? retrySettings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
         HttpStatusCode[]? retryHttpStatusCodes = null)
     {
         retryHttpStatusCodes ??= new HttpStatusCode[] {
@@ -64,9 +147,21 @@ public static class PollyRetry
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
         List<Type> retryExceptions = new() { typeof(HttpRequestException) };
-        await RetryAsync(factory, settings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
+        await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
     }
 
+    /// <summary>
+    /// Wrap the retry and return T
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="factory"></param>
+    /// <param name="retrySettings"></param>
+    /// <param name="circuitBreakerSettings"></param>
+    /// <param name="retryExceptions"></param>
+    /// <param name="includeInner"></param>
+    /// <param name="exceptionCallback"></param>
+    /// <param name="returnCallback"></param>
+    /// <returns></returns>
     public static async Task<T> RetryAsync<T>(Func<Task<T>> factory, RetrySettings retrySettings, CircuitBreakerSettings circuitBreakerSettings, List<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         var retry = WaitAndRetryAsyncPolicy(retrySettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
@@ -78,34 +173,20 @@ public static class PollyRetry
     public static AsyncRetryPolicy<T> WaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         PolicyBuilder<T> policyBuilder = GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback);
-        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.MaxAttempts);
         return policyBuilder.WaitAndRetryAsync(delay);
     }
 
-    public static IAsyncPolicy<T> GetWaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null,
-        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
-    {
-        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
-        return GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
-            .WaitAndRetryAsync(delay);
-    }
 
     public static AsyncCircuitBreakerPolicy<T> CiruitBreakerAsyncPolicy<T>(CircuitBreakerSettings settings, ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         PolicyBuilder<T> policyBuilder = GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback);
-        return policyBuilder.AdvancedCircuitBreakerAsync(settings.CircuitBreakerFailureThreshold,
-                TimeSpan.FromSeconds(settings.CircuitBreakerSamplingDurationSeconds),
-                settings.CircuitBreakerMinThroughput,
-                TimeSpan.FromSeconds(settings.CircuitBreakerBreakDurationSeconds));
+        return policyBuilder.AdvancedCircuitBreakerAsync(settings.FailureThreshold,
+                TimeSpan.FromSeconds(settings.SamplingDurationSeconds),
+                settings.MinThroughput,
+                TimeSpan.FromSeconds(settings.BreakDurationSeconds));
     }
 
-    public static IAsyncPolicy<T> GetCiruitBreakerAsyncPolicy<T>(CircuitBreakerSettings settings, ICollection<Type>? retryExceptions = null, 
-        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null) => 
-        GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
-        .AdvancedCircuitBreakerAsync(settings.CircuitBreakerFailureThreshold,
-                TimeSpan.FromSeconds(settings.CircuitBreakerSamplingDurationSeconds),
-                settings.CircuitBreakerMinThroughput,
-                TimeSpan.FromSeconds(settings.CircuitBreakerBreakDurationSeconds));
 
     /// <summary>
     /// Builds the retry policy
