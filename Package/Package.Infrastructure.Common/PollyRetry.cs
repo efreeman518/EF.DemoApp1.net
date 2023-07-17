@@ -51,7 +51,7 @@ public static class PollyRetry
 
     //http - no return
     public async static Task RetryHttpNoReturnAsync(Func<Task<HttpResponseMessage>> factory,
-        RetrySettings? retrySettings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
+        RetrySettings? settings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
         HttpStatusCode[]? retryHttpStatusCodes = null)
     {
         retryHttpStatusCodes ??= new HttpStatusCode[] {
@@ -64,7 +64,7 @@ public static class PollyRetry
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
         List<Type> retryExceptions = new() { typeof(HttpRequestException) };
-        await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
+        await RetryAsync(factory, settings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
     }
 
     public static async Task<T> RetryAsync<T>(Func<Task<T>> factory, RetrySettings retrySettings, CircuitBreakerSettings circuitBreakerSettings, List<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
@@ -78,14 +78,14 @@ public static class PollyRetry
     public static AsyncRetryPolicy<T> WaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         PolicyBuilder<T> policyBuilder = GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback);
-        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: settings.RetryMaxAttempts);
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
         return policyBuilder.WaitAndRetryAsync(delay);
     }
 
     public static IAsyncPolicy<T> GetWaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null,
         bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
-        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(RetrySettings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
         return GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
             .WaitAndRetryAsync(delay);
     }
