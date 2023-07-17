@@ -1,5 +1,6 @@
 ﻿using Polly;
 using Polly.CircuitBreaker;
+using Polly.Contrib.WaitAndRetry;
 using Polly.Retry;
 using System;
 using System.Collections.Generic;
@@ -14,10 +15,9 @@ namespace Package.Infrastructure.Common;
 
 public class RetrySettings
 {
-    //retry
+    public bool IncludeDefaultTransientHttpErrors { get; set; }
     public int RetryMaxAttempts { get; set; } = 5;
-    public int RetrySleepIntervalSeconds { get; set; } = 2;
-    public int JitterMaxMilliseconds { get; set; } = 100;
+    public double MedianFirstRetryDelaySeconds { get; set; } = 2;
 }
 
 public class CircuitBreakerSettings
@@ -70,7 +70,7 @@ public static class PollyRetry
     public static async Task<T> RetryAsync<T>(Func<Task<T>> factory, RetrySettings retrySettings, CircuitBreakerSettings circuitBreakerSettings, List<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         var retry = WaitAndRetryAsyncPolicy(retrySettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
-        var circuitBreaker = CiruitBreakerAsyncPolicy(circuitBreakerSettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
+        var circuitBreaker = CiruitBreakerAsyncPolicy<T>(circuitBreakerSettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
         var result = await Policy.WrapAsync(retry, circuitBreaker).ExecuteAndCaptureAsync(factory);
         return result.Result;
     }
@@ -78,9 +78,16 @@ public static class PollyRetry
     public static AsyncRetryPolicy<T> WaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
         PolicyBuilder<T> policyBuilder = GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback);
-        Random jitterer = new();
-        return policyBuilder.WaitAndRetryAsync(settings.RetryMaxAttempts,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(settings.RetrySleepIntervalSeconds, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Next(0, settings.JitterMaxMilliseconds)));
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: settings.RetryMaxAttempts);
+        return policyBuilder.WaitAndRetryAsync(delay);
+    }
+
+    public static IAsyncPolicy<T> GetWaitAndRetryAsyncPolicy<T>(RetrySettings settings, ICollection<Type>? retryExceptions = null,
+        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
+    {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(RetrySettings.MedianFirstRetryDelaySeconds), retryCount: settings.RetryMaxAttempts);
+        return GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
+            .WaitAndRetryAsync(delay);
     }
 
     public static AsyncCircuitBreakerPolicy<T> CiruitBreakerAsyncPolicy<T>(CircuitBreakerSettings settings, ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
@@ -91,6 +98,14 @@ public static class PollyRetry
                 settings.CircuitBreakerMinThroughput,
                 TimeSpan.FromSeconds(settings.CircuitBreakerBreakDurationSeconds));
     }
+
+    public static IAsyncPolicy<T> GetCiruitBreakerAsyncPolicy<T>(CircuitBreakerSettings settings, ICollection<Type>? retryExceptions = null, 
+        bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null) => 
+        GetPolicyBuilder(retryExceptions, includeInner, exceptionCallback, returnCallback)
+        .AdvancedCircuitBreakerAsync(settings.CircuitBreakerFailureThreshold,
+                TimeSpan.FromSeconds(settings.CircuitBreakerSamplingDurationSeconds),
+                settings.CircuitBreakerMinThroughput,
+                TimeSpan.FromSeconds(settings.CircuitBreakerBreakDurationSeconds));
 
     /// <summary>
     /// Builds the retry policy
@@ -103,9 +118,9 @@ public static class PollyRetry
     /// <returns></returns>
     private static PolicyBuilder<T> GetPolicyBuilder<T>(ICollection<Type>? retryExceptions = null, bool includeInner = false, Func<Exception, bool>? exceptionCallback = null, Func<T, bool>? returnCallback = null)
     {
-        if (retryExceptions == null && returnCallback == null) throw new InvalidOperationException("WaitAndRetryAsyncPolicy must have defined retryExceptions and/or returnCallback.");
+        if (retryExceptions == null && returnCallback == null) throw new InvalidOperationException("GetPolicyBuilder must have defined retryExceptions and/or returnCallback.");
 
-        PolicyBuilder<T> policyBuilder = null!;
+        PolicyBuilder<T> policyBuilder = null!; // = HttpPolicyExtensions.HandleTransientHttpError();
         if (retryExceptions != null)
         {
             policyBuilder = includeInner

@@ -39,18 +39,18 @@ public class FunctionEventGridTriggerCustom
     }
 
     [Function("EventGridTriggerCustom")]
-    public async Task Run([EventGridTrigger] EventGridEvent2 inputEvent)
+    public async Task Run([EventGridTrigger] EventGridEvent2 egEvent)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
 
-        _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {inputEvent}", JsonSerializer.Serialize(inputEvent));
+        _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {inputEvent}", JsonSerializer.Serialize(egEvent));
 
-        _ = inputEvent.Data?.ToString(); //extract from inputEvent
+        _ = egEvent.Data?.ToString(); //extract from inputEvent  Encoding.UTF8.GetString(egEvent.Data);
 
         //await some service call
         await Task.CompletedTask;
 
-        _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Finish {inputEvent}", JsonSerializer.Serialize(inputEvent));
+        _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Finish {inputEvent}", JsonSerializer.Serialize(egEvent));
     }
 }

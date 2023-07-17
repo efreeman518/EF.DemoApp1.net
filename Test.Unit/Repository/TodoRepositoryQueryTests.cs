@@ -246,8 +246,9 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
 
+
+        //concurrent processing example should run multiple threads concurrently, take about 1 sec total
         var cBag = new ConcurrentBag<Guid>();
-        //concurrent processing should run multiple threads concurrently, take about 1 sec total
         var tasks = response.Data.Select(async t =>
         {
             //some awaitable task; not EF DbContext which can only handle one at a time
