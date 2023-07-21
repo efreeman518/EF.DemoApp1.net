@@ -10,8 +10,6 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
 {
     private readonly ILogger<AzureBlobStorageManager> _logger;
     private readonly IAzureClientFactory<BlobServiceClient> _clientFactory;
-    //private readonly ConcurrentDictionary<string, BlobServiceClient> _blobServiceClients = new();
-    //private static readonly object _lock = new();
 
     public AzureBlobStorageManager(ILogger<AzureBlobStorageManager> logger, IAzureClientFactory<BlobServiceClient> clientFactory)
     {
@@ -27,7 +25,7 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <returns></returns>
     public async Task CreateContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); //  GetBlobServiceClient(request);
+        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); 
         await blobServiceClient.CreateBlobContainerAsync(request.ContainerName, (PublicAccessType)request.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
     }
 
@@ -39,7 +37,7 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <returns></returns>
     public async Task DeleteContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); //GetBlobServiceClient(request);
+        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); 
         await blobServiceClient.DeleteBlobContainerAsync(request.ContainerName, cancellationToken: cancellationToken);
     }
 
@@ -151,36 +149,6 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
         _logger.LogInformation("DeleteBlobAsync Finish - {Container} {Blob}", request.ContainerName, blobName);
     }
 
-    //private BlobServiceClient GetBlobServiceClient(BlobStorageRequest request)
-    //{
-    //    //hash the service name
-    //    string key = CreateMD5Hash($"{request.StorageAccountUrl ?? ""}{request.ConnectionString ?? ""}");
-
-    //    //check for the BlobServiceClient
-    //    if (_blobServiceClients.TryGetValue(key, out var blobServiceClient1)) return blobServiceClient1;
-
-    //    //create and cache
-    //    lock (_lock)
-    //    {
-    //        // Try to fetch from cache again now that we have entered the critical section
-    //        if (_blobServiceClients.TryGetValue(key, out var blobServiceClient)) return blobServiceClient;
-
-    //        if (request.StorageAccountUrl == null && request.ConnectionString == null)
-    //            throw new InvalidOperationException($"Azure Storage Request Container {request.ContainerName} needs either StorageAccountQueueUrl or ConnectionString. Both are null.");
-
-    //        //create, update cache, and return.
-    //        //Acquired tokens are cached by the credential instance. Token lifetime and refreshing is handled automatically.
-    //        //https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet#methods
-    //        blobServiceClient = (request.StorageAccountUrl != null)
-    //        ? new BlobServiceClient(new Uri(request.StorageAccountUrl), new DefaultAzureCredential(), null)
-    //        : new BlobServiceClient(request.ConnectionString);
-
-    //        _blobServiceClients.TryAdd(key, blobServiceClient);
-
-    //        return blobServiceClient;
-    //    }
-    //}
-
     private async Task<BlobContainerClient> GetBlobContainerClientAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
     {
         //hash the service name
@@ -202,19 +170,4 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
 
         return container;
     }
-
-    //private static string CreateMD5Hash(string input)
-    //{
-    //    // Step 1, calculate MD5 hash from input
-    //    byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-    //    byte[] hashBytes = MD5.HashData(inputBytes);
-
-    //    // Step 2, convert byte array to hex string
-    //    StringBuilder sb = new();
-    //    for (int i = 0; i < hashBytes.Length; i++)
-    //    {
-    //        sb.Append(hashBytes[i].ToString("X2"));
-    //    }
-    //    return sb.ToString();
-    //}
 }

@@ -3,10 +3,9 @@ using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.CosmosDb;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Domain.Model;
+namespace Package.Infrastructure.Test.Integration.Model;
 
 public partial class TodoItemNoSql : CosmosDbEntity
 {

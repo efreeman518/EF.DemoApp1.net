@@ -12,6 +12,7 @@ using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
+using Package.Infrastructure.Table;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -59,6 +60,13 @@ public abstract class IntegrationTestBase
                 builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
             }
 
+            configSection = Config.GetSection("ConnectionStrings:AzureTable1");
+            if (configSection.Exists())
+            {
+                //Ideally use ServiceUri (w/DefaultAzureCredential)
+                builder.AddTableServiceClient(configSection).WithName("AzureTable1");
+            }
+
             configSection = Config.GetSection("EventGridPublisher1");
             if (configSection.Exists())
             {
@@ -76,6 +84,9 @@ public abstract class IntegrationTestBase
             services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
             services.Configure<AzureBlobStorageManagerSettings>(configSection);
         }
+
+        //TableStorage
+        services.AddTransient<ITableRepository, TableRepository>();
 
         //EventGridPublisher
         configSection = Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);

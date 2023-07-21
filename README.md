@@ -26,7 +26,7 @@
 5. Package.Infrastructure.Storage & Functions.FunctionBlobTrigger - install and run latest azurite storage emulator (https://www.npmjs.com/package/azurite)
    * npm install -g azurite
    * (if needed for Powershell) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-   * azurite -s -l c:\azurite -d c:\azurite\debug.log
+   * azurite -s -l c:\azurite -d c:\temp\azurite\debug.log
 6. Package.Infrastructure.CosmosDb - install and run latest CosmosDB emulator
    * https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 7. Azure Storage Explorer is usefull for blobs/queues/tables

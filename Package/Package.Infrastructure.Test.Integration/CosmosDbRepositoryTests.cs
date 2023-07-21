@@ -1,10 +1,9 @@
-﻿using Domain.Model;
-using Domain.Shared.Enums;
+﻿using Domain.Shared.Enums;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Test.Integration.Model;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Test.Integration;
@@ -16,12 +15,10 @@ namespace Package.Infrastructure.Test.Integration;
 [TestClass]
 public class CosmosDbRepositoryTests : IntegrationTestBase
 {
-    readonly ILogger<CosmosDbRepositoryTests> _logger;
     readonly ICosmosDbRepository _repo;
 
     public CosmosDbRepositoryTests() : base()
     {
-        _logger = LoggerFactory.CreateLogger<CosmosDbRepositoryTests>();
         _repo = (ICosmosDbRepository)Services.GetRequiredService(typeof(ICosmosDbRepository));
     }
 
@@ -47,7 +44,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
 
         //LINQ - page projection with filter and sort
         //filter
-        Expression<Func<TodoDto, bool>> filter = t => t.Status == TodoItemStatus.Completed;
+        Expression<Func<TodoItemDto, bool>> filter = t => t.Status == TodoItemStatus.Completed;
         //sort
         List<Sort> sorts = new() { new Sort("Name", SortOrder.Ascending) };
         //page size
@@ -55,12 +52,12 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         //total
         bool includeTotal = true;
 
-        List<TodoDto> todos;
+        List<TodoItemDto> todos;
         int total = 0;
         string? continuationToken = null;
         do
         {
-            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(continuationToken, pageSize, filter, sorts, includeTotal);
+            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoItemDto>(continuationToken, pageSize, filter, sorts, includeTotal);
             Assert.IsTrue(todos.Count > 0);
             Assert.IsTrue(!includeTotal || total > 0);
             includeTotal = false; //retrieve once, not repeatedly
@@ -78,7 +75,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         };
         do
         {
-            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoDto>(
+            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoItemDto>(
                 continuationToken, pageSize, sql, sqlCount, parameters);
             Assert.IsTrue(todos.Count > 0);
             Assert.IsTrue(sqlCount == null || total > 0);
@@ -94,8 +91,6 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     [TestMethod]
     public async Task Todo_crud_pass()
     {
-        _logger.Log(LogLevel.Information, "Todo_crud_pass - Start");
-
         //Create CosmosDB Database
         var dbId = Guid.NewGuid().ToString();
         await _repo.SetOrCreateDatabaseAsync(dbId);
@@ -135,9 +130,3 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
     }
 }
 
-public class TodoDto
-{
-    public string Id { get; set; } = null!;
-    public string? Name { get; set; }
-    public TodoItemStatus Status { get; set; }
-}
