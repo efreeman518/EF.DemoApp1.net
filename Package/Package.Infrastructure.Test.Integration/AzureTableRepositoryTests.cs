@@ -96,10 +96,10 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             {
                 total = total1;
                 Assert.IsTrue(total > -1);
+                includeTotal = false; //only run on the first page
             }
             Assert.IsTrue(todos?.Count > 0);
             fullList.AddRange(todos);
-            includeTotal = false; //only retrieve the first time
         }
         while (continuationToken != null);
 
@@ -121,10 +121,11 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             {
                 total = total1;
                 Assert.IsTrue(total > -1);
+                includeTotal = false; //only run on the first page
             }
             Assert.IsTrue(todos?.Count > 0);
             fullList.AddRange(todos);
-            includeTotal = false;
+            
         }
         while (continuationToken != null);
 
