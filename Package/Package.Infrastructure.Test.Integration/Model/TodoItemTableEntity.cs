@@ -10,13 +10,13 @@ namespace Package.Infrastructure.Test.Integration.Model;
 
 public partial class TodoItemTableEntity : ITableEntity
 {
-    //ITable
+    //ITableEntity
     public string PartitionKey { get; set; }
     public string RowKey { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
 
-    //Apparently must have public get & set to pull out of Table properly (enums)
+    //public get & set required pull out of Table storage properly 
     public string Name { get; set; }
     public bool IsComplete => Status == TodoItemStatus.Completed;
 
