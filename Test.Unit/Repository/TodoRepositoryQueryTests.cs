@@ -204,7 +204,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         await foreach (var item in stream)
         {
             //sync or await some async processing on the item
-            Debug.WriteLine($"{DateTime.UtcNow} - {++i}");
+            Debug.WriteLine($"{DateTime.UtcNow} - {++i} - {item.Name}");
         }
         Debug.WriteLine($"{DateTime.UtcNow} - Finish");
         Assert.AreEqual(4, i);
