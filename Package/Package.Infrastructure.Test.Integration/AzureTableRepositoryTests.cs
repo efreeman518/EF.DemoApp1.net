@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
+[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
 
 [TestClass]
 public class AzureTableRepositoryTests : IntegrationTestBase
