@@ -23,15 +23,12 @@ using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
-using Polly;
-using Polly.Extensions.Http;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
 using SampleApp.Grpc;
 using System;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 
 namespace SampleApp.Bootstrapper;

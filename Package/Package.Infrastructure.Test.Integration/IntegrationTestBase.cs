@@ -7,12 +7,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
-using Package.Infrastructure.Common;
 using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
-using Package.Infrastructure.Table;
+using Package.Infrastructure.Test.Integration.Table;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -86,7 +85,12 @@ public abstract class IntegrationTestBase
         }
 
         //TableStorage
-        services.AddTransient<ITableRepository, TableRepository>();
+        configSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddSingleton<TableRepository1>();
+            services.Configure<TableRepositorySettings1>(configSection);
+        }
 
         //EventGridPublisher
         configSection = Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);

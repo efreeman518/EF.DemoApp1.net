@@ -25,7 +25,7 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <returns></returns>
     public async Task CreateContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); 
+        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName);
         await blobServiceClient.CreateBlobContainerAsync(request.ContainerName, (PublicAccessType)request.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
     }
 
@@ -37,7 +37,7 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <returns></returns>
     public async Task DeleteContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName); 
+        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName);
         await blobServiceClient.DeleteBlobContainerAsync(request.ContainerName, cancellationToken: cancellationToken);
     }
 

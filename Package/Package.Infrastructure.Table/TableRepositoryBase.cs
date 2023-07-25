@@ -12,63 +12,62 @@ namespace Package.Infrastructure.Table;
 /// https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-overview
 /// https://github.com/Azure/azure-sdk-for-net/blob/Azure.Data.Tables_12.8.0/sdk/tables/Azure.Data.Tables/samples/README.md
 /// </summary>
-public abstract class TableRepository : ITableRepository
+public abstract class TableRepositoryBase : ITableRepository
 {
-    private readonly IAzureClientFactory<TableServiceClient> _clientFactory;
+    private readonly ILogger<TableRepositoryBase> _logger;
+    private readonly TableServiceClient _tableServiceClient;
 
-    public TableRepository(ILogger<TableRepository> logger, IAzureClientFactory<TableServiceClient> clientFactory)
+    protected TableRepositoryBase(ILogger<TableRepositoryBase> logger, IAzureClientFactory<TableServiceClient> clientFactory, string tableServiceClientName)
     {
-        _clientFactory = clientFactory;
+        _logger = logger;
+        _tableServiceClient = clientFactory.CreateClient(tableServiceClientName);
     }
 
-    public async Task<T?> GetItemAsync<T>(string tableServiceClientName, string partitionKey, string rowkey, IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
+    public async Task<T?> GetItemAsync<T>(string partitionKey, string rowkey, IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
         where T : class, ITableEntity
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
-        
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
+
         try
         {
+            _logger.LogInformation($"GetItemAsync<{typeof(T).Name}> {0} {1})", partitionKey, rowkey);
             var response = await table.GetEntityAsync<T>(partitionKey, rowkey, selectProps, cancellationToken); //throws if no value (not found)
-            return response.Value; 
+            return response.Value;
         }
         catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
         {
+            _logger.LogInformation($"GetItemAsync<{typeof(T).Name}> - NotFound {0} {1})", partitionKey, rowkey);
             return null;
         }
     }
 
-    public async Task<HttpStatusCode> CreateItemAsync<T>(string tableServiceClientName, T item, CancellationToken cancellationToken = default)
+    public async Task<HttpStatusCode> CreateItemAsync<T>(T item, CancellationToken cancellationToken = default)
         where T : ITableEntity
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.AddEntityAsync(item, cancellationToken);
         return (HttpStatusCode)response.Status;
     }
 
-    public async Task<HttpStatusCode> UpsertItemAsync<T>(string tableServiceClientName, T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
+    public async Task<HttpStatusCode> UpsertItemAsync<T>(T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
         where T : ITableEntity
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.UpsertEntityAsync(item, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
         return (HttpStatusCode)response.Status;
     }
 
-    public async Task<HttpStatusCode> UpdateItemAsync<T>(string tableServiceClientName, T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
+    public async Task<HttpStatusCode> UpdateItemAsync<T>(T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
         where T : ITableEntity
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.UpdateEntityAsync(item, item.ETag, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
         return (HttpStatusCode)response.Status;
     }
 
-    public async Task<HttpStatusCode> DeleteItemAsync<T>(string tableServiceClientName, string partitionKey, string rowkey, CancellationToken cancellationToken = default)
+    public async Task<HttpStatusCode> DeleteItemAsync<T>(string partitionKey, string rowkey, CancellationToken cancellationToken = default)
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.DeleteEntityAsync(partitionKey, rowkey, cancellationToken: cancellationToken);
         return (HttpStatusCode)response.Status;
     }
@@ -85,14 +84,12 @@ public abstract class TableRepository : ITableRepository
     /// <param name="includeTotal">Use with caution; requires retrieving all records - ugly, expensive.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(IReadOnlyList<T>?, int, string?)> QueryAsync<T>(string tableServiceClientName, string? continuationToken = null, 
-        int pageSize = 10, Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null, bool includeTotal = false, 
-        CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<T>?, int, string?)> QueryAsync<T>(string? continuationToken = null, int pageSize = 10,
+        Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null,
+        bool includeTotal = false, CancellationToken cancellationToken = default)
         where T : class, ITableEntity
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        var table = client.GetTableClient(typeof(T).Name);
-
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var total = -1;
 
         //Tables do not offer an efficient count method,
@@ -102,7 +99,7 @@ public abstract class TableRepository : ITableRepository
         {
             total = 0;
             var pageableAll = filterLinq != null
-                ? table.QueryAsync(filterLinq, null, new List<string>{ "PartitionKey" }, cancellationToken)
+                ? table.QueryAsync(filterLinq, null, new List<string> { "PartitionKey" }, cancellationToken)
                 : table.QueryAsync<T>(filterOData, null, new List<string> { "PartitionKey" }, cancellationToken);
             await foreach (var pageAll in pageableAll)
             {
@@ -119,21 +116,19 @@ public abstract class TableRepository : ITableRepository
         var enumerator = pageable.AsPages(continuationToken).GetAsyncEnumerator(cancellationToken);
         await enumerator.MoveNextAsync();
         var page = enumerator.Current;
-        return (page.Values, total, page.ContinuationToken); 
+        return (page.Values, total, page.ContinuationToken);
 
     }
 
-    public async Task<TableClient> GetOrCreateTableAsync(string tableServiceClientName, string tableName, CancellationToken cancellationToken)
+    public async Task<TableClient> GetOrCreateTableAsync(string tableName, CancellationToken cancellationToken = default)
     {
-        var client = _clientFactory.CreateClient(tableServiceClientName);
-        await client.CreateTableIfNotExistsAsync(tableName, cancellationToken);
-        return client.GetTableClient(tableName);
+        await _tableServiceClient.CreateTableIfNotExistsAsync(tableName, cancellationToken);
+        return _tableServiceClient.GetTableClient(tableName);
     }
 
-    public async Task<HttpStatusCode> DeleteTableAsync(string tableServiceClientName, string tableName, CancellationToken cancellationToken = default)
+    public async Task<HttpStatusCode> DeleteTableAsync(string tableName, CancellationToken cancellationToken = default)
     {
-        TableServiceClient client = _clientFactory.CreateClient(tableServiceClientName);
-        var response = await client.DeleteTableAsync(tableName, cancellationToken);
+        var response = await _tableServiceClient.DeleteTableAsync(tableName, cancellationToken);
         return (HttpStatusCode)response.Status;
     }
 }

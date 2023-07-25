@@ -17,20 +17,22 @@ public partial class TodoItemTableEntity : ITableEntity
     public ETag ETag { get; set; }
 
     //Apparently must have public get & set to pull out of Table properly (enums)
-    public string Name { get;  set; }
+    public string Name { get; set; }
     public bool IsComplete => Status == TodoItemStatus.Completed;
-    
-    public TodoItemStatus Status { get;  set; }
+
+    public TodoItemStatus Status { get; set; }
 
     //Parameterless constructor required for Table retrieval
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public TodoItemTableEntity() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+#pragma warning disable S3427 // Method overloads with default parameter values should not overlap 
     public TodoItemTableEntity(string? partitionKey = null, string? rowKey = null, string? name = null, TodoItemStatus status = TodoItemStatus.Created)
+#pragma warning restore S3427 // Method overloads with default parameter values should not overlap 
     {
         RowKey = rowKey ?? Guid.NewGuid().ToString();
-        PartitionKey = partitionKey ?? RowKey.ToString()[..5]; 
+        PartitionKey = partitionKey ?? RowKey.ToString()[..5];
         Name = name ?? $"{RowKey}-a";
         Status = status;
         Validate(true);

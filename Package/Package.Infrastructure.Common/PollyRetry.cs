@@ -43,7 +43,7 @@ public static class PollyRetry
         var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(settings?.MedianFirstRetryDelaySeconds ?? 1), retryCount: settings?.MaxAttempts ?? 5);
         var policyBuilder = HttpPolicyExtensions.HandleTransientHttpError(); //known transient errors
         if (httpStatusCodes != null)
-            policyBuilder.OrResult(msg => httpStatusCodes.Contains(msg.StatusCode)); 
+            policyBuilder.OrResult(msg => httpStatusCodes.Contains(msg.StatusCode));
         return policyBuilder.WaitAndRetryAsync(delay);
     }
 

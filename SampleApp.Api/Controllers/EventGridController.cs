@@ -65,7 +65,8 @@ public class EventGridController : ControllerBase
 
     private async Task ProcessEventGridEvent(EventGridEvent egEvent)
     {
-        _ = egEvent.Data?.ToString(); //extract from inputEvent Encoding.UTF8.GetString(egEvent.Data);
+        var eData = egEvent.Data?.ToString(); //extract from inputEvent Encoding.UTF8.GetString(egEvent.Data);
+        _logger.LogInformation("ProcessEventGridEvent {EventData}", eData);
         //await some service call
         await Task.CompletedTask;
     }
