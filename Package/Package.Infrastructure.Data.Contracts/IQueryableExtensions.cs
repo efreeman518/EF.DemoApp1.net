@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Collections.Concurrent;
@@ -11,19 +13,20 @@ public static class IQueryableExtensions
     private static readonly ConcurrentDictionary<Type, object?> typeDefaults = new();
 
     /// <summary>
-    /// Returns the IQueryable for further composition; 
-    /// client code expected to subsequently call GetListAsync() with the query to run it async and return results
+    /// Returns the IQueryable for further composition or streaming; 
+    /// client code expected to subsequently call GetListAsync() with the query to run it async and return paged results,
+    /// or iterate for streaming
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
     /// <param name="tracking"></param>
-    /// <param name="pageSize"></param>
-    /// <param name="pageIndex">1-based</param>
+    /// <param name="pageSize">If null, then return IQueryable for streaming (no paging)</param>
+    /// <param name="pageIndex">1-based; If null, then return IQueryable for streaming (no paging)</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public static IQueryable<T> ComposePagedIQueryable<T>(this IQueryable<T> query, bool tracking = false,
+    public static IQueryable<T> ComposeIQueryable<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
@@ -55,6 +58,45 @@ public static class IQueryableExtensions
         }
 
         return query;
+    }
+
+    /// <summary>
+    /// Return IAsyncEnumerable for streaming - await foreach (var x in GetStream<Entity>(...).WithCancellation(cancellationTokenSource.Token))
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="query"></param>
+    /// <param name="tracking"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public static IAsyncEnumerable<T> GetStream<T>(this IQueryable<T> query, bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, includes).AsAsyncEnumerable();
+    }
+
+    /// <summary>
+    /// Return IAsyncEnumerable projection for streaming - await foreach (var x in GetStreamProjection<Entity, Dto>(...).WithCancellation(cancellationTokenSource.Token))
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
+    /// <param name="query"></param>
+    /// <param name="mapperConfigProvider"></param>
+    /// <param name="tracking"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, IConfigurationProvider mapperConfigProvider,
+        bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, includes).ProjectTo<TProject>(mapperConfigProvider).AsAsyncEnumerable();
     }
 
     public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<Sort> sorts)

@@ -24,7 +24,7 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
     /// <returns></returns>
     public async Task<PagedResponse<TodoItemDto>> SearchTodoItemAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
     {
-        var q = DB.Set<TodoItem>().ComposePagedIQueryable(false);
+        var q = DB.Set<TodoItem>().ComposeIQueryable(false);
 
         //further compose IQueryable
         //sorts

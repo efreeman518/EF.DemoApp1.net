@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common;
@@ -230,6 +231,43 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
             Data = data,
             Total = total
         };
+    }
+
+    /// <summary>
+    /// Return IAsyncEnumerable for streaming - await foreach (var x in GetStream<Entity>(...).WithCancellation(cancellationTokenSource.Token))
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="tracking"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        return DB.Set<T>().GetStream(tracking, filter, orderBy, includes);
+    }
+
+    /// <summary>
+    /// Return IAsyncEnumerable projection for streaming - await foreach (var x in GetStreamProjection<Entity, Dto>(...).WithCancellation(cancellationTokenSource.Token))
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
+    /// <param name="mapperConfigProvider"></param>
+    /// <param name="tracking"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(IConfigurationProvider mapperConfigProvider,
+        bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        return DB.Set<T>().GetStreamProjection<T, TProject>(mapperConfigProvider, tracking, filter, orderBy, includes);
     }
 
     /// <summary>

@@ -10,7 +10,9 @@ using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test.Support;
 
@@ -173,6 +175,39 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
+    }
+
+    [TestMethod]
+    public async Task GetStreamEntitiesAsync_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        var cancellationTokenSource = new CancellationTokenSource();
+        Debug.WriteLine($"{DateTime.UtcNow} - Start");
+        var i = 0;
+        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        await foreach (var item in stream)
+        {
+            //sync or await some async processing on the item
+            Debug.WriteLine($"{DateTime.UtcNow} - {++i}");
+        }
+        Debug.WriteLine($"{DateTime.UtcNow} - Finish");
+        Assert.AreEqual(4, i);
     }
 
     [TestMethod]

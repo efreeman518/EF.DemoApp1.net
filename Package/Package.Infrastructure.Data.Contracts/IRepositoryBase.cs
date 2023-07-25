@@ -47,4 +47,15 @@ public interface IRepositoryBase
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
+
+    IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class;
+
+    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(IConfigurationProvider mapperConfigProvider,
+        bool tracking = false, Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class;
 }

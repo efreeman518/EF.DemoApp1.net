@@ -272,7 +272,7 @@ public static class EFExtensions
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        IQueryable<T> query = dbSet.ComposePagedIQueryable(tracking, null, null, filter, orderBy, includes);
+        IQueryable<T> query = dbSet.ComposeIQueryable(tracking, null, null, filter, orderBy, includes);
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -298,8 +298,8 @@ public static class EFExtensions
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        int total = includeTotal ? await query.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
-        query = query.ComposePagedIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
+        int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
+        query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
         return (await query.ToListAsync(cancellationToken), total);
     }
 
@@ -326,8 +326,8 @@ public static class EFExtensions
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        int total = includeTotal ? await query.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
-        query = query.ComposePagedIQueryable(false, pageSize, pageIndex, filter, orderBy, includes);
+        int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
+        query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, includes);
         var results = await query.ProjectTo<TProject>(mapperConfigProvider).ToListAsync(cancellationToken);
         return (results, total);
     }
@@ -341,7 +341,7 @@ public static class EFExtensions
     /// <returns></returns>
     public static async Task<long> GetCountAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default) where T : class
     {
-        return await dbSet.ComposePagedIQueryable(filter: filter).CountAsync(cancellationToken);
+        return await dbSet.ComposeIQueryable(filter: filter).CountAsync(cancellationToken);
     }
 
     /// <summary>

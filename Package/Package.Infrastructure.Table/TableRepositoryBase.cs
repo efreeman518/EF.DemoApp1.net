@@ -120,6 +120,12 @@ public abstract class TableRepositoryBase : ITableRepository
 
     }
 
+    /// <summary>
+    /// Azure CosmosDB requires 1600RU throughput to create a table with autoscale
+    /// </summary>
+    /// <param name="tableName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<TableClient> GetOrCreateTableAsync(string tableName, CancellationToken cancellationToken = default)
     {
         await _tableServiceClient.CreateTableIfNotExistsAsync(tableName, cancellationToken);
