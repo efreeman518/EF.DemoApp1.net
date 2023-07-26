@@ -167,9 +167,10 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         //stream keeps the pipe full
         var total = await _repo.GetStream(filterLinq, null).ConcurrentPipeAsync(async (item) =>
         {
-            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             fullList.Add(item);
             await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxConcurrent);
 
         stopwatch.Stop();
@@ -192,9 +193,10 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         //stream keeps the pipe full
         total = await _repo.GetStream<TodoItemTableEntity> (null, filterOData, null).ConcurrentPipeAsync(async (item) =>
         {
-            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             fullList.Add(item);
             await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, batchSize);
 
         stopwatch.Stop();
