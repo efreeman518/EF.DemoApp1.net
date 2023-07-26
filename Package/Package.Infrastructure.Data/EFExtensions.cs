@@ -289,7 +289,7 @@ public static class EFExtensions
     /// <param name="includeTotal"></param>
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
-    /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
+    /// <returns>List<T> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(List<T>, int)> GetPageEntitiesAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
@@ -316,7 +316,7 @@ public static class EFExtensions
     /// <param name="includeTotal"></param>
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
-    /// <returns>IQueryable paged results with total (-1 if includeTotal = false) </returns>
+    /// <returns>List<TProject> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(List<TProject>, int)> GetPageProjectionAsync<T, TProject>(this IQueryable<T> query,
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
