@@ -19,6 +19,9 @@ public interface ITableRepository
         Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null,
         bool includeTotal = false, CancellationToken cancellationToken = default)
         where T : class, ITableEntity;
+    IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null,
+        IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
+        where T : class, ITableEntity;
     Task<TableClient> GetOrCreateTableAsync(string tableName, CancellationToken cancellationToken = default);
     Task<HttpStatusCode> DeleteTableAsync(string tableName, CancellationToken cancellationToken = default);
 }

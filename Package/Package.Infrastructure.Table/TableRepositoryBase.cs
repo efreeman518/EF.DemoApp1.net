@@ -73,7 +73,7 @@ public abstract class TableRepositoryBase : ITableRepository
     }
 
     /// <summary>
-    /// 
+    /// Query for a page of T given a filter and continuation token
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="tableServiceClientName"></param>
@@ -117,11 +117,21 @@ public abstract class TableRepositoryBase : ITableRepository
         await enumerator.MoveNextAsync();
         var page = enumerator.Current;
         return (page.Values, total, page.ContinuationToken);
+    }
 
+    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, 
+        IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
+        where T : class, ITableEntity
+    {
+        var table = _tableServiceClient.GetTableClient(typeof(T).Name);
+        var pageable = filterLinq != null
+            ? table.QueryAsync(filterLinq, null, selectProps, cancellationToken)
+            : table.QueryAsync<T>(filterOData, null, selectProps, cancellationToken);
+        return pageable;
     }
 
     /// <summary>
-    /// Azure CosmosDB requires 1600RU throughput to create a table with autoscale
+    /// Azure CosmosDB currently requires 1600RU throughput to create a table with autoscale
     /// </summary>
     /// <param name="tableName"></param>
     /// <param name="cancellationToken"></param>

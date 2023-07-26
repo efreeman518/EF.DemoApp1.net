@@ -211,11 +211,13 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var batchsize = 3;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
+
         var total = await stream.RunBatchAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
             await Task.Delay(1000);
         }, batchsize);
+
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
@@ -256,11 +258,13 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var maxConcurrent = 3;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
+
         var total = await stream.RunPipeAsync(async (item) =>
         {
-             Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
-             await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            await Task.Delay(1000);
         }, maxConcurrent);
+
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
