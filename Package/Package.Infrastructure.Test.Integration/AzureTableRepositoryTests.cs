@@ -127,7 +127,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             }
             Assert.IsTrue(todos?.Count > 0);
             fullList.AddRange(todos);
-            
+
         }
         while (continuationToken != null);
 
@@ -158,7 +158,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         //filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString()); //Table SDK filter by enum is ugly atm
         Expression<Func<TodoItemTableEntity, bool>> filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
         var maxConcurrent = 10;
-        
+
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start stream-pipe");
         var stopwatch = new Stopwatch();
@@ -191,7 +191,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         stopwatch.Start();
 
         //stream keeps the pipe full
-        total = await _repo.GetStream<TodoItemTableEntity> (null, filterOData, null).ConcurrentPipeAsync(async (item) =>
+        total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             fullList.Add(item);

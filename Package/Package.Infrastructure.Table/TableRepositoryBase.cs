@@ -119,7 +119,7 @@ public abstract class TableRepositoryBase : ITableRepository
         return (page.Values, total, page.ContinuationToken);
     }
 
-    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, 
+    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null,
         IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
         where T : class, ITableEntity
     {

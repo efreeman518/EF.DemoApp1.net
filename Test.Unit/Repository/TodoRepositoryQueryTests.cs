@@ -203,11 +203,11 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
-         //act & assert
+        //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
 
         var cancellationTokenSource = new CancellationTokenSource();
-        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        var stream = repoQuery.GetStream<TodoItem>();
         var batchsize = 3;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -217,7 +217,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             await Task.Delay(1000);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
-        }, batchsize);
+        }, batchsize, cancellationTokenSource.Token);
 
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
@@ -255,7 +255,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Debug.WriteLine($"{DateTime.Now} - Start");
 
         var cancellationTokenSource = new CancellationTokenSource();
-        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        var stream = repoQuery.GetStream<TodoItem>();
         var maxConcurrent = 3;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -265,7 +265,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             await Task.Delay(1000);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
-        }, maxConcurrent);
+        }, maxConcurrent, cancellationTokenSource.Token);
 
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
@@ -303,7 +303,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Debug.WriteLine($"{DateTime.Now} - Start");
 
         var cancellationTokenSource = new CancellationTokenSource();
-        var stream = repoQuery.GetStream<TodoItem>(); //.WithCancellation(cancellationTokenSource.Token);
+        var stream = repoQuery.GetStream<TodoItem>();
         var maxDegreesOfParallelism = -1;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -352,12 +352,12 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Debug.WriteLine($"{DateTime.Now} - Start");
 
         var cancellationTokenSource = new CancellationTokenSource();
-        var stream = repoQuery.GetStream<TodoItem>(); //.WithCancellation(cancellationTokenSource.Token);
+        var stream = repoQuery.GetStream<TodoItem>();
         var maxDegreesOfParallelism = -1;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var total = await stream.ProcessParallel((item) =>
+        var total = await stream.ProcessParallelSync((item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             //some sync work
