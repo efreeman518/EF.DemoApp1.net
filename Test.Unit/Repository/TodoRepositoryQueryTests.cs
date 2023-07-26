@@ -178,13 +178,19 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
-    public async Task GetStreamEntitiesAsync_pass()
+    public async Task GetStream_and_batch_process_pass()
     {
         //arrange
         static void customData(List<TodoItem> entities)
         {
             //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a"));
+            entities.Add(new TodoItem("some entity a1"));
+            entities.Add(new TodoItem("some entity a2"));
+            entities.Add(new TodoItem("some entity a3"));
+            entities.Add(new TodoItem("some entity a4"));
+            entities.Add(new TodoItem("some entity a5"));
+            entities.Add(new TodoItem("some entity a6"));
+            entities.Add(new TodoItem("some entity a7"));
         }
 
         //InMemory setup & seed
@@ -198,16 +204,106 @@ public class TodoRepositoryQueryTests : UnitTestBase
 
         //act & assert
         var cancellationTokenSource = new CancellationTokenSource();
-        Debug.WriteLine($"{DateTime.UtcNow} - Start");
-        var i = 0;
+        var total = 0;
+        var batchCount = 1;
         var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        var batchMax = 3;
+        List<Task> batchTasks = new();
+        Task t;
+
+        Debug.WriteLine($"{DateTime.UtcNow} - Start");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
         await foreach (var item in stream)
         {
-            //sync or await some async processing on the item
-            Debug.WriteLine($"{DateTime.UtcNow} - {++i} - {item.Name}");
+            total++;
+            //collect async tasks for awaiting later concurrently in a batch
+            t = Task.Run(async () =>
+            {
+                await Task.Delay(1000);
+                Debug.WriteLine($"{DateTime.Now} - {item.Name}");
+            });
+            batchTasks.Add(t);
+            //if the batch is full, await those tasks and empty the bucket
+            if (total % batchMax == 0)
+            {
+                Debug.WriteLine($"{DateTime.Now} Batch#{batchCount++} ({batchTasks.Count}) Total:{total}");
+                await Task.WhenAll(batchTasks);
+                batchTasks.Clear();
+            }
         }
-        Debug.WriteLine($"{DateTime.UtcNow} - Finish");
-        Assert.AreEqual(4, i);
+        //all items have been iterated through but we might have some left in batchTasks
+        if (batchTasks.Count > 0)
+        {
+            Debug.WriteLine($"{DateTime.Now} Batch#{batchCount}(Partial) ({batchTasks.Count}) Total:{total}");
+            await Task.WhenAll(batchTasks);
+        }
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+
+        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+    }
+
+    [TestMethod]
+    public async Task GetStream_and_pipe_process_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a1"));
+            entities.Add(new TodoItem("some entity a2"));
+            entities.Add(new TodoItem("some entity a3"));
+            entities.Add(new TodoItem("some entity a4"));
+            entities.Add(new TodoItem("some entity a5"));
+            entities.Add(new TodoItem("some entity a6"));
+            entities.Add(new TodoItem("some entity a7"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        var cancellationTokenSource = new CancellationTokenSource();
+        
+        var total = 0;
+        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        var maxConcurrent = 3;
+        SemaphoreSlim semaphore = new(maxConcurrent);
+        var tasks = new List<Task>();
+        Debug.WriteLine($"{DateTime.Now} - Start");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        await foreach (var item in stream)
+        {
+            total++;
+            tasks.Add(Task.Run(async () =>
+            {
+                Debug.WriteLine($"{DateTime.Now} {item.Name} waiting.");
+                await semaphore.WaitAsync();
+                try
+                {
+                    Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+                    await Task.Delay(1000);
+                }
+                finally
+                {
+                    Debug.WriteLine($"{DateTime.Now} {item.Name} done.");
+                    semaphore.Release();
+                }
+            }));
+        }
+        await Task.WhenAll(tasks);
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+
+        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
     }
 
     [TestMethod]
@@ -280,7 +376,6 @@ public class TodoRepositoryQueryTests : UnitTestBase
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
-
 
         //concurrent processing example should run multiple threads concurrently, take about 1 sec total
         var cBag = new ConcurrentBag<Guid>();
