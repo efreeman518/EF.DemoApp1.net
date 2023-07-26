@@ -165,10 +165,11 @@ public static class IAsyncEnumerableExtensions
         int total = 0;
         var options = new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism, CancellationToken = cancellationToken };
 
-        await Parallel.ForEachAsync(stream, options, async (item, token) =>
+        await Parallel.ForEachAsync(stream, options, (item, token) =>
         {
             Interlocked.Increment(ref total);
             method(item);
+            return ValueTask.CompletedTask;
         });
         return total;
     }
