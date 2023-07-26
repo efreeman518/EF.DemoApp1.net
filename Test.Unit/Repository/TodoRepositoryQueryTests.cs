@@ -179,7 +179,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
-    public async Task GetStream_and_batch_process_pass()
+    public async Task GetStream_and_batch_concurrent_pass()
     {
         //arrange
         static void customData(List<TodoItem> entities)
@@ -212,10 +212,11 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var total = await stream.RunBatchAsync(async (item) =>
+        var total = await stream.ConcurrentBatchAsync(async (item) =>
         {
-            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, batchsize);
 
         stopwatch.Stop();
@@ -226,7 +227,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
     }
 
     [TestMethod]
-    public async Task GetStream_and_pipe_process_pass()
+    public async Task GetStream_and_pipe_concurrent_pass()
     {
         //arrange
         static void customData(List<TodoItem> entities)
@@ -259,11 +260,110 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var total = await stream.RunPipeAsync(async (item) =>
+        var total = await stream.ConcurrentPipeAsync(async (item) =>
         {
-            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxConcurrent);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+
+        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+        Assert.IsTrue(true);
+    }
+
+    [TestMethod]
+    public async Task GetStream_process_parallel_async_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a1"));
+            entities.Add(new TodoItem("some entity a2"));
+            entities.Add(new TodoItem("some entity a3"));
+            entities.Add(new TodoItem("some entity a4"));
+            entities.Add(new TodoItem("some entity a5"));
+            entities.Add(new TodoItem("some entity a6"));
+            entities.Add(new TodoItem("some entity a7"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start");
+
+        var cancellationTokenSource = new CancellationTokenSource();
+        var stream = repoQuery.GetStream<TodoItem>(); //.WithCancellation(cancellationTokenSource.Token);
+        var maxDegreesOfParallelism = -1;
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        var total = await stream.ProcessParallelAsync(async (item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+            //some async work
+            await Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, maxDegreesOfParallelism, cancellationTokenSource.Token);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+
+        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+        Assert.IsTrue(true);
+    }
+
+    [TestMethod]
+    public async Task GetStream_process_parallel_sync_pass()
+    {
+        //arrange
+        static void customData(List<TodoItem> entities)
+        {
+            //custom data scenario that default seed data does not cover
+            entities.Add(new TodoItem("some entity a1"));
+            entities.Add(new TodoItem("some entity a2"));
+            entities.Add(new TodoItem("some entity a3"));
+            entities.Add(new TodoItem("some entity a4"));
+            entities.Add(new TodoItem("some entity a5"));
+            entities.Add(new TodoItem("some entity a6"));
+            entities.Add(new TodoItem("some entity a7"));
+        }
+
+        //InMemory setup & seed
+        TodoDbContextQuery db = new InMemoryDbBuilder()
+            .SeedDefaultEntityData()
+            .UseEntityData(customData)
+            .BuildInMemory<TodoDbContextQuery>();
+
+        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start");
+
+        var cancellationTokenSource = new CancellationTokenSource();
+        var stream = repoQuery.GetStream<TodoItem>(); //.WithCancellation(cancellationTokenSource.Token);
+        var maxDegreesOfParallelism = -1;
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        var total = await stream.ProcessParallel((item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+            //some sync work
+            Task.Delay(1000);
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, maxDegreesOfParallelism, cancellationTokenSource.Token);
 
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;

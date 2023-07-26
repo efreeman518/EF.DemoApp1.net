@@ -10,7 +10,7 @@ using System.Net;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
+[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
 
 [TestClass]
 public class AzureTableRepositoryTests : IntegrationTestBase
@@ -135,7 +135,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task Populate_table_run_stream_pass()
+    public async Task Populate_table_run_stream_pipe_pass()
     {
         //Create Table
         var tableName = nameof(TodoItemTableEntity);
@@ -164,8 +164,8 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        //stream fills pipe
-        var total = await _repo.GetStream(filterLinq, null).RunPipeAsync(async (item) =>
+        //stream keeps the pipe full
+        var total = await _repo.GetStream(filterLinq, null).ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
             fullList.Add(item);
@@ -189,8 +189,8 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        //stream fills pipe
-        total = await _repo.GetStream<TodoItemTableEntity> (null, filterOData, null).RunPipeAsync(async (item) =>
+        //stream keeps the pipe full
+        total = await _repo.GetStream<TodoItemTableEntity> (null, filterOData, null).ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
             fullList.Add(item);
