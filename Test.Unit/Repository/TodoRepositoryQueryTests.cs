@@ -6,6 +6,7 @@ using Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
 using System;
 using System.Collections.Concurrent;
@@ -202,46 +203,24 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
-        //act & assert
-        var cancellationTokenSource = new CancellationTokenSource();
-        var total = 0;
-        var batchCount = 1;
-        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
-        var batchMax = 3;
-        List<Task> batchTasks = new();
-        Task t;
+         //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start");
 
-        Debug.WriteLine($"{DateTime.UtcNow} - Start");
+        var cancellationTokenSource = new CancellationTokenSource();
+        var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
+        var batchsize = 3;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        await foreach (var item in stream)
+        var total = await stream.RunBatchAsync(async (item) =>
         {
-            total++;
-            //collect async tasks for awaiting later concurrently in a batch
-            t = Task.Run(async () =>
-            {
-                await Task.Delay(1000);
-                Debug.WriteLine($"{DateTime.Now} - {item.Name}");
-            });
-            batchTasks.Add(t);
-            //if the batch is full, await those tasks and empty the bucket
-            if (total % batchMax == 0)
-            {
-                Debug.WriteLine($"{DateTime.Now} Batch#{batchCount++} ({batchTasks.Count}) Total:{total}");
-                await Task.WhenAll(batchTasks);
-                batchTasks.Clear();
-            }
-        }
-        //all items have been iterated through but we might have some left in batchTasks
-        if (batchTasks.Count > 0)
-        {
-            Debug.WriteLine($"{DateTime.Now} Batch#{batchCount}(Partial) ({batchTasks.Count}) Total:{total}");
-            await Task.WhenAll(batchTasks);
-        }
+            Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+            await Task.Delay(1000);
+        }, batchsize);
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+        Assert.IsTrue(true);
     }
 
     [TestMethod]
@@ -270,40 +249,23 @@ public class TodoRepositoryQueryTests : UnitTestBase
         ITodoRepositoryQuery repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start");
+
         var cancellationTokenSource = new CancellationTokenSource();
-        
-        var total = 0;
         var stream = repoQuery.GetStream<TodoItem>().WithCancellation(cancellationTokenSource.Token);
         var maxConcurrent = 3;
-        SemaphoreSlim semaphore = new(maxConcurrent);
-        var tasks = new List<Task>();
-        Debug.WriteLine($"{DateTime.Now} - Start");
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        await foreach (var item in stream)
+        var total = await stream.RunPipeAsync(async (item) =>
         {
-            total++;
-            tasks.Add(Task.Run(async () =>
-            {
-                Debug.WriteLine($"{DateTime.Now} {item.Name} waiting.");
-                await semaphore.WaitAsync();
-                try
-                {
-                    Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
-                    await Task.Delay(1000);
-                }
-                finally
-                {
-                    Debug.WriteLine($"{DateTime.Now} {item.Name} done.");
-                    semaphore.Release();
-                }
-            }));
-        }
-        await Task.WhenAll(tasks);
+             Debug.WriteLine($"{DateTime.Now} {item.Name} processing.");
+             await Task.Delay(1000);
+        }, maxConcurrent);
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+        Assert.IsTrue(true);
     }
 
     [TestMethod]
