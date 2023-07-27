@@ -4,6 +4,7 @@ using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Table;
 using Package.Infrastructure.Test.Integration.Model;
 using Package.Infrastructure.Test.Integration.Table;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Net;
@@ -62,41 +63,33 @@ public class AzureTableRepositoryTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task Populate_table_run_page_queries_pass()
+    public async Task Page_linq_pass()
     {
-        //Create Table
+        //Get/Create Table
         var tableName = nameof(TodoItemTableEntity);
         _ = await _repo.GetOrCreateTableAsync(tableName);
 
-        //populate table with docs (random Status)
-        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
-        Random random = new();
-        for (var i = 0; i < 100; i++)
-        {
-            TodoItemStatus status = (TodoItemStatus)(statuses.GetValue(random.Next(statuses.Length)) ?? TodoItemStatus.Created);
-            TodoItemTableEntity todo1 = new(status: status); //TableEntity - PartitionKey, RowKey created on instantiation 
-            await _repo.CreateItemAsync(todo1);
-        }
+        await PopulateTableData();
 
         List<TodoItemTableEntity> fullList = new();
         IReadOnlyList<TodoItemTableEntity>? todos;
         int pageSize = 10;
 
         //LINQ - page with filter
+        Expression<Func<TodoItemTableEntity, bool>> filterLinq;
         //filterLinq = t => t.IsComplete;
         //filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString()); //Table SDK filter by enum is ugly atm
-        Expression<Func<TodoItemTableEntity, bool>> filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
-        bool includeTotal = true;
-        int total = -1;
-        int total1;
+        filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
+        var includeTotal = true;
+        var total = -1;
         string? continuationToken = null;
 
         do
         {
-            (todos, total1, continuationToken) = await _repo.QueryAsync(continuationToken, pageSize, filterLinq, includeTotal: includeTotal);
+            (todos, int totalReturned, continuationToken) = await _repo.QueryAsync(continuationToken, pageSize, filterLinq, includeTotal: includeTotal);
             if (includeTotal)
             {
-                total = total1;
+                total = totalReturned;
                 Assert.IsTrue(total > -1);
                 includeTotal = false; //only run on the first page
             }
@@ -106,22 +99,33 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         while (continuationToken != null);
 
         Assert.AreEqual(total, fullList.Count);
+    }
 
-        //OData - page with filter
-        fullList.Clear();
+    [TestMethod]
+    public async Task Page_odata_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
+
+        await PopulateTableData();
+
+        List<TodoItemTableEntity> fullList = new();
+        IReadOnlyList<TodoItemTableEntity>? todos;
+        int pageSize = 10;
 
         //filterOData = "IsComplete eq true";
         string filterOData = "Status eq 'Completed'";
-        includeTotal = true;
-        total = 0;
-        continuationToken = null;
+        var includeTotal = true;
+        var total = -1;
+        string? continuationToken = null;
 
         do
         {
-            (todos, total1, continuationToken) = await _repo.QueryAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData, includeTotal: includeTotal);
+            (todos, int totalReturned, continuationToken) = await _repo.QueryAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData, includeTotal: includeTotal);
             if (includeTotal)
             {
-                total = total1;
+                total = totalReturned;
                 Assert.IsTrue(total > -1);
                 includeTotal = false; //only run on the first page
             }
@@ -135,32 +139,108 @@ public class AzureTableRepositoryTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task Populate_table_run_stream_pipe_pass()
+    public async Task Stream_linq_batch_pass()
     {
-        //Create Table
+        //Get/Create Table
         var tableName = nameof(TodoItemTableEntity);
         _ = await _repo.GetOrCreateTableAsync(tableName);
 
-        //populate table with docs (random Status)
-        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
-        Random random = new();
-        for (var i = 0; i < 100; i++)
-        {
-            TodoItemStatus status = (TodoItemStatus)(statuses.GetValue(random.Next(statuses.Length)) ?? TodoItemStatus.Created);
-            TodoItemTableEntity todo1 = new(status: status); //TableEntity - PartitionKey, RowKey created on instantiation 
-            await _repo.CreateItemAsync(todo1);
-        }
+        await PopulateTableData();
 
-        List<TodoItemTableEntity> fullList = new();
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
 
         //LINQ - page with filter
+        Expression<Func<TodoItemTableEntity, bool>> filterLinq;
         //filterLinq = t => t.IsComplete;
         //filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString()); //Table SDK filter by enum is ugly atm
-        Expression<Func<TodoItemTableEntity, bool>> filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
+        filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
+        var batchSize = 10;
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start stream-linq-batch");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        //stream keeps the pipe full
+        var total = await _repo.GetStream(filterLinq, null).ConcurrentBatchAsync(async (item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+            
+            //do some async work
+            await Task.Delay(1000);
+            fullList.Add(item);
+
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, batchSize);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-linq-batch Total:{total} ElapsedMS:{elapsed_time}");
+
+        Assert.AreEqual(total, fullList.Count);
+    }
+
+    [TestMethod]
+    public async Task Stream_odata_batch_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
+
+        await PopulateTableData();
+
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
+
+        string filterOData = "Status eq 'Completed'";
+        var batchSize = 10;
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start stream-odata-batch");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        //stream keeps the pipe full
+        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ConcurrentBatchAsync(async (item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+            
+            //do some async work
+            await Task.Delay(1000);
+            fullList.Add(item);
+
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, batchSize);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-odata-batch Total:{total} ElapsedMS:{elapsed_time}");
+
+        Assert.AreEqual(total, fullList.Count);
+    }
+
+    [TestMethod]
+    public async Task Stream_linq_pipe_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
+
+        await PopulateTableData();
+
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
+
+        //LINQ - page with filter
+        Expression<Func<TodoItemTableEntity, bool>> filterLinq;
+        //filterLinq = t => t.IsComplete;
+        //filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString()); //Table SDK filter by enum is ugly atm
+        filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
         var maxConcurrent = 10;
 
         //act & assert
-        Debug.WriteLine($"{DateTime.Now} - Start stream-pipe");
+        Debug.WriteLine($"{DateTime.Now} - Start stream-linq-pipe");
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
@@ -168,42 +248,147 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var total = await _repo.GetStream(filterLinq, null).ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            fullList.Add(item);
+
+            //do some async work
             await Task.Delay(1000);
+            fullList.Add(item);
+
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxConcurrent);
 
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
-        Debug.WriteLine($"{DateTime.Now} - Finish stream-pipe Total:{total} ElapsedMS:{elapsed_time}");
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-linq-pipe Total:{total} ElapsedMS:{elapsed_time}");
 
         Assert.AreEqual(total, fullList.Count);
+    }
 
-        //OData - page with filter
+    [TestMethod]
+    public async Task Stream_odata_pipe_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
 
-        fullList.Clear();
+        await PopulateTableData();
+
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
+
         string filterOData = "Status eq 'Completed'";
-        var batchSize = 10;
+        var maxConcurrent = 10;
 
         //act & assert
-        Debug.WriteLine($"{DateTime.Now} - Start stream-batch");
-        stopwatch = new Stopwatch();
+        Debug.WriteLine($"{DateTime.Now} - Start stream-odata-pipe");
+        var stopwatch = new Stopwatch();
         stopwatch.Start();
 
         //stream keeps the pipe full
-        total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ConcurrentPipeAsync(async (item) =>
+        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            fullList.Add(item);
+
+            //do some async work
             await Task.Delay(1000);
+            fullList.Add(item);
+
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
-        }, batchSize);
+        }, maxConcurrent);
 
         stopwatch.Stop();
-        elapsed_time = stopwatch.ElapsedMilliseconds;
-        Debug.WriteLine($"{DateTime.Now} - Finish stream-batch Total:{total} ElapsedMS:{elapsed_time}");
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-odata-pipe Total:{total} ElapsedMS:{elapsed_time}");
 
         Assert.AreEqual(total, fullList.Count);
+    }
+
+    [TestMethod]
+    public async Task Stream_odata_parallel_async_work_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
+
+        await PopulateTableData();
+
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
+
+        string filterOData = "Status eq 'Completed'";
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start stream-parallel-async");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        //stream keeps the pipe full
+        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ProcessParallelAsync(async (item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+
+            //do some CPU async work
+            await Task.Delay(1000);
+            fullList.Add(item);
+
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, -1);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-parallel-async Total:{total} ElapsedMS:{elapsed_time}");
+
+        Assert.AreEqual(total, fullList.Count);
+    }
+
+    [TestMethod]
+    public async Task Stream_odata_parallel_sync_work_pass()
+    {
+        //Get/Create Table
+        var tableName = nameof(TodoItemTableEntity);
+        _ = await _repo.GetOrCreateTableAsync(tableName);
+
+        await PopulateTableData();
+
+        //threadsafe collection on the client side
+        ConcurrentBag<TodoItemTableEntity> fullList = new();
+
+        string filterOData = "Status eq 'Completed'";
+
+        //act & assert
+        Debug.WriteLine($"{DateTime.Now} - Start stream-parallel-sync");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        //stream keeps the pipe full
+        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ProcessParallelSync(async (item) =>
+        {
+            Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
+
+            //do some CPU sync/blocking work
+            Thread.Sleep(1000);
+            fullList.Add(item);
+
+            Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
+        }, -1);
+
+        stopwatch.Stop();
+        var elapsed_time = stopwatch.ElapsedMilliseconds;
+        Debug.WriteLine($"{DateTime.Now} - Finish stream-parallel-sync Total:{total} ElapsedMS:{elapsed_time}");
+
+        Assert.AreEqual(total, fullList.Count);
+    }
+
+    private async Task PopulateTableData(int numRows = 100)
+    {
+        //populate table with docs (random Status)
+        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
+        Random random = new();
+        for (var i = 0; i < numRows; i++)
+        {
+            TodoItemStatus status = (TodoItemStatus)(statuses.GetValue(random.Next(statuses.Length)) ?? TodoItemStatus.Created);
+            TodoItemTableEntity todo1 = new(status: status); //TableEntity - PartitionKey, RowKey created on instantiation 
+            await _repo.CreateItemAsync(todo1);
+        }
     }
 }
 

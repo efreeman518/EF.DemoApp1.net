@@ -7,7 +7,7 @@ namespace Package.Infrastructure.Common.Extensions;
 public static class IAsyncEnumerableExtensions
 {
     /// <summary>
-    /// Concurrently batch process; Fill the batch, await all tasks, load next batch
+    /// Concurrently batch process (for async I/O intensive work); Fill the batch, await all tasks, load next batch
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="stream"></param>
@@ -44,7 +44,7 @@ public static class IAsyncEnumerableExtensions
     }
 
     /// <summary>
-    /// Concurrently pipe process; Fill the pipe, and keep the pipe filled with awaitable tasks
+    /// Concurrently pipe process (for async I/O intensive work); Fill the pipe, and keep the pipe filled with awaitable tasks
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="stream"></param>
@@ -81,7 +81,7 @@ public static class IAsyncEnumerableExtensions
     }
 
     /// <summary>
-    /// Parallel process async the stream for async CPU intensive work
+    /// Parallel process async the stream (for async CPU intensive work)
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="stream"></param>
@@ -104,7 +104,7 @@ public static class IAsyncEnumerableExtensions
     }
 
     /// <summary>
-    /// Parallel process async the stream for sync CPU intensive work
+    /// Parallel process async the stream (for sync CPU intensive work)
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="stream"></param>
