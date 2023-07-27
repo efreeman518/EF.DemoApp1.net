@@ -15,11 +15,11 @@ namespace Package.Infrastructure.Test.Integration;
 [TestClass]
 public class AzureTableRepositoryTests : IntegrationTestBase
 {
-    readonly ITableRepository _repo;
+    readonly ITableRepository1 _repo;
 
     public AzureTableRepositoryTests() : base()
     {
-        _repo = (ITableRepository)Services.GetRequiredService(typeof(TableRepository1));
+        _repo = (ITableRepository1)Services.GetRequiredService(typeof(ITableRepository1));
     }
 
     [TestMethod]

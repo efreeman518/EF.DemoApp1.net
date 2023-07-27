@@ -88,7 +88,7 @@ public abstract class IntegrationTestBase
         configSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddSingleton<TableRepository1>();
+            services.AddSingleton<ITableRepository1, TableRepository1>();
             services.Configure<TableRepositorySettings1>(configSection);
         }
 

@@ -18,9 +18,8 @@ public partial class TodoItemTableEntity : ITableEntity
 
     //public get & set required pull out of Table storage properly 
     public string Name { get; set; }
-    public bool IsComplete => Status == TodoItemStatus.Completed;
-
     public TodoItemStatus Status { get; set; }
+    public bool IsComplete => Status == TodoItemStatus.Completed;
 
     //Parameterless constructor required for Table retrieval
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
