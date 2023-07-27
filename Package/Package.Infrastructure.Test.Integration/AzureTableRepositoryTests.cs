@@ -131,7 +131,6 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             }
             Assert.IsTrue(todos?.Count > 0);
             fullList.AddRange(todos);
-
         }
         while (continuationToken != null);
 
@@ -166,8 +165,8 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var total = await _repo.GetStream(filterLinq, null).ConcurrentBatchAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            
-            //do some async work
+
+            //do some async I/O work
             await Task.Delay(1000);
             fullList.Add(item);
 
@@ -205,8 +204,8 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ConcurrentBatchAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            
-            //do some async work
+
+            //do some async I/O work
             await Task.Delay(1000);
             fullList.Add(item);
 
@@ -249,7 +248,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
 
-            //do some async work
+            //do some async I/O work
             await Task.Delay(1000);
             fullList.Add(item);
 
@@ -288,7 +287,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
 
-            //do some async work
+            //do some async I/O work
             await Task.Delay(1000);
             fullList.Add(item);
 
