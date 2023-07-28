@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
+//[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
 
 [TestClass]
 public class AzureTableRepositoryTests : IntegrationTestBase
@@ -359,7 +359,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         stopwatch.Start();
 
         //stream keeps the pipe full
-        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ProcessParallelSync(async (item) =>
+        var total = await _repo.GetStream<TodoItemTableEntity>(null, filterOData, null).ProcessParallelSync((item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
 

@@ -145,8 +145,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         return (items, total, continuationToken);
     }
 
-    public IAsyncEnumerable<T> GetStream<T>(string? sql = null, Dictionary<string, object>? parameters = null,
-        int maxConcurrency = -1, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<T> GetStream<T>(string? sql = null, Dictionary<string, object>? parameters = null,  int maxConcurrency = -1)
     {
         _ = sql ?? throw new ArgumentNullException(nameof(sql));
 
@@ -161,8 +160,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         return feedIterator.ToAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filter = null, List<Sort>? sorts = null,
-        int maxConcurrency = -1, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filter = null, List<Sort>? sorts = null, int maxConcurrency = -1)
     {
         QueryRequestOptions o = new()
         {
