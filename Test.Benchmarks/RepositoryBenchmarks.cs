@@ -59,7 +59,7 @@ public class RepositoryBenchmarks
     [Benchmark]
     public async Task Repo_GetPageEntitiesAsync()
     {
-        _ = await _repo.GetPageEntitiesAsync<TodoItem>(pageSize: 10, pageIndex: 1);
+        _ = await _repo.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 1);
     }
 
 

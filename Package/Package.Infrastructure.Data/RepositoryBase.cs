@@ -179,7 +179,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="orderBy">Order By clause</param>
     /// <param name="includes">get related data</param>
     /// <returns></returns>
-    public async Task<PagedResponse<T>> GetPageEntitiesAsync<T>(bool tracking = false,
+    public async Task<PagedResponse<T>> QueryPageAsync<T>(bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -187,7 +187,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<T> data, int total) = await DB.Set<T>().GetPageEntitiesAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+        (List<T> data, int total) = await DB.Set<T>().QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<T>
         {
             PageSize = pageSize ?? -1,
@@ -212,7 +212,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public async Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
+    public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
@@ -221,7 +221,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<TProject> data, int total) = await DB.Set<T>().GetPageProjectionAsync<T, TProject>(mapperConfigProvider,
+        (List<TProject> data, int total) = await DB.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
             pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
         return new PagedResponse<TProject>
         {

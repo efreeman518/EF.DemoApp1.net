@@ -22,6 +22,19 @@ public class CosmosDbRepository : ICosmosDbRepository
         DbId = settings.DbId;
     }
 
+    public async Task<T?> GetItemAsync<T>(string id, string partitionKey) where T : CosmosDbEntity
+    {
+        try
+        {
+            ItemResponse<T> response = await DbClient3.GetContainer(DbId, typeof(T).Name).ReadItemAsync<T>(id, new PartitionKey(partitionKey));
+            return response.Resource;
+        }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return default;
+        }
+    }
+
     public async Task<T> SaveItemAsync<T>(T item) where T : CosmosDbEntity
     {
         var itemResponse = await DbClient3.GetContainer(DbId, typeof(T).Name).UpsertItemAsync<T>(item, new PartitionKey(item.PartitionKey));
@@ -36,19 +49,6 @@ public class CosmosDbRepository : ICosmosDbRepository
     public async Task DeleteItemAsync<T>(T item) where T : CosmosDbEntity
     {
         await DbClient3.GetContainer(DbId, typeof(T).Name).DeleteItemAsync<T>(item.id, new PartitionKey(item.PartitionKey));
-    }
-
-    public async Task<T?> GetItemAsync<T>(string id, string partitionKey) where T : CosmosDbEntity
-    {
-        try
-        {
-            ItemResponse<T> response = await DbClient3.GetContainer(DbId, typeof(T).Name).ReadItemAsync<T>(id, new PartitionKey(partitionKey));
-            return response.Resource;
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            return default;
-        }
     }
 
     //using SDK3 for linq (GetItemLinqQueryable)
@@ -67,7 +67,7 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <param name="maxConcurrency"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(string? continuationToken = null,
+    public async Task<(List<TProject>, int, string?)> QueryPageProjectionAsync<TSource, TProject>(string? continuationToken = null,
         int pageSize = 10, Expression<Func<TProject, bool>>? filter = null,
         List<Sort>? sorts = null, bool includeTotal = false, int maxConcurrency = -1, CancellationToken cancellationToken = default)
     {
@@ -108,7 +108,7 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <param name="continuationToken"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(List<TProject>, int, string?)> GetPagedListAsync<TSource, TProject>(
+    public async Task<(List<TProject>, int, string?)> QueryPageProjectionAsync<TSource, TProject>(
         string? continuationToken = null, int pageSize = 10, string? sql = null,
         string? sqlCount = null, Dictionary<string, object>? parameters = null,
         int maxConcurrency = -1, CancellationToken cancellationToken = default)
@@ -143,6 +143,40 @@ public class CosmosDbRepository : ICosmosDbRepository
             }
         }
         return (items, total, continuationToken);
+    }
+
+    public IAsyncEnumerable<T> GetStream<T>(string? sql = null, Dictionary<string, object>? parameters = null,
+        int maxConcurrency = -1, CancellationToken cancellationToken = default)
+    {
+        _ = sql ?? throw new ArgumentNullException(nameof(sql));
+
+        var query = BuildSqlQueryDefinition(sql, parameters);
+        QueryRequestOptions o = new()
+        {
+            MaxItemCount = -1,
+            MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
+        };
+
+        using var feedIterator = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemQueryIterator<T>(query, null, o);
+        return feedIterator.ToAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filter = null, List<Sort>? sorts = null,
+        int maxConcurrency = -1, CancellationToken cancellationToken = default)
+    {
+        QueryRequestOptions o = new()
+        {
+            MaxItemCount = -1,
+            MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
+        };
+
+        var queryable = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemLinqQueryable<T>(false, null, o);
+        filter ??= i => true;
+        var query = queryable.Where(filter);
+        if (sorts != null) query = query.OrderBy(sorts.AsEnumerable());
+
+        using var feedIterator = query.ToFeedIterator();
+        return feedIterator.ToAsyncEnumerable();
     }
 
     public async Task<Container> GetOrAddContainerAsync(string containerId, string? partitionKeyPath = null)

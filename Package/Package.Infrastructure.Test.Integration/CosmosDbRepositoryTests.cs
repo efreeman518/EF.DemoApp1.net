@@ -57,7 +57,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         string? continuationToken = null;
         do
         {
-            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoItemDto>(continuationToken, pageSize, filter, sorts, includeTotal);
+            (todos, total, continuationToken) = await _repo.QueryPageProjectionAsync<TodoItemNoSql, TodoItemDto>(continuationToken, pageSize, filter, sorts, includeTotal);
             Assert.IsTrue(todos.Count > 0);
             Assert.IsTrue(!includeTotal || total > 0);
             includeTotal = false; //retrieve once, not repeatedly
@@ -75,7 +75,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         };
         do
         {
-            (todos, total, continuationToken) = await _repo.GetPagedListAsync<TodoItemNoSql, TodoItemDto>(
+            (todos, total, continuationToken) = await _repo.QueryPageProjectionAsync<TodoItemNoSql, TodoItemDto>(
                 continuationToken, pageSize, sql, sqlCount, parameters);
             Assert.IsTrue(todos.Count > 0);
             Assert.IsTrue(sqlCount == null || total > 0);

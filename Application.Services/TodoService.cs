@@ -40,7 +40,7 @@ public class TodoService : ServiceBase, ITodoService
         Logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
-        return await _repoQuery.GetPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize, pageIndex, includeTotal: true);
+        return await _repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize, pageIndex, includeTotal: true);
     }
 
     public async Task<TodoItemDto> GetItemAsync(Guid id)

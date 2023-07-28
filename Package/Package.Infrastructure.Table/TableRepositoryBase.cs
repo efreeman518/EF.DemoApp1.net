@@ -84,7 +84,7 @@ public abstract class TableRepositoryBase : ITableRepository
     /// <param name="includeTotal">Use with caution; requires retrieving all records - ugly, expensive.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(IReadOnlyList<T>?, int, string?)> QueryAsync<T>(string? continuationToken = null, int pageSize = 10,
+    public async Task<(IReadOnlyList<T>?, int, string?)> QueryPageAsync<T>(string? continuationToken = null, int pageSize = 10,
         Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null,
         bool includeTotal = false, CancellationToken cancellationToken = default)
         where T : class, ITableEntity

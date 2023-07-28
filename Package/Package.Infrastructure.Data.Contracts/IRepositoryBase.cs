@@ -31,7 +31,7 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<T>> GetPageEntitiesAsync<T>(bool tracking = false,
+    Task<PagedResponse<T>> QueryPageAsync<T>(bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -39,7 +39,7 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<TProject>> GetPageProjectionAsync<T, TProject>(
+    Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,

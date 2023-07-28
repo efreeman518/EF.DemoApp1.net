@@ -214,7 +214,7 @@ public static class EFExtensions
     /// <param name="filter"></param>
     public static async Task DeleteAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class
     {
-        var objects = (await GetPageEntitiesAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
+        var objects = (await QueryPageAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
         Parallel.ForEach(objects, o => { dbSet.Remove(o); });
     }
 
@@ -290,7 +290,7 @@ public static class EFExtensions
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>List<T> page results with total (-1 if includeTotal = false) </returns>
-    public static async Task<(List<T>, int)> GetPageEntitiesAsync<T>(this IQueryable<T> query, bool tracking = false,
+    public static async Task<(List<T>, int)> QueryPageAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
@@ -317,7 +317,7 @@ public static class EFExtensions
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>List<TProject> page results with total (-1 if includeTotal = false) </returns>
-    public static async Task<(List<TProject>, int)> GetPageProjectionAsync<T, TProject>(this IQueryable<T> query,
+    public static async Task<(List<TProject>, int)> QueryPageProjectionAsync<T, TProject>(this IQueryable<T> query,
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,

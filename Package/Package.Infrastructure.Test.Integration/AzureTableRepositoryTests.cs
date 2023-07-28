@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
+//[Ignore("Table account required - Azurite storage emulator, Azure Storage, CosmosDB emulator or CosomsDB.")]
 
 [TestClass]
 public class AzureTableRepositoryTests : IntegrationTestBase
@@ -86,7 +86,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
 
         do
         {
-            (todos, int totalReturned, continuationToken) = await _repo.QueryAsync(continuationToken, pageSize, filterLinq, includeTotal: includeTotal);
+            (todos, int totalReturned, continuationToken) = await _repo.QueryPageAsync(continuationToken, pageSize, filterLinq, includeTotal: includeTotal);
             if (includeTotal)
             {
                 total = totalReturned;
@@ -122,7 +122,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
 
         do
         {
-            (todos, int totalReturned, continuationToken) = await _repo.QueryAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData, includeTotal: includeTotal);
+            (todos, int totalReturned, continuationToken) = await _repo.QueryPageAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData, includeTotal: includeTotal);
             if (includeTotal)
             {
                 total = totalReturned;
