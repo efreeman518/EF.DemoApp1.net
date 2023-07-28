@@ -24,7 +24,7 @@ public abstract class TableRepositoryBase : ITableRepository
     }
 
     public async Task<T?> GetItemAsync<T>(string partitionKey, string rowkey, IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
-        where T : class, ITableEntity
+        where T : class, Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
 
@@ -42,7 +42,7 @@ public abstract class TableRepositoryBase : ITableRepository
     }
 
     public async Task<HttpStatusCode> CreateItemAsync<T>(T item, CancellationToken cancellationToken = default)
-        where T : ITableEntity
+        where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.AddEntityAsync(item, cancellationToken);
@@ -50,7 +50,7 @@ public abstract class TableRepositoryBase : ITableRepository
     }
 
     public async Task<HttpStatusCode> UpsertItemAsync<T>(T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
-        where T : ITableEntity
+        where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.UpsertEntityAsync(item, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
@@ -58,7 +58,7 @@ public abstract class TableRepositoryBase : ITableRepository
     }
 
     public async Task<HttpStatusCode> UpdateItemAsync<T>(T item, TableUpdateMode updateMode, CancellationToken cancellationToken = default)
-        where T : ITableEntity
+        where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var response = await table.UpdateEntityAsync(item, item.ETag, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
@@ -87,7 +87,7 @@ public abstract class TableRepositoryBase : ITableRepository
     public async Task<(IReadOnlyList<T>?, int, string?)> QueryPageAsync<T>(string? continuationToken = null, int pageSize = 10,
         Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null,
         bool includeTotal = false, CancellationToken cancellationToken = default)
-        where T : class, ITableEntity
+        where T : class, Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var total = -1;
@@ -121,7 +121,7 @@ public abstract class TableRepositoryBase : ITableRepository
 
     public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null,
         IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
-        where T : class, ITableEntity
+        where T : class, Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
         var pageable = filterLinq != null

@@ -1,5 +1,4 @@
-﻿using Azure;
-using Azure.Data.Tables;
+﻿using Azure; //ETag
 using Domain.Shared.Constants;
 using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
@@ -8,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Test.Integration.Model;
 
-public partial class TodoItemTableEntity : ITableEntity
+public partial class TodoItemTableEntity : Infrastructure.Table.ITableEntity
 {
     //ITableEntity
     public string PartitionKey { get; set; }
