@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
 using System.Net;
@@ -11,25 +12,30 @@ namespace Package.Infrastructure.CosmosDb;
 /// <summary>
 /// Uses the entity type T as the container name
 /// </summary>
-public class CosmosDbRepository : ICosmosDbRepository
+public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
 {
-    private string? DbId;
-    private readonly CosmosClient DbClient3;
+    private readonly ILogger<CosmosDbRepositoryBase> _logger;
+    private string _dbId;
+    private readonly CosmosClient _dbClient3; //CosmosSDKv3
 
-    public CosmosDbRepository(CosmosDbRepositorySettings settings)
+    protected CosmosDbRepositoryBase(ILogger<CosmosDbRepositoryBase> logger, CosmosClient cosmosClient, string dbId)
     {
-        DbClient3 = settings.CosmosClient;
-        DbId = settings.DbId;
+        _logger = logger;
+        _dbClient3 = cosmosClient;
+        _dbId = dbId;
     }
 
     public async Task<T?> GetItemAsync<T>(string id, string partitionKey) where T : CosmosDbEntity
     {
+        _logger.LogInformation("GetItemAsync - Start {id} {partitionKey}", id, partitionKey);
         try
         {
-            ItemResponse<T> response = await DbClient3.GetContainer(DbId, typeof(T).Name).ReadItemAsync<T>(id, new PartitionKey(partitionKey));
+            ItemResponse<T> response = await _dbClient3.GetContainer(_dbId, typeof(T).Name).ReadItemAsync<T>(id, new PartitionKey(partitionKey));
+
+            _logger.LogInformation("GetItemAsync - Finish {id} {partitionKey}", id, partitionKey);
             return response.Resource;
         }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return default;
         }
@@ -37,18 +43,18 @@ public class CosmosDbRepository : ICosmosDbRepository
 
     public async Task<T> SaveItemAsync<T>(T item) where T : CosmosDbEntity
     {
-        var itemResponse = await DbClient3.GetContainer(DbId, typeof(T).Name).UpsertItemAsync<T>(item, new PartitionKey(item.PartitionKey));
+        var itemResponse = await _dbClient3.GetContainer(_dbId, typeof(T).Name).UpsertItemAsync<T>(item, new PartitionKey(item.PartitionKey));
         return itemResponse.Resource;
     }
 
     public async Task DeleteItemAsync<T>(string id, string partitionKey)
     {
-        await DbClient3.GetContainer(DbId, typeof(T).Name).DeleteItemAsync<T>(id, new PartitionKey(partitionKey));
+        await _dbClient3.GetContainer(_dbId, typeof(T).Name).DeleteItemAsync<T>(id, new PartitionKey(partitionKey));
     }
 
     public async Task DeleteItemAsync<T>(T item) where T : CosmosDbEntity
     {
-        await DbClient3.GetContainer(DbId, typeof(T).Name).DeleteItemAsync<T>(item.id, new PartitionKey(item.PartitionKey));
+        await _dbClient3.GetContainer(_dbId, typeof(T).Name).DeleteItemAsync<T>(item.id, new PartitionKey(item.PartitionKey));
     }
 
     //using SDK3 for linq (GetItemLinqQueryable)
@@ -77,7 +83,7 @@ public class CosmosDbRepository : ICosmosDbRepository
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
 
-        var queryable = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemLinqQueryable<TProject>(false, continuationToken, o);
+        var queryable = _dbClient3.GetContainer(_dbId, typeof(TSource).Name).GetItemLinqQueryable<TProject>(false, continuationToken, o);
 
         filter ??= i => true;
         var query = queryable.Where(filter);
@@ -123,7 +129,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         };
         List<TProject> items = new();
 
-        using var feedIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<TProject>(query, continuationToken, o);
+        using var feedIterator = _dbClient3.GetContainer(_dbId, typeof(TSource).Name).GetItemQueryIterator<TProject>(query, continuationToken, o);
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize
         {
             var response = await feedIterator.ReadNextAsync(cancellationToken); //this will load based on MaxItemCount/pageSize)
@@ -135,7 +141,7 @@ public class CosmosDbRepository : ICosmosDbRepository
         if (sqlCount != null)
         {
             query = BuildSqlQueryDefinition(sqlCount, parameters);
-            using var countIterator = DbClient3.GetContainer(DbId, typeof(TSource).Name).GetItemQueryIterator<int>(query);
+            using var countIterator = _dbClient3.GetContainer(_dbId, typeof(TSource).Name).GetItemQueryIterator<int>(query);
             if (countIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize
             {
                 var response = await countIterator.ReadNextAsync(cancellationToken);
@@ -156,7 +162,7 @@ public class CosmosDbRepository : ICosmosDbRepository
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
 
-        using var feedIterator = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemQueryIterator<T>(query, null, o);
+        using var feedIterator = _dbClient3.GetContainer(_dbId, typeof(T).Name).GetItemQueryIterator<T>(query, null, o);
         return feedIterator.ToAsyncEnumerable();
     }
 
@@ -168,7 +174,7 @@ public class CosmosDbRepository : ICosmosDbRepository
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
 
-        var queryable = DbClient3.GetContainer(DbId, typeof(T).Name).GetItemLinqQueryable<T>(false, null, o);
+        var queryable = _dbClient3.GetContainer(_dbId, typeof(T).Name).GetItemLinqQueryable<T>(false, null, o);
         filter ??= i => true;
         var query = queryable.Where(filter);
         if (sorts != null) query = query.OrderBy(sorts.AsEnumerable());
@@ -184,7 +190,7 @@ public class CosmosDbRepository : ICosmosDbRepository
             PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
         };
 
-        var response = await DbClient3.GetDatabase(DbId).CreateContainerIfNotExistsAsync(containerProperties);
+        var response = await _dbClient3.GetDatabase(_dbId).CreateContainerIfNotExistsAsync(containerProperties);
         var container = response.Container;
         return container!;
     }
@@ -197,7 +203,7 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <returns>204-NoContent</returns>
     public async Task<HttpStatusCode?> DeleteContainerAsync(string containerId, CancellationToken cancellationToken = default)
     {
-        var container = DbClient3.GetDatabase(DbId).GetContainer(containerId);
+        var container = _dbClient3.GetDatabase(_dbId).GetContainer(containerId);
         return container != null ? (await container.DeleteContainerAsync(cancellationToken: cancellationToken)).StatusCode : null;
     }
 
@@ -210,8 +216,8 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <returns>201-Created or 200-OK existing</returns>
     public async Task<HttpStatusCode> SetOrCreateDatabaseAsync(string dbId, int? throughput = null, CancellationToken cancellationToken = default)
     {
-        var response = await DbClient3.CreateDatabaseIfNotExistsAsync(dbId, throughput, null, cancellationToken);
-        DbId = dbId;
+        var response = await _dbClient3.CreateDatabaseIfNotExistsAsync(dbId, throughput, null, cancellationToken);
+        _dbId = dbId;
         return response.StatusCode;
     }
 
@@ -223,8 +229,8 @@ public class CosmosDbRepository : ICosmosDbRepository
     /// <returns>204-NoContent</returns>
     public async Task<HttpStatusCode> DeleteDatabaseAsync(string? dbId = null, CancellationToken cancellationToken = default)
     {
-        dbId ??= DbId;
-        return (await DbClient3.GetDatabase(dbId).DeleteAsync(null, cancellationToken)).StatusCode;
+        dbId ??= _dbId;
+        return (await _dbClient3.GetDatabase(dbId).DeleteAsync(null, cancellationToken)).StatusCode;
     }
 
     private static QueryDefinition BuildSqlQueryDefinition(string sql, Dictionary<string, object>? parameters = null)

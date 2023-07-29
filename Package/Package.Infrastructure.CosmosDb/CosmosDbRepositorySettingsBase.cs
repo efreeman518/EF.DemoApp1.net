@@ -1,8 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
 
 namespace Package.Infrastructure.CosmosDb;
-public class CosmosDbRepositorySettings
+public abstract class CosmosDbRepositorySettingsBase
 {
     public CosmosClient CosmosClient { get; set; } = null!;
-    public string? DbId { get; set; }
+    public string CosmosDbId { get; set; } = null!;
 }

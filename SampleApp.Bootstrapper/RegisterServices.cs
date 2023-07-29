@@ -11,7 +11,6 @@ using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Azure;
@@ -19,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
-using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
@@ -160,21 +158,6 @@ public static class IServiceCollectionExtensions
                         errorNumbersToAdd: null);
                     })
                 );
-        }
-
-        //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
-        connectionString = config.GetConnectionString("CosmosDB");
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            services.AddScoped<CosmosDbRepository>();
-            services.AddSingleton(provider =>
-            {
-                return new CosmosDbRepositorySettings
-                {
-                    CosmosClient = new CosmosClient(connectionString),
-                    DbId = config.GetValue<string>("CosmosDbId")
-                };
-            });
         }
 
         IConfigurationSection configSection;

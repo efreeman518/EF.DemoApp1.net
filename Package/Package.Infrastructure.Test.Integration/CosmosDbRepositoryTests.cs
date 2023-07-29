@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.Model;
 using System.Linq.Expressions;
 
@@ -19,7 +20,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
 
     public CosmosDbRepositoryTests() : base()
     {
-        _repo = (ICosmosDbRepository)Services.GetRequiredService(typeof(ICosmosDbRepository));
+        _repo = (ICosmosDbRepository1)Services.GetRequiredService(typeof(ICosmosDbRepository1));
     }
 
     [TestMethod]

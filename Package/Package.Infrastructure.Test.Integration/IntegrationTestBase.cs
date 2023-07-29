@@ -1,16 +1,16 @@
 ﻿using Azure;
 using Azure.Identity;
 using Infrastructure.RapidApi.WeatherApi;
-using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
-using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Storage;
+using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.Table;
 using Polly;
 using Polly.Extensions.Http;
@@ -100,19 +100,22 @@ public abstract class IntegrationTestBase
             services.Configure<EventGridPublisherManagerSettings>(configSection);
         }
 
-        //CosmosDb
-        var connectionString = Config.GetConnectionString("CosmosDB");
-        if (string.IsNullOrEmpty(connectionString))
+        //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
+        var connectionString = Config.GetConnectionString("CosmosClient1");
+        if (!string.IsNullOrEmpty(connectionString))
         {
-            services.AddTransient<ICosmosDbRepository, CosmosDbRepository>();
-            services.AddSingleton(provider =>
+            configSection = Config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
+            if (configSection.Exists())
             {
-                return new CosmosDbRepositorySettings
+                services.AddTransient<ICosmosDbRepository1, CosmosDbRepository1>();
+                services.Configure<CosmosDbRepositorySettings1>(s =>
                 {
-                    CosmosClient = new CosmosClient(connectionString),
-                    DbId = Config.GetValue<string>("CosmosDbId")
-                };
-            });
+                    s.CosmosClient = new CosmosClientBuilder(connectionString) //(AccountEndpoint, DefualtAzureCredential())
+                        //.With...options
+                        .Build();
+                    s.CosmosDbId = configSection.GetValue<string>("CosmosDbId")!;
+                });
+            }
         }
 
         //external weather service
