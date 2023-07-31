@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
-using Package.Infrastructure.Storage;
+using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.Table;
 using Polly;
@@ -77,11 +77,11 @@ public abstract class IntegrationTestBase
         });
 
         //BlobStorage
-        configSection = Config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName);
+        configSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
-            services.Configure<AzureBlobStorageManagerSettings>(configSection);
+            services.AddSingleton<IBlobRepository1, BlobRepository1>();
+            services.Configure<BlobRepositorySettings1>(configSection);
         }
 
         //TableStorage
@@ -111,7 +111,7 @@ public abstract class IntegrationTestBase
                 services.Configure<CosmosDbRepositorySettings1>(s =>
                 {
                     s.CosmosClient = new CosmosClientBuilder(connectionString) //(AccountEndpoint, DefualtAzureCredential())
-                        //.With...options
+                                                                               //.With...options
                         .Build();
                     s.CosmosDbId = configSection.GetValue<string>("CosmosDbId")!;
                 });

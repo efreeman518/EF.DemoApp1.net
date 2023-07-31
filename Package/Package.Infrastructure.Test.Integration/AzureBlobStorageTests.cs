@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Storage;
+using Package.Infrastructure.Test.Integration.Blob;
 using System.Text;
 
 namespace Package.Infrastructure.Test.Integration;
@@ -9,11 +10,11 @@ namespace Package.Infrastructure.Test.Integration;
 [TestClass]
 public class AzureBlobStorageTests : IntegrationTestBase
 {
-    private readonly IAzureBlobStorageManager _blobStorageManager;
+    private readonly IBlobRepository1 _blobRepo;
 
     public AzureBlobStorageTests()
     {
-        _blobStorageManager = Services.GetRequiredService<IAzureBlobStorageManager>();
+        _blobRepo = Services.GetRequiredService<IBlobRepository1>();
     }
 
     [TestMethod]
@@ -28,30 +29,28 @@ public class AzureBlobStorageTests : IntegrationTestBase
 
         CancellationToken token = new CancellationTokenSource().Token;
 
-        BlobStorageRequest request = new()
+        ContainerInfo containerInfo = new()
         {
-            //ConnectionString = Config.GetValue<string>("ConnectionStrings:BlobStorage"),
-            ClientName = "AzureBlobStorageAccount1",
             ContainerName = containerName,
             ContainerPublicAccessType = ContainerPublicAccessType.None,
             CreateContainerIfNotExist = true
         };
 
         //upload 
-        await _blobStorageManager.UploadBlobStreamAsync(request, blobName, uploadStream, cancellationToken: token);
+        await _blobRepo.UploadBlobStreamAsync(containerInfo, blobName, uploadStream, cancellationToken: token);
 
         //reset
         string? dataDown;
 
         //download
-        using (Stream downloadStream = await _blobStorageManager.DownloadBlobStreamAsync(request, blobName, cancellationToken: token))
+        using (Stream downloadStream = await _blobRepo.DownloadBlobStreamAsync(containerInfo, blobName, cancellationToken: token))
         {
             StreamReader reader = new(downloadStream);
             dataDown = await reader.ReadToEndAsync();
         }
 
-        await _blobStorageManager.DeleteBlobAsync(request, blobName, token);
-        await _blobStorageManager.DeleteContainerAsync(request, token);
+        await _blobRepo.DeleteBlobAsync(containerInfo, blobName, token);
+        await _blobRepo.DeleteContainerAsync(containerInfo, token);
 
         Assert.IsTrue(data == dataDown);
 

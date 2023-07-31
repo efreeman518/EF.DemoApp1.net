@@ -20,7 +20,6 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
-using Package.Infrastructure.Storage;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
@@ -174,13 +173,6 @@ public static class IServiceCollectionExtensions
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
-            configSection = config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
-            if (configSection.Exists())
-            {
-                //Ideally use ServiceUri (w/DefaultAzureCredential)
-                builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
-            }
-
             configSection = config.GetSection("EventGridPublisher1");
             if (configSection.Exists())
             {
@@ -190,14 +182,6 @@ public static class IServiceCollectionExtensions
                 .WithName("EventGridPublisher1");
             }
         });
-
-        //BlobStorage
-        configSection = config.GetSection(AzureBlobStorageManagerSettings.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddSingleton<IAzureBlobStorageManager, AzureBlobStorageManager>();
-            services.Configure<AzureBlobStorageManagerSettings>(configSection);
-        }
 
         //EventGridPublisher
         configSection = config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);

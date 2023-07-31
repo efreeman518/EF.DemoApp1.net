@@ -4,17 +4,25 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 
 namespace Package.Infrastructure.Storage;
-
-//https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet
-public class AzureBlobStorageManager : IAzureBlobStorageManager
+public abstract class BlobRepositoryBase : IBlobRepository
 {
-    private readonly ILogger<AzureBlobStorageManager> _logger;
-    private readonly IAzureClientFactory<BlobServiceClient> _clientFactory;
+    private readonly ILogger<BlobRepositoryBase> _logger;
+    private readonly BlobServiceClient _blobServiceClient;
 
-    public AzureBlobStorageManager(ILogger<AzureBlobStorageManager> logger, IAzureClientFactory<BlobServiceClient> clientFactory)
+    protected BlobRepositoryBase(ILogger<BlobRepositoryBase> logger, IAzureClientFactory<BlobServiceClient> clientFactory, string blobServiceClientName)
     {
         _logger = logger;
-        _clientFactory = clientFactory;
+        _blobServiceClient = clientFactory.CreateClient(blobServiceClientName);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="containerName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task CreateContainerAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
+    {
+        await _blobServiceClient.CreateBlobContainerAsync(containerInfo.ContainerName, (PublicAccessType)containerInfo.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -23,10 +31,9 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <param name="containerName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task CreateContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
+    public async Task DeleteContainerAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName);
-        await blobServiceClient.CreateBlobContainerAsync(request.ContainerName, (PublicAccessType)request.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
+        await _blobServiceClient.DeleteBlobContainerAsync(containerInfo.ContainerName, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -35,21 +42,9 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <param name="containerName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task DeleteContainerAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
+    public async Task<List<BlobItem>> ListContainerBlobsAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
-        BlobServiceClient blobServiceClient = _clientFactory.CreateClient(request.ClientName);
-        await blobServiceClient.DeleteBlobContainerAsync(request.ContainerName, cancellationToken: cancellationToken);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="containerName"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public async Task<List<BlobItem>> ListContainerBlobsAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
-    {
-        BlobContainerClient container = await GetBlobContainerClientAsync(request, cancellationToken);
+        BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         List<BlobItem> items = new();
 
         await foreach (Azure.Storage.Blobs.Models.BlobItem blobItem in container.GetBlobsAsync(cancellationToken: cancellationToken))
@@ -57,7 +52,7 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
             items.Add(new BlobItem
             {
                 Name = blobItem.Name,
-                BlobItemType = (BlobType)(blobItem.Properties.BlobType ?? Azure.Storage.Blobs.Models.BlobType.Block),
+                BlobType = (BlobType)(blobItem.Properties.BlobType ?? Azure.Storage.Blobs.Models.BlobType.Block),
                 Length = blobItem.Properties.ContentLength ?? 0,
                 Metadata = blobItem.Metadata
             });
@@ -77,9 +72,9 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <param name="metadata"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task UploadBlobStreamAsync(BlobStorageRequest request, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
+    public async Task UploadBlobStreamAsync(ContainerInfo containerInfo, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = await GetBlobContainerClientAsync(request, cancellationToken);
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         await UploadContainerBlob(containerClient, blobName, stream, contentType, encrypt, metadata, cancellationToken);
     }
 
@@ -119,13 +114,13 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <param name="decrypt"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Stream> DownloadBlobStreamAsync(BlobStorageRequest request, string blobName, bool decrypt = false, CancellationToken cancellationToken = default)
+    public async Task<Stream> DownloadBlobStreamAsync(ContainerInfo containerInfo, string blobName, bool decrypt = false, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = await GetBlobContainerClientAsync(request, cancellationToken);
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         BlobClient blobClient = containerClient.GetBlobClient(blobName);
         BlobOpenReadOptions options = new(false);
 
-        _logger.LogInformation("DownloadBlobStreamAsync Starting - {Container} {Blob}", request.ContainerName, blobName);
+        _logger.LogInformation("DownloadBlobStreamAsync Starting - {Container} {Blob}", containerInfo.ContainerName, blobName);
         return await blobClient.OpenReadAsync(options, cancellationToken);
 
         ///var download = await blobClient.DownloadAsync(cancellationToken);
@@ -139,30 +134,27 @@ public class AzureBlobStorageManager : IAzureBlobStorageManager
     /// <param name="blobName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task DeleteBlobAsync(BlobStorageRequest request, string blobName, CancellationToken cancellationToken = default)
+    public async Task DeleteBlobAsync(ContainerInfo containerInfo, string blobName, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = await GetBlobContainerClientAsync(request, cancellationToken);
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         BlobClient blob = containerClient.GetBlobClient(blobName);
 
-        _logger.LogInformation("DeleteBlobAsync Start - {Container} {Blob}", request.ContainerName, blobName);
+        _logger.LogInformation("DeleteBlobAsync Start - {Container} {Blob}", containerInfo.ContainerName, blobName);
         await blob.DeleteAsync(cancellationToken: cancellationToken);
-        _logger.LogInformation("DeleteBlobAsync Finish - {Container} {Blob}", request.ContainerName, blobName);
+        _logger.LogInformation("DeleteBlobAsync Finish - {Container} {Blob}", containerInfo.ContainerName, blobName);
     }
 
-    private async Task<BlobContainerClient> GetBlobContainerClientAsync(BlobStorageRequest request, CancellationToken cancellationToken = default)
+    private async Task<BlobContainerClient> GetBlobContainerClientAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
-        //hash the service name
-        var blobServiceClient = _clientFactory.CreateClient(request.ClientName); //GetBlobServiceClient(request);
-
-        BlobContainerClient container = blobServiceClient.GetBlobContainerClient(request.ContainerName);
+        BlobContainerClient container = _blobServiceClient.GetBlobContainerClient(containerInfo.ContainerName);
 
         if (!(await container.ExistsAsync(cancellationToken)))
         {
-            if (request.CreateContainerIfNotExist)
+            if (containerInfo.CreateContainerIfNotExist)
             {
-                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{request.ContainerName}' does not exist; attempting to create.");
-                await container.CreateIfNotExistsAsync((PublicAccessType)request.ContainerPublicAccessType, cancellationToken: cancellationToken);
-                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{request.ContainerName}' created.");
+                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' does not exist; attempting to create.");
+                await container.CreateIfNotExistsAsync((PublicAccessType)containerInfo.ContainerPublicAccessType, cancellationToken: cancellationToken);
+                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' created.");
             }
             else
                 throw new InvalidOperationException($"Azure Storage Container does not exist and createifNotexist = false.");

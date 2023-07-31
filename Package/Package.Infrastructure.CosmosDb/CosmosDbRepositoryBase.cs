@@ -151,7 +151,7 @@ public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
         return (items, total, continuationToken);
     }
 
-    public IAsyncEnumerable<T> GetStream<T>(string? sql = null, Dictionary<string, object>? parameters = null,  int maxConcurrency = -1)
+    public IAsyncEnumerable<T> GetStream<T>(string? sql = null, Dictionary<string, object>? parameters = null, int maxConcurrency = -1)
     {
         _ = sql ?? throw new ArgumentNullException(nameof(sql));
 
