@@ -3,9 +3,9 @@
 /// <summary>
 /// Map to EventGridEvent; so client modules don't need a reference to Azure SDK
 /// </summary>
-public class EventGridEvent2
+public class EventGridEvent
 {
-    public EventGridEvent2(string subject, string eventType, string dataVersion, object data, Type? dataSerializationType = null)
+    public EventGridEvent(string subject, string eventType, string dataVersion, object data, Type? dataSerializationType = null)
     {
         Subject = subject;
         EventType = eventType;

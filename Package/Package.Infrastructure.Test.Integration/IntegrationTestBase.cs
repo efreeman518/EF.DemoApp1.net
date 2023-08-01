@@ -8,10 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
-using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
+using Package.Infrastructure.Test.Integration.Messaging;
 using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
 
@@ -22,7 +22,6 @@ public abstract class IntegrationTestBase
 {
     protected readonly IConfiguration Config;
     protected readonly IServiceProvider Services;
-    //protected readonly ILoggerFactory LoggerFactory;
     protected readonly ILogger<IntegrationTestBase> Logger;
 
     //[AssemblyInitialize]
@@ -72,13 +71,13 @@ public abstract class IntegrationTestBase
                 builder.AddTableServiceClient(configSection).WithName("AzureTable1");
             }
 
-            configSection = Config.GetSection("EventGridPublisher1");
+            configSection = Config.GetSection("EventGridPublisherTopic1");
             if (configSection.Exists())
             {
                 //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
                 builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
                     new AzureKeyCredential(configSection.GetValue<string>("Key")!))
-                .WithName("EventGridPublisher1");
+                .WithName("EventGridPublisherTopic1");
             }
         });
 
@@ -99,11 +98,11 @@ public abstract class IntegrationTestBase
         }
 
         //EventGridPublisher
-        configSection = Config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);
+        configSection = Config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddSingleton<IEventGridPublisherManager, EventGridPublisherManager>();
-            services.Configure<EventGridPublisherManagerSettings>(configSection);
+            services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
+            services.Configure<EventGridPublisherSettings1>(configSection);
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.

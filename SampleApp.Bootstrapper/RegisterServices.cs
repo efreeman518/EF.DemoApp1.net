@@ -18,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
-using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
@@ -182,14 +181,6 @@ public static class IServiceCollectionExtensions
                 .WithName("EventGridPublisher1");
             }
         });
-
-        //EventGridPublisher
-        configSection = config.GetSection(EventGridPublisherManagerSettings.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddSingleton<IEventGridPublisherManager, EventGridPublisherManager>();
-            services.Configure<EventGridPublisherManagerSettings>(configSection);
-        }
 
         //external SampleAppApi
         configSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
