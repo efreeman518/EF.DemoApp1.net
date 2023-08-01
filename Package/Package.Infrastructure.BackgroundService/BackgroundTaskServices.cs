@@ -62,7 +62,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
                     try
                     {
                         using var scope = _serviceScopeFactory.CreateScope();
-                        var scopedService = scope.ServiceProvider.GetService<TScoped>() 
+                        var scopedService = scope.ServiceProvider.GetService<TScoped>()
                             ?? throw new ArgumentException($"Scoped background work depends on scoped service but it is not registered.");
                         await workItem(scopedService!, cancellationToken);
                     }
@@ -71,7 +71,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
                         Console.WriteLine(e);
                     }
                 });
-            
+
             return _semaphore.Release(); //semaphore +1
         }
         else if (throwOnNullWorkitem)

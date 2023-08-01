@@ -29,6 +29,7 @@ namespace Test.Unit.Application.Services;
 public class TodoServiceTests : UnitTestBase
 {
     //specific to this test class
+    private readonly Mock<IServiceScopeFactory> ServiceScopeFactoryMock;
     private readonly Mock<IValidationHelper> ValidationHelperMock;
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
@@ -39,6 +40,7 @@ public class TodoServiceTests : UnitTestBase
     public TodoServiceTests() : base()
     {
         //use Mock repo
+        ServiceScopeFactoryMock = _mockFactory.Create<IServiceScopeFactory>();
         ValidationHelperMock = _mockFactory.Create<IValidationHelper>();
         RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
         RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
@@ -144,7 +146,7 @@ public class TodoServiceTests : UnitTestBase
 
         IValidationHelper validationHelper = new ValidationHelper(services.BuildServiceProvider());
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, validationHelper, repoTrxn, repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue());
+        var svc = new TodoService(new NullLogger<TodoService>(), _settings, validationHelper, repoTrxn, repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
 
         //act & assert

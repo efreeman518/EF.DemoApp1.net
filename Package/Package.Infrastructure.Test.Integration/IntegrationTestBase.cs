@@ -14,8 +14,6 @@ using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
-using Polly;
-using Polly.Extensions.Http;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -24,10 +22,13 @@ public abstract class IntegrationTestBase
 {
     protected readonly IConfiguration Config;
     protected readonly IServiceProvider Services;
-    protected readonly ILoggerFactory LoggerFactory;
+    //protected readonly ILoggerFactory LoggerFactory;
+    protected readonly ILogger<IntegrationTestBase> Logger;
 
     //[AssemblyInitialize]
     //public static void Initialize(TestContext ctx) //ctx required for [AssemblyInitialize] run 
+    //{ }
+
     protected IntegrationTestBase()
     {
         //Configuration
@@ -35,6 +36,9 @@ public abstract class IntegrationTestBase
 
         //DI
         ServiceCollection services = new();
+
+        //add logging for integration tests
+        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug());
 
         //queued background service - fire and forget 
         services.AddHostedService<BackgroundTaskService>();
@@ -152,24 +156,8 @@ public abstract class IntegrationTestBase
         //build IServiceProvider for subsequent use finding/injecting services
         Services = services.BuildServiceProvider();
 
-        LoggerFactory = Services.GetRequiredService<ILoggerFactory>();
+        //LoggerFactory = Services.GetRequiredService<ILoggerFactory>();
+        Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
+        Logger.Log(LogLevel.Information, "Test Initialized.");
     }
-
-    //private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2) //, HttpStatusCode[]? retryHttpStatusCodes = null)
-    //{
-    //    Random jitterer = new();
-    //    return HttpPolicyExtensions
-    //        .HandleTransientHttpError() //known transient errors
-    //                                    //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
-    //        .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
-    //            + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
-    //        );
-    //}
-
-    //private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
-    //{
-    //    return HttpPolicyExtensions
-    //        .HandleTransientHttpError()
-    //        .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
-    //}
 }

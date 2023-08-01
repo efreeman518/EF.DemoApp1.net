@@ -9,14 +9,8 @@ namespace Package.Infrastructure.Test.Integration;
 [TestClass]
 public class BackgroundTaskServiceTests : IntegrationTestBase
 {
-    readonly ILogger<BackgroundTaskServiceTests> _logger;
-
-    public BackgroundTaskServiceTests() : base()
-    {
-        _logger = LoggerFactory.CreateLogger<BackgroundTaskServiceTests>();
-    }
-
     //[TestMethod]
+    //demonstrate a background task does not wait during test run
     public async Task RunBackgroundTaskX_pass()
     {
         var sut = Services.GetService<IHostedService>() as BackgroundTaskService;
@@ -30,15 +24,14 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         {
             await Task.Delay(1000, token);
             isExecuted = true;
-            _logger.LogInformation("Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         Assert.IsTrue(isExecuted);
-
     }
 
     [TestMethod]
-    public async Task RunBackgroundTask_pass()
+    public async Task RunBackgroundTask_with_TCS_pass()
     {
         var sut = Services.GetService<IHostedService>() as BackgroundTaskService;
         var q = Services.GetRequiredService<IBackgroundTaskQueue>();
@@ -55,28 +48,28 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(1000, token);
-            _logger.LogInformation("Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue background task2
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(2000, token);
-            _logger.LogInformation("Task 2 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 2 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue background task3
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(3000, token);
-            _logger.LogInformation("Task 3 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 3 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue background task4
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(4000, token);
-            _logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
@@ -87,7 +80,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(1000, token);
-            _logger.LogInformation("Task 5 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 5 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //await our task completion source task so that the sut will execute until tcs.SetResult(true).
@@ -101,7 +94,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(1000, token);
-            _logger.LogInformation("Task 6 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 6 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
@@ -114,7 +107,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         Assert.IsTrue(isExecuted);
 
         await sut.StopAsync(CancellationToken.None);
-        _logger.LogInformation("Test completed.");
+        Logger.LogInformation("Test completed.");
     }
 
     [TestMethod]
@@ -135,28 +128,28 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueScopedBackgroundWorkItem<ISomeScopedService>(async (someScopedService, token) =>
         {
             await someScopedService.SomeAsyncWork(token);
-            _logger.LogInformation("Scoped Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Scoped Task 1 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue background task2
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(2000, token);
-            _logger.LogInformation("Task 2 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 2 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue scoped background task3
         q.QueueScopedBackgroundWorkItem<ISomeScopedService>(async (someScopedService, token) =>
          {
              await someScopedService.SomeAsyncWork(token);
-             _logger.LogInformation("Scoped Task 3 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+             Logger.LogInformation("Scoped Task 3 Done at {Time}", DateTime.UtcNow.TimeOfDay);
          });
 
         //queue background task4
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(4000, token);
-            _logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 4 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
@@ -167,7 +160,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueScopedBackgroundWorkItem<ISomeScopedService>(async (someScopedService, token) =>
         {
             await someScopedService.SomeAsyncWork(token);
-            _logger.LogInformation("Scoped Task 5 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Scoped Task 5 Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //await our task completion source task so that the sut will execute until tcs.SetResult(true).
@@ -181,7 +174,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueScopedBackgroundWorkItem<ISomeScopedService>(async (someScopedService, token) =>
         {
             await someScopedService.SomeAsyncWork(token);
-            _logger.LogInformation("Scoped Task 6 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Scoped Task 6 Done at {Time}", DateTime.UtcNow.TimeOfDay);
 
             isExecuted = true;
             //complete the background task for this test method - allow await tcs.Task to continue
@@ -194,7 +187,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         Assert.IsTrue(isExecuted);
 
         await sut.StopAsync(CancellationToken.None);
-        _logger.LogInformation("Test completed.");
+        Logger.LogInformation("Test completed.");
     }
 
 }
