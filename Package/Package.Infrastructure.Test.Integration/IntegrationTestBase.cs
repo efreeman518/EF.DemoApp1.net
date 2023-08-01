@@ -7,10 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Messaging;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
+using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
 using Polly;
 using Polly.Extensions.Http;
@@ -130,8 +132,8 @@ public abstract class IntegrationTestBase
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Key", Config.GetValue<string>("WeatherServiceSettings:Key")!);
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Host", Config.GetValue<string>("WeatherServiceSettings:Host")!);
             })
-            .AddPolicyHandler(GetRetryPolicy())
-            .AddPolicyHandler(GetCircuitBreakerPolicy());
+            .AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
+            .AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
         }
 
         //OpenAI chat service
@@ -142,6 +144,9 @@ public abstract class IntegrationTestBase
             services.Configure<ChatServiceSettings>(configSection);
         }
 
+        //Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem
+        services.AddScoped<ISomeScopedService, SomeScopedService>();
+
         services.AddLogging(configure => configure.AddConsole().AddDebug());
 
         //build IServiceProvider for subsequent use finding/injecting services
@@ -150,21 +155,21 @@ public abstract class IntegrationTestBase
         LoggerFactory = Services.GetRequiredService<ILoggerFactory>();
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2) //, HttpStatusCode[]? retryHttpStatusCodes = null)
-    {
-        Random jitterer = new();
-        return HttpPolicyExtensions
-            .HandleTransientHttpError() //known transient errors
-                                        //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
-            .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
-                + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
-            );
-    }
+    //private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2) //, HttpStatusCode[]? retryHttpStatusCodes = null)
+    //{
+    //    Random jitterer = new();
+    //    return HttpPolicyExtensions
+    //        .HandleTransientHttpError() //known transient errors
+    //                                    //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // other errors to consider transient (retry-able)
+    //        .WaitAndRetryAsync(numRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt))
+    //            + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
+    //        );
+    //}
 
-    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
-    {
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
-    }
+    //private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 10, int secondsToWait = 30)
+    //{
+    //    return HttpPolicyExtensions
+    //        .HandleTransientHttpError()
+    //        .CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
+    //}
 }

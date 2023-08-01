@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
@@ -9,8 +10,14 @@ namespace Package.Infrastructure.BackgroundServices;
 
 public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
     private readonly SemaphoreSlim _semaphore = new(0); //no workItems initially, so 0 threads allowed in the semaphore that attempts to Dequeue
+
+    public BackgroundTaskQueue(IServiceScopeFactory serviceScopeFactory)
+    {
+        _serviceScopeFactory = serviceScopeFactory;
+    }
 
     /// <summary>
     /// Waits for and removes the first item in the queue - entering the semaphore (-1)
@@ -26,6 +33,8 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
 
     /// <summary>
     /// Adds an async Func to the queue for later processing, semaphore.Release adds +1, allowing another thread to enter the semaphore (-1)
+    /// If work includes scoped services, workItem must create the scope, otherwise scoped services may fall out of scope 
+    /// and be disposed before the work is done in the background
     /// </summary>
     /// <param name="workItem">async Func taking a CancellationToken and returning a Task</param>
     /// <param name="throwOnNullWorkitem">throws if true and workItem is null</param>
@@ -36,6 +45,33 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
         if (workItem != null)
         {
             _workItems.Enqueue(workItem);
+            return _semaphore.Release(); //semaphore +1
+        }
+        else if (throwOnNullWorkitem)
+            throw new ArgumentNullException(nameof(workItem));
+
+        return -1;
+    }
+
+    public int QueueScopedBackgroundWorkItem<TScoped>(Func<TScoped, CancellationToken, Task> workItem, bool throwOnNullWorkitem = false, CancellationToken cancellationToken = default)
+    {
+        if (workItem != null)
+        {
+            _workItems.Enqueue(async cancellationToken =>
+                {
+                    try
+                    {
+                        using var scope = _serviceScopeFactory.CreateScope();
+                        var scopedService = scope.ServiceProvider.GetService<TScoped>() 
+                            ?? throw new ArgumentException($"Scoped background work depends on scoped service but it is not registered.");
+                        await workItem(scopedService!, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                });
+            
             return _semaphore.Release(); //semaphore +1
         }
         else if (throwOnNullWorkitem)
@@ -70,9 +106,11 @@ public class BackgroundTaskService : BackgroundService
             {
                 try
                 {
-                    //await or not await - workItems that are not thread safe could have multiple threads
+                    //await or not await (eliding) - workItems that are not thread safe could have multiple threads
                     //https://blog.stephencleary.com/2016/12/eliding-async-await.html
-                    _ = workItem(stoppingToken);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    workItem(stoppingToken);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
                 catch (Exception ex)
                 {

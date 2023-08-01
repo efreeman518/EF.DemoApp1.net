@@ -46,6 +46,7 @@
     <ProjectReference Include="..\..\Domain.Model\Domain.Model.csproj" />
     <ProjectReference Include="..\..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
