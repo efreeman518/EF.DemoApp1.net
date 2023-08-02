@@ -7,8 +7,8 @@ using Package.Infrastructure.Messaging;
 namespace Package.Infrastructure.Test.Integration.Messaging;
 public class EventGridPublisher1 : EventGridPublisherBase, IEventGridPublisher1
 {
-    public EventGridPublisher1(ILogger<EventGridPublisher1> logger, IAzureClientFactory<EventGridPublisherClient> clientFactory, IOptions<EventGridPublisherSettings1> settings)
-        : base(logger, clientFactory, settings)
+    public EventGridPublisher1(ILogger<EventGridPublisher1> logger, IOptions<EventGridPublisherSettings1> settings, IAzureClientFactory<EventGridPublisherClient> clientFactory)
+        : base(logger, settings, clientFactory)
     {
 
     }

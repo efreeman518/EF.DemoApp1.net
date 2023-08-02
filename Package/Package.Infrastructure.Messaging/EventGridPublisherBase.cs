@@ -8,11 +8,12 @@ namespace Package.Infrastructure.Messaging;
 public abstract class EventGridPublisherBase : IEventGridPublisher
 {
     private readonly ILogger<EventGridPublisherBase> _logger;
-    private readonly EventGridPublisherClient _egPublisherClient;
     private readonly EventGridPublisherSettingsBase _settings;
+    private readonly EventGridPublisherClient _egPublisherClient;
 
-    protected EventGridPublisherBase(ILogger<EventGridPublisherBase> logger, IAzureClientFactory<EventGridPublisherClient> clientFactory,
-        IOptions<EventGridPublisherSettingsBase> settings)
+    protected EventGridPublisherBase(ILogger<EventGridPublisherBase> logger,
+        IOptions<EventGridPublisherSettingsBase> settings, IAzureClientFactory<EventGridPublisherClient> clientFactory)
+
     {
         _logger = logger;
         _settings = settings.Value;

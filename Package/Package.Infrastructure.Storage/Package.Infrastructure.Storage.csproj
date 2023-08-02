@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+  </ItemGroup>
+
 </Project>

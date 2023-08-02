@@ -2,6 +2,8 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Extensions;
 using System.Linq.Expressions;
 using System.Net;
 
@@ -15,17 +17,21 @@ namespace Package.Infrastructure.Table;
 public abstract class TableRepositoryBase : ITableRepository
 {
     private readonly ILogger<TableRepositoryBase> _logger;
+    private readonly TableRepositorySettingsBase _settings;
     private readonly TableServiceClient _tableServiceClient;
 
-    protected TableRepositoryBase(ILogger<TableRepositoryBase> logger, IAzureClientFactory<TableServiceClient> clientFactory, string tableServiceClientName)
+    protected TableRepositoryBase(ILogger<TableRepositoryBase> logger, IOptions<TableRepositorySettingsBase> settings, IAzureClientFactory<TableServiceClient> clientFactory)
     {
         _logger = logger;
-        _tableServiceClient = clientFactory.CreateClient(tableServiceClientName);
+        _settings = settings.Value;
+        _tableServiceClient = clientFactory.CreateClient(_settings.TableServiceClientName);
     }
 
     public async Task<T?> GetItemAsync<T>(string partitionKey, string rowkey, IEnumerable<string>? selectProps = null, CancellationToken cancellationToken = default)
         where T : class, Azure.Data.Tables.ITableEntity
     {
+        _ = _settings.GetHashCode(); //remove compiler warning
+
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
 
         try
@@ -81,42 +87,20 @@ public abstract class TableRepositoryBase : ITableRepository
     /// <param name="pageSize"></param>
     /// <param name="filterLinq"></param>
     /// <param name="selectProps"></param>
-    /// <param name="includeTotal">Use with caution; requires retrieving all records - ugly, expensive.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<(IReadOnlyList<T>?, int, string?)> QueryPageAsync<T>(string? continuationToken = null, int pageSize = 10,
+    public async Task<(IReadOnlyList<T>?, string?)> QueryPageAsync<T>(string? continuationToken = null, int pageSize = 10,
         Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null, IEnumerable<string>? selectProps = null,
-        bool includeTotal = false, CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default)
         where T : class, Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
-        var total = -1;
 
-        //Tables do not offer an efficient count method,
-        //so all records must be retrieved in order to get the count - ugly, expensive, use only when critical
-        //minimize payload by projecting only a single column
-        if (includeTotal)
-        {
-            total = 0;
-            var pageableAll = filterLinq != null
-                ? table.QueryAsync(filterLinq, null, new List<string> { "PartitionKey" }, cancellationToken)
-                : table.QueryAsync<T>(filterOData, null, new List<string> { "PartitionKey" }, cancellationToken);
-            await foreach (var pageAll in pageableAll)
-            {
-                total++;
-            }
-        }
-
-        //execute the query against the Table;
-        //IAsyncEnumerable will retrieve all pages; only retrieve and return the first page here
         //let the client manage the paging with continuation token passed in for the next page
         var pageable = filterLinq != null
             ? table.QueryAsync(filterLinq, pageSize, selectProps, cancellationToken)
             : table.QueryAsync<T>(filterOData, pageSize, selectProps, cancellationToken);
-        var enumerator = pageable.AsPages(continuationToken).GetAsyncEnumerator(cancellationToken);
-        await enumerator.MoveNextAsync();
-        var page = enumerator.Current;
-        return (page.Values, total, page.ContinuationToken);
+        return await pageable.GetPageAsync(continuationToken, cancellationToken);
     }
 
     public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null,

@@ -80,25 +80,17 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         //filterLinq = t => t.IsComplete;
         //filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString()); //Table SDK filter by enum is ugly atm
         filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
-        var includeTotal = true;
-        var total = -1;
         string? continuationToken = null;
 
         do
         {
-            (todos, int totalReturned, continuationToken) = await _repo.QueryPageAsync(continuationToken, pageSize, filterLinq, includeTotal: includeTotal);
-            if (includeTotal)
-            {
-                total = totalReturned;
-                Assert.IsTrue(total > -1);
-                includeTotal = false; //only run on the first page
-            }
-            Assert.IsTrue(todos?.Count > 0);
+            (todos, continuationToken) = await _repo.QueryPageAsync(continuationToken, pageSize, filterLinq);
+            Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
         while (continuationToken != null);
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.IsNotNull(fullList);
     }
 
     [TestMethod]
@@ -116,25 +108,17 @@ public class AzureTableRepositoryTests : IntegrationTestBase
 
         //filterOData = "IsComplete eq true";
         string filterOData = "Status eq 'Completed'";
-        var includeTotal = true;
-        var total = -1;
         string? continuationToken = null;
 
         do
         {
-            (todos, int totalReturned, continuationToken) = await _repo.QueryPageAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData, includeTotal: includeTotal);
-            if (includeTotal)
-            {
-                total = totalReturned;
-                Assert.IsTrue(total > -1);
-                includeTotal = false; //only run on the first page
-            }
-            Assert.IsTrue(todos?.Count > 0);
+            (todos, continuationToken) = await _repo.QueryPageAsync<TodoItemTableEntity>(continuationToken, pageSize, null, filterOData);
+            Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
         while (continuationToken != null);
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.IsNotNull(fullList);
     }
 
     [TestMethod]

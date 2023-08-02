@@ -66,6 +66,9 @@ dotnet_diagnostic.CA2254.severity = silent
 # CS8032: Analyzer instance could not be created (Test.Benchmarks)
 dotnet_diagnostic.CS8032.severity = silent
 
+# S4070: Non-flags enums should not be marked with "FlagsAttribute" - FALSE WARNING
+dotnet_diagnostic.S4070.severity = silent
+
 [*.{cs,vb}]
 #### Naming styles ####
 

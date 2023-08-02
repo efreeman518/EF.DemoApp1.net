@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
 using System.Net;
@@ -15,18 +16,22 @@ namespace Package.Infrastructure.CosmosDb;
 public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
 {
     private readonly ILogger<CosmosDbRepositoryBase> _logger;
+    private readonly CosmosDbRepositorySettingsBase _settings;
     private string _dbId;
     private readonly CosmosClient _dbClient3; //CosmosSDKv3
 
-    protected CosmosDbRepositoryBase(ILogger<CosmosDbRepositoryBase> logger, CosmosClient cosmosClient, string dbId)
+    protected CosmosDbRepositoryBase(ILogger<CosmosDbRepositoryBase> logger, IOptions<CosmosDbRepositorySettingsBase> settings)
     {
         _logger = logger;
-        _dbClient3 = cosmosClient;
-        _dbId = dbId;
+        _settings = settings.Value;
+        _dbClient3 = _settings.CosmosClient;
+        _dbId = _settings.CosmosDbId;
     }
 
     public async Task<T?> GetItemAsync<T>(string id, string partitionKey) where T : CosmosDbEntity
     {
+        _ = _settings.GetHashCode(); //remove compiler warning
+
         _logger.LogInformation("GetItemAsync - Start {id} {partitionKey}", id, partitionKey);
         try
         {

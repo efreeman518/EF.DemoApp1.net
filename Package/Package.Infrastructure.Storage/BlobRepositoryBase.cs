@@ -2,17 +2,25 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Extensions;
 
 namespace Package.Infrastructure.Storage;
+
+/// <summary>
+/// Client will need a reference to Azure.Storage.Blobs.Models as there are too many models not worth maintaining a mapping for insulation
+/// </summary>
 public abstract class BlobRepositoryBase : IBlobRepository
 {
     private readonly ILogger<BlobRepositoryBase> _logger;
+    private readonly BlobRepositorySettingsBase _settings;
     private readonly BlobServiceClient _blobServiceClient;
 
-    protected BlobRepositoryBase(ILogger<BlobRepositoryBase> logger, IAzureClientFactory<BlobServiceClient> clientFactory, string blobServiceClientName)
+    protected BlobRepositoryBase(ILogger<BlobRepositoryBase> logger, IOptions<BlobRepositorySettingsBase> settings, IAzureClientFactory<BlobServiceClient> clientFactory)
     {
         _logger = logger;
-        _blobServiceClient = clientFactory.CreateClient(blobServiceClientName);
+        _settings = settings.Value;
+        _blobServiceClient = clientFactory.CreateClient(_settings.BlobServiceClientName);
     }
     /// <summary>
     /// 
@@ -22,6 +30,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     /// <returns></returns>
     public async Task CreateContainerAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
+        _ = _settings.GetHashCode(); //remove compiler warning
         await _blobServiceClient.CreateBlobContainerAsync(containerInfo.ContainerName, (PublicAccessType)containerInfo.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
     }
 
@@ -37,28 +46,26 @@ public abstract class BlobRepositoryBase : IBlobRepository
     }
 
     /// <summary>
-    /// 
+    /// List constinare blobs
     /// </summary>
     /// <param name="containerName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<BlobItem>> ListContainerBlobsAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<BlobItem>, string?)> QueryPageBlobsAsync(ContainerInfo containerInfo, string? continuationToken = null,
+        BlobTraits blobTraits = BlobTraits.None, BlobStates blobStates = BlobStates.None, string? prefix = null, CancellationToken cancellationToken = default)
     {
         BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
-        List<BlobItem> items = new();
+        var pageable = container.GetBlobsAsync(blobTraits, blobStates, prefix, cancellationToken);
 
-        await foreach (Azure.Storage.Blobs.Models.BlobItem blobItem in container.GetBlobsAsync(cancellationToken: cancellationToken))
-        {
-            items.Add(new BlobItem
-            {
-                Name = blobItem.Name,
-                BlobType = (BlobType)(blobItem.Properties.BlobType ?? Azure.Storage.Blobs.Models.BlobType.Block),
-                Length = blobItem.Properties.ContentLength ?? 0,
-                Metadata = blobItem.Metadata
-            });
-        }
+        (var blobPage, continuationToken) = await pageable.GetPageAsync(continuationToken, cancellationToken);
+        return (blobPage, continuationToken);
+    }
 
-        return items;
+    public async Task<IAsyncEnumerable<BlobItem>> GetStreamBlobList(ContainerInfo containerInfo,
+        BlobTraits blobTraits = BlobTraits.None, BlobStates blobStates = BlobStates.None, string? prefix = null, CancellationToken cancellationToken = default)
+    {
+        BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
+        return container.GetBlobsAsync(blobTraits, blobStates, prefix, cancellationToken);
     }
 
     /// <summary>
