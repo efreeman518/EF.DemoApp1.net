@@ -15,7 +15,7 @@ namespace Functions;
 /// Azure - create EventGrid Topic (or Domain) 
 /// debug local 
 ///     - VS Tunnel (must be public) or ngrok (./ngrok http http://localhost:7071), run local
-///     - in Azure create EventGrid subscription with webhook using the ngrok url (https://087d-104-34-4-150.ngrok.io/runtime/webhooks/EventGrid?functionName=EventGridTriggerCustom
+///     - in Azure create EventGrid subscription with webhook using VS Dev Tunnels or ngrok url (https://[tunnelurl]/runtime/webhooks/EventGrid?functionName=EventGridTriggerCustom
 ///     - this currently registers the subscription in Azure without having to validate the endpoint (as in a normal httpendpoint subscription like EventGridController)
 ///     - run test that sends event to the EventGrid topic
 /// Azure
@@ -39,7 +39,7 @@ public class FunctionEventGridTriggerCustom
     }
 
     [Function("EventGridTriggerCustom")]
-    public async Task Run([EventGridTrigger] EventGridEvent2 egEvent)
+    public async Task Run([EventGridTrigger] EventGridEvent egEvent)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();

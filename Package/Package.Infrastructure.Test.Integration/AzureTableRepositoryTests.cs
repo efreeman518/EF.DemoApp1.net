@@ -348,7 +348,9 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
 
             //do some CPU sync/blocking work
+#pragma warning disable S2925 // "Thread.Sleep" should not be used in tests
             Thread.Sleep(1000);
+#pragma warning restore S2925 // "Thread.Sleep" should not be used in tests
             fullList.Add(item);
 
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");

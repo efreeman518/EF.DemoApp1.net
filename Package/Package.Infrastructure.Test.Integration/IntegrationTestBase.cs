@@ -8,9 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.KeyVault;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
+using Package.Infrastructure.Test.Integration.KeyVault;
 using Package.Infrastructure.Test.Integration.Messaging;
 using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
@@ -57,6 +59,7 @@ public abstract class IntegrationTestBase
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
+            //Blob 
             configSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
             if (configSection.Exists())
             {
@@ -64,6 +67,7 @@ public abstract class IntegrationTestBase
                 builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
             }
 
+            //Table 
             configSection = Config.GetSection("ConnectionStrings:AzureTable1");
             if (configSection.Exists())
             {
@@ -71,6 +75,7 @@ public abstract class IntegrationTestBase
                 builder.AddTableServiceClient(configSection).WithName("AzureTable1");
             }
 
+            //EventGrid Publisher
             configSection = Config.GetSection("EventGridPublisherTopic1");
             if (configSection.Exists())
             {
@@ -78,6 +83,16 @@ public abstract class IntegrationTestBase
                 builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
                     new AzureKeyCredential(configSection.GetValue<string>("Key")!))
                 .WithName("EventGridPublisherTopic1");
+            }
+
+            //KeyVault Secret
+            configSection = Config.GetSection("KeyVaultManager1");
+            if (configSection.Exists())
+            {
+                //(w/DefaultAzureCredential)
+                builder.AddSecretClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
+                builder.AddKeyClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
+                builder.AddCertificateClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
             }
         });
 
@@ -103,6 +118,14 @@ public abstract class IntegrationTestBase
         {
             services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
             services.Configure<EventGridPublisherSettings1>(configSection);
+        }
+
+        //KeyVault
+        configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
+            services.Configure<KeyVaultManagerSettings1>(configSection);
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.

@@ -17,7 +17,7 @@ namespace Functions;
 ///     - ends with .txt
 /// debug local - https://docs.microsoft.com/en-us/azure/azure-functions/functions-debug-event-grid-trigger-local
 ///     - ngrok (./ngrok http -host-header=localhost 7071), run local (enables initial azure validation webhook handshake)
-///     - in Azure create EventGrid subscription with webhook using the ngrok url (https://<subdomain>.ngrok.io/runtime/webhooks/EventGrid?functionName=EventGridTriggerBlob
+///     - in Azure create EventGrid subscription with webhook using VS Dev Tunnels or ngrok url (https://[tunnelurl]/runtime/webhooks/EventGrid?functionName=EventGridTriggerBlob
 ///     - this currently registers the subscription in Azure without normal http endpoint custom validation (as in a normal httpendpoint subscription like EventGridController)
 ///     - run test that creates event (upload blob)
 /// Azure
@@ -41,7 +41,7 @@ public class FunctionEventGridTriggerBlob
     }
 
     [Function("EventGridTriggerBlob")]
-    public async Task Run([EventGridTrigger] EventGridEvent2 inputEvent)
+    public async Task Run([EventGridTrigger] EventGridEvent inputEvent)
     {
         _ = _configuration.GetHashCode();
         _ = _settings.GetHashCode();
