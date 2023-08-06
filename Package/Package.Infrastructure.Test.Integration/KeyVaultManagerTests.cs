@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Azure.Security.KeyVault.Keys;
+using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Test.Integration.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration;
@@ -26,5 +27,16 @@ public class KeyVaultManagerTests : IntegrationTestBase
 
         var getSecretResponse = await _vault.GetSecretAsync(secretName);
         Assert.AreEqual(secretValue , getSecretResponse);
+    }
+
+    [TestMethod]
+    public async Task Create_and_get_key_pass()
+    {
+        var keyName = $"key-{Guid.NewGuid()}";
+
+        var jwk = await _vault.CreateKeyAsync(keyName, KeyType.Rsa);
+
+        var jwk2 = await _vault.GetKeyAsync(keyName);
+        Assert.AreEqual(jwk, jwk2);
     }
 }
