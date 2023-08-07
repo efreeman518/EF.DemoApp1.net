@@ -2,5 +2,5 @@
 
 public class KeyVaultManagerSettingsBase
 {
-    public string KeyVaultClientName { get; set; } = null!;  
+    public string KeyVaultClientName { get; set; } = null!;
 }

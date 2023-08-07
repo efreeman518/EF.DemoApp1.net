@@ -14,7 +14,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     private readonly SecretClient _secretClient;
     private readonly KeyClient _keyClient;
     private readonly CertificateClient _certClient;
-    
+
     protected KeyVaultManagerBase(ILogger<KeyVaultManagerBase> logger, IOptions<KeyVaultManagerSettingsBase> settings,
         IAzureClientFactory<SecretClient> clientFactorySecret, IAzureClientFactory<KeyClient> clientFactoryKey, IAzureClientFactory<CertificateClient> clientFactoryCert)
     {
@@ -27,6 +27,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
 
     /// <summary>
     /// Get a specified secret from a given key vault.
+    /// X.509 certificate - a way to export the full X.509 certificate, including its private key (if its policy allows for private key exporting).
     /// </summary>
     /// <remarks>
     /// The get operation is applicable to any secret stored in Azure Key Vault.
@@ -43,7 +44,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
         _ = _settings.GetHashCode(); //compilet warning
 
         _logger.LogInformation("GetSecretAsync - {name} {version}", name, version);
-        var response =  await _secretClient.GetSecretAsync(name, version, cancellationToken);
+        var response = await _secretClient.GetSecretAsync(name, version, cancellationToken);
         return response.Value.Value;
     }
 
@@ -95,6 +96,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
 
     /// <summary>
     /// Gets the public part of a stored key.
+    /// X.509 certificate - the private key.
     /// </summary>
     /// <remarks>
     /// The get key operation is applicable to all key types. If the requested key
@@ -200,7 +202,9 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     }
 
     /// <summary>
-    /// Returns the latest version of the <see cref="KeyVaultCertificate"/> along with its <see cref="CertificatePolicy"/>. This operation requires the certificates/get permission.
+    /// Returns the latest version of the <see cref="KeyVaultCertificate"/> along with its <see cref="CertificatePolicy"/>. 
+    /// This operation requires the certificates/get permission.
+    /// X.509 certificate - the public key and cert metadata.
     /// </summary>
     /// <param name="certificateName">The name of the <see cref="KeyVaultCertificate"/> to retrieve.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
@@ -213,6 +217,8 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
         var response = await _certClient.GetCertificateAsync(certificateName, cancellationToken);
         return response.Value.Cer;
     }
+
+
 
     /// <summary>
     /// Imports a pre-existing certificate to the key vault. The specified certificate must be in PFX or ASCII PEM-format, and must contain the private key as well as the X.509 certificates. This operation requires the
@@ -230,45 +236,117 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
         return response.Value.Cer;
     }
 
-    /// <summary>
-    /// Starts a long running operation to create a <see cref="KeyVaultCertificate"/> in the vault with the specified certificate policy.
-    /// </summary>
-    /// <remarks>
-    /// If no certificate with the specified name exists it will be created; otherwise, a new version of the existing certificate will be created.
-    /// This operation requires the certificates/create permission.
-    /// </remarks>
-    /// <param name="certificateName">The name of the certificate to create.</param>
-    /// <param name="policy">The <see cref="CertificatePolicy"/> which governs the properties and lifecycle of the created certificate.</param>
-    /// <param name="enabled">Specifies whether the certificate should be created in an enabled state. If null, the server default will be used.</param>
-    /// <param name="tags">Tags to be applied to the created certificate.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-    /// <returns>A <see cref="CertificateOperation"/> which contains details on the create operation, and can be used to retrieve updated status.</returns>
-    /// <exception cref="ArgumentException"><paramref name="certificateName"/> is empty.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="certificateName"/> or <paramref name="policy"/> is null.</exception>
-    public async Task<CertificateOperation> StartCreateCertAsync(string certificateName, CertificatePolicy policy, bool? enabled = default, IDictionary<string, string> tags = default, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("StartCreateCertificateAsync - {name}", certificateName);
-        var response = await _certClient.StartCreateCertificateAsync(certificateName, policy, enabled, tags, cancellationToken);
-        return response;
-    }
 
-    /// <summary>
-    /// Deletes all versions of the specified <see cref="KeyVaultCertificate"/>. If the vault is soft delete-enabled, the <see cref="KeyVaultCertificate"/> will be marked for permanent deletion
-    /// and can be recovered with <see cref="StartRecoverDeletedCertificate"/>, or purged with <see cref="PurgeDeletedCertificate"/>. This operation requires the certificates/delete permission.
-    /// </summary>
-    /// <param name="certificateName">The name of the <see cref="KeyVaultCertificate"/> to delete.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-    /// <returns>
-    /// A <see cref="Certificates.DeleteCertificateOperation"/> to wait on this long-running operation.
-    /// If the Key Vault is soft delete-enabled, you only need to wait for the operation to complete if you need to recover or purge the certificate;
-    /// otherwise, the certificate is deleted automatically on the <see cref="DeletedCertificate.ScheduledPurgeDate"/>.
-    /// </returns>
-    /// <exception cref="ArgumentException"><paramref name="certificateName"/> is empty.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="certificateName"/> is null.</exception>
-    public async Task<DeleteCertificateOperation?> StartDeleteCertificateAsync(string certificateName, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("StartDeleteCertificateAsync - {certificateName}", certificateName);
-        var response = await _certClient.StartDeleteCertificateAsync(certificateName, cancellationToken);
-        return response;
-    }
+    //https://learn.microsoft.com/en-us/azure/key-vault/certificates/certificate-scenarios#creating-your-first-key-vault-certificate
+
+    ///// <summary>
+    ///// Starts a long running operation to create a <see cref="KeyVaultCertificate"/> in the vault with the specified certificate policy.
+    ///// </summary>
+    ///// <remarks>
+    ///// If no certificate with the specified name exists it will be created; otherwise, a new version of the existing certificate will be created.
+    ///// This operation requires the certificates/create permission.
+    ///// </remarks>
+    ///// <param name="certificateName">The name of the certificate to create.</param>
+    ///// <param name="policy">The <see cref="CertificatePolicy"/> which governs the properties and lifecycle of the created certificate.</param>
+    ///// <param name="enabled">Specifies whether the certificate should be created in an enabled state. If null, the server default will be used.</param>
+    ///// <param name="tags">Tags to be applied to the created certificate.</param>
+    ///// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+    ///// <returns>A <see cref="CertificateOperation"/> which contains details on the create operation, and can be used to retrieve updated status.</returns>
+    ///// <exception cref="ArgumentException"><paramref name="certificateName"/> is empty.</exception>
+    ///// <exception cref="ArgumentNullException"><paramref name="certificateName"/> or <paramref name="policy"/> is null.</exception>
+    //public async Task<CertificateOperation> StartCreateCertAsync(string certificateName, CertificatePolicy policy, bool? enabled = default, IDictionary<string, string> tags = default, CancellationToken cancellationToken = default)
+    //{
+    //    _logger.LogInformation("StartCreateCertificateAsync - {name}", certificateName);
+    //    var response = await _certClient.StartCreateCertificateAsync(certificateName, policy, enabled, tags, cancellationToken);
+    //    return response;
+    //}
+
+    ///// <summary>
+    ///// Deletes all versions of the specified <see cref="KeyVaultCertificate"/>. If the vault is soft delete-enabled, the <see cref="KeyVaultCertificate"/> will be marked for permanent deletion
+    ///// and can be recovered with <see cref="StartRecoverDeletedCertificate"/>, or purged with <see cref="PurgeDeletedCertificate"/>. This operation requires the certificates/delete permission.
+    ///// </summary>
+    ///// <param name="certificateName">The name of the <see cref="KeyVaultCertificate"/> to delete.</param>
+    ///// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+    ///// <returns>
+    ///// A <see cref="Certificates.DeleteCertificateOperation"/> to wait on this long-running operation.
+    ///// If the Key Vault is soft delete-enabled, you only need to wait for the operation to complete if you need to recover or purge the certificate;
+    ///// otherwise, the certificate is deleted automatically on the <see cref="DeletedCertificate.ScheduledPurgeDate"/>.
+    ///// </returns>
+    ///// <exception cref="ArgumentException"><paramref name="certificateName"/> is empty.</exception>
+    ///// <exception cref="ArgumentNullException"><paramref name="certificateName"/> is null.</exception>
+    //public async Task<DeleteCertificateOperation?> StartDeleteCertificateAsync(string certificateName, CancellationToken cancellationToken = default)
+    //{
+    //    _logger.LogInformation("StartDeleteCertificateAsync - {certificateName}", certificateName);
+    //    var response = await _certClient.StartDeleteCertificateAsync(certificateName, cancellationToken);
+    //    return response;
+    //}
+
+    ///// <summary>
+    ///// Creates or replaces a certificate <see cref="CertificateIssuer"/> in the key vault. This operation requires the certificates/setissuers permission.
+    ///// </summary>
+    ///// <param name="issuer">The <see cref="CertificateIssuer"/> to add or replace in the vault.</param>
+    ///// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+    ///// <returns>The created certificate issuer.</returns>
+    ///// <exception cref="ArgumentException"><see cref="CertificateIssuer.Name"/> of <paramref name="issuer"/> is empty.</exception>
+    ///// <exception cref="ArgumentNullException"><paramref name="issuer"/> or <see cref="CertificateIssuer.Name"/> of <paramref name="issuer"/> is null.</exception>
+    //public async Task<CertificateIssuer> CreateIssuerAsync(CertificateIssuer issuer, CancellationToken cancellationToken = default)
+    //{
+    //    _logger.LogInformation("CreateIssuerAsync - {issuer}", issuer.Name);
+    //    var response = await _certClient.CreateIssuerAsync(issuer, cancellationToken);
+    //    return response.Value;
+    //}
+
+    ///// <summary>
+    ///// Deletes the specified certificate <see cref="CertificateIssuer"/> from the vault. This operation requires the certificates/deleteissuers permission.
+    ///// </summary>
+    ///// <param name="issuerName">The name of the <see cref="CertificateIssuer"/> to delete.</param>
+    ///// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+    ///// <returns>The deleted certificate issuer.</returns>
+    ///// <exception cref="ArgumentException"><paramref name="issuerName"/> is empty.</exception>
+    ///// <exception cref="ArgumentNullException"><paramref name="issuerName"/> is null.</exception>
+    //public async Task<CertificateIssuer> DeleteIssuerAsync(string issuerName, CancellationToken cancellationToken = default)
+    //{
+    //    _logger.LogInformation("DeleteIssuerAsync - {issuerName}", issuerName);
+    //    var response = await _certClient.DeleteIssuerAsync(issuerName, cancellationToken);
+    //    return response.Value;
+    //}
 }
+
+
+/*
+ * https://azidentity.azurewebsites.net/post/2018/07/03/azure-key-vault-certificates-are-secrets
+ * https://stackoverflow.com/questions/43837362/keyvault-generated-certificate-with-exportable-private-key/43839241#43839241
+Azure Key Vault (AKV) represents a given X.509 certificate via three interrelated resources: 
+an AKV-certificate, an AKV-key, and an AKV-secret. All three will share the same name and the same version 
+- to verify this, examine the Id, KeyId, and SecretId properties in the response from Get-AzureKeyVaultCertificate.
+
+Each of these 3 resources provide a different perspective for viewing a given X.509 cert:
+
+The AKV-certificate provides the public key and cert metadata of the X.509 certificate. 
+It contains the public key's modulus and exponent (n and e), as well as other cert metadata 
+(thumbprint, expiry date, subject name, and so on). In PowerShell, you can obtain this via:
+(Get-AzureKeyVaultCertificate -VaultName $vaultName -Name $certificateName).Certificate
+
+The AKV-key provides the private key of the X.509 certificate. It can be useful for performing cryptographic operations 
+such as signing if the corresponding certificate was marked as non-exportable. In PowerShell, you can only obtain 
+the public portion of this private key via:
+(Get-AzureKeyVaultKey -VaultName $vaultName -Name $certificateName).Key
+
+The AKV-secret provides a way to export the full X.509 certificate, including its private key 
+(if its policy allows for private key exporting). As demonstrated above, the current base64-encoded certificate 
+can be obtained in PowerShell via:
+(Get-AzureKeyVaultSecret -VaultName $vaultName -Name $certificateName).SecretValueText
+
+
+//configuring settings class with a X509Certificate2 Cert property:
+var privateKeyBytes = Convert.FromBase64String(config.GetValue<string>("certName")); //in config, loaded from vault
+var certificate = new X509Certificate2(privateKeyBytes, (string?)null); //, X509KeyStorageFlags.EphemeralKeySet); //? may have to set azure config WEBSITE_LOAD_USER_PROFILE=1
+
+//then configure HttpClient to use the 'client cert'
+HttpClientHandler clientHandler = null;
+clientHandler = new HttpClientHandler();
+//clientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+//clientHandler.SslProtocols = SslProtocols.Tls12;
+clientHandler.ClientCertificates.Add(_settings.Cert);
+_httpClient = new HttpClient(clientHandler, true);
+ */

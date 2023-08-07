@@ -15,7 +15,9 @@ public interface IKeyVaultManager
     Task<JsonWebKey?> DeleteKeyAsync(string name, CancellationToken cancellationToken = default);
     Task<byte[]?> GetCertAsync(string certificateName, CancellationToken cancellationToken = default);
     Task<byte[]?> ImportCertAsync(ImportCertificateOptions importCertificateOptions, CancellationToken cancellationToken = default);
-    Task<CertificateOperation> StartCreateCertAsync(string certificateName, CertificatePolicy policy, bool? enabled = default, IDictionary<string, string> tags = default, CancellationToken cancellationToken = default);
-    Task<DeleteCertificateOperation?> StartDeleteCertificateAsync(string certificateName, CancellationToken cancellationToken = default);
+    //Task<CertificateOperation> StartCreateCertAsync(string certificateName, CertificatePolicy policy, bool? enabled = default, IDictionary<string, string> tags = default, CancellationToken cancellationToken = default);
+    //Task<DeleteCertificateOperation?> StartDeleteCertificateAsync(string certificateName, CancellationToken cancellationToken = default);
+    //Task<CertificateIssuer> CreateIssuerAsync(CertificateIssuer issuer, CancellationToken cancellationToken = default);
+    //Task<CertificateIssuer> DeleteIssuerAsync(string issuerName, CancellationToken cancellationToken = default);
 
 }
