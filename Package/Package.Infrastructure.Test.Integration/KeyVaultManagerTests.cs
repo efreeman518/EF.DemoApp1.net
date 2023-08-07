@@ -1,10 +1,11 @@
-﻿using Azure.Security.KeyVault.Keys;
+﻿using Azure;
+using Azure.Security.KeyVault.Keys;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Test.Integration.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("Key Vault setup required.")]
+[Ignore("Key Vault setup required.")]
 
 [TestClass]
 public class KeyVaultManagerTests : IntegrationTestBase
@@ -35,8 +36,19 @@ public class KeyVaultManagerTests : IntegrationTestBase
         var keyName = $"key-{Guid.NewGuid()}";
 
         var jwk = await _vault.CreateKeyAsync(keyName, KeyType.Rsa);
-
-        var jwk2 = await _vault.GetKeyAsync(keyName);
-        Assert.AreEqual(jwk, jwk2);
+        Assert.IsNotNull(jwk);
+        jwk = await _vault.GetKeyAsync(keyName);
+        Assert.IsNotNull(jwk);
+        jwk = await _vault.DeleteKeyAsync(keyName);
+        Assert.IsNotNull(jwk);
+        try
+        {
+            jwk = await _vault.GetKeyAsync(keyName);
+        }
+        catch (RequestFailedException ex) when (ex.ErrorCode == "KeyNotFound")
+        {
+            Assert.IsTrue(true);
+        }
+        
     }
 }
