@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.Messaging;
+using Package.Infrastructure.Messaging.EventGrid;
 using Package.Infrastructure.Test.Integration.Messaging;
 
 namespace Package.Infrastructure.Test.Integration;

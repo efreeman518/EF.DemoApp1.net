@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Messaging;
+﻿namespace Package.Infrastructure.Messaging.EventGrid;
 
 public class EventGridRequest
 {

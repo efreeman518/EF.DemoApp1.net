@@ -79,15 +79,15 @@ public class KeyVaultManagerTests : IntegrationTestBase
         var certName = $"existing-cert-name";
 
         //X.509 certificate - the private key.
-        var certBytes = await _vault.GetCertAsync(certName); 
+        var certBytes = await _vault.GetCertAsync(certName);
         Assert.IsNotNull(certBytes);
 
         //X.509 certificate - the private key.
-        var certKey = await _vault.GetKeyAsync(certName); 
+        var certKey = await _vault.GetKeyAsync(certName);
         Assert.IsNotNull(certKey);
 
         //X.509 certificate - export the full X.509 certificate, including its private key (if its policy allows for private key exporting).
-        var certSecret = await _vault.GetSecretAsync(certName); 
+        var certSecret = await _vault.GetSecretAsync(certName);
         Assert.IsNotNull(certSecret);
 
     }

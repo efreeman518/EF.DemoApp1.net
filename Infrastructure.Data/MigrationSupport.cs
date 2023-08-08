@@ -30,7 +30,7 @@ namespace Infrastructure.Data;
 
 /*
  * Note also that any identity (application accessing the DB, VS logged in user, etc) using the keys for encryption must have appropriate access to the key vault:
- * https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15
+ * https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=azuresqldb-current
  * The easiest way to grant the application the required permission is to add its identity to the "Key Vault Crypto User" role
  */
 #pragma warning restore S1135 // Track uses of "TODO" tags

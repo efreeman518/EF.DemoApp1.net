@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Messaging;
+﻿namespace Package.Infrastructure.Messaging.EventGrid;
 
 /// <summary>
 /// Map to EventGridEvent; so client modules don't need a reference to Azure SDK

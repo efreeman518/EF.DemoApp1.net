@@ -1,4 +1,4 @@
-﻿using Package.Infrastructure.Messaging;
+﻿using Package.Infrastructure.Messaging.EventGrid;
 
 namespace Package.Infrastructure.Test.Integration.Messaging;
 
