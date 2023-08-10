@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Package.Infrastructure.Data.Contracts;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,78 +30,58 @@ public abstract class DbContextBase : DbContext
 
     }
 
+
+    /// https://msdn.microsoft.com/en-us/data/jj592904.aspx
+    /// 
     /// <summary>
     /// Transient error could show up as a concurreny exception
     /// </summary>
     /// <param name="winner"></param>
+    /// <param name="auditId"></param>
+    /// <param name="acceptAllChangesOnSuccess"></param>
+    /// <param name="concurrencyExceptionRetries"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    /// https://msdn.microsoft.com/en-us/data/jj592904.aspx
-    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, string auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="DbUpdateConcurrencyException"></exception>
+    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, string auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
     {
-        int ret = 0;
-
-        try
+        int retryCount = 0;
+        while (retryCount++ < concurrencyExceptionRetries)
         {
-            ret = await SaveChangesAsync(auditId, acceptAllChangesOnSuccess, cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            //for a single record update, when the DB record has changed since last retrieval and subsequent update,
-            //consider OptimisticConcurrencyWinner if specified
-            if (ex.Entries.Count == 1 && winner != OptimisticConcurrencyWinner.Throw)
+            try
             {
-                var entry = ex.Entries[0];
-
-                if (winner == OptimisticConcurrencyWinner.DBWins)
-                {
-                    //cannot update a missing record
-                    //RelationalStrings.UpdateConcurrencyException
-                    if (ex.Message.StartsWith("The database operation was expected to affect 1 row(s), but actually affected 0 row(s); data may have been modified or deleted since entities were loaded"))
-                    {
-                        string? id = IsEntityEntryBaseDerived(entry, typeof(EntityBase)) ? ((EntityBase)entry.Entity).Id.ToString() : "";
-                        throw new InvalidOperationException($"DB missing the row {id}; cannot update row where key does not exist; {ex.Message}", ex);
-                    }
-                    // Update the values of the entity that failed to save from the store 
-                    await ex.Entries.Single().ReloadAsync(cancellationToken);
-                }
-                else if (winner == OptimisticConcurrencyWinner.ClientWins)
-                {
-                    // Update original values from the database 
-                    try
-                    {
-                        var propValues = await entry.GetDatabaseValuesAsync(cancellationToken);
-                        if (propValues != null)
-                        {
-                            entry.OriginalValues.SetValues(propValues);
-                        }
-                        else
-                        {
-                            //cannot update a missing record
-                            string? id = IsEntityEntryBaseDerived(entry, typeof(EntityBase)) ? ((EntityBase)entry.Entity).Id.ToString() : "";
-                            throw new InvalidOperationException($"DB missing the row {id}; cannot update row where key does not exist; {ex.Message}", ex);
-                        }
-                    }
-                    catch (ArgumentNullException ex1)
-                    {
-                        //cannot update a missing record
-                        string? id = IsEntityEntryBaseDerived(entry, typeof(EntityBase)) ? ((EntityBase)entry.Entity).Id.ToString() : "";
-                        throw new InvalidOperationException($"DB missing the row {id}; cannot update row where key does not exist; {ex1.Message}; {ex.Message}", ex1);
-                    }
-                }
+                // Attempt to save changes to the database
+                return await SaveChangesAsync(auditId, acceptAllChangesOnSuccess, cancellationToken);
             }
-            else
+            catch (DbUpdateConcurrencyException ex)
             {
-                throw;
+                foreach (var entry in ex.Entries)
+                {
+                    var proposedValues = entry.CurrentValues;
+                    var dbValues = entry.GetDatabaseValues();
+                    _ = dbValues ?? throw new InvalidOperationException("DbUpdateConcurrencyException retry attempted to retieve DB values that returned null.");
+
+                    foreach (var property in proposedValues.Properties)
+                    {
+                        var proposedValue = proposedValues[property];
+                        var dbValue = dbValues[property];
+                        proposedValues[property] = (winner == OptimisticConcurrencyWinner.ClientWins) ? proposedValue : dbValue;
+                    }
+
+                    // Refresh original values to bypass next concurrency check
+                    entry.OriginalValues.SetValues(dbValues);
+                }
             }
         }
 
-        return ret;
+        throw new DbUpdateConcurrencyException($"DbUpdateConcurrencyException retry limit reached, unable to save {winner}");
     }
 
-    private static bool IsEntityEntryBaseDerived(EntityEntry entry, Type typeBase)
-    {
-        return entry.Entity.GetType().IsSubclassOf(typeBase);
-    }
+    //private static bool IsEntityEntryBaseDerived(EntityEntry entry, Type typeBase)
+    //{
+    //    return entry.Entity.GetType().IsSubclassOf(typeBase);
+    //}
 
     private async Task<int> SaveChangesAsync(string auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
     {

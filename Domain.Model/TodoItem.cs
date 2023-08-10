@@ -13,11 +13,15 @@ public partial class TodoItem : EntityBase
     public string Name { get; private set; }
     public bool IsComplete => Status == TodoItemStatus.Completed;
     public TodoItemStatus Status { get; private set; }
+    public string? SecureRandom { get; set; }
+    public string? SecureDeterministic { get; set; }
 
-    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created)
+    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)
     {
         Name = name;
         Status = status;
+        SecureRandom = secureRandom;
+        SecureDeterministic = secureDeterministic;
         Validate(true);
     }
 

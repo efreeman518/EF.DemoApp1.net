@@ -11,6 +11,8 @@ using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Azure;
@@ -24,6 +26,7 @@ using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
 using SampleApp.Grpc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
@@ -146,6 +149,7 @@ public static class IServiceCollectionExtensions
                     })
                 );
 
+            connectionString = config.GetConnectionString("TodoDbContextQuery");
             services.AddDbContextPool<TodoDbContextQuery>(options =>
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
@@ -156,6 +160,16 @@ public static class IServiceCollectionExtensions
                         errorNumbersToAdd: null);
                     })
                 );
+
+            //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
+            var credential = new DefaultAzureCredential();
+            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
+            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+                 {
+                     {
+                         SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                     }
+                 });
         }
 
         IConfigurationSection configSection;

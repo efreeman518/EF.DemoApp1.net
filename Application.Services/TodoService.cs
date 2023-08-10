@@ -94,14 +94,16 @@ public class TodoService : ServiceBase, ITodoService
         await _validationHelper.ValidateAndThrowAsync(dto);
 
         //retrieve existing
-        var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == dto.Id)
+        var dbTodo = await _repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id)
             ?? throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
 
         //update
         dbTodo.SetName(dto.Name);
         dbTodo.SetStatus(dto.Status);
+        dbTodo.SecureDeterministic = dto.SecureDeterministic;
+        dbTodo.SecureRandom = dto.SecureRandom;
 
-        _repoTrxn.UpdateFull(ref dbTodo); //update full record
+        //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
         await _repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
         Logger.Log(LogLevel.Information, "UpdateItemAsync Complete - {TodoItem}", dbTodo.SerializeToJson());

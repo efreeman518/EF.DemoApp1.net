@@ -13,5 +13,7 @@ public class TodoItemConfiguration : EntityBaseConfiguration<TodoItem>
             .HasIndex(i => i.Name).IsUnique().IsClustered();
 
         builder.Property(b => b.Name).HasMaxLength(100);
+        builder.Property(b => b.SecureDeterministic).HasMaxLength(100);
+        builder.Property(b => b.SecureRandom).HasMaxLength(100);
     }
 }

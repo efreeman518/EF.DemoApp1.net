@@ -5,7 +5,7 @@ using Package.Infrastructure.Test.Integration.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("Key Vault setup required.")]
+[Ignore("Key Vault setup required.")]
 
 [TestClass]
 public class KeyVaultManagerTests : IntegrationTestBase

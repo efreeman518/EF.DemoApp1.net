@@ -20,11 +20,14 @@ namespace Infrastructure.Data;
  * set the env variable for connection string in PMC before running commands
  * $env:EFCORETOOLSDB = "Server=localhost;Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;TrustServerCertificate=true"
  * 
+ * Note - EF migrations design time will run the app to build the service collection, 
+ * then fail out - this is ok, PMC will show Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+ * 
  * if EF6 and EFCore tools both installed, prefix with EntityFrameworkCore\
- * EntityFrameworkCore\update-database -migration 0  -Context TodoDbContextQuery : Db back to ground zero
- * EntityFrameworkCore\remove-migration -Context TodoDbContextQuery : removes the last migration
- * EntityFrameworkCore\add-migration [name] -Context TodoDbContextQuery : adds a new migration
- * EntityFrameworkCore\script-migration -Context TodoDbContextQuery -From Specifies the starting migration. -To Specifies target migration
+ * EntityFrameworkCore\update-database -migration 0  -Context TodoDbContextTrxn : Db back to ground zero
+ * EntityFrameworkCore\remove-migration -Context TodoDbContextTrxn : removes the last migration
+ * EntityFrameworkCore\add-migration [name] -Context TodoDbContextTrxn : adds a new migration
+ * EntityFrameworkCore\script-migration -Context TodoDbContextTrxn -From Specifies the starting migration. -To Specifies target migration
  * EntityFrameworkCore\update-database
  */
 

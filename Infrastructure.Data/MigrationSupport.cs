@@ -17,15 +17,21 @@ namespace Infrastructure.Data;
 #pragma warning disable S1135, S125 // Track uses of "TODO" tags, comments
 /* 
     //add to migration class - customize for always encrypted (until supported in fluent syntax)
-    string url_AKV_CMK = <url to the keyvault key used as Column Master Key>
-    string cmkName = "CMK_WITH_AKV";
-    string cekName = "CEK_WITH_AKV";
+    string url_AKV_CMK = "<url to keyvault key>";
     string schema_table = "[todo].[TodoItem]";
-    string colDef = "[SecretString] nvarchar(100)";
+    string cmkName = "CMK_WITH_AKV";
+
     var support = new MigrationSupport(migrationBuilder, new DefaultAzureCredential());
     support.CreateColumnMasterKey(url_AKV_CMK, cmkName);
-    support.CreateColumnEncryptionKey( url_AKV_CMK, cmkName, cekName);
-    support.AlterColumnEncryption(cekName, schema_table, colDef);
+
+    string cekName = "CEK_WITH_AKV";
+    support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
+
+    string colDef = "[SecureDeterministic] nvarchar(100)";
+    support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "DETERMINISTIC");
+
+    colDef = "[SecureRandom] nvarchar(100)";
+    support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "RANDOMIZED");
 */
 
 /*
@@ -63,13 +69,21 @@ public class MigrationSupport
         byte[] cmkSign = _akvProvider.SignColumnMasterKeyMetadata(urlAKVMasterKeyUrl, true);
         string cmkSignStr = string.Concat("0x", BitConverter.ToString(cmkSign).Replace("-", string.Empty));
 
-        string sql =
-            $@"CREATE COLUMN MASTER KEY [{cmkName}]
-                    WITH (
-                        KEY_STORE_PROVIDER_NAME = N'{KeyStoreProviderName}',
-                        KEY_PATH = N'{urlAKVMasterKeyUrl}',
-                        ENCLAVE_COMPUTATIONS (SIGNATURE = {cmkSignStr})
-                    );";
+        string sql = $@"
+IF NOT EXISTS (SELECT * FROM sys.column_master_keys WHERE name = '{cmkName}')
+BEGIN
+CREATE COLUMN MASTER KEY [{cmkName}]
+WITH (
+    KEY_STORE_PROVIDER_NAME = N'{KeyStoreProviderName}',
+    KEY_PATH = N'{urlAKVMasterKeyUrl}',
+    ENCLAVE_COMPUTATIONS (SIGNATURE = {cmkSignStr})
+);
+END
+ELSE
+BEGIN
+    SELECT 'COLUMN MASTER KEY [{cmkName}] exists.'
+END
+";
 
         _migrationBuilder.Sql(sql);
     }
@@ -84,12 +98,20 @@ public class MigrationSupport
     public void CreateColumnEncryptionKey(string urlAKVMasterKeyUrl, string cmkName, string cekName)
     {
         string sql =
-                $@"CREATE COLUMN ENCRYPTION KEY [{cekName}] 
-                        WITH VALUES (
-                            COLUMN_MASTER_KEY = [{cmkName}],
-                            ALGORITHM = '{s_algorithm}', 
-                            ENCRYPTED_VALUE = {GetEncryptedValue(urlAKVMasterKeyUrl)}
-                        )";
+                $@"
+IF NOT EXISTS (SELECT * FROM sys.column_encryption_keys WHERE name = '{cekName}')
+BEGIN
+CREATE COLUMN ENCRYPTION KEY [{cekName}] 
+WITH VALUES (
+    COLUMN_MASTER_KEY = [{cmkName}],
+    ALGORITHM = '{s_algorithm}', 
+    ENCRYPTED_VALUE = {GetEncryptedValue(urlAKVMasterKeyUrl)}
+);
+END
+ELSE
+BEGIN
+    SELECT 'COLUMN ENCRYPTION KEY [{cekName}] exists.';
+END";
 
         _migrationBuilder.Sql(sql);
     }

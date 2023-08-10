@@ -67,7 +67,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     }
 
     /// <summary>
-    /// IF entity is not already tracked (that will automatically update the row upon SaveChangesAsync()) 
+    /// Use when entity is not already tracked (that will automatically update the row upon SaveChangesAsync()) 
     /// Attaches and updates the entire row upon SaveChangesAsync()
     /// </summary>
     /// <param name="entity"></param>

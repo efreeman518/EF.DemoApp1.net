@@ -10,6 +10,8 @@
     <h3>Add</h3>
     <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
         <input type="text" id="add-name" placeholder="New to-do">
+        <input type="text" id="add-secureRandom" placeholder="">
+        <input type="text" id="add-secureDeterministic" placeholder="">
         <input type="submit" value="Add">
     </form>
     <div id="error"></div>
@@ -19,6 +21,8 @@
             <input type="hidden" id="edit-id">
             <input type="checkbox" id="edit-isComplete">
             <input type="text" id="edit-name">
+            <input type="text" id="edit-secure-random">
+            <input type="text" id="edit-secure-deterministic">
             <input type="submit" value="Save">
             <a onclick="closeInput()" aria-label="Close">&#10006;</a>
         </form>
@@ -30,6 +34,9 @@
         <tr>
             <th>Is Complete?</th>
             <th>Name</th>
+            <th>Status</th>
+            <th>SecureRandom</th>
+            <th>SecureDeterministic</th>
             <th></th>
             <th></th>
         </tr>

@@ -30,11 +30,15 @@ function getItems() {
 }
 
 function addItem() {
-    const addNameTextbox = document.getElementById('add-name');
+    const nameTextbox = document.getElementById('add-name');
+    const secureRandomTextbox = document.getElementById('add-secureRandom');
+    const secureDetermisticTextbox = document.getElementById('add-secureDeterministic');
 
     const item = {
         status: TodoItemStatus.Created,
-        name: addNameTextbox.value.trim()
+        name: nameTextbox.value.trim(),
+        secureRandom: secureRandomTextbox.value.trim(),
+        secureDeterministic: secureDetermisticTextbox.value.trim()
     };
 
     fetch(uri, {
@@ -49,7 +53,9 @@ function addItem() {
         .then(response => response.json())
         .then(() => {
             getItems();
-            addNameTextbox.value = '';
+            nameTextbox.value = '';
+            secureRandomTextbox.value = '';
+            secureDetermisticTextbox.value = '';
         })
         .catch(error => console.error('Unable to add item.', error));
 }
@@ -71,6 +77,8 @@ function displayEditForm(id) {
     document.getElementById('edit-name').value = item.name;
     document.getElementById('edit-id').value = item.id;
     document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
+    document.getElementById('edit-secure-random').value = item.secureRandom;
+    document.getElementById('edit-secure-deterministic').value = item.secureDeterministic;
     document.getElementById('editForm').style.display = 'block';
 }
 
@@ -79,7 +87,9 @@ function updateItem() {
     const item = {
         id: itemId,
         status: document.getElementById('edit-isComplete').checked ? TodoItemStatus.Completed : TodoItemStatus.Accepted,
-        name: document.getElementById('edit-name').value.trim()
+        name: document.getElementById('edit-name').value.trim(),
+        secureRandom: document.getElementById('edit-secure-random').value.trim(),
+        secureDeterministic: document.getElementById('edit-secure-deterministic').value.trim()
     };
 
     fetch(`${uri}/${itemId}`, {
@@ -133,18 +143,30 @@ function _displayItems(data) {
 
         let tr = tBody.insertRow();
 
-        let td1 = tr.insertCell(0);
-        td1.appendChild(isCompleteCheckbox);
+        let td = tr.insertCell(0);
+        td.appendChild(isCompleteCheckbox);
 
-        let td2 = tr.insertCell(1);
+        td = tr.insertCell(1);
         let textNode = document.createTextNode(item.name);
-        td2.appendChild(textNode);
+        td.appendChild(textNode);
 
-        let td3 = tr.insertCell(2);
-        td3.appendChild(editButton);
+        td = tr.insertCell(2);
+        textNode = document.createTextNode(item.status);
+        td.appendChild(textNode);
 
-        let td4 = tr.insertCell(3);
-        td4.appendChild(deleteButton);
+        td = tr.insertCell(3);
+        textNode = document.createTextNode(item.secureRandom);
+        td.appendChild(textNode);
+
+        td = tr.insertCell(4);
+        textNode = document.createTextNode(item.secureDeterministic);
+        td.appendChild(textNode);
+
+        td = tr.insertCell(5);
+        td.appendChild(editButton);
+
+        td = tr.insertCell(6);
+        td.appendChild(deleteButton);
     });
 
     todos = data;
