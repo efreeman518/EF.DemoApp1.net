@@ -34,6 +34,9 @@ namespace SampleApp.Bootstrapper;
 
 public static class IServiceCollectionExtensions
 {
+    //can only be registered once
+    private static bool _keyStoreProviderRegistered = false;
+
     /// <summary>
     /// Register/configure domain services in the container
     /// </summary>
@@ -161,15 +164,19 @@ public static class IServiceCollectionExtensions
                     })
                 );
 
-            //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
-            var credential = new DefaultAzureCredential();
-            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
-            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+            if (!_keyStoreProviderRegistered)
+            {
+                //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
+                var credential = new DefaultAzureCredential();
+                SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
+                SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
                  {
                      {
                          SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
                      }
                  });
+                _keyStoreProviderRegistered = true;
+            }
         }
 
         IConfigurationSection configSection;

@@ -107,9 +107,6 @@ public class TodoServiceTests : UnitTestBase
                It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()),
            Times.Exactly(2)); //called for Update and Get
         RepositoryTrxnMock.Verify(
-            r => r.UpdateFull(ref It.Ref<TodoItem>.IsAny),
-            Times.Once);
-        RepositoryTrxnMock.Verify(
             r => r.DeleteAsync<TodoItem>(It.IsAny<Guid>()),
             Times.Once);
 

@@ -92,19 +92,13 @@ public class InMemoryDbBuilder
     private static List<TodoItem> CreateDefaultSeedEntityData()
     {
         //RowVersion value required for SQLite insert = 'NOT NULL constraint failed: RowVersion'
-        return new List<TodoItem>
+        var list = new List<TodoItem>
         {
             new TodoItem ("item1a", TodoItemStatus.Created),
             new TodoItem ("item2a", TodoItemStatus.InProgress),
             new TodoItem ("item3a", TodoItemStatus.Completed)
         };
+        return list;
     }
 
-    public static byte[] GetByteArray(int sizeInBytes)
-    {
-        Random rnd = new();
-        byte[] b = new byte[sizeInBytes]; // convert kb to byte
-        rnd.NextBytes(b);
-        return b;
-    }
 }
