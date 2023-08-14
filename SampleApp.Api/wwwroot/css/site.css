@@ -46,7 +46,7 @@ td {
     border-radius: 50%;
     width: 25px;
     height: 25px;
-    animation: spin 2s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
