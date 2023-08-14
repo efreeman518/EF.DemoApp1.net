@@ -11,6 +11,7 @@ const TodoItemStatus = {
 let todos = [];
 
 function handleErrors(response) {
+    toggleLoader(false);
     if (response.ok) {
         document.getElementById('error').innerText = "";
         return response;
@@ -22,6 +23,7 @@ function handleErrors(response) {
 }
 
 function getItems() {
+    toggleLoader(true);
     fetch(uri)
         .then(response => handleErrors(response))
         .then(response => response.json())
@@ -29,38 +31,8 @@ function getItems() {
         .catch(error => console.error('Unable to get items.', error));
 }
 
-function addItem() {
-    const nameTextbox = document.getElementById('add-name');
-    const secureRandomTextbox = document.getElementById('add-secureRandom');
-    const secureDetermisticTextbox = document.getElementById('add-secureDeterministic');
-
-    const item = {
-        status: TodoItemStatus.Created,
-        name: nameTextbox.value.trim(),
-        secureRandom: secureRandomTextbox.value.trim(),
-        secureDeterministic: secureDetermisticTextbox.value.trim()
-    };
-
-    fetch(uri, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(item)
-    })
-        .then(response => handleErrors(response))
-        .then(response => response.json())
-        .then(() => {
-            getItems();
-            nameTextbox.value = '';
-            secureRandomTextbox.value = '';
-            secureDetermisticTextbox.value = '';
-        })
-        .catch(error => console.error('Unable to add item.', error));
-}
-
 function deleteItem(id) {
+    toggleLoader(true);
     fetch(`${uri}/${id}`, {
         method: 'DELETE'
     })
@@ -73,27 +45,34 @@ function displayEditForm(id) {
     document.getElementById('error').innerText = "";
 
     const item = todos.find(i => i.id === id);
-
+    document.getElementById('edit-row').setAttribute("data-id", id);
+    document.getElementById('btn-save').textContent = 'Update';
     document.getElementById('edit-name').value = item.name;
-    document.getElementById('edit-id').value = item.id;
     document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
     document.getElementById('edit-secure-random').value = item.secureRandom;
     document.getElementById('edit-secure-deterministic').value = item.secureDeterministic;
-    document.getElementById('editForm').style.display = 'block';
 }
 
-function updateItem() {
-    const itemId = document.getElementById('edit-id').value;
+function saveItem() {
+    toggleLoader(true);
+
     const item = {
-        id: itemId,
         status: document.getElementById('edit-isComplete').checked ? TodoItemStatus.Completed : TodoItemStatus.Accepted,
         name: document.getElementById('edit-name').value.trim(),
         secureRandom: document.getElementById('edit-secure-random').value.trim(),
         secureDeterministic: document.getElementById('edit-secure-deterministic').value.trim()
     };
+    let method = "POST";
+    let url = `${uri}`;
+    let itemId = document.getElementById('edit-row').getAttribute("data-id");
+    if (itemId != "") {
+        item.id = itemId;
+        method = "PUT";
+        url = url + `/${itemId}`;
+    }
 
-    fetch(`${uri}/${itemId}`, {
-        method: 'PUT',
+    fetch(url, {
+        method: method,
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -101,21 +80,23 @@ function updateItem() {
         body: JSON.stringify(item)
     })
         .then(response => handleErrors(response))
-        .then(() => getItems())
+        .then(() => { clearEditRow(); getItems(); })
         .catch(error => console.error('Unable to update item.', error));
 
-    closeInput();
-
-    return false;
+     return false;
 }
 
-function closeInput() {
-    document.getElementById('editForm').style.display = 'none';
+function clearEditRow() {
+    document.getElementById('edit-row').setAttribute("data-id", "");
+    document.getElementById('edit-isComplete').checked = false;
+    document.getElementById('edit-name').value = "";
+    document.getElementById('edit-secure-random').value = "";
+    document.getElementById('edit-secure-deterministic').value = "";
+    document.getElementById('btn-save').textContent = 'Add';
 }
 
 function _displayCount(itemCount) {
     const name = (itemCount === 1) ? 'to-do' : 'to-dos';
-
     document.getElementById('counter').innerText = `${itemCount} ${name}`;
 }
 
@@ -170,4 +151,8 @@ function _displayItems(data) {
     });
 
     todos = data;
+}
+
+function toggleLoader(toggle) {
+    document.querySelector(".loader").style.display = toggle ? "block" : "none";
 }

@@ -4,6 +4,10 @@
     color: #ccc;
 }
 
+h1{
+    display:flex;
+}
+
 input[type='submit'], button, [aria-label] {
     cursor: pointer;
 }
@@ -18,18 +22,39 @@ input[type='submit'], button, [aria-label] {
 
 table {
     font-family: Arial, sans-serif;
-    border: 1px solid #001dff;
+    border: 1px solid #4472b1;
     border-collapse: collapse;
 }
 
 th {
     background-color: #333;
     padding: 5px;
-    color: #30f9ff;
-    border: 2px solid #92fbfe;
+    color: #80b3f8;
+    border: 2px solid #4472b1;
 }
 
 td {
-    border: 2px solid #92fbfe;
+    border: 2px solid #4472b1;
     padding: 5px;
+}
+
+.loader {
+    margin-left: 20px;
+    border: 5px solid #6d08ff;
+    border-top: 5px solid #87a7ff;
+    border-bottom: 5px solid #87a7ff;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

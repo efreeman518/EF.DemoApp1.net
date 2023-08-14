@@ -179,6 +179,11 @@ public static class EFExtensions
             attach = true;
         }
         if (attach) dbContext.Attach(entity); //sets State = Unchanged
+
+        //note - if untracked then tracked (attached), and using a shadow property for RowVersion - need to load the RowVersion
+        //otherwise use a regular property for RowVersion so it loads even when not tracked
+        //var rowVersion = dbContext.Set<T>().Where(x => x.Id == id).Select(x => EF.Property<byte[]>(x, "RowVersion")).FirstOrDefault();
+
         return attach;
     }
 
