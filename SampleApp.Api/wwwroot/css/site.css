@@ -16,7 +16,11 @@ input[type='submit'], button, [aria-label] {
     display: none;
 }
 
-#error {
+#message{
+    display:inline-block;
+}
+
+.error {
     color: red;
 }
 
@@ -38,7 +42,7 @@ td {
     padding: 5px;
 }
 
-.loader {
+.spinner {
     margin-left: 20px;
     border: 5px solid #6d08ff;
     border-top: 5px solid #87a7ff;

@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="css/site.css" />
 </head>
 <body>
-    <h1>SampleApp - Todo CRUD <span class="loader"></span></h1> 
-    <div id="error"></div>
+    <h1>SampleApp - Todo CRUD <span class="spinner" hidden></span></h1>
+    <div id="message"></div>
     <p id="counter"></p>
 
     <table>
@@ -26,15 +26,12 @@
             <td></td>
             <td><input type="text" id="edit-secure-random"></td>
             <td><input type="text" id="edit-secure-deterministic"></td>
-            <td colspan="2" style="text-align:center"><button onclick="saveItem()" id="btn-save">Add</button></td>
+            <td colspan="2" style="text-align:center"><button id="btn-save">Add</button></td>
         </tr>
         <tr><td colspan="7" style="background-color: #4472b1;"></td></tr>
         <tbody id="todos"></tbody>
     </table>
 
-    <script src="js/site.js" asp-append-version="true"></script>
-    <script type="text/javascript">
-        getItems();
-    </script>
+    <script defer src="js/site.js" type="module" asp-append-version="true"></script>
 </body>
 </html>

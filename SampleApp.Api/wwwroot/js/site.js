@@ -1,4 +1,7 @@
-﻿const uri = 'api/v1/TodoItems';
+﻿import Utility from './utility.js';
+
+const _utility = new Utility(document.querySelector(".spinner"), document.querySelector("#message"));
+const urlTodo = 'api/v1/TodoItems';
 
 const TodoItemStatus = {
     None: 0,
@@ -10,51 +13,25 @@ const TodoItemStatus = {
 
 let todos = [];
 
-function handleErrors(response) {
-    toggleLoader(false);
-    if (response.ok) {
-        document.getElementById('error').innerText = "";
-        return response;
+async function getItems() {
+    try {
+        const response = await _utility.HttpSend("GET", urlTodo);
+        displayItems(response.data);
     }
-    return response.json().then(err => {
-        document.getElementById('error').innerText = err.detail;
-        throw err.Message;
-    });
+    catch (error) {
+        document.getElementById('message').innerText = error.detail;
+        console.error('Unable to get items.', error)
+    }
 }
 
-function getItems() {
-    toggleLoader(true);
-    fetch(uri)
-        .then(response => handleErrors(response))
-        .then(response => response.json())
-        .then(json => _displayItems(json.data))
-        .catch(error => console.error('Unable to get items.', error));
+async function deleteItem(id) {
+    const url = `${urlTodo}/${id}`; 
+    await _utility.HttpSend("DELETE", url, null, null, "");
+    getItems();
 }
 
-function deleteItem(id) {
-    toggleLoader(true);
-    fetch(`${uri}/${id}`, {
-        method: 'DELETE'
-    })
-        .then(response => handleErrors(response))
-        .then(() => getItems())
-        .catch(error => console.error('Unable to delete item.', error));
-}
-
-function displayEditForm(id) {
-    document.getElementById('error').innerText = "";
-
-    const item = todos.find(i => i.id === id);
-    document.getElementById('edit-row').setAttribute("data-id", id);
-    document.getElementById('btn-save').textContent = 'Update';
-    document.getElementById('edit-name').value = item.name;
-    document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
-    document.getElementById('edit-secure-random').value = item.secureRandom;
-    document.getElementById('edit-secure-deterministic').value = item.secureDeterministic;
-}
-
-function saveItem() {
-    toggleLoader(true);
+async function saveItem() {
+    if (document.getElementById('edit-name').value.trim().length == 0) throw new Error("Name required.");
 
     const item = {
         status: document.getElementById('edit-isComplete').checked ? TodoItemStatus.Completed : TodoItemStatus.Accepted,
@@ -62,28 +39,31 @@ function saveItem() {
         secureRandom: document.getElementById('edit-secure-random').value.trim(),
         secureDeterministic: document.getElementById('edit-secure-deterministic').value.trim()
     };
+
+    //save - new insert (POST) or update (PUT)
     let method = "POST";
-    let url = `${uri}`;
+    let url = urlTodo;
     let itemId = document.getElementById('edit-row').getAttribute("data-id");
     if (itemId != "") {
         item.id = itemId;
         method = "PUT";
-        url = url + `/${itemId}`;
+        url = `${url}/${itemId}`; 
     }
 
-    fetch(url, {
-        method: method,
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(item)
-    })
-        .then(response => handleErrors(response))
-        .then(() => { clearEditRow(); getItems(); })
-        .catch(error => console.error('Unable to update item.', error));
+    await _utility.HttpSend(method, url, item);
+    clearEditRow();
+    getItems();
+}
 
-     return false;
+function popEdit(item) {
+    document.getElementById('message').innerText = "";
+
+    document.getElementById('edit-row').setAttribute("data-id", item.id);
+    document.getElementById('btn-save').textContent = 'Update';
+    document.getElementById('edit-name').value = item.name;
+    document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
+    document.getElementById('edit-secure-random').value = item.secureRandom;
+    document.getElementById('edit-secure-deterministic').value = item.secureDeterministic;
 }
 
 function clearEditRow() {
@@ -95,20 +75,21 @@ function clearEditRow() {
     document.getElementById('btn-save').textContent = 'Add';
 }
 
-function _displayCount(itemCount) {
+function displayCount(itemCount) {
     const name = (itemCount === 1) ? 'to-do' : 'to-dos';
     document.getElementById('counter').innerText = `${itemCount} ${name}`;
 }
 
-function _displayItems(data) {
+function displayItems(data) {
     const tBody = document.getElementById('todos');
     tBody.innerHTML = '';
 
-    _displayCount(data.length);
+    const items = data.data;
+    displayCount(items.length);
 
     const button = document.createElement('button');
 
-    data.forEach(item => {
+    items.forEach(item => {
         let isCompleteCheckbox = document.createElement('input');
         isCompleteCheckbox.type = 'checkbox';
         isCompleteCheckbox.disabled = true;
@@ -116,11 +97,11 @@ function _displayItems(data) {
 
         let editButton = button.cloneNode(false);
         editButton.innerText = 'Edit';
-        editButton.setAttribute('onclick', `displayEditForm('${item.id}')`);
+        editButton.addEventListener("click", (event) => { popEdit(item); });
 
         let deleteButton = button.cloneNode(false);
         deleteButton.innerText = 'Delete';
-        deleteButton.setAttribute('onclick', `deleteItem('${item.id}')`);
+        deleteButton.addEventListener("click", (event) => { deleteItem(item.id); });
 
         let tr = tBody.insertRow();
 
@@ -151,8 +132,13 @@ function _displayItems(data) {
     });
 
     todos = data;
+
 }
 
-function toggleLoader(toggle) {
-    document.querySelector(".loader").style.display = toggle ? "block" : "none";
-}
+//wire up event handlers
+document.getElementById("btn-save").addEventListener("click", (event) => {
+    saveItem();
+});
+
+//initialize
+getItems();
