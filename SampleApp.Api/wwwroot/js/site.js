@@ -27,7 +27,7 @@ async function getItems() {
 async function deleteItem(id) {
     const url = `${urlTodo}/${id}`; 
     await _utility.HttpSend("DELETE", url, null, null, "");
-    getItems();
+    await getItems();
 }
 
 async function saveItem() {
@@ -52,7 +52,7 @@ async function saveItem() {
 
     await _utility.HttpSend(method, url, item);
     clearEditRow();
-    getItems();
+    await getItems();
 }
 
 function popEdit(item) {
