@@ -204,7 +204,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     /// <summary>
     /// Returns the latest version of the <see cref="KeyVaultCertificate"/> along with its <see cref="CertificatePolicy"/>. 
     /// This operation requires the certificates/get permission.
-    /// X.509 certificate - the public key and cert metadata.
+    /// X.509 certificate - the public key and cert metadata. 
     /// </summary>
     /// <param name="certificateName">The name of the <see cref="KeyVaultCertificate"/> to retrieve.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>

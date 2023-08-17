@@ -78,7 +78,7 @@ public class KeyVaultManagerTests : IntegrationTestBase
         //Cert must exist in the KeyVault
         var certName = $"existing-cert-name";
 
-        //X.509 certificate - the private key.
+        //X.509 certificate - the public key and cert metadata.
         var certBytes = await _vault.GetCertAsync(certName);
         Assert.IsNotNull(certBytes);
 
