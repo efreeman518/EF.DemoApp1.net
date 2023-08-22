@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,11 +27,28 @@ try
     //- logging gets Console
     var builder = WebApplication.CreateBuilder(args);
 
+    //set up DefaultAzureCredential for subsequent use in configuration providers
+    //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
+    var credentialOptions = new DefaultAzureCredentialOptions();
+    //Specifies the client id of a user assigned ManagedIdentity. 
+    string? credOptionsManagedIdentity = builder.Configuration.GetValue<string?>("ManagedIdentityClientId", null);
+    if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
+    //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
+    string? credOptionsTenantId = builder.Configuration.GetValue<string?>("SharedTokenCacheTenantId", null);
+    if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
+    var credential = new DefaultAzureCredential(credentialOptions);
+
     //configuration
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Configuration.AddUserSecrets<Program>();
-    }
+    //user secrets
+    if (builder.Environment.IsDevelopment()) builder.Configuration.AddUserSecrets<Program>();
+
+    //Azure AppConfig
+    var endpoint = builder.Configuration.GetValue<string>("AppConfigEndpoint");
+    if (!string.IsNullOrEmpty(endpoint)) builder.AddAzureAppConfiguration(loggerStartup, endpoint, credential);
+
+    //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
+    endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
+    if (!string.IsNullOrEmpty(endpoint)) builder.AddAzureKeyVaultConfiguration(loggerStartup, endpoint, credential);
 
     //logging
     loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);
