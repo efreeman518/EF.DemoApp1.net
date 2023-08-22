@@ -2,9 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Http.Tokens;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Test.Endpoints;
 

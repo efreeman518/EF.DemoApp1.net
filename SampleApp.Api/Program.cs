@@ -1,8 +1,4 @@
 using Azure.Identity;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 

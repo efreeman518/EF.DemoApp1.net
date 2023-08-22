@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using System.Text.Json;
 

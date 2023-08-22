@@ -2,9 +2,6 @@
 using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace SampleApp.Api.Controllers;

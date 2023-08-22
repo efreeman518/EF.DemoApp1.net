@@ -1,7 +1,6 @@
 ﻿using Azure.Identity;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 

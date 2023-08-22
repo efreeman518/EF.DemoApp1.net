@@ -1,5 +1,4 @@
 ﻿using Domain.Shared.Enums;
-using System;
 
 namespace Application.Contracts.Model;
 

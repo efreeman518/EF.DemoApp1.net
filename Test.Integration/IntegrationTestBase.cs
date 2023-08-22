@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using SampleApp.Bootstrapper;
-using System;
 
 namespace Test.Integration;
 

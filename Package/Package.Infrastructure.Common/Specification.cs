@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Package.Infrastructure.Common;
+﻿namespace Package.Infrastructure.Common;
 
 public interface ISpecification<in T>
 {

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 
 namespace SampleApp.Bootstrapper.Automapper;
 

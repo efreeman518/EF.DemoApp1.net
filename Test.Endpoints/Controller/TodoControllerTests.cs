@@ -2,10 +2,7 @@
 using Application.Contracts.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
-using System;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Test.Endpoints.Controller;
 

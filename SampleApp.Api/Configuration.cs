@@ -1,6 +1,4 @@
 ﻿using Azure.Identity;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
 namespace SampleApp.Api;
@@ -48,7 +46,7 @@ public static class Configuration
         string endpoint, DefaultAzureCredential credential)
     {
         loggerStartup.LogInformation("Add KeyVault {Endpoint} Configuration Start", endpoint);
-        builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential); 
+        builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
         loggerStartup.LogInformation("Add KeyVault {Endpoint} Configuration Complete", endpoint);
     }
 }

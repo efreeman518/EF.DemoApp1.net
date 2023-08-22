@@ -3,8 +3,6 @@ using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Grpc;
 using SampleApp.Bootstrapper.HealthChecks;

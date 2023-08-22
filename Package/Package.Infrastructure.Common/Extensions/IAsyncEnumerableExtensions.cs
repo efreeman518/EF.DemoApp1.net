@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Package.Infrastructure.Common.Extensions;
+﻿namespace Package.Infrastructure.Common.Extensions;
 public static class IAsyncEnumerableExtensions
 {
     /// <summary>

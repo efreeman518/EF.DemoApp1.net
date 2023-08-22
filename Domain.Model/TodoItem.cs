@@ -3,7 +3,6 @@ using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model;

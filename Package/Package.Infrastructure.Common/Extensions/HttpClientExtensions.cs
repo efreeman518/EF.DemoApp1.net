@@ -1,16 +1,9 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Package.Infrastructure.Common.Extensions;
 public static class HttpClientExtensions

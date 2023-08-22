@@ -3,7 +3,6 @@ using AutoMapper;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
-using System.Threading;
 
 namespace Infrastructure.Repositories;
 

@@ -1,6 +1,5 @@
 ﻿using Application.Contracts.Model;
 using Package.Infrastructure.Data.Contracts;
-using System.Threading;
 
 namespace Infrastructure.Repositories;
 

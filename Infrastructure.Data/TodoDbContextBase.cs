@@ -1,8 +1,6 @@
 ﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using Package.Infrastructure.Data;
-using System;
-using System.Linq;
 
 namespace Infrastructure.Data;
 

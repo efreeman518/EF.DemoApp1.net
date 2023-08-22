@@ -25,9 +25,6 @@ using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
 using SampleApp.Grpc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 
 namespace SampleApp.Bootstrapper;

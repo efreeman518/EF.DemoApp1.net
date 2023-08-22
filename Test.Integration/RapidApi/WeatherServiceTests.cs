@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
-using System.Threading.Tasks;
 
 namespace Test.Integration.Application;
 

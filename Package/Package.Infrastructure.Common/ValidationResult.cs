@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Package.Infrastructure.Common;
 public sealed class ValidationResult : IEquatable<ValidationResult>

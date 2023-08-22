@@ -2,8 +2,6 @@
 using Infrastructure.SampleApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Threading.Tasks;
 
 namespace Test.Integration.Application;
 

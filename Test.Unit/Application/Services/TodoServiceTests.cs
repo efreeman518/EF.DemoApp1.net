@@ -16,11 +16,7 @@ using Moq;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data.Contracts;
-using System;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Test.Support;
 
 namespace Test.Unit.Application.Services;

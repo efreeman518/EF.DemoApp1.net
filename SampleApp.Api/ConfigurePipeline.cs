@@ -1,14 +1,10 @@
 ﻿using CorrelationId;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Package.Infrastructure.AspNetCore;
 using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
-using System.Collections.Generic;
-using System.IO;
 
 namespace SampleApp.Api;
 

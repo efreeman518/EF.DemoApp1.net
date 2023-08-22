@@ -1,9 +1,6 @@
 ﻿using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SampleApp.Bootstrapper.HealthChecks;
 

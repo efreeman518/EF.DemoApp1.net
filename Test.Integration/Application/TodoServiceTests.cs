@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Exceptions;
-using System;
-using System.Threading.Tasks;
 
 namespace Test.Integration.Application;
 
