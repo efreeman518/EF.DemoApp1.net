@@ -12,6 +12,13 @@ public static partial class WebApplicationBuilderExtensions
 {
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
+        if (app.Configuration.GetValue<string>("AzureAppConfig:Endpoint") != null)
+        {
+            //middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh.
+            //middleware triggers on http request, not background service scope
+            app.UseAzureAppConfiguration();
+        }
+
         var config = app.Configuration;
 
         //serve sample html/js UI

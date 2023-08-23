@@ -18,7 +18,7 @@ public class TodoService : ServiceBase, ITodoService
     private readonly IMapper _mapper;
     private readonly IBackgroundTaskQueue _taskQueue;
 
-    public TodoService(ILogger<TodoService> logger, IOptions<TodoServiceSettings> settings, IValidationHelper validationHelper,
+    public TodoService(ILogger<TodoService> logger, IOptionsSnapshot<TodoServiceSettings> settings, IValidationHelper validationHelper,
         ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
         : base(logger)
     {

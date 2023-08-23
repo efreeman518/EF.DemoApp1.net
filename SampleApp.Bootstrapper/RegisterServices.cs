@@ -6,6 +6,7 @@ using Azure;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using FluentValidation;
+using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
@@ -60,6 +61,13 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
+        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
+        {
+            //middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh.
+            //middleware triggers on http request, not background service scope
+            services.AddAzureAppConfiguration();
+        }
+
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         services.AddLazyCache();
 

@@ -34,17 +34,27 @@ try
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
+    string env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
     //configuration
     //user secrets
     if (builder.Environment.IsDevelopment()) builder.Configuration.AddUserSecrets<Program>();
 
     //Azure AppConfig
-    var endpoint = builder.Configuration.GetValue<string>("AppConfigEndpoint");
-    if (!string.IsNullOrEmpty(endpoint)) builder.AddAzureAppConfiguration(loggerStartup, endpoint, credential);
+    var endpoint = builder.Configuration.GetValue<string>("AzureAppConfig:Endpoint");
+    if (!string.IsNullOrEmpty(endpoint))
+    {
+        loggerStartup.LogInformation("{ServiceName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
+        builder.AddAzureAppConfiguration(endpoint, credential, env, builder.Configuration.GetValue<string>("AzureAppConfig:Sentinel"), new TimeSpan(0, 0, 30));
+    }
 
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
     endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
-    if (!string.IsNullOrEmpty(endpoint)) builder.AddAzureKeyVaultConfiguration(loggerStartup, endpoint, credential);
+    if (!string.IsNullOrEmpty(endpoint))
+    {
+        loggerStartup.LogInformation("{ServiceName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
+        builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
+    }
 
     //logging
     loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);
