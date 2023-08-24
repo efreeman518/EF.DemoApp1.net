@@ -88,7 +88,7 @@ public static class IServiceCollectionExtensions
 
         //AutoMapper Configuration
         ConfigureAutomapper.Configure(services,
-            new System.Collections.Generic.List<AutoMapper.Profile>
+            new List<AutoMapper.Profile>
             {
                 new MappingProfile(),  //map domain <-> app 
                 new GrpcMappingProfile() // map grpc <-> app 

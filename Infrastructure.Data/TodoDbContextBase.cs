@@ -64,7 +64,7 @@ public abstract class TodoDbContextBase : DbContextBase
         }
 
         //table configurations
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextTrxn).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextBase).Assembly);
     }
 
     //DbSets

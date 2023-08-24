@@ -1,6 +1,7 @@
 using Azure.Identity;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
+using SampleApp.Bootstrapper.Configuration;
 
 var SERVICE_NAME = "SampleApi";
 
@@ -55,6 +56,9 @@ try
         loggerStartup.LogInformation("{ServiceName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
         builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
     }
+
+    //Custom configuration provider - from DB
+    builder.Configuration.AddEntityConfiguration();
 
     //logging
     loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);
