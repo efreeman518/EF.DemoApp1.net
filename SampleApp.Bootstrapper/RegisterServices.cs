@@ -6,7 +6,7 @@ using Azure;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using FluentValidation;
-using Google.Protobuf.WellKnownTypes;
+using Infrastructure.Configuration;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
@@ -125,6 +125,9 @@ public static class IServiceCollectionExtensions
         });
 
         //Infrastructure Services
+
+        //DB config change token
+        //services.AddSingleton<IDatabaseConfigurationChangeToken, DatabaseChangeToken>();
 
         //EF-sql repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();

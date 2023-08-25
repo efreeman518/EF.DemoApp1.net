@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Services\Application.Services.csproj" />
+    <ProjectReference Include="..\Infrastructure.Configuration\Infrastructure.Configuration.csproj" />
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
     <ProjectReference Include="..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
     <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />

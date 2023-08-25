@@ -43,8 +43,9 @@ try
                 .RegisterApplicationServices(config)
                 //BackgroundTaskQueue needed by other services
                 .RegisterBackgroundServices(config)
-                //function app specific registrations
+                //Function app specific registrations
                 .AddTransient<IDatabaseService, DatabaseService>()
+                //Configuration, enables injecting IOptions<>
                 .Configure<Settings1>(config.GetSection("Settings1"));
         })
         .ConfigureFunctionsWorkerDefaults(workerApplication =>

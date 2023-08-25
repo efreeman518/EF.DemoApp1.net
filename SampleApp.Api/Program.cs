@@ -1,7 +1,7 @@
 using Azure.Identity;
+using Infrastructure.Configuration;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
-using SampleApp.Bootstrapper.Configuration;
 
 var SERVICE_NAME = "SampleApi";
 
@@ -20,7 +20,7 @@ try
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
     //CreateBuilder defaults:
-    //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json
+    //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
     //- logging gets Console
     var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +39,7 @@ try
 
     //configuration
     //user secrets
-    if (builder.Environment.IsDevelopment()) builder.Configuration.AddUserSecrets<Program>();
+    //if (builder.Environment.IsDevelopment()) builder.Configuration.AddUserSecrets<Program>();
 
     //Azure AppConfig
     var endpoint = builder.Configuration.GetValue<string>("AzureAppConfig:Endpoint");
@@ -58,7 +58,8 @@ try
     }
 
     //Custom configuration provider - from DB
-    builder.Configuration.AddEntityConfiguration();
+    var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
+    builder.Configuration.AddDatabaseSource(connectionString);
 
     //logging
     loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);

@@ -4,6 +4,7 @@ using Application.Services.Validators;
 using Domain.Model;
 using Domain.Shared.Enums;
 using FluentValidation;
+using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
@@ -31,7 +32,8 @@ public class TodoServiceTests : UnitTestBase
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
     private readonly Mock<ISampleApiRestClient> SampleApiRestClientMock;
     private readonly Mock<IBackgroundTaskQueue> BackgroundTaskQueueMock;
-    private readonly IOptions<TodoServiceSettings> _settings = Options.Create(new TodoServiceSettings());
+    private readonly Mock<IOptionsMonitor<TodoServiceSettings>> SettingsMock;
+    private readonly TodoServiceSettings _settings = new();
 
     public TodoServiceTests() : base()
     {
@@ -43,6 +45,11 @@ public class TodoServiceTests : UnitTestBase
         SampleApiRestClientMock = _mockFactory.Create<ISampleApiRestClient>();
         BackgroundTaskQueueMock = _mockFactory.Create<IBackgroundTaskQueue>();
         RepositoryTrxnMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
+
+        //set any _settings
+        _settings.StringProperty = "some value";
+        SettingsMock = _mockFactory.Create<IOptionsMonitor<TodoServiceSettings>>();
+        SettingsMock.Setup(m => m.CurrentValue).Returns(_settings);
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
         ServiceCollection services = new();
@@ -68,7 +75,7 @@ public class TodoServiceTests : UnitTestBase
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, ValidationHelperMock.Object,
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, ValidationHelperMock.Object,
             RepositoryTrxnMock.Object, RepositoryQueryMock.Object, SampleApiRestClientMock.Object,
             _mapper, BackgroundTaskQueueMock.Object);
 
@@ -139,7 +146,7 @@ public class TodoServiceTests : UnitTestBase
 
         IValidationHelper validationHelper = new ValidationHelper(services.BuildServiceProvider());
 
-        var svc = new TodoService(new NullLogger<TodoService>(), _settings, validationHelper, repoTrxn, repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, validationHelper, repoTrxn, repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var todo = new TodoItemDto { Name = "wash car", Status = TodoItemStatus.Created };
 
         //act & assert
