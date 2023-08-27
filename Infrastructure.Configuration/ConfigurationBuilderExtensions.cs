@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 namespace Infrastructure.Configuration;
 public static class ConfigurationBuilderExtensions
 {
-    public static IConfigurationBuilder AddDatabaseSource(this IConfigurationBuilder builder, string connectionString)
+    public static IConfigurationBuilder AddDatabaseSource(this IConfigurationBuilder builder, string connectionString, TimeSpan? refreshInterval = null)
     {
         var source = new DatabaseConfigurationSource(options =>
         {
@@ -16,7 +16,7 @@ public static class ConfigurationBuilderExtensions
             {
                 options.UseSqlServer(connectionString);
             }
-        }); 
-        return builder.Add(source);
+        }, refreshInterval != null ? new DatabaseConfigurationRefresher(refreshInterval) : null);
+        return builder.Add(source); //calls Provider.Load()
     }
 }

@@ -4,7 +4,6 @@ using Application.Services.Validators;
 using Domain.Model;
 using Domain.Shared.Enums;
 using FluentValidation;
-using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;

@@ -2,34 +2,40 @@
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 
 namespace Infrastructure.Configuration;
 
 /// <summary>
 /// https://mousavi310.github.io/posts/a-refreshable-sql-server-configuration-provider-for-net-core/
+/// https://www.c-sharpcorner.com/article/using-change-tokens-in-net-7/
 /// </summary>
 public class DatabaseConfigurationProvider : ConfigurationProvider
 {
     private readonly DatabaseConfigurationSource _source;
     private readonly Action<DbContextOptionsBuilder> _optionsAction;
-    
+
+    //private bool _hasChanged;
+
+    //public bool HasChanged => _hasChanged;
+    //public bool ActiveChangeCallbacks => true;
 
     public DatabaseConfigurationProvider(DatabaseConfigurationSource source, Action<DbContextOptionsBuilder> optionsAction)
     {
         _source = source;
         _optionsAction = optionsAction;
 
-        // Load the configuration data from the database
-        //Load();
-        // Register a callback to reload the configuration data when the change token changes
-        //ChangeToken.OnChange(
-        //    () => _source.GetReloadToken(),
-        //    () => Load());
+        if (_source.DbConfigRefresher != null)
+        {
+            ChangeToken.OnChange(
+                () => _source.DbConfigRefresher.StartWatch(),
+                Load
+            );
+        }
     }
 
     public override void Load()
     {
-        _ = _source.GetHashCode();
         Data.Clear();
         // Read data from database and populate Data dictionary
         var builder = new DbContextOptionsBuilder<SystemSettingsDbContext>();
@@ -59,4 +65,5 @@ public class DatabaseConfigurationProvider : ConfigurationProvider
 
         return settings;
     }
+
 }

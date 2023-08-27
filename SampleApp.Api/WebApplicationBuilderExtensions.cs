@@ -14,7 +14,7 @@ public static partial class WebApplicationBuilderExtensions
     /// <param name="env"></param>
     /// <param name="sentinelSetting">Observe for refreshing config cache</param>
     /// <param name="cacheExpire">used with sentinelSetting, Timespan to expire cache, default 5 minutes when null</param>
-    public static void AddAzureAppConfiguration(this WebApplicationBuilder builder, string endpoint, 
+    public static void AddAzureAppConfiguration(this WebApplicationBuilder builder, string endpoint,
         DefaultAzureCredential credential, string env, string? sentinelSetting = null, TimeSpan? cacheExpire = null)
     {
         builder.Configuration.AddAzureAppConfiguration(options =>
