@@ -1,4 +1,5 @@
-﻿using Package.Infrastructure.Data.Contracts;
+﻿using Domain.Shared.Enums;
+using Package.Infrastructure.Data.Contracts;
 
 namespace Domain.Model;
 public class SystemSetting : EntityBase
@@ -10,4 +11,5 @@ public class SystemSetting : EntityBase
     }
     public string Key { get; set; }
     public string? Value { get; set; }
+    public SystemSettings Flags { get; set; }
 }

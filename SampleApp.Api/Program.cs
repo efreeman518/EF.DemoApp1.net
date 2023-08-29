@@ -59,7 +59,7 @@ try
 
     //Custom configuration provider - from DB
     var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
-    builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(0, 0, 20));
+    builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(1, 0, 0));
 
     //logging
     loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);

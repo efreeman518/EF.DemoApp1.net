@@ -16,7 +16,7 @@ namespace Infrastructure.Data;
 /*
  * Migrations applied during design time use the design time factory to create a DBContext; 
  * set the env variable for connection string in PMC before running commands
- * $env:EFCORETOOLSDB = "Server=localhost;Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;TrustServerCertificate=true"
+ * $env:EFCORETOOLSDB = "Server=[server name];Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;TrustServerCertificate=true"
  * 
  * Note - EF migrations design time will run the app to build the service collection, 
  * then fail out - this is ok, PMC will show Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
@@ -37,7 +37,6 @@ public abstract class TodoDbContextBase : DbContextBase
 {
     protected TodoDbContextBase(DbContextOptions options) : base(options)
     {
-
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -69,4 +68,5 @@ public abstract class TodoDbContextBase : DbContextBase
 
     //DbSets
     public DbSet<TodoItem> TodoItems { get; set; } = null!;
+    public DbSet<SystemSetting> SystemSettings { get; set; } = null!;
 }

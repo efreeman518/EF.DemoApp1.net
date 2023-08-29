@@ -14,6 +14,20 @@ GO
 IF SCHEMA_ID(N'todo') IS NULL EXEC(N'CREATE SCHEMA [todo];');
 GO
 
+CREATE TABLE [todo].[SystemSetting] (
+    [Id] uniqueidentifier NOT NULL,
+    [Key] nvarchar(100) NOT NULL,
+    [Value] nvarchar(200) NULL,
+    [Flags] int NOT NULL,
+    [CreatedDate] datetime2(0) NOT NULL,
+    [CreatedBy] nvarchar(100) NOT NULL,
+    [UpdatedDate] datetime2(0) NOT NULL,
+    [UpdatedBy] nvarchar(100) NULL,
+    [RowVersion] rowversion NULL,
+    CONSTRAINT [PK_SystemSetting] PRIMARY KEY NONCLUSTERED ([Id])
+);
+GO
+
 CREATE TABLE [todo].[TodoItem] (
     [Id] uniqueidentifier NOT NULL,
     [Name] nvarchar(100) NOT NULL,
@@ -29,6 +43,9 @@ CREATE TABLE [todo].[TodoItem] (
 );
 GO
 
+CREATE UNIQUE CLUSTERED INDEX [IX_SystemSetting_Key] ON [todo].[SystemSetting] ([Key]);
+GO
+
 CREATE UNIQUE CLUSTERED INDEX [IX_TodoItem_Name] ON [todo].[TodoItem] ([Name]);
 GO
 
@@ -38,7 +55,7 @@ BEGIN
 CREATE COLUMN MASTER KEY [CMK_WITH_AKV]
 WITH (
     KEY_STORE_PROVIDER_NAME = N'AZURE_KEY_VAULT',
-    KEY_PATH = N'<keyvault key url>',
+KEY_PATH = N'<keyvault key url>',
     ENCLAVE_COMPUTATIONS (SIGNATURE = 0x01A600000) --<generated from key>
 );
 END
@@ -82,7 +99,7 @@ ALTER TABLE [todo].[TodoItem]
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20230811150747_InitialCreate', N'7.0.10');
+VALUES (N'20230829152511_InitialCreate', N'7.0.10');
 GO
 
 COMMIT;

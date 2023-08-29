@@ -9,7 +9,33 @@ public class SystemSettingsDbContext : DbContextBase
 
     public SystemSettingsDbContext(DbContextOptions<SystemSettingsDbContext> options) : base(options)
     {
+    }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        //schema
+        modelBuilder.HasDefaultSchema("todo");
+
+        //datatype defaults for sql
+        //decimal
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+        {
+            if (property.GetColumnType() == null) property.SetColumnType("decimal(10,4)");
+        }
+        //dates
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
+        {
+            if (property.GetColumnType() == null) property.SetColumnType("datetime2");
+        }
+
+        //table configurations
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SystemSettingsDbContext).Assembly);
     }
 
     //DbSets
