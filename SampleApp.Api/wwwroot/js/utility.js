@@ -1,13 +1,15 @@
 ﻿
 export default class Utility {
 
-    constructor(elSpinner, elMessage) {
+    constructor(elSpinner, elMessage, throwOnError) {
         this.elSpinner = elSpinner;
         this.elMessage = elMessage;
+        this.throwOnError = throwOnError;
     }
 
     async HttpSend(method, url, data = null, contentType = "application/json",  parseResponseType = "json") {
 
+        let response;
         try {
             if (!contentType) contentType = "application/json";
             const options = {
@@ -23,7 +25,7 @@ export default class Utility {
                 body: (data) ? JSON.stringify(data) : null // body data type must match "Content-Type" header
             };
             this.toggleSpinner(true);
-            const response = await fetch(url, options);
+            response = await fetch(url, options);
             if (response.ok) {
                 switch (parseResponseType) {
                     case "json":
@@ -40,14 +42,18 @@ export default class Utility {
             }
             else {
                 const err = await response.json();
-                throw new Error(`${err.detail}`);
+                console.error(err);
+                throw new Error(`${err.Detail}`);
             }
         }
         catch (error) {
-            console.error('HttpSend error:', error);
+            //console.error('HttpSend error:', error);
             this.elMessage.classList.add("error");
             this.elMessage.innerText = error;
-            throw error;
+            if (this.throwOnError)
+                throw error;
+            else
+                return { statusCode: response.status, data: data };
         }
         finally {
             this.toggleSpinner(false);
