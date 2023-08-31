@@ -26,8 +26,9 @@ public class TodoItemsController : ControllerBase
     /// </summary>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex"></param>
-    /// <returns></returns>
+    /// <returns>A paged list of TodoItems</returns>
     [MapToApiVersion("1.0")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
@@ -35,7 +36,14 @@ public class TodoItemsController : ControllerBase
         return Ok(items);
     }
 
+    /// <summary>
+    /// Gets a paged list of TodoItems
+    /// </summary>
+    /// <param name="pageSize"></param>
+    /// <param name="pageIndex"></param>
+    /// <returns>A paged list of TodoItems</returns>
     [MapToApiVersion("1.1")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage_1_1(int pageSize = 20, int pageIndex = 1)
     {
@@ -43,6 +51,11 @@ public class TodoItemsController : ControllerBase
         return Ok(items);
     }
 
+    /// <summary>
+    /// Gets a single TodoItem by ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>A TodoItem</returns>
     [HttpGet("{id:Guid}")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
@@ -55,6 +68,11 @@ public class TodoItemsController : ControllerBase
             : NotFound(id);
     }
 
+    /// <summary>
+    /// Saves a new TodoItem
+    /// </summary>
+    /// <param name="todoItem"></param>
+    /// <returns>The new TodoItem that was saved</returns>
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
@@ -64,6 +82,12 @@ public class TodoItemsController : ControllerBase
         return CreatedAtAction(nameof(PostTodoItem), new { id = todoItem.Id }, todoItem);
     }
 
+    /// <summary>
+    /// Updates an existing TodoItem
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="todoItem"></param>
+    /// <returns>The updated TodoItem</returns>
     [HttpPut("{id:Guid}")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
@@ -81,6 +105,11 @@ public class TodoItemsController : ControllerBase
         return Ok(todoUpdated);
     }
 
+    /// <summary>
+    /// Deletes a specific TodoItem by ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>OK</returns>
     [HttpDelete("{id:Guid}")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
@@ -90,6 +119,10 @@ public class TodoItemsController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Gets the current user
+    /// </summary>
+    /// <returns>User data in json</returns>
     [HttpGet("getuser")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUser()
@@ -98,6 +131,10 @@ public class TodoItemsController : ControllerBase
         return new JsonResult(user, new JsonSerializerOptions { WriteIndented = true });
     }
 
+    /// <summary>
+    /// Gets the current user's claims
+    /// </summary>
+    /// <returns>Claims data in json</returns>
     [HttpGet("getuserclaims")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUserClaims()
@@ -106,6 +143,10 @@ public class TodoItemsController : ControllerBase
         return new JsonResult(user.Claims, new JsonSerializerOptions { WriteIndented = true });
     }
 
+    /// <summary>
+    /// Gets the current user's auth header in json
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("getauthheader")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetAuthHeader()

@@ -3,7 +3,7 @@
 
 # Prerequisites
 1. [Visual Studio 2022 Latest (>=17.4.0)](https://visualstudio.microsoft.com/vs/)
-2. [.net7 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+2. [.net8 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 # Getting Started
 1. Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger page opens, using the same port and root folder shows a basic js UI

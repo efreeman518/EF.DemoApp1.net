@@ -29,13 +29,13 @@ public partial class ServiceErrorInterceptor : Interceptor
             List<KeyValuePair<string, string>>? list = null;
             try
             {
-                _logger.Log(LogLevel.Error, 0, "ServiceErrorInterceptor caught exception.", ex);
+                _logger.Log(LogLevel.Error, 0, ex, "ServiceErrorInterceptor caught exception.");
             }
             catch (Exception exception)
             {
                 try
                 {
-                    _logger.Log(LogLevel.Error, 0, "ServiceErrorInterceptor internal exception when attempting to log an application exception.", exception);
+                    _logger.Log(LogLevel.Error, 0, exception, "ServiceErrorInterceptor internal exception when attempting to log an application exception.");
                 }
                 catch (Exception ex2)
                 {
