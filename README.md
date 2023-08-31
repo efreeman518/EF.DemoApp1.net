@@ -1,9 +1,12 @@
 # Introduction 
-.net7 C# Sample App - A modern domain-centric service api template
+C# Sample App - A modern domain-centric service api template
+- main branch .net7
+- net8 branch .net8 latest preview
 
 # Prerequisites
-1. [Visual Studio 2022 Latest (>=17.4.0)](https://visualstudio.microsoft.com/vs/)
+1. [Visual Studio 2022 Latest (>=17.8 preview needed for .net8)](https://visualstudio.microsoft.com/vs/)
 2. [.net7 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+3. [.net8 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (net8 branch)
 
 # Getting Started
 1. Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger page opens, using the same port and root folder shows a basic js UI
@@ -14,13 +17,15 @@
    * OpenAI Api tests require credentials (key) - https://platform.openai.com/docs/introduction/overview (paid account)
    * AzureBlobStorageTests needs either Azurite (https://www.npmjs.com/package/azurite) or an Azure storage account
    * CosmosDbTests needs either the CosmosDb emulator (https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21) or an Azure CosmosDb Account
+   * AzureTableRepositoryTests needs Azurite or Storage or Cosmos Table Api
+   * KeyVaultManagerTests needs an Azure KeyVault
 3. Functions - running these require various integrations set up
    * Blob/Queue Functions - run Azurite or a real storage account
    * EventGrid Functions - tunnel back to local using VS Tunnels (public) or ngrok url (auto-validate) EventGrid-Topic-Subscription url/runtime/webhooks/EventGrid?functionName=EventGridTriggerCustom
 
 # Notes
 1. Started from Microsoft's Todo sample api (<a href="https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-7.0&tabs=visual-studio" target="_blank">https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-7.0&tabs=visual-studio</a>)
-2. This sample uses Entity Framework Core in-memory DbContext, so restarting the app clears the DB
+2. This sample uses Entity Framework Core in-memory DbContext by default, so restarting the app clears the DB
 3. This solution provides a possible starting template for building service apis and is not production-ready (in-memory database, no authentication, etc)
 4. Package.Infrastructure projects are meant to reside in a nuget package feed, but for simplicity and portability of this sample, the source projects are included and referenced
 5. Package.Infrastructure.Storage & Functions.FunctionBlobTrigger - install and run latest azurite storage emulator (https://www.npmjs.com/package/azurite)
@@ -31,5 +36,5 @@
    * https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 7. Azure Storage Explorer is usefull for blobs/queues/tables
    * https://azure.microsoft.com/en-us/products/storage/storage-explorer/
-8. ngrok/tunnel to https://localhost:port IIS express
+8. Tunneling for EventGrid Functions - use VS Dev Tunnels or ngrok/tunnel to https://localhost:port IIS express
    * ngrok http https://localhost:44339 --host-header="localhost:44339"
