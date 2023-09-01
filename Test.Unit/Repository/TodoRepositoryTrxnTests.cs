@@ -25,7 +25,7 @@ public class TodoRepositoryTrxnTests : UnitTestBase
         var dbTrxn = new InMemoryDbBuilder().BuildInMemory<TodoDbContextTrxn>();
 
         var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
-        ITodoRepositoryTrxn repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
+        var repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         var todo = new TodoItem("wash car");
 
         //act & assert

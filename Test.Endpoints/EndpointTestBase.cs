@@ -35,7 +35,7 @@ public abstract class EndpointTestBase
     protected async Task ApplyBearerAuthHeader(HttpClient client)
     {
         //scopes = new string[] { _azureAdOptions.Resource + ".default" };
-        var scopes = _config.GetValue("Auth:Scopes", new string[] { "" })!;
+        var scopes = _config.GetValue("Auth:Scopes", new string[] { string.Empty })!;
         var token = await _tokenProvider.GetAccessTokenAsync(scopes);
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }

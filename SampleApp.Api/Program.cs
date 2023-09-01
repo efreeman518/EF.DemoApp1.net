@@ -80,7 +80,7 @@ try
         .RegisterInfrastructureServices(config)
         //domain services
         .RegisterDomainServices(config)
-        //app servives
+        //app services
         .RegisterApplicationServices(config)
         //background services
         .RegisterBackgroundServices(config);

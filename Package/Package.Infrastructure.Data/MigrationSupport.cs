@@ -13,7 +13,6 @@ namespace Package.Infrastructure.Data;
 /// </summary>
 /// Implement AlwaysEncrypted on a column - add something like this at the end of the migration's Up() method:
 
-#pragma warning disable S1135, S125 // Track uses of "TODO" tags, comments
 /* 
     //add to migration class - customize for always encrypted (until supported in fluent syntax)
     string url_AKV_CMK = "<url to keyvault key>";
@@ -39,7 +38,6 @@ namespace Package.Infrastructure.Data;
  * https://www.red-gate.com/simple-talk/databases/sql-server/database-administration-sql-server/sql-server-encryption-always-encrypted/
  * The easiest way to grant the application the required permission is to add its identity to the "Key Vault Crypto User" role
  */
-#pragma warning restore S1135 // Track uses of "TODO" tags
 
 [ExcludeFromCodeCoverage]
 public class MigrationSupport

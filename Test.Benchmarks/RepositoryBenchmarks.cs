@@ -19,7 +19,7 @@ namespace Test.Benchmarks;
 public class RepositoryBenchmarks
 {
     //Infrastructure
-    private readonly ITodoRepositoryQuery _repo;
+    private readonly TodoRepositoryQuery _repo;
 
     public RepositoryBenchmarks()
     {

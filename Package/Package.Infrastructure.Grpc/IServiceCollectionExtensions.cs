@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Extensions.Http;
+using Polly.Retry;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Security;
@@ -75,7 +77,7 @@ public static class IServiceCollectionExtensions
         return httpClientBuilder;
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
+    private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
     {
         HttpStatusCode[]? retryHttpStatusCodes2 = retryHttpStatusCodes;
         Random jitterer = new();
@@ -90,7 +92,7 @@ public static class IServiceCollectionExtensions
         return Policy.Handle<HttpRequestException>().OrResult((HttpResponseMessage r) => retryHttpStatusCodes2.Contains(r.StatusCode)).WaitAndRetryAsync(numRetries, (int retryAttempt) => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
+    private static AsyncCircuitBreakerPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
     {
         return HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
     }

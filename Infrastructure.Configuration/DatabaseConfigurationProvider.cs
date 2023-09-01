@@ -47,7 +47,7 @@ public class DatabaseConfigurationProvider : ConfigurationProvider
             : dbContext.SystemSettings.ToDictionary(c => c.Key, c => c.Value);
     }
 
-    private static IDictionary<string, string?> CreateAndSaveDefaultValues(SystemSettingsDbContext context)
+    private static Dictionary<string, string?> CreateAndSaveDefaultValues(SystemSettingsDbContext context)
     {
         var settings = new Dictionary<string, string?>(
             StringComparer.OrdinalIgnoreCase)

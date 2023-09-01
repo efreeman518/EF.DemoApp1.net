@@ -1,8 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿namespace Package.Infrastructure.Common.Exceptions;
 
-namespace Package.Infrastructure.Common.Exceptions;
-
-[Serializable]
 public class NotFoundException : Exception
 {
 

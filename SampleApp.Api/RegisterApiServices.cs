@@ -13,6 +13,10 @@ namespace SampleApp.Api;
 
 internal static class IServiceCollectionExtensions
 {
+    internal static readonly string[] healthCheckTagsFullMem = new[] { "full", "memory" };
+    internal static readonly string[] healthCheckTagsFullDb = new[] { "full", "db" };
+    internal static readonly string[] healthCheckTagsFullExt = new[] { "full", "extservice" };
+
     /// <summary>
     /// Used at runtime for http services; not used for Workers/Functions/Tests
     /// </summary>
@@ -102,10 +106,10 @@ internal static class IServiceCollectionExtensions
         //HealthChecks - having infrastructure references
         //tag full will run when hitting health/full
         services.AddHealthChecks()
-            .AddMemoryHealthCheck("memory", tags: new[] { "full", "memory" }, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
-            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: new[] { "full", "db" })
-            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: new[] { "full", "db" })
-            .AddCheck<WeatherServiceHealthCheck>("External Service", tags: new[] { "full", "extservice" });
+            .AddMemoryHealthCheck("memory", tags: healthCheckTagsFullMem, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
+            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: healthCheckTagsFullDb)
+            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: healthCheckTagsFullDb)
+            .AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
 
         return services;
     }
