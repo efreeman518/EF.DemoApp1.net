@@ -11,5 +11,8 @@ public class MappingProfile : Profile
     {
         CreateMap<TodoItem, TodoItemDto>()
            .ReverseMap();
+
+        CreateMap<SystemSetting, SystemSettingDto>()
+           .ReverseMap();
     }
 }

@@ -3,5 +3,7 @@
 [Flags]
 public enum SystemSettings
 {
-    Config = 1
+    Configuration = 1,
+    MemoryCache = 2,
+    DistributedCache = 4
 }
