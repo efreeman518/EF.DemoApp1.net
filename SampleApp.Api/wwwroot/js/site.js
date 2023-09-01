@@ -44,7 +44,7 @@ async function saveItem() {
         url = `${url}/${itemId}`; 
     }
 
-    var response = await _utility.HttpSend(method, url, item);
+    const response = await _utility.HttpSend(method, url, item);
     if (response.ok) {
         clearEditRow();
         await getItems();
