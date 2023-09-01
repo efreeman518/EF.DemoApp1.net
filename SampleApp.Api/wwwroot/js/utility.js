@@ -38,7 +38,7 @@ export default class Utility {
                         data = null;
                         break;
                 }
-                return { statusCode: response.status, data: data };
+                return { ok:response.ok, statusCode: response.status, data: data };
             }
             else {
                 const err = await response.json();

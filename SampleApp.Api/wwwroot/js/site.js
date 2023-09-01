@@ -45,7 +45,7 @@ async function saveItem() {
     }
 
     var response = await _utility.HttpSend(method, url, item);
-    if (response.statusCode == 201) {
+    if (response.ok) {
         clearEditRow();
         await getItems();
     }
