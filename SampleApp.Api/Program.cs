@@ -38,8 +38,6 @@ try
     string env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
     //configuration
-    //user secrets
-    //if (builder.Environment.IsDevelopment()) builder.Configuration.AddUserSecrets<Program>();
 
     //Azure AppConfig
     var endpoint = builder.Configuration.GetValue<string>("AzureAppConfig:Endpoint");
