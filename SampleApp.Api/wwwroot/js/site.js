@@ -14,14 +14,8 @@ const TodoItemStatus = {
 let todos = [];
 
 async function getItems() {
-    try {
-        const response = await _utility.HttpSend("GET", urlTodo);
-        displayItems(response.data);
-    }
-    catch (error) {
-        document.getElementById('message').innerText = error.detail;
-        console.error('Unable to get items.', error)
-    }
+    const response = await _utility.HttpSend("GET", urlTodo);
+    displayItems(response.data);
 }
 
 async function deleteItem(id) {
@@ -50,9 +44,11 @@ async function saveItem() {
         url = `${url}/${itemId}`; 
     }
 
-    await _utility.HttpSend(method, url, item);
-    clearEditRow();
-    await getItems();
+    var response = await _utility.HttpSend(method, url, item);
+    if (response.ok) {
+        clearEditRow();
+        await getItems();
+    }
 }
 
 function popEdit(item) {
