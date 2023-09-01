@@ -41,7 +41,7 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
         return accessToken;
     }
 
-    private IEnumerable<KeyValuePair<string, string?>> GetTokenRequestBody()
+    private List<KeyValuePair<string, string?>> GetTokenRequestBody()
     {
         var requestBody = new List<KeyValuePair<string, string?>>
         {
