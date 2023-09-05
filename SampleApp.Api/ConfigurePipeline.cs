@@ -68,6 +68,10 @@ public static partial class WebApplicationBuilderExtensions
         {
             app.UseSwagger(o =>
             {
+                //Microsoft Power Apps and Microsoft Flow do not support OpenAPI 3.0
+                //enable temporarily to produce a Swagger 2.0 file;
+                //o.SerializeAsV2 = true;
+
                 //ChatGPT plugin
                 if (config.GetValue("ChatGPT_Plugin:Enable", false))
                 {
