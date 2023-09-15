@@ -16,6 +16,8 @@ public abstract class EntityBaseConfiguration<T> : IEntityTypeConfiguration<T> w
         builder.Property(e => e.UpdatedBy).HasMaxLength(100);
         builder.Property(e => e.CreatedDate).HasColumnType("datetime2(0)");
         builder.Property(e => e.UpdatedDate).HasColumnType("datetime2(0)");
+
+        //using as a shadow property causes concurrency problems when not tracked then attached, so keeping it on the base class, we always have it 
         builder.Property(e => e.RowVersion).IsRowVersion();
 
         //property converters if needed
