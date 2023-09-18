@@ -74,7 +74,7 @@ public partial class InitialCreate : Migration
             unique: true)
             .Annotation("SqlServer:Clustered", true);
 
-        string url_AKV_CMK = "<path to KeyVault key>";
+        string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL");//set in PMC: $env:AKVCMKURL = "https://vault-dev.vault.azure.net/keys/SQL-ColMaskerKey-Default/abc123"
         string schema_table = "[todo].[TodoItem]";
         string cmkName = "CMK_WITH_AKV";
 
