@@ -30,7 +30,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             config.AddEnvironmentVariables(prefix: "ASPNETCORE_");
         });
 
-        string env = Utility.GetConfiguration().GetValue<string>("Environment", "development")!;
+        string env = Utility.GetConfiguration().GetValue<string>("Environment", "Development")!;
         builder
             .UseEnvironment(env)
             .ConfigureServices(services =>

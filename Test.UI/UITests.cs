@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.UI;
 
-//[Ignore("api needs to be running somewhere")]
+[Ignore("api needs to be running somewhere")]
 
 /// <summary>
 /// #Run the api in another VS
