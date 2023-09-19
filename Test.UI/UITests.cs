@@ -3,8 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.UI;
 
-//Run the api in another VS
-[Ignore("api needs to be running somewhere")]
+//[Ignore("api needs to be running somewhere")]
+
+/// <summary>
+/// #Run the api in another VS
+/// #The versions of Chrome and Edge must match the versions of the drivers in the bin folder
+/// </summary>
 [TestClass]
 public class UITests : SeleniumTestBase
 {

@@ -26,7 +26,8 @@ internal static class TodoLoadTest
                     // assemble the payload for this step request 
                     (context) =>
                     {
-                        return new TodoItemDto { Name = $"a{Guid.NewGuid()}" };
+                        var name = $"a{Guid.NewGuid()}";
+                        return new TodoItemDto { Name = name, SecureRandom = name, SecureDeterministic = name };
                     });
                 await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/v1.1/TodoItems",
                     //assemble the url for this step request using previous step response
