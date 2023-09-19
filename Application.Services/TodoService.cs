@@ -1,4 +1,4 @@
-﻿using Infrastructure.SampleApi;
+﻿using Application.Contracts.Interfaces;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;

@@ -82,13 +82,16 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
         string? continuationToken = null;
 
+
         do
         {
             (todos, continuationToken) = await _repo.QueryPageAsync(continuationToken, pageSize, filterLinq);
             Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
+#pragma warning disable S2589 //False positive - Boolean expressions should not be gratuitous
         while (continuationToken != null);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         Assert.IsNotNull(fullList);
     }
@@ -116,7 +119,9 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
+#pragma warning disable S2589 // False positive - Boolean expressions should not be gratuitous
         while (continuationToken != null);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         Assert.IsNotNull(fullList);
     }

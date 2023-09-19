@@ -1,4 +1,5 @@
 ﻿//logging for initialization
+using Application.Contracts.Interfaces;
 using Google.Protobuf.WellKnownTypes;
 using Infrastructure.SampleApi;
 using Microsoft.Extensions.Configuration;

@@ -1,4 +1,4 @@
-﻿using Infrastructure.RapidApi.WeatherApi;
+﻿using Application.Contracts.Interfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 

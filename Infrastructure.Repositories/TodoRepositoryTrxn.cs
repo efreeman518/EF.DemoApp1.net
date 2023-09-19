@@ -1,4 +1,5 @@
-﻿using Package.Infrastructure.Common;
+﻿using Application.Contracts.Interfaces;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Data;
 
 namespace Infrastructure.Repositories;

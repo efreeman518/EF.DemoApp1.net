@@ -46,7 +46,7 @@ internal static class TodoLoadTest
                     (context) =>
                     {
                         var todoItem = (TodoItemDto)context.Data["get"];
-                        return new TodoItemDto { Id = todoItem.Id, Name = "some updated name" };
+                        return new TodoItemDto { Id = todoItem.Id, Name = $"updated {todoItem.Name}" };
                     });
 
                 return Response.Ok();

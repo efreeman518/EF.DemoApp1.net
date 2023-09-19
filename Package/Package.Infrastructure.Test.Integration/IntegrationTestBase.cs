@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using Application.Contracts.Interfaces;
+using Azure;
 using Azure.Identity;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;

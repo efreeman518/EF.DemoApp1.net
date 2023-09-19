@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Model;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;

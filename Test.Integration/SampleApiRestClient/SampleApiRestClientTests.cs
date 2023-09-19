@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Model;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using Infrastructure.SampleApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

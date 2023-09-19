@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Model;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Application.Services;
 using Application.Services.Validators;
@@ -106,9 +107,9 @@ public static class IServiceCollectionExtensions
                 return new Package.Infrastructure.Common.RequestContext(correlationId, $"BackgroundService-{correlationId}");
             }
 
-            var user = httpContext?.User;
+            var user = httpContext.User;
 
-            //Get auditId from token claim /header
+            //Get auditId from token claim or header
             string? auditId =
                 //AAD from user
                 user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value

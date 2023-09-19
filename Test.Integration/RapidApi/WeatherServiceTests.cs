@@ -1,4 +1,5 @@
-﻿using Infrastructure.RapidApi.WeatherApi;
+﻿using Application.Contracts.Interfaces;
+using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

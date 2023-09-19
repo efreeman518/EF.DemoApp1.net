@@ -45,17 +45,17 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
     {
         var requestBody = new List<KeyValuePair<string, string?>>
         {
-            new KeyValuePair<string, string?>("grant_type", _oauth2Options?.GrantType),
-            new KeyValuePair<string, string?>("client_id", _oauth2Options?.ClientId),
-            new KeyValuePair<string, string?>("client_secret", _oauth2Options?.ClientSecret)
+            new KeyValuePair<string, string?>("grant_type", _oauth2Options.GrantType),
+            new KeyValuePair<string, string?>("client_id", _oauth2Options.ClientId),
+            new KeyValuePair<string, string?>("client_secret", _oauth2Options.ClientSecret)
         };
 
-        if (!string.IsNullOrEmpty(_oauth2Options?.Scope))
+        if (!string.IsNullOrEmpty(_oauth2Options.Scope))
         {
-            requestBody.Add(new KeyValuePair<string, string?>("scope", _oauth2Options?.Scope));
+            requestBody.Add(new KeyValuePair<string, string?>("scope", _oauth2Options.Scope));
         }
 
-        if (!string.IsNullOrEmpty(_oauth2Options?.Username) && !string.IsNullOrEmpty(_oauth2Options?.Password))
+        if (!string.IsNullOrEmpty(_oauth2Options.Username) && !string.IsNullOrEmpty(_oauth2Options.Password))
         {
             requestBody.Add(new KeyValuePair<string, string?>("username", _oauth2Options.Username));
             requestBody.Add(new KeyValuePair<string, string?>("password", _oauth2Options.Password));

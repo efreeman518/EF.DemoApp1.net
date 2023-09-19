@@ -1,7 +1,7 @@
 ﻿using Application.Contracts.Model;
 using Package.Infrastructure.Data.Contracts;
 
-namespace Infrastructure.Repositories;
+namespace Application.Contracts.Interfaces;
 
 public interface ITodoRepositoryQuery : IRepositoryBase
 {

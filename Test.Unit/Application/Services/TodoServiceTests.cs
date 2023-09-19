@@ -1,3 +1,4 @@
+using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
 using Application.Services;
 using Application.Services.Validators;
@@ -6,7 +7,6 @@ using Domain.Shared.Enums;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
-using Infrastructure.SampleApi;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;

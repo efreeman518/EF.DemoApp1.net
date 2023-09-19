@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.RapidApi.WeatherApi;
+﻿using Application.Contracts.Model;
+
+namespace Application.Contracts.Interfaces;
 
 public interface IWeatherService
 {

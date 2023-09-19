@@ -26,7 +26,6 @@ public partial class ServiceErrorInterceptor : Interceptor
         catch (Exception ex)
         {
             StatusCode statusCode = StatusCode.Internal;
-            List<KeyValuePair<string, string>>? list = null;
             try
             {
                 _logger.Log(LogLevel.Error, 0, ex, "ServiceErrorInterceptor caught exception.");
@@ -46,7 +45,11 @@ public partial class ServiceErrorInterceptor : Interceptor
             Metadata trailers = new();
             if (_settings.IncludeLogDataInResponse)
             {
-                list?.ForEach(delegate (KeyValuePair<string, string> d)
+                List<KeyValuePair<string, string>> list = new()
+                {
+                    new KeyValuePair<string, string>("Exception", ex.Message)
+                };
+                list.ForEach(delegate (KeyValuePair<string, string> d)
                 {
                     trailers.Add(CleanMetadataKey(d.Key), d.Value ?? "");
                 });

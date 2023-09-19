@@ -1,5 +1,5 @@
-﻿using Application.Contracts.Model;
-using Infrastructure.SampleApi;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;

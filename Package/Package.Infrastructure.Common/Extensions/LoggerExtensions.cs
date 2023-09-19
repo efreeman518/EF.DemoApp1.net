@@ -52,7 +52,7 @@ public static class LoggerExtensions
             DateTime.UtcNow,
             //Azure App Services
             Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "",
-            Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID" ?? "")
+            Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? ""
         };
 
         if (message != null)

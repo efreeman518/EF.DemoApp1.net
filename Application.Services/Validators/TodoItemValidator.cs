@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Application.Contracts.Interfaces;
+using FluentValidation;
 using AppConstants = Application.Contracts.Constants.Constants;
 using DomainConstants = Domain.Shared.Constants.Constants;
 

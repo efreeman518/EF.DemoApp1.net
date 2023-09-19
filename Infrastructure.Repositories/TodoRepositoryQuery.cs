@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Model;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using AutoMapper;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data;
