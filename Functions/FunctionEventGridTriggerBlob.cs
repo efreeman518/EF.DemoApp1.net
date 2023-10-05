@@ -26,25 +26,16 @@ namespace Functions;
 ///     
 /// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
-public class FunctionEventGridTriggerBlob
+public class FunctionEventGridTriggerBlob(IConfiguration configuration, ILoggerFactory loggerFactory,
+    IOptions<Settings1> settings)
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionEventGridTriggerBlob> _logger;
-    private readonly Settings1 _settings;
-
-    public FunctionEventGridTriggerBlob(IConfiguration configuration, ILoggerFactory loggerFactory,
-        IOptions<Settings1> settings)
-    {
-        _configuration = configuration;
-        _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerBlob>();
-        _settings = settings.Value;
-    }
+    private readonly ILogger<FunctionEventGridTriggerBlob> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerBlob>();
 
     [Function("EventGridTriggerBlob")]
     public async Task Run([EventGridTrigger] EventGridEvent inputEvent)
     {
-        _ = _configuration.GetHashCode();
-        _ = _settings.GetHashCode();
+        _ = configuration.GetHashCode();
+        _ = settings.GetHashCode();
 
         string? fileName = Path.GetFileName(inputEvent.Subject);
 

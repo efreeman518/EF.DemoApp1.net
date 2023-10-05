@@ -8,6 +8,7 @@ using System.Text.Json;
 namespace Package.Infrastructure.Common.Extensions;
 public static class HttpClientExtensions
 {
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
     /// <summary>
     /// HttpClient extension method. Sends the http request and parses the response in to expected TResponse structure
     /// </summary>
@@ -59,7 +60,7 @@ public static class HttpClientExtensions
         else
         {
             if (s.Length > 0)
-                response = await JsonSerializer.DeserializeAsync<TResponse>(s, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions);
         }
         //might not be expecting a response payload (Http Delete - TResponse = object)
         //if (response == null) throw new InvalidOperationException("empty response");

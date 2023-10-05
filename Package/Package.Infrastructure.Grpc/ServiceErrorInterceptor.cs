@@ -5,16 +5,10 @@ using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Grpc;
-public partial class ServiceErrorInterceptor : Interceptor
+public partial class ServiceErrorInterceptor(ILogger<ServiceErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings) : Interceptor
 {
-    private readonly ILogger<ServiceErrorInterceptor> _logger;
-    private readonly ErrorInterceptorSettings _settings;
-
-    public ServiceErrorInterceptor(ILogger<ServiceErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings)
-    {
-        _logger = logger;
-        _settings = settings.Value;
-    }
+    private readonly ILogger<ServiceErrorInterceptor> _logger = logger;
+    private readonly ErrorInterceptorSettings _settings = settings.Value;
 
     public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(TRequest request, ServerCallContext context, UnaryServerMethod<TRequest, TResponse> continuation)
     {
@@ -42,13 +36,13 @@ public partial class ServiceErrorInterceptor : Interceptor
                 }
             }
 
-            Metadata trailers = new();
+            Metadata trailers = [];
             if (_settings.IncludeLogDataInResponse)
             {
-                List<KeyValuePair<string, string>> list = new()
-                {
+                List<KeyValuePair<string, string>> list =
+                [
                     new KeyValuePair<string, string>("Exception", ex.Message)
-                };
+                ];
                 list.ForEach(delegate (KeyValuePair<string, string> d)
                 {
                     trailers.Add(CleanMetadataKey(d.Key), d.Value ?? "");

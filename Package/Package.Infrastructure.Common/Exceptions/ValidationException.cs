@@ -12,7 +12,7 @@ public class ValidationException : Exception
     }
 
     public ValidationException(ValidationResult validationResult)
-        : base(string.Join("; ", validationResult.Messages.ToArray()))
+        : base(string.Join<string>("; ", [.. validationResult.Messages]))
     {
     }
 

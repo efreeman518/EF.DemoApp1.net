@@ -1,12 +1,6 @@
 ﻿namespace Package.Infrastructure.OpenAI.ChatApi;
 
-public class Request
+public class Request(string prompt)
 {
-    private readonly string _prompt;
-    public string Prompt => _prompt;
-
-    public Request(string prompt)
-    {
-        _prompt = prompt;
-    }
+    public string Prompt => prompt;
 }

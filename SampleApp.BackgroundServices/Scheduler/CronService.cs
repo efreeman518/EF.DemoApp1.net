@@ -4,15 +4,9 @@ using Package.Infrastructure.BackgroundServices;
 
 namespace SampleApp.BackgroundServices.Scheduler;
 
-public class CronService : CronBackgroundService<CustomCronJob>
+public class CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronService> logger, 
+    IOptions<CronJobBackgroundServiceSettings<CustomCronJob>> settings) : CronBackgroundService<CustomCronJob>(logger, settings)
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
-    public CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronService> logger, IOptions<CronJobBackgroundServiceSettings<CustomCronJob>> settings)
-        : base(logger, settings)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-    }
 
     /// <summary>
     /// Uncaught Exception will stop the service
@@ -32,7 +26,7 @@ public class CronService : CronBackgroundService<CustomCronJob>
             _ = cronJob.SomeTopicOrQueue;
 
             //create scope if needed for scoped services
-            using var scope = _serviceScopeFactory.CreateScope();
+            using var scope = serviceScopeFactory.CreateScope();
 
             //do something - get a scoped service and call a method
             _ = scope.ServiceProvider.GetRequiredService<ITodoService>();

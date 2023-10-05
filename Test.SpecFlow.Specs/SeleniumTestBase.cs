@@ -5,17 +5,12 @@ using OpenQA.Selenium.Support.UI;
 
 namespace Test.SpecFlow.Specs;
 
-public class SeleniumTestBase : IDisposable
+public class SeleniumTestBase(ScenarioContext scenarioContext) : IDisposable
 {
-    protected ScenarioContext _scenarioContext;
+    protected ScenarioContext _scenarioContext = scenarioContext;
     protected IWebDriver? _driver;
     protected WebDriverWait? _waitMax10Seconds;
     private static readonly Random random = new();
-
-    public SeleniumTestBase(ScenarioContext scenarioContext)
-    {
-        _scenarioContext = scenarioContext;
-    }
 
     public static string RandomString(int length)
     {

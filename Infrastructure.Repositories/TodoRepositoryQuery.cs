@@ -7,14 +7,8 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.Repositories;
 
-public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepositoryQuery
+public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext rc, IMapper mapper) : RepositoryBase<TodoDbContextQuery>(dbContext, rc), ITodoRepositoryQuery
 {
-    private readonly IMapper _mapper;
-    public TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext rc, IMapper mapper) : base(dbContext, rc)
-    {
-        _mapper = mapper;
-    }
-
     /// <summary>
     /// Return a cref="PagedResponse" projected to Dto
     /// </summary>
@@ -58,7 +52,7 @@ public class TodoRepositoryQuery : RepositoryBase<TodoDbContextQuery>, ITodoRepo
         //sort and filter have already been applied
         //await SetNoLock(); //InMemoryDbContext does not support
         (var data, var total) = await q.QueryPageProjectionAsync<TodoItem, TodoItemDto>(
-            _mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
+            mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
         //await SetLock(); //InMemoryDbContext does not support
         return new PagedResponse<TodoItemDto>
         {

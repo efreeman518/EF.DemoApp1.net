@@ -6,21 +6,12 @@ using Package.Infrastructure.Common.Extensions;
 using System.Runtime.CompilerServices;
 
 namespace Package.Infrastructure.Grpc;
-public class ClientErrorInterceptor : Interceptor
+public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings) : Interceptor
 {
-    private readonly ILogger<ClientErrorInterceptor> _logger;
-    private readonly ErrorInterceptorSettings _settings;
-
-    public ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings)
-    {
-        _logger = logger;
-        _settings = settings.Value;
-    }
-
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
-        _ = _settings.GetHashCode();
-        _logger.Log(LogLevel.Debug, "Executing {Method}", context.Method);
+        _ = settings.GetHashCode();
+        logger.Log(LogLevel.Debug, "Executing {Method}", context.Method);
         AsyncUnaryCall<TResponse> asyncUnaryCall = continuation(request, context);
         return new AsyncUnaryCall<TResponse>(HandleResponse(asyncUnaryCall.ResponseAsync), asyncUnaryCall.ResponseHeadersAsync, new Func<Status>(asyncUnaryCall.GetStatus), new Func<Metadata>(asyncUnaryCall.GetTrailers), new Action(asyncUnaryCall.Dispose));
     }
@@ -30,7 +21,7 @@ public class ClientErrorInterceptor : Interceptor
         try
         {
             TResponse val = await grpcResponse;
-            _logger.Log(LogLevel.Debug, "Response received: {Response}", val);
+            logger.Log(LogLevel.Debug, "Response received: {Response}", val);
             return val;
         }
         catch (Exception ex)
@@ -42,7 +33,7 @@ public class ClientErrorInterceptor : Interceptor
 
     private void AttemptLogException(Exception ex)
     {
-        List<KeyValuePair<string, string?>> logData = new();
+        List<KeyValuePair<string, string?>> logData = [];
         try
         {
             string text = "ClientErrorInterceptor caught exception: " + ex.Message + ".";
@@ -61,13 +52,13 @@ public class ClientErrorInterceptor : Interceptor
                 });
             }
 
-            _logger.Log(LogLevel.Error, 0, text, ex, logData);
+            logger.Log(LogLevel.Error, 0, text, ex, logData);
         }
         catch (Exception exception)
         {
             try
             {
-                _logger.Log(LogLevel.Error, 0, "ClientErrorInterceptor internal exception when attempting to log an application exception.", exception, logData);
+                logger.Log(LogLevel.Error, 0, "ClientErrorInterceptor internal exception when attempting to log an application exception.", exception, logData);
             }
             catch
             {

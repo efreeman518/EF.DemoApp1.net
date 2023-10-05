@@ -43,18 +43,10 @@ namespace Package.Infrastructure.Data;
  */
 
 [ExcludeFromCodeCoverage]
-public class MigrationSupport
+public class MigrationSupport(MigrationBuilder migrationBuilder, DefaultAzureCredential credential)
 {
-    private readonly MigrationBuilder _migrationBuilder;
-    private readonly SqlColumnEncryptionAzureKeyVaultProvider _akvProvider;
+    private readonly SqlColumnEncryptionAzureKeyVaultProvider _akvProvider = new(credential);
     private readonly string s_algorithm = "RSA_OAEP";
-
-    public MigrationSupport(MigrationBuilder migrationBuilder, DefaultAzureCredential credential)
-    {
-        _migrationBuilder = migrationBuilder;
-        // Initialize AKV provider
-        _akvProvider = new(credential);
-    }
 
     /// <summary>
     /// CMK is based on an AzureKeyVault Key
@@ -86,7 +78,7 @@ BEGIN
 END
 ";
 
-        _migrationBuilder.Sql(sql);
+        migrationBuilder.Sql(sql);
     }
 
     /// <summary>
@@ -114,7 +106,7 @@ BEGIN
     SELECT 'COLUMN ENCRYPTION KEY [{cekName}] exists.';
 END";
 
-        _migrationBuilder.Sql(sql);
+        migrationBuilder.Sql(sql);
     }
 
     private string GetEncryptedValue(string urlAKVMasterKeyUrl)
@@ -147,6 +139,6 @@ END";
                                         ENCRYPTION_TYPE = {encType}, 
                                         ALGORITHM = '{algorithm}', 
                                         COLUMN_ENCRYPTION_KEY = [{cekName}]) {nullability}NULL";
-        _migrationBuilder.Sql(sql);
+        migrationBuilder.Sql(sql);
     }
 }

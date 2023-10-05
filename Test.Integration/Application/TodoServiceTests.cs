@@ -49,7 +49,9 @@ public class TodoServiceTests : IntegrationTestBase
         todo.Name = newName;
         var updated = await svc.UpdateItemAsync(todo);
         Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
+#pragma warning disable S2589 // Boolean expressions should not be gratuitous - FALSE POSITIVE
         Assert.AreEqual(newName, updated?.Name);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         //delete
         await svc.DeleteItemAsync(id);

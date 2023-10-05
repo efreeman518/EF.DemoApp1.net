@@ -8,16 +8,10 @@ namespace Package.Infrastructure.BackgroundServices;
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-7.0
 
-public class BackgroundTaskQueue : IBackgroundTaskQueue
+public class BackgroundTaskQueue(IServiceScopeFactory serviceScopeFactory) : IBackgroundTaskQueue
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
     private readonly SemaphoreSlim _semaphore = new(0); //no workItems initially, so 0 threads allowed in the semaphore that attempts to Dequeue
-
-    public BackgroundTaskQueue(IServiceScopeFactory serviceScopeFactory)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-    }
 
     /// <summary>
     /// Waits for and removes the first item in the queue - entering the semaphore (-1)
@@ -61,7 +55,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
                 {
                     try
                     {
-                        using var scope = _serviceScopeFactory.CreateScope();
+                        using var scope = serviceScopeFactory.CreateScope();
                         var scopedService = scope.ServiceProvider.GetService<TScoped>()
                             ?? throw new ArgumentException($"Scoped background work depends on scoped service but it is not registered.");
                         await workItem(scopedService!, cancellationToken);
@@ -84,16 +78,10 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
 /// <summary>
 /// Fire-And-Forget / long running background task
 /// </summary>
-public class BackgroundTaskService : BackgroundService
+public class BackgroundTaskService(ILogger<BackgroundTaskService> logger, IBackgroundTaskQueue taskQueue) : BackgroundService
 {
-    private readonly IBackgroundTaskQueue _taskQueue;
-    private readonly ILogger<BackgroundTaskService> _logger;
-
-    public BackgroundTaskService(ILogger<BackgroundTaskService> logger, IBackgroundTaskQueue taskQueue)
-    {
-        _logger = logger;
-        _taskQueue = taskQueue;
-    }
+    private readonly IBackgroundTaskQueue _taskQueue = taskQueue;
+    private readonly ILogger<BackgroundTaskService> _logger = logger;
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -123,7 +111,6 @@ public class BackgroundTaskService : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("BackgroundTaskService Hosted Service is stopping.");
-
         await base.StopAsync(cancellationToken);
     }
 }

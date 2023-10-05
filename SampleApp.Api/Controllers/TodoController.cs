@@ -13,13 +13,9 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class TodoItemsController : ControllerBase
+public class TodoItemsController(ITodoService todoService) : ControllerBase
 {
-    private readonly ITodoService _todoService;
-    public TodoItemsController(ITodoService todoService)
-    {
-        _todoService = todoService;
-    }
+    private readonly ITodoService _todoService = todoService;
 
     /// <summary>
     /// Gets a paged list of TodoItems

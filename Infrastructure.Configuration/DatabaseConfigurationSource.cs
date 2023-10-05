@@ -4,17 +4,9 @@ using Microsoft.Extensions.Configuration;
 namespace Infrastructure.Configuration;
 
 // Define a class that implements the IConfigurationSource interface
-public class DatabaseConfigurationSource : IConfigurationSource
+public class DatabaseConfigurationSource(Action<DbContextOptionsBuilder> optionsAction, IDatabaseConfigurationRefresher? dbConfigRefresher) : IConfigurationSource
 {
-    private readonly Action<DbContextOptionsBuilder> _optionsAction;
+    internal IDatabaseConfigurationRefresher? DbConfigRefresher { get; set; } = dbConfigRefresher;
 
-    public DatabaseConfigurationSource(Action<DbContextOptionsBuilder> optionsAction, IDatabaseConfigurationRefresher? dbConfigRefresher)
-    {
-        _optionsAction = optionsAction;
-        DbConfigRefresher = dbConfigRefresher;
-    }
-
-    internal IDatabaseConfigurationRefresher? DbConfigRefresher { get; set; }
-
-    public IConfigurationProvider Build(IConfigurationBuilder builder) => new DatabaseConfigurationProvider(this, _optionsAction);
+    public IConfigurationProvider Build(IConfigurationBuilder builder) => new DatabaseConfigurationProvider(this, optionsAction);
 }

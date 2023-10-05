@@ -5,16 +5,11 @@ public interface ISpecification<in T>
     bool IsSatisfiedBy(T t);
 }
 
-public class Specification<T> : ISpecification<T> where T : class
+public class Specification<T>(Func<T, bool> predicate) : ISpecification<T> where T : class
 {
+    private readonly Func<T, bool> _predicate = predicate;
+
     public virtual bool IsSatisfiedBy(T t) { return _predicate(t); }
-
-    private readonly Func<T, bool> _predicate;
-
-    public Specification(Func<T, bool> predicate)
-    {
-        _predicate = predicate;
-    }
 
     // optional
     public static Specification<T> operator &(Specification<T> me, ISpecification<T> other)

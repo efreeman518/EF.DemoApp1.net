@@ -155,6 +155,9 @@ public static class IServiceCollectionExtensions
                     sqlServerOptionsAction: sqlOptions =>
                     {
                         sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                        //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
+                        //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
+                        //sqlOptions.UseRelationalNulls(true);
                     })
                 );
 

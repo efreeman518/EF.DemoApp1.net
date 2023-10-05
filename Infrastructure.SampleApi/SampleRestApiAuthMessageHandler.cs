@@ -1,9 +1,6 @@
 ﻿using Package.Infrastructure.Auth;
 
 namespace Infrastructure.SampleApi;
-public class SampleRestApiAuthMessageHandler : BaseDefaultAzureCredsAuthMessageHandler
+public class SampleRestApiAuthMessageHandler(string[] scopes) : BaseDefaultAzureCredsAuthMessageHandler(scopes)
 {
-    public SampleRestApiAuthMessageHandler(string[] scopes) : base(scopes)
-    {
-    }
 }

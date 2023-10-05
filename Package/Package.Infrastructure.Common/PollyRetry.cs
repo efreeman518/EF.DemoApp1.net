@@ -107,16 +107,16 @@ public static class PollyRetry
         RetrySettings? retrySettings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
         HttpStatusCode[]? retryHttpStatusCodes = null)
     {
-        retryHttpStatusCodes ??= new HttpStatusCode[] {
+        retryHttpStatusCodes ??= [
                 HttpStatusCode.RequestTimeout, // 408
                 //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
                 HttpStatusCode.BadGateway, // 502
                 HttpStatusCode.ServiceUnavailable, // 503
                 HttpStatusCode.GatewayTimeout // 504
-            };
+            ];
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
-        List<Type> retryExceptions = new() { typeof(HttpRequestException) };
+        List<Type> retryExceptions = [typeof(HttpRequestException)];
         return await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
     }
 
@@ -132,16 +132,16 @@ public static class PollyRetry
         RetrySettings? retrySettings = null, CircuitBreakerSettings? circuitBreakerSettings = null,
         HttpStatusCode[]? retryHttpStatusCodes = null)
     {
-        retryHttpStatusCodes ??= new HttpStatusCode[] {
+        retryHttpStatusCodes ??= [
                 HttpStatusCode.RequestTimeout, // 408
                 //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
                 HttpStatusCode.BadGateway, // 502
                 HttpStatusCode.ServiceUnavailable, // 503
                 HttpStatusCode.GatewayTimeout // 504
-            };
+            ];
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
-        List<Type> retryExceptions = new() { typeof(HttpRequestException) };
+        List<Type> retryExceptions = [typeof(HttpRequestException)];
         await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
     }
 

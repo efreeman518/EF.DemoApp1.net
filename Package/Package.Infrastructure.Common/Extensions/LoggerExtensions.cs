@@ -47,13 +47,13 @@ public static class LoggerExtensions
         //structured logging template - ignore src properties if null (background services do not have a request context)
         string logTemplate = "{TimeUTC}{SiteName}{ServerInstanceId}";
         //structured logging value array
-        List<object?> logValues = new()
-        {
+        List<object?> logValues =
+        [
             DateTime.UtcNow,
             //Azure App Services
             Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") ?? "",
             Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? ""
-        };
+        ];
 
         if (message != null)
         {
@@ -74,23 +74,23 @@ public static class LoggerExtensions
         switch (logLevel)
         {
             case LogLevel.Critical:
-                logger.LogCritical(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogCritical(eventId, exception, logTemplate, [.. logValues]);
 
                 break;
             case LogLevel.Debug:
-                logger.LogDebug(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogDebug(eventId, exception, logTemplate, [.. logValues]);
                 break;
             case LogLevel.Information:
-                logger.LogInformation(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogInformation(eventId, exception, logTemplate, [.. logValues]);
                 break;
             case LogLevel.Error:
-                logger.LogError(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogError(eventId, exception, logTemplate, [.. logValues]);
                 break;
             case LogLevel.Trace:
-                logger.LogTrace(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogTrace(eventId, exception, logTemplate, [.. logValues]);
                 break;
             case LogLevel.Warning:
-                logger.LogWarning(eventId, exception, logTemplate, logValues.ToArray());
+                logger.LogWarning(eventId, exception, logTemplate, [.. logValues]);
                 break;
         }
 

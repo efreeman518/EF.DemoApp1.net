@@ -10,7 +10,7 @@ public static class SqlRetry
     //SqlServerTransientTransactionExceptionHandlingStrategy	40549, 40550
     //SqlServerTimeoutExceptionHandlingStrategy	-2
     //NetworkConnectivityExceptionHandlingStrategy	11001
-    private static readonly int[] _retrySqlErrorNumbers = new int[] { 40501, 49920, 49919, 49918, 41839, 41325, 41305, 41302, 41301, 40613, 40197, 10936, 10929, 10928, 10060, 10054, 10053, 4221, 4060, 12015, 233, 121, 64, 20, 40549, 40550, -2, 11001 };
+    private static readonly int[] _retrySqlErrorNumbers = [40501, 49920, 49919, 49918, 41839, 41325, 41305, 41302, 41301, 40613, 40197, 10936, 10929, 10928, 10060, 10054, 10053, 4221, 4060, 12015, 233, 121, 64, 20, 40549, 40550, -2, 11001];
 
     //sql - return T
     public static async Task<T> RetrySqlAsync<T>(Func<Task<T>> factory,

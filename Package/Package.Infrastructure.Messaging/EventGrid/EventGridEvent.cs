@@ -3,18 +3,9 @@
 /// <summary>
 /// Map to EventGridEvent; so client modules don't need a reference to Azure SDK
 /// </summary>
-public class EventGridEvent
+public class EventGridEvent(string subject, string eventType, string dataVersion, object data, Type? dataSerializationType = null)
 {
-    public EventGridEvent(string subject, string eventType, string dataVersion, object data, Type? dataSerializationType = null)
-    {
-        Subject = subject;
-        EventType = eventType;
-        DataVersion = dataVersion;
-        Data = data;
-        DataSerializationType = dataSerializationType;
-    }
-
-    public Type? DataSerializationType { get; set; }
+    public Type? DataSerializationType { get; set; } = dataSerializationType;
 
     //
     // Summary:
@@ -24,7 +15,7 @@ public class EventGridEvent
     // Summary:
     //     Gets or sets the event payload as System.BinaryData. Using BinaryData, one can
     //     deserialize the payload into rich data, or access the raw JSON data using System.BinaryData.ToString
-    public object? Data { get; set; }
+    public object? Data { get; set; } = data;
     //
     // Summary:
     //     Gets or sets the resource path of the event source. This must be set when publishing
@@ -33,11 +24,11 @@ public class EventGridEvent
     //
     // Summary:
     //     Gets or sets a resource path relative to the topic path.
-    public string Subject { get; set; }
+    public string Subject { get; set; } = subject;
     //
     // Summary:
     //     Gets or sets the type of the event that occurred.
-    public string EventType { get; set; }
+    public string EventType { get; set; } = eventType;
     //
     // Summary:
     //     Gets or sets the time (in UTC) the event was generated.
@@ -45,5 +36,5 @@ public class EventGridEvent
     //
     // Summary:
     //     Gets or sets the schema version of the data object.
-    public string DataVersion { get; set; }
+    public string DataVersion { get; set; } = dataVersion;
 }

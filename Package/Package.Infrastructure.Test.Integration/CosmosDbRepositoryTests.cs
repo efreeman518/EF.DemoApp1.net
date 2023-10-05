@@ -47,7 +47,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         //filter
         Expression<Func<TodoItemDto, bool>> filter = t => t.Status == TodoItemStatus.Completed;
         //sort
-        List<Sort> sorts = new() { new Sort("Name", SortOrder.Ascending) };
+        List<Sort> sorts = [new Sort("Name", SortOrder.Ascending)];
         //page size
         int pageSize = 10;
         //total
@@ -60,7 +60,9 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         {
             (todos, total, continuationToken) = await _repo.QueryPageProjectionAsync<TodoItemNoSql, TodoItemDto>(continuationToken, pageSize, filter, sorts, includeTotal);
             Assert.IsTrue(todos.Count > 0);
-            Assert.IsTrue(!includeTotal || total > 0);
+#pragma warning disable S2589 // Boolean expressions should not be gratuitous - FALSE POSITIVE
+            if (includeTotal)Assert.IsTrue(total > 0);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
             includeTotal = false; //retrieve once, not repeatedly
         }
         while (continuationToken != null);

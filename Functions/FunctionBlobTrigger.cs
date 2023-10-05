@@ -6,21 +6,10 @@ using Microsoft.Extensions.Options;
 
 namespace Functions;
 
-public class FunctionBlobTrigger
+public class FunctionBlobTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
+    IOptions<Settings1> settings, IDatabaseService dbService)
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionBlobTrigger> _logger;
-    private readonly Settings1 _settings;
-    private readonly IDatabaseService _dbService;
-
-    public FunctionBlobTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
-        IOptions<Settings1> settings, IDatabaseService dbService)
-    {
-        _configuration = configuration;
-        _logger = loggerFactory.CreateLogger<FunctionBlobTrigger>();
-        _settings = settings.Value;
-        _dbService = dbService;
-    }
+    private readonly ILogger<FunctionBlobTrigger> _logger = loggerFactory.CreateLogger<FunctionBlobTrigger>();
 
     /// <summary>
     /// large blobs - dont want the fileContent as string
@@ -33,9 +22,9 @@ public class FunctionBlobTrigger
     [Function("BlobTrigger")]
     public async Task Run([BlobTrigger("%BlobContainer%/{fileName}", Connection = "StorageBlob1")] string fileContent, string fileName)
     {
-        _ = _configuration.GetHashCode();
-        _ = _settings.GetHashCode();
-        _ = _dbService.GetHashCode();
+        _ = configuration.GetHashCode();
+        _ = settings.GetHashCode();
+        _ = dbService.GetHashCode();
         _ = fileContent.GetHashCode();
 
         _logger.Log(LogLevel.Information, "BlobTrigger - Start {FileName}", fileName);

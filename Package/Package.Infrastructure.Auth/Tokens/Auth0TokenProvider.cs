@@ -5,20 +5,13 @@ using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Http.Tokens;
-public class Auth0TokenProvider : IOAuth2TokenProvider
+public class Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IAppCache appCache) : IOAuth2TokenProvider
 {
-    private readonly Auth0Options _auth0Options;
-    private readonly IAppCache _appCache;
-
-    public Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IAppCache appCache)
-    {
-        _auth0Options = auth0Options.Value;
-        _appCache = appCache;
-    }
+    private readonly Auth0Options _auth0Options = auth0Options.Value;
 
     public async Task<string> GetAccessTokenAsync(string[] scopes)
     {
-        var accessToken = await _appCache.GetOrAddAsync("access_token", async entry =>
+        var accessToken = await appCache.GetOrAddAsync("access_token", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 

@@ -3,14 +3,9 @@ using System.Data;
 using System.Data.SqlClient;
 
 namespace Functions.Infrastructure;
-public class DatabaseService : IDatabaseService
+public class DatabaseService(IConfiguration configuration) : IDatabaseService
 {
-    private readonly string? _connectionString;
-
-    public DatabaseService(IConfiguration configuration)
-    {
-        _connectionString = configuration.GetConnectionString("SampleDB");
-    }
+    private readonly string? _connectionString = configuration.GetConnectionString("SampleDB");
 
     public async Task MethodAsync(string? filename, CancellationToken cancellationToken = default)
     {

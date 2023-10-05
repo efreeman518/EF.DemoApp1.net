@@ -376,9 +376,9 @@ public class TodoRepositoryQueryTests : UnitTestBase
             //custom data scenario that default seed data does not cover
             entities.AddRange(new List<TodoItem>
                 {
-                    new TodoItem ("A some entity a", TodoItemStatus.InProgress),
-                    new TodoItem ("B some entity a", TodoItemStatus.InProgress),
-                    new TodoItem ("C some entity a", TodoItemStatus.InProgress)
+                    new("A some entity a", TodoItemStatus.InProgress),
+                    new("B some entity a", TodoItemStatus.InProgress),
+                    new("C some entity a", TodoItemStatus.InProgress)
                 });
         }
 
@@ -397,7 +397,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             PageSize = 10,
             PageIndex = 1,
             Filter = new TodoItemSearchFilter { Statuses = new List<TodoItemStatus> { TodoItemStatus.InProgress } },
-            Sorts = new List<Sort> { new Sort("Name", SortOrder.Descending) }
+            Sorts = new List<Sort> { new("Name", SortOrder.Descending) }
         };
 
         //act

@@ -9,22 +9,11 @@ namespace Infrastructure.RapidApi.WeatherApi;
 /// <summary>
 /// https://rapidapi.com/weatherapi/api/weatherapi-com/
 /// </summary>
-public class WeatherService : IWeatherService
+public class WeatherService(ILogger<WeatherService> logger, IOptions<WeatherServiceSettings> settings, HttpClient httpClient) : IWeatherService
 {
-    private readonly ILogger _logger;
-    private readonly WeatherServiceSettings _settings;
-    private readonly HttpClient _httpClient;
-
-    public WeatherService(ILogger<WeatherService> logger, IOptions<WeatherServiceSettings> settings, HttpClient httpClient)
-    {
-        _logger = logger;
-        _settings = settings.Value;
-        _httpClient = httpClient;
-    }
-
     public async Task<WeatherRoot?> GetCurrentAsync(string location)
     {
-        _ = _settings.GetHashCode();
+        _ = settings.GetHashCode();
         string url = $"/current.json?q={location}";
         return await GetWeatherAsync(url);
     }
@@ -37,11 +26,11 @@ public class WeatherService : IWeatherService
 
     public async Task<WeatherRoot?> GetWeatherAsync(string url)
     {
-        _logger.LogInformation("GetWeatherAsync start: {Url}", url);
+        logger.LogInformation("GetWeatherAsync start: {Url}", url);
 
-        (HttpResponseMessage _, WeatherRoot? data) = await _httpClient.HttpRequestAndResponseAsync<WeatherRoot?>(HttpMethod.Get, url, null);
+        (HttpResponseMessage _, WeatherRoot? data) = await httpClient.HttpRequestAndResponseAsync<WeatherRoot?>(HttpMethod.Get, url, null);
 
-        _logger.LogInformation("GetWeatherAsync complete: {Url}", data?.SerializeToJson());
+        logger.LogInformation("GetWeatherAsync complete: {Url}", data?.SerializeToJson());
         return data;
     }
 }

@@ -4,9 +4,6 @@ using Package.Infrastructure.Data;
 
 namespace Infrastructure.Repositories;
 
-public class TodoRepositoryTrxn : RepositoryBase<TodoDbContextTrxn>, ITodoRepositoryTrxn
+public class TodoRepositoryTrxn(TodoDbContextTrxn dbContext, IRequestContext rc) : RepositoryBase<TodoDbContextTrxn>(dbContext, rc), ITodoRepositoryTrxn
 {
-    public TodoRepositoryTrxn(TodoDbContextTrxn dbContext, IRequestContext rc) : base(dbContext, rc)
-    {
-    }
 }

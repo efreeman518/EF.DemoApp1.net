@@ -9,24 +9,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace SampleApp.Bootstrapper.StartupTasks;
-public class LoadCache : IStartupTask
+public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCache appCache, IDistributedCache distCache, ITodoRepositoryQuery repoQuery, IMapper mapper) : IStartupTask
 {
-    private readonly IConfiguration _config;
-    private readonly ILogger<LoadCache> _logger;
-    private readonly IAppCache _appCache;
-    private readonly IDistributedCache _distCache;
-    private readonly ITodoRepositoryQuery _repoQuery;
-    private readonly IMapper _mapper;
-
-    public LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCache appCache, IDistributedCache distCache, ITodoRepositoryQuery repoQuery, IMapper mapper)
-    {
-        _config = config;
-        _logger = logger;
-        _appCache = appCache;
-        _distCache = distCache;
-        _repoQuery = repoQuery;
-        _mapper = mapper;
-    }
+    private readonly IConfiguration _config = config;
+    private readonly ILogger<LoadCache> _logger = logger;
+    private readonly IAppCache _appCache = appCache;
+    private readonly IDistributedCache _distCache = distCache;
+    private readonly ITodoRepositoryQuery _repoQuery = repoQuery;
+    private readonly IMapper _mapper = mapper;
 
     public async Task Execute(CancellationToken cancellationToken = default)
     {

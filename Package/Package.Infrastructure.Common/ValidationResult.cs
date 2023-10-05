@@ -1,16 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Package.Infrastructure.Common;
-public sealed class ValidationResult : IEquatable<ValidationResult>
+public sealed class ValidationResult(bool valid, List<string>? messages = null) : IEquatable<ValidationResult>
 {
-    public bool IsValid { get; set; }
-    public List<string> Messages { get; set; }
+    public bool IsValid { get; set; } = valid;
+    public List<string> Messages { get; set; } = messages ?? new List<string>();
 
-    public ValidationResult(bool valid, List<string>? messages = null)
-    {
-        IsValid = valid;
-        Messages = messages ?? new List<string>();
-    }
     public static ValidationResult True(List<string>? messages = null) => new(true, messages);
     public static ValidationResult False(List<string>? messages = null) => new(false, messages);
     public static ValidationResult Assign(bool valid, List<string>? messages = null) => new(valid, messages);

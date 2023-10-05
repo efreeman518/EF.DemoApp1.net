@@ -5,14 +5,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Package.Infrastructure.AspNetCore.Swagger;
 
-public class SwaggerUIConfigurationOptions : IConfigureOptions<SwaggerUIOptions>
+public class SwaggerUIConfigurationOptions(IApiVersionDescriptionProvider provider) : IConfigureOptions<SwaggerUIOptions>
 {
-    private readonly IApiVersionDescriptionProvider _provider;
-
-    public SwaggerUIConfigurationOptions(IApiVersionDescriptionProvider provider)
-    {
-        _provider = provider;
-    }
+    private readonly IApiVersionDescriptionProvider _provider = provider;
 
     public void Configure(SwaggerUIOptions options)
     {

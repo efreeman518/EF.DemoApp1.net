@@ -12,13 +12,9 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class ExternalController : ControllerBase
+public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
 {
-    private readonly ISampleApiRestClient _apiClient;
-    public ExternalController(ISampleApiRestClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
+    private readonly ISampleApiRestClient _apiClient = apiClient;
 
     /// <summary>
     /// Gets a paged list of TodoItems

@@ -13,7 +13,7 @@ public static class IAsyncEnumerableExtensions
     public static async Task<int> ConcurrentBatchAsync<T>(this IAsyncEnumerable<T> stream,
         Func<T, Task> method, int batchSize = 100, CancellationToken cancellationToken = default)
     {
-        List<Task> batchTasks = new();
+        List<Task> batchTasks = [];
         Task task;
         int total = 0;
 

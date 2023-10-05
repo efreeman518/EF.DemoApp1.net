@@ -9,10 +9,7 @@ namespace Package.Infrastructure.Test.Integration.Blob;
 /// <summary>
 /// Implementation for each BlobServiceClientName
 /// </summary>
-internal class BlobRepository1 : BlobRepositoryBase, IBlobRepository1
+internal class BlobRepository1(ILogger<BlobRepository1> logger, IOptions<BlobRepositorySettings1> settings, 
+    IAzureClientFactory<BlobServiceClient> clientFactory) : BlobRepositoryBase(logger, settings, clientFactory), IBlobRepository1
 {
-    public BlobRepository1(ILogger<BlobRepository1> logger, IOptions<BlobRepositorySettings1> settings, IAzureClientFactory<BlobServiceClient> clientFactory)
-        : base(logger, settings, clientFactory)
-    {
-    }
 }

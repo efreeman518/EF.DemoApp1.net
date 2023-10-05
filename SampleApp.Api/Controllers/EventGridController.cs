@@ -8,9 +8,9 @@ namespace SampleApp.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class EventGridController : ControllerBase
+public class EventGridController(ILogger<EventGridController> logger) : ControllerBase
 {
-    private readonly ILogger<EventGridController> _logger;
+    private readonly ILogger<EventGridController> _logger = logger;
 
     //initial one-time EventGrid validation of the target
     private bool EventTypeSubscriptionValidation =>
@@ -20,10 +20,7 @@ public class EventGridController : ControllerBase
     private bool EventTypeSubscriptionNotification =>
         HttpContext.Request.Headers["aeg-event-type"].FirstOrDefault() == "Notification";
 
-    public EventGridController(ILogger<EventGridController> logger)
-    {
-        _logger = logger;
-    }
+    private static readonly JsonSerializerOptions jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
 
     //for local testing create a tunnel - VS Dev Tunnels, ngrok
@@ -35,7 +32,7 @@ public class EventGridController : ControllerBase
         using var requestStream = new StreamReader(Request.Body);
         var bodyJson = await requestStream.ReadToEndAsync();
         var events = JsonSerializer.Deserialize<List<EventGridEvent>>(bodyJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            jsonOptions);
 
         if (events == null) return BadRequest($"EventGrid body does not deserialize in to List<EventGridEvent>: {bodyJson}");
 

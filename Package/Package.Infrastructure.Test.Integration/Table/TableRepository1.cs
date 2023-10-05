@@ -9,10 +9,7 @@ namespace Package.Infrastructure.Test.Integration.Table;
 /// <summary>
 /// Implementation for each TableServiceClientName
 /// </summary>
-public class TableRepository1 : TableRepositoryBase, ITableRepository1
+public class TableRepository1(ILogger<TableRepository1> logger, IOptions<TableRepositorySettings1> settings, 
+    IAzureClientFactory<TableServiceClient> clientFactory) : TableRepositoryBase(logger, settings, clientFactory), ITableRepository1
 {
-    public TableRepository1(ILogger<TableRepository1> logger, IOptions<TableRepositorySettings1> settings, IAzureClientFactory<TableServiceClient> clientFactory)
-        : base(logger, settings, clientFactory)
-    {
-    }
 }

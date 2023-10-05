@@ -69,6 +69,9 @@ dotnet_diagnostic.CS8032.severity = silent
 # S4070: Non-flags enums should not be marked with "FlagsAttribute" - FALSE WARNING
 dotnet_diagnostic.S4070.severity = silent
 
+# S3604: Member initializer values should not be redundant - FALSE WARNING - classes should be able to have non-injected vars
+dotnet_diagnostic.S3604.severity = silent
+
 [*.{cs,vb}]
 #### Naming styles ####
 

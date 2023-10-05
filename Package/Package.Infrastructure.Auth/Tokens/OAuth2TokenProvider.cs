@@ -5,20 +5,13 @@ using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Http.Tokens;
-public class OAuth2TokenProvider : IOAuth2TokenProvider
+public class OAuth2TokenProvider(IOptions<OAuth2Options> oauth2Options, IAppCache appCache) : IOAuth2TokenProvider
 {
-    private readonly OAuth2Options _oauth2Options;
-    private readonly IAppCache _appCache;
-
-    public OAuth2TokenProvider(IOptions<OAuth2Options> oauth2Options, IAppCache appCache)
-    {
-        _oauth2Options = oauth2Options.Value;
-        _appCache = appCache;
-    }
+    private readonly OAuth2Options _oauth2Options = oauth2Options.Value;
 
     public async Task<string> GetAccessTokenAsync(string[] scopes)
     {
-        var accessToken = await _appCache.GetOrAddAsync<string>("access_token", async entry =>
+        var accessToken = await appCache.GetOrAddAsync<string>("access_token", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
@@ -45,9 +38,9 @@ public class OAuth2TokenProvider : IOAuth2TokenProvider
     {
         var requestBody = new List<KeyValuePair<string, string?>>
         {
-            new KeyValuePair<string, string?>("grant_type", _oauth2Options.GrantType),
-            new KeyValuePair<string, string?>("client_id", _oauth2Options.ClientId),
-            new KeyValuePair<string, string?>("client_secret", _oauth2Options.ClientSecret)
+            new("grant_type", _oauth2Options.GrantType),
+            new("client_id", _oauth2Options.ClientId),
+            new("client_secret", _oauth2Options.ClientSecret)
         };
 
         if (!string.IsNullOrEmpty(_oauth2Options.Scope))

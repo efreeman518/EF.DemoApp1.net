@@ -13,9 +13,9 @@ namespace SampleApp.Api;
 
 internal static class IServiceCollectionExtensions
 {
-    internal static readonly string[] healthCheckTagsFullMem = new[] { "full", "memory" };
-    internal static readonly string[] healthCheckTagsFullDb = new[] { "full", "db" };
-    internal static readonly string[] healthCheckTagsFullExt = new[] { "full", "extservice" };
+    internal static readonly string[] healthCheckTagsFullMem = ["full", "memory"];
+    internal static readonly string[] healthCheckTagsFullDb = ["full", "db"];
+    internal static readonly string[] healthCheckTagsFullExt = ["full", "extservice"];
 
     /// <summary>
     /// Used at runtime for http services; not used for Workers/Functions/Tests
