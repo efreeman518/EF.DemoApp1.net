@@ -52,12 +52,21 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         repoTrxn.Create(ref todo);
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
-        //queue some external work - fire and forget (notification)
+        //queue some non-scoped work - fire and forget (notification)
         taskQueue.QueueBackgroundWorkItem(async token =>
         {
             //await some work
             await Task.Delay(3000, token);
             Logger.LogInformation("Some work done at {Time}", DateTime.UtcNow.TimeOfDay);
+        });
+
+        //queue some scoped work - fire and forget (update DB)
+        taskQueue.QueueScopedBackgroundWorkItem<ITodoRepositoryTrxn>(async (scopedRepositoryTrxn, token) =>
+        {
+            //await some work
+            await Task.Delay(3000, token);
+            await scopedRepositoryTrxn.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 0, includeTotal: true);
+            Logger.LogInformation("Some scoped work done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", todo.SerializeToJson());

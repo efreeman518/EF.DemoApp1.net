@@ -85,7 +85,7 @@ public abstract class IntegrationTestBase
                 .WithName("EventGridPublisherTopic1");
             }
 
-            //KeyVault Secret
+            //KeyVault
             configSection = Config.GetSection("KeyVaultManager1");
             if (configSection.Exists())
             {
@@ -120,7 +120,7 @@ public abstract class IntegrationTestBase
             services.Configure<EventGridPublisherSettings1>(configSection);
         }
 
-        //KeyVault
+        //KeyVaultManager
         configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
         if (configSection.Exists())
         {

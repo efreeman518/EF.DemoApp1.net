@@ -55,7 +55,7 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
 
 
     /// <summary>
-    /// Raise event to internal (in-process) handlers (Service Collection); 
+    /// Raise event to internal (in-process) handlers (retrieve from Service Collection); 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="mode"></param>
@@ -63,9 +63,7 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
     /// <returns></returns>
     public void Process<T>(ProcessInternalMode mode, ICollection<T> messages) where T : IMessage
     {
-        logger.LogDebug("Process Start");
-
-        List<IMessageHandler<T>> handlers = services.GetServices<IMessageHandler<T>>().ToList();
+        var handlers = services.GetServices<IMessageHandler<T>>().ToList();
         if (handlers.Count > 0)
         {
             using (services.CreateScope())
@@ -73,12 +71,11 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
                 ProcessMessages(mode, handlers, messages);
             }
         }
-
-        logger.LogDebug("Process Finish");
     }
 
     /// <summary>
-    /// Process the messages with a background task; hosted service BackgroundTaskService must be running
+    /// Process the messages concurrently with a background task; hosted service BackgroundTaskService must be running
+    /// Message Handlers must be thread safe for concurrent processing. Otherwise raise each message separately.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="mode"></param>
@@ -86,26 +83,31 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
     /// <param name="messages"></param>
     private void ProcessMessages<T>(ProcessInternalMode mode, List<IMessageHandler<T>>? handlers, ICollection<T> messages) where T : IMessage
     {
+        logger.LogDebug("ProcessMessages Start");
+
         if (handlers != null && handlers.Count > 0)
         {
-            if (mode == ProcessInternalMode.Queue) handlers = [handlers[0]];
+            //message only needs to be process by a single handler, not all handlers
+            if (mode == ProcessInternalMode.Queue) handlers = [handlers[0]]; 
 
             backgroundTaskQueue.QueueBackgroundWorkItem(async (token) =>
             {
+                //process messages concurrently (handlers must be thread safe)
                 var taskMessages = messages.Select(async (m) =>
                 {
-                    var taskHandlers = handlers.Select(h => HandleInternalAsync(h, m)); //handlers must be thread safe for concurrent processing
+                    var taskHandlers = handlers.Select(h => HandleInternalAsync(h, m)); 
                     await Task.WhenAll(taskHandlers);
                 });
                 await Task.WhenAll(taskMessages);
             });
         }
+
+        logger.LogDebug("ProcessMessages Finish");
     }
 
     private async Task HandleInternalAsync<T>(IMessageHandler<T> handler, T message) where T : IMessage
     {
-        string jsonMessage = settings.Value.LogMessageBody ? JsonSerializer.Serialize(message) : "No logging";
-
+        var jsonMessage = settings.Value.LogMessageBody ? JsonSerializer.Serialize(message) : "No logging";
         try
         {
             logger.LogDebug("HandleInternalAsync Start - {Handler} {Message}", handler.ToString(), jsonMessage);
