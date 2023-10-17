@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;

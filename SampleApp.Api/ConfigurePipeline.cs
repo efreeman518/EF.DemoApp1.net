@@ -1,6 +1,7 @@
 ﻿using CorrelationId;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Package.Infrastructure.AspNetCore;
 using SampleApp.Api.Grpc;
@@ -81,7 +82,16 @@ public static partial class WebApplicationBuilderExtensions
                     });
                 }
             });
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(o =>
+            {
+                // build a swagger endpoint for each discovered API version
+                foreach (var description in app.DescribeApiVersions().Select(description => description.GroupName))
+                {
+                    var url = $"/swagger/{description}/swagger.json";
+                    var name = description.ToUpperInvariant();
+                    o.SwaggerEndpoint(url, name);
+                }
+            });
         }
 
         return app;

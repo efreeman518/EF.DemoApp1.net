@@ -1,8 +1,8 @@
-﻿using CorrelationId.DependencyInjection;
+﻿using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
+using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Grpc;
 using SampleApp.Bootstrapper.HealthChecks;
@@ -34,7 +34,7 @@ internal static class IServiceCollectionExtensions
         });
 
         //api versioning
-        services.AddApiVersioning(options =>
+        var apiVersioningBulder = services.AddApiVersioning(options =>
         {
             options.DefaultApiVersion = new ApiVersion(1, 0);
             options.AssumeDefaultVersionWhenUnspecified = true;
@@ -77,16 +77,26 @@ internal static class IServiceCollectionExtensions
 
         if (config.GetValue("SwaggerSettings:Enable", false))
         {
-            //enable swagger
-            //https://markgossa.com/2022/05/asp-net-6-api-versioning-swagger.html
-            services.AddVersionedApiExplorer(o =>
+            services.AddEndpointsApiExplorer();
+
+            apiVersioningBulder.AddApiExplorer(o =>
             {
-                o.GroupNameFormat = "'v'VV";
+                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                o.GroupNameFormat = "'v'VVV";
+
+                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                // can also be used to control the format of the API version in route templates
                 o.SubstituteApiVersionInUrl = true;
             });
+            // this enables binding ApiVersion as a endpoint callback parameter. if you don't use it, then
+            // you should remove this configuration.
+            //.EnableApiVersionBinding();
+
+
             services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
-            services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
+            //services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
             var xmlCommentsFileName = config.GetValue<string>("SwaggerSettings:XmlCommentsFileName");
             if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
