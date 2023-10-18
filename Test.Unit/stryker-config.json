@@ -1,0 +1,22 @@
+/* 
+  https://stryker-mutator.io/docs/stryker-net/getting-started/
+  https://stryker-mutator.io/docs/stryker-net/configuration/ 
+  https://stryker-mutator.io/docs/stryker-net/mutations/
+
+  Note that Stryker can not use transitive projects, 
+  so each project tested must be directly reference in the test project
+
+  Install Stryker globally: dotnet tool install -g dotnet-stryker
+  Run Stryker from the test project folder> dotnet stryker
+*/
+{
+  "stryker-config": {
+    "solution": "../EF.SampleApp1.net.sln",
+    "project": "Application.Services.csproj",
+    "language-version": "Preview",
+    "mutation-level": "Advanced",
+    "ignore-mutations": [
+      "string"
+    ]
+  }
+}
