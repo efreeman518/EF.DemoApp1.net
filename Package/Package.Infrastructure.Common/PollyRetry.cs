@@ -109,10 +109,10 @@ public static class PollyRetry
     {
         retryHttpStatusCodes ??= [
                 HttpStatusCode.RequestTimeout, // 408
-                //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
-                HttpStatusCode.BadGateway, // 502
-                HttpStatusCode.ServiceUnavailable, // 503
-                HttpStatusCode.GatewayTimeout // 504
+                                               //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
+            HttpStatusCode.BadGateway, // 502
+            HttpStatusCode.ServiceUnavailable, // 503
+            HttpStatusCode.GatewayTimeout // 504
             ];
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
@@ -134,10 +134,10 @@ public static class PollyRetry
     {
         retryHttpStatusCodes ??= [
                 HttpStatusCode.RequestTimeout, // 408
-                //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
-                HttpStatusCode.BadGateway, // 502
-                HttpStatusCode.ServiceUnavailable, // 503
-                HttpStatusCode.GatewayTimeout // 504
+                                               //HttpStatusCode.InternalServerError, // 500 //subsequent retry will violate replay attack check and throw unauthorized
+            HttpStatusCode.BadGateway, // 502
+            HttpStatusCode.ServiceUnavailable, // 503
+            HttpStatusCode.GatewayTimeout // 504
             ];
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 

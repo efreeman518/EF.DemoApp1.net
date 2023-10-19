@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
@@ -7,7 +6,6 @@ using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Grpc;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace SampleApp.Api;
 

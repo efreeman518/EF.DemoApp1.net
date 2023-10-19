@@ -24,11 +24,10 @@ public class RepositoryBenchmarks
     public RepositoryBenchmarks()
     {
         var mapper = ConfigureAutomapper.CreateMapper(
-            new List<AutoMapper.Profile>
-           {
+            [
                 new MappingProfile(),  //map domain <-> app 
-                //new GrpcMappingProfile() // map grpc <-> app 
-           });
+                                       //new GrpcMappingProfile() // map grpc <-> app 
+            ]);
 
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()

@@ -88,11 +88,10 @@ public static class IServiceCollectionExtensions
 
         //AutoMapper Configuration
         ConfigureAutomapper.Configure(services,
-            new List<AutoMapper.Profile>
-            {
+            [
                 new MappingProfile(),  //map domain <-> app 
                 new GrpcMappingProfile() // map grpc <-> app 
-            });
+            ]);
 
         //IRequestContext - injected into repositories
         services.AddScoped<IRequestContext>(provider =>

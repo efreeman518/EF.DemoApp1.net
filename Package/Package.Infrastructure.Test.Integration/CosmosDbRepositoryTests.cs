@@ -61,7 +61,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
             (todos, total, continuationToken) = await _repo.QueryPageProjectionAsync<TodoItemNoSql, TodoItemDto>(continuationToken, pageSize, filter, sorts, includeTotal);
             Assert.IsTrue(todos.Count > 0);
 #pragma warning disable S2589 // Boolean expressions should not be gratuitous - FALSE POSITIVE
-            if (includeTotal)Assert.IsTrue(total > 0);
+            if (includeTotal) Assert.IsTrue(total > 0);
 #pragma warning restore S2589 // Boolean expressions should not be gratuitous
             includeTotal = false; //retrieve once, not repeatedly
         }

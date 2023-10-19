@@ -4,7 +4,7 @@ using Package.Infrastructure.BackgroundServices;
 
 namespace SampleApp.BackgroundServices.Scheduler;
 
-public class CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronService> logger, 
+public class CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronService> logger,
     IOptions<CronJobBackgroundServiceSettings<CustomCronJob>> settings) : CronBackgroundService<CustomCronJob>(logger, settings)
 {
 

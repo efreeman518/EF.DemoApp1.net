@@ -12,7 +12,7 @@ public class ValidationResultTests
     [DataRow(false, "false message")]
     public void ValidationResponse_pass(bool valid, string message)
     {
-        var vr = new ValidationResult(valid, new List<string> { message });
+        var vr = new ValidationResult(valid, [message]);
         Assert.IsNotNull(vr);
         Assert.AreEqual(valid, vr.IsValid);
         Assert.IsTrue(message == vr.Messages.FirstOrDefault());

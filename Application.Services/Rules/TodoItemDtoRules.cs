@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Application.Services.Rules;
 
-public class TodoNameLengthRule(int nameLengthRequirement = Constants.RULE_NAME_LENGTH_MIN) : 
+public class TodoNameLengthRule(int nameLengthRequirement = Constants.RULE_NAME_LENGTH_MIN) :
     Specification<TodoItemDto>(item => item?.Name?.Length >= nameLengthRequirement)
 {
 }

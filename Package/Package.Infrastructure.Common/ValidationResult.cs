@@ -4,7 +4,7 @@ namespace Package.Infrastructure.Common;
 public sealed class ValidationResult(bool valid, List<string>? messages = null) : IEquatable<ValidationResult>
 {
     public bool IsValid { get; set; } = valid;
-    public List<string> Messages { get; set; } = messages ?? new List<string>();
+    public List<string> Messages { get; set; } = messages ?? [];
 
     public static ValidationResult True(List<string>? messages = null) => new(true, messages);
     public static ValidationResult False(List<string>? messages = null) => new(false, messages);

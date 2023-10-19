@@ -209,7 +209,7 @@ public class TodoServiceTests : UnitTestBase
         //arrange
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         //random Id to 'update'
-        var todo = new TodoItemDto {Id = Guid.NewGuid(), Name = "asdsa", Status = TodoItemStatus.Created };
+        var todo = new TodoItemDto { Id = Guid.NewGuid(), Name = "asdsa", Status = TodoItemStatus.Created };
 
         //act & assert
         await svc.UpdateItemAsync(todo);
@@ -233,7 +233,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //arrange
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
-        
+
         //act
         var response = await svc.GetPageAsync();
 
@@ -248,8 +248,8 @@ public class TodoServiceTests : UnitTestBase
         //arrange
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var search = new SearchRequest<TodoItemSearchFilter>()
-        { 
-            Filter = new TodoItemSearchFilter() { Statuses = [TodoItemStatus.Created, TodoItemStatus.Completed] } 
+        {
+            Filter = new TodoItemSearchFilter() { Statuses = [TodoItemStatus.Created, TodoItemStatus.Completed] }
         };
 
         //act

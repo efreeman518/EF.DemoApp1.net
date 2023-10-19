@@ -88,14 +88,14 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
         if (handlers != null && handlers.Count > 0)
         {
             //message only needs to be process by a single handler, not all handlers
-            if (mode == ProcessInternalMode.Queue) handlers = [handlers[0]]; 
+            if (mode == ProcessInternalMode.Queue) handlers = [handlers[0]];
 
             backgroundTaskQueue.QueueBackgroundWorkItem(async (token) =>
             {
                 //process messages concurrently (handlers must be thread safe)
                 var taskMessages = messages.Select(async (m) =>
                 {
-                    var taskHandlers = handlers.Select(h => HandleInternalAsync(h, m)); 
+                    var taskHandlers = handlers.Select(h => HandleInternalAsync(h, m));
                     await Task.WhenAll(taskHandlers);
                 });
                 await Task.WhenAll(taskMessages);
