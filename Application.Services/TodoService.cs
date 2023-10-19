@@ -40,12 +40,13 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //structured logging
         Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
-        //FluentValidation
+        //dto - FluentValidation
         await validationHelper.ValidateAndThrowAsync(dto);
 
         //map app -> domain
         var todo = mapper.Map<TodoItemDto, TodoItem>(dto);
 
+        //domain entity - entity validation method
         var validationResult = todo.Validate();
         if (!validationResult.IsValid) throw new ValidationException(validationResult);
 
@@ -65,7 +66,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         {
             //await some work
             await Task.Delay(3000, token);
-            await scopedRepositoryTrxn.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 0, includeTotal: true);
             Logger.LogInformation("Some scoped work done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 

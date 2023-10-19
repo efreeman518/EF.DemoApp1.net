@@ -53,6 +53,10 @@ public class TodoServiceTests : IntegrationTestBase
         Assert.AreEqual(newName, updated?.Name);
 #pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
+        //retrieve and make sure the update persisted
+        todo = await svc.GetItemAsync(id);
+        Assert.AreEqual(updated!.Status, todo.Status);
+
         //delete
         await svc.DeleteItemAsync(id);
 
@@ -82,7 +86,6 @@ public class TodoServiceTests : IntegrationTestBase
 
         //arrange
         TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
-
         TodoItemDto? todo = new()
         {
             Name = name,

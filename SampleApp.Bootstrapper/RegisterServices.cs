@@ -54,7 +54,7 @@ public static class IServiceCollectionExtensions
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
         services.AddScoped<IValidationHelper, ValidationHelper>();
-        services.AddScoped<IValidator<TodoItemDto>, TodoItemValidator>();
+        services.AddScoped<IValidator<TodoItemDto>, TodoItemDtoValidator>();
 
         return services;
     }

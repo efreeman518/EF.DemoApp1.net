@@ -5,9 +5,9 @@ using DomainConstants = Domain.Shared.Constants.Constants;
 
 namespace Application.Services.Validators;
 
-public class TodoItemValidator : AbstractValidator<TodoItemDto>
+public class TodoItemDtoValidator : AbstractValidator<TodoItemDto>
 {
-    public TodoItemValidator(ITodoRepositoryQuery repoQuery)
+    public TodoItemDtoValidator(ITodoRepositoryQuery repoQuery)
     {
         RuleFor(dto => dto.Name).NotEmpty()
             .Length(DomainConstants.RULE_NAME_LENGTH_MIN, DomainConstants.RULE_NAME_LENGTH_MAX)
