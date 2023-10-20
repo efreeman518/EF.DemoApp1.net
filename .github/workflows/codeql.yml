@@ -50,9 +50,9 @@ jobs:
 
     # Custom for .net8 prerelease
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0'
+        dotnet-version: '8.0.100-rc.2.23502.2'
         include-prerelease: True
         
     # Initializes the CodeQL tools for scanning.
