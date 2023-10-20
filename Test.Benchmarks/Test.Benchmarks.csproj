@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0-beta4" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0-rc.2.23479.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0-rc.2.23479.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0-rc.2.23479.6" />
