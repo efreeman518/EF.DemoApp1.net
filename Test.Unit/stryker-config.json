@@ -7,6 +7,10 @@
   so each project tested must be directly reference in the test project
 
   Install Stryker globally: dotnet tool install -g dotnet-stryker
+  Install Stryker locally: dotnet tool restore (uses /.config/dotnet-tools.json)
+
+  Auth errors - temporarily uncheck provate nuget package sources
+
   Run Stryker from the test project folder> dotnet stryker
 */
 {
