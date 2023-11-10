@@ -7,7 +7,7 @@ using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.Application;
 
-//[Ignore("RapidApi credentials required in config settings.")]
+[Ignore("RapidApi credentials required in config settings.")]
 
 [TestClass]
 public class WeatherServiceTests : IntegrationTestBase
