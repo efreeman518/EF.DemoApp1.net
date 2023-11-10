@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Extensions.Http;
@@ -14,7 +15,21 @@ namespace Package.Infrastructure.Grpc;
 
 public static class IServiceCollectionExtensions
 {
-    public static IHttpClientBuilder AddGrpcClient2<TClient>(this IServiceCollection services, Uri? baseAddress = null, int handlerLifeTimeSeconds = 600, int numRetries = 5, int retryWaitSeconds = 2, int circuitBreakerNum = 10, int circuitBreakerWaitSeconds = 30, HttpStatusCode[]? retryHttpStatusCodes = null, AuthenticationHeaderValue? authHeaderValue = null, HttpClientHandler? primaryHttpMessageHandler = null, int maxConnectionsPerServer = 200, ICollection<string>? certSecrets = null, Func<HttpRequestMessage, X509Certificate2?, X509Chain?, SslPolicyErrors, bool>? serverCertificateCustomValidationCallback = null) where TClient : class
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TClient"></typeparam>
+    /// <param name="services"></param>
+    /// <param name="baseAddress"></param>
+    /// <param name="handlerLifeTimeSeconds"></param>
+    /// <param name="authHeaderValue"></param>
+    /// <param name="primaryHttpMessageHandler"></param>
+    /// <param name="maxConnectionsPerServer"></param>
+    /// <param name="certSecrets"></param>
+    /// <param name="serverCertificateCustomValidationCallback"></param>
+    /// Polly params - int numRetries = 5, int retryWaitSeconds = 2, int circuitBreakerNum = 10, int circuitBreakerWaitSeconds = 30, HttpStatusCode[]? retryHttpStatusCodes = null, 
+    /// <returns></returns>
+    public static IHttpClientBuilder AddGrpcClient2<TClient>(this IServiceCollection services, Uri? baseAddress = null, int handlerLifeTimeSeconds = 600, AuthenticationHeaderValue? authHeaderValue = null, HttpClientHandler? primaryHttpMessageHandler = null, int maxConnectionsPerServer = 200, ICollection<string>? certSecrets = null, Func<HttpRequestMessage, X509Certificate2?, X509Chain?, SslPolicyErrors, bool>? serverCertificateCustomValidationCallback = null) where TClient : class
     {
         Uri? baseAddress2 = baseAddress;
         AuthenticationHeaderValue? authHeaderValue2 = authHeaderValue;
@@ -61,9 +76,7 @@ public static class IServiceCollectionExtensions
             });
             return h;
         })
-        .SetHandlerLifetime(TimeSpan.FromSeconds(handlerLifeTimeSeconds))
-        .AddPolicyHandler(GetRetryPolicy(numRetries, retryWaitSeconds, retryHttpStatusCodes))
-        .AddPolicyHandler(GetCircuitBreakerPolicy(circuitBreakerNum, circuitBreakerWaitSeconds));
+        .SetHandlerLifetime(TimeSpan.FromSeconds(handlerLifeTimeSeconds));
 
         if (authHeaderValue2 != null)
         {
@@ -74,26 +87,41 @@ public static class IServiceCollectionExtensions
             });
         }
 
+        //resiliency
+        httpClientBuilder
+            //.AddPolicyHandler(GetRetryPolicy(numRetries, retryWaitSeconds, retryHttpStatusCodes))
+            //.AddPolicyHandler(GetCircuitBreakerPolicy(circuitBreakerNum, circuitBreakerWaitSeconds));
+            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
+            .AddStandardResilienceHandler();
+
         return httpClientBuilder;
     }
 
-    private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
-    {
-        HttpStatusCode[]? retryHttpStatusCodes2 = retryHttpStatusCodes;
-        Random jitterer = new();
-        retryHttpStatusCodes2 ??=
-            [
-                    HttpStatusCode.RequestTimeout,
-                HttpStatusCode.BadGateway,
-                HttpStatusCode.ServiceUnavailable,
-                HttpStatusCode.GatewayTimeout
-            ];
+    /// <summary>
+    /// Used with Polly
+    /// </summary>
+    /// <param name="numRetries"></param>
+    /// <param name="secDelay"></param>
+    /// <param name="retryHttpStatusCodes"></param>
+    /// <returns></returns>
+    //private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(int numRetries = 5, int secDelay = 2, HttpStatusCode[]? retryHttpStatusCodes = null)
+    //{
+    //    HttpStatusCode[]? retryHttpStatusCodes2 = retryHttpStatusCodes;
+    //    Random jitterer = new();
+    //    retryHttpStatusCodes2 ??=
+    //        [
+    //                HttpStatusCode.RequestTimeout,
+    //            HttpStatusCode.BadGateway,
+    //            HttpStatusCode.ServiceUnavailable,
+    //            HttpStatusCode.GatewayTimeout
+    //        ];
 
-        return Policy.Handle<HttpRequestException>().OrResult((HttpResponseMessage r) => retryHttpStatusCodes2.Contains(r.StatusCode)).WaitAndRetryAsync(numRetries, (int retryAttempt) => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
-    }
+    //    return Policy.Handle<HttpRequestException>().OrResult((HttpResponseMessage r) => retryHttpStatusCodes2.Contains(r.StatusCode)).WaitAndRetryAsync(numRetries, (int retryAttempt) => TimeSpan.FromSeconds(Math.Pow(secDelay, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
+    //}
 
-    private static AsyncCircuitBreakerPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
-    {
-        return HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
-    }
+    //user with Polly
+    //private static AsyncCircuitBreakerPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(int numConsecutiveFaults = 5, int secondsToWait = 30)
+    //{
+    //    return HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(numConsecutiveFaults, TimeSpan.FromSeconds(secondsToWait));
+    //}
 }
