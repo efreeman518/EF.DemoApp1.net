@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.5" />
+    <PackageReference Include="AngleSharp" Version="1.0.6" />
     <PackageReference Include="Azure.Core" Version="1.35.0" />
     <PackageReference Include="FluentValidation" Version="11.8.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="8.0.0-rc.2.23480.2" />

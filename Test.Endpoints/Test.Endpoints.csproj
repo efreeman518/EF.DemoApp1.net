@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.5" />
+    <PackageReference Include="AngleSharp" Version="1.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0-rc.2.23480.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0-rc.2.23480.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0-rc.2.23479.6" />
