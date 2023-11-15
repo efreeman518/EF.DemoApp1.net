@@ -5,6 +5,9 @@ namespace Test.SpecFlow.Specs.StepDefinitions;
 
 /// <summary>
 /// https://www.selenium.dev/documentation/webdriver/elements/finders/
+/// #Run the api in another VS
+/// #The versions of Chrome and Edge must match the versions of the drivers in the bin folder
+/// #This scenario does not currently search or page through items, so less than 10 in the DB required to show on the first page
 /// </summary>
 [Binding]
 public class TodoItemUIStepDefinitions : SeleniumTestBase
@@ -39,9 +42,9 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     public void GivenEnterValueInTextbox(string value)
     {
         _scenarioContext["value"] = value + _scenarioContext["random"];
-        _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//input[@id='add-name']")))
+        _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//input[@id='edit-name']")))
             .SendKeys(_scenarioContext["value"].ToString());
-        _driver!.FindElement(By.XPath("//form[@onsubmit='addItem()']//input[@type='submit']"))
+        _driver!.FindElement(By.XPath("//table//button[@id='btn-save']"))
             .Click();
     }
 
@@ -73,7 +76,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     {
         _scenarioContext["value"] += appendName;
         ((IWebElement)_scenarioContext["input-edit-name"]).SendKeys(appendName);
-        _driver!.FindElement(By.XPath("//*[@id='editForm']/form/input[@type='submit' and @value='Save']"))
+        _driver!.FindElement(By.XPath("//table//button[@id='btn-save']"))
            .Click();
     }
 
@@ -81,7 +84,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     public void WhenUserChecksTheCompleteBoxAndClicksSave()
     {
         _driver!.FindElement(By.Id("edit-isComplete")).Click();
-        _driver!.FindElement(By.XPath("//*[@id='editForm']/form/input[@type='submit' and @value='Save']"))
+        _driver!.FindElement(By.XPath("//table//button[@id='btn-save']"))
            .Click();
     }
 

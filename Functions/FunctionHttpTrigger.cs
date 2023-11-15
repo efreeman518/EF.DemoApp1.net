@@ -13,19 +13,10 @@ namespace Functions;
 /// or use ngrok (./ngrok http http://localhost:7071) if hitting the http trigger from external
 /// azure - navigate to the function and click 'Get Function Url': https://[function-app-name].azurewebsites.net/api/HttpTrigger?code=xyz...
 /// </summary>
-public class FunctionHttpTrigger
+public class FunctionHttpTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
+    IOptions<Settings1> settings)
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionHttpTrigger> _logger;
-    private readonly Settings1 _settings;
-
-    public FunctionHttpTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
-        IOptions<Settings1> settings)
-    {
-        _configuration = configuration;
-        _logger = loggerFactory.CreateLogger<FunctionHttpTrigger>();
-        _settings = settings.Value;
-    }
+    private readonly ILogger<FunctionHttpTrigger> _logger = loggerFactory.CreateLogger<FunctionHttpTrigger>();
 
     //https://blog.bredvid.no/patterns-for-securing-your-azure-functions-2fef634f4020
     //local/debug - auth is disabled
@@ -33,8 +24,8 @@ public class FunctionHttpTrigger
     [Function("HttpTrigger")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
     {
-        _ = _configuration.GetHashCode();
-        _ = _settings.GetHashCode();
+        _ = configuration.GetHashCode();
+        _ = settings.GetHashCode();
 
         string url = req.Url.ToString();
         _logger.Log(LogLevel.Information, "HttpTrigger - Start url: {url}", url);

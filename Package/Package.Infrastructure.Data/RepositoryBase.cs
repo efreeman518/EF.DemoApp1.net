@@ -106,7 +106,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
 
     /// <summary>
     /// Only use when OptimisticConcurrencyWinner not decided; could result in Exception 
-    /// EF thinks data has changed between retrieval and commit
+    /// EF determines data has changed between retrieval and commit
     /// </summary>
     /// <returns></returns>
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -116,7 +116,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
 
     /// <summary>
     /// Forces commit based on OptimisticConcurrencyWinner specified 
-    /// when EF thinks data has changed between retrieval and commit
+    /// when EF determines data has changed between retrieval and commit
     /// </summary>
     /// <param name="winner">server/client/throw</param>
     /// <returns></returns>

@@ -18,10 +18,9 @@ public abstract class UnitTestBase
         _mockFactory = new MockRepository(MockBehavior.Default) { DefaultValue = DefaultValue.Mock };
 
         _mapper = ConfigureAutomapper.CreateMapper(
-            new System.Collections.Generic.List<Profile>
-            {
+            [
                 new MappingProfile()
-            });
+            ]);
     }
 
 }

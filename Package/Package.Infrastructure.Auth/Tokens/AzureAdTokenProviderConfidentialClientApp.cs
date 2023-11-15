@@ -5,31 +5,22 @@ using Microsoft.Identity.Client;
 
 namespace Package.Infrastructure.Http.Tokens;
 
-public class AzureAdTokenProviderConfidentialClientApp //: IOAuth2TokenProvider
+public class AzureAdTokenProviderConfidentialClientApp(AzureADOptions azureAdOptions, IAppCache appCache) //: IOAuth2TokenProvider
 {
-    private readonly IAppCache _appCache;
 
     //todo - make this a thread safe collection (ConcurrentDictionary) to hold multiple target app tokens
-    private readonly IConfidentialClientApplication _app;
-
-    public AzureAdTokenProviderConfidentialClientApp(AzureADOptions azureAdOptions, IAppCache appCache)
-    {
-        _appCache = appCache;
-
-        //ConfidentialClientApplicationBuilder has many options
-        _app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
+    private readonly IConfidentialClientApplication _app = ConfidentialClientApplicationBuilder.Create(azureAdOptions.ClientId)
             .WithClientSecret(azureAdOptions.ClientSecret)
             .WithAuthority(azureAdOptions.AADInstance, azureAdOptions.TenantId)
             //.WithAuthority("https://login.microsoftonline.com/c32ce235-4d9a-4296-a647-a9edb2912ac9")
             .Build();
-    }
 
     public async Task<string> GetAccessTokenAsync(string[] scopes, bool forceRefresh = false)
     {
         var key = $"access_token:{string.Join(",", scopes)}";
         try
         {
-            var accessToken = await _appCache.GetOrAddAsync(key, async entry =>
+            var accessToken = await appCache.GetOrAddAsync(key, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
                 var result = await _app.AcquireTokenForClient(scopes).WithForceRefresh(forceRefresh).ExecuteAsync();
@@ -69,11 +60,11 @@ public class AzureAdTokenProviderConfidentialClientApp //: IOAuth2TokenProvider
     public async Task<string> GetTokenAsync(string resourceId, string scope = "/.default")
     {
         var resourceIdentifier = resourceId + scope;
-        var token = await _appCache.GetOrAddAsync(resourceIdentifier, async entry =>
+        var token = await appCache.GetOrAddAsync(resourceIdentifier, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             var tokenCredential = new DefaultAzureCredential();
-            var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { resourceIdentifier }), CancellationToken.None);
+            var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext([resourceIdentifier]), CancellationToken.None);
             return accessToken.Token;
         });
 

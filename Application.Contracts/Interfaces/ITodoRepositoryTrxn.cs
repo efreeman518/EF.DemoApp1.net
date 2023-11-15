@@ -1,6 +1,6 @@
 ﻿using Package.Infrastructure.Data.Contracts;
 
-namespace Infrastructure.Repositories;
+namespace Application.Contracts.Interfaces;
 
 public interface ITodoRepositoryTrxn : IRepositoryBase
 {

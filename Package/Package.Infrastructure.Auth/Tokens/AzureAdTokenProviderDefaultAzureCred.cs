@@ -10,24 +10,15 @@ public interface IAzureAdTokenRetriever
     Task<string> GetAccessTokenAsync(string resourceId, string scope = "/.default", CancellationToken cancellationToken = default);
 }
 
-public class AzureAdTokenProviderDefaultAzureCred : IAzureAdTokenRetriever
+public class AzureAdTokenProviderDefaultAzureCred(ILogger<AzureAdTokenProviderDefaultAzureCred> logger, IAppCache appCache) : IAzureAdTokenRetriever
 {
-    private readonly ILogger<AzureAdTokenProviderDefaultAzureCred> _logger;
-    private readonly IAppCache _appCache;
-
-    public AzureAdTokenProviderDefaultAzureCred(ILogger<AzureAdTokenProviderDefaultAzureCred> logger, IAppCache appCache)
-    {
-        _logger = logger;
-        _appCache = appCache;
-    }
-
     public async Task<string> GetAccessTokenAsync(string resourceId, string scope = "/.default", CancellationToken cancellationToken = default)
     {
-        _ = _logger.GetHashCode();
+        _ = logger.GetHashCode();
 
         var resourceIdentifier = resourceId + scope;
         var key = $"access_token:{resourceIdentifier}";
-        var accessToken = await _appCache.GetOrAddAsync(key, async entry =>
+        var accessToken = await appCache.GetOrAddAsync(key, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             var tokenCredential = new DefaultAzureCredential();
@@ -36,7 +27,7 @@ public class AzureAdTokenProviderDefaultAzureCred : IAzureAdTokenRetriever
 
             //"api://105684a3-a969-4f3e-89f4-3da2ff0b0a16" //.default
             var accessToken = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext(new[] { scope }),
+                new TokenRequestContext([scope]),
                 cancellationToken
             );
             return accessToken;

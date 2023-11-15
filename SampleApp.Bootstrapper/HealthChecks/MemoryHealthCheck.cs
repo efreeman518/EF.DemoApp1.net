@@ -12,14 +12,9 @@ public class MemoryCheckOptions
     public long Threshold { get; set; } = 1024L * 1024L * 1024L; //1Gb default
 }
 
-public class MemoryHealthCheck : IHealthCheck
+public class MemoryHealthCheck(IOptionsMonitor<MemoryCheckOptions> options) : IHealthCheck
 {
-    private readonly IOptionsMonitor<MemoryCheckOptions> _options;
-
-    public MemoryHealthCheck(IOptionsMonitor<MemoryCheckOptions> options)
-    {
-        _options = options;
-    }
+    private readonly IOptionsMonitor<MemoryCheckOptions> _options = options;
 
     public static string Name => "memory_check";
 

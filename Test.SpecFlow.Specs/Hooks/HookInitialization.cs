@@ -1,12 +1,10 @@
 ﻿namespace Test.SpecFlow.Specs.Hooks;
 [Binding]
-public sealed class HookInitialization
+public sealed class HookInitialization(ScenarioContext scenarioContext)
 {
     // For additional details on SpecFlow hooks see http://go.specflow.org/doc-hooks
 
-    private readonly ScenarioContext _scenarioContext;
-
-    public HookInitialization(ScenarioContext scenarioContext) => _scenarioContext = scenarioContext;
+    private readonly ScenarioContext _scenarioContext = scenarioContext;
 
     [BeforeScenario("@tag1")]
     public void BeforeScenarioWithTag()

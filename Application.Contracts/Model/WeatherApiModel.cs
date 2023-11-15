@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Infrastructure.RapidApi.WeatherApi;
+namespace Application.Contracts.Model;
 
 // Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
 public class Astro
@@ -21,7 +21,7 @@ public class Astro
     public string? MoonPhase { get; set; }
 
     [JsonPropertyName("moon_illumination")]
-    public string? MoonIllumination { get; set; }
+    public int? MoonIllumination { get; set; }
 
     [JsonPropertyName("is_moon_up")]
     public int? IsMoonUp { get; set; }

@@ -71,7 +71,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
 
         await PopulateTableData();
 
-        List<TodoItemTableEntity> fullList = new();
+        List<TodoItemTableEntity> fullList = [];
         IReadOnlyList<TodoItemTableEntity>? todos;
         int pageSize = 10;
 
@@ -82,13 +82,16 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         filterLinq = t => t.Status.Equals(TodoItemStatus.Completed.ToString());
         string? continuationToken = null;
 
+
         do
         {
             (todos, continuationToken) = await _repo.QueryPageAsync(continuationToken, pageSize, filterLinq);
             Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
+#pragma warning disable S2589 //False positive - Boolean expressions should not be gratuitous
         while (continuationToken != null);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         Assert.IsNotNull(fullList);
     }
@@ -102,7 +105,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
 
         await PopulateTableData();
 
-        List<TodoItemTableEntity> fullList = new();
+        List<TodoItemTableEntity> fullList = [];
         IReadOnlyList<TodoItemTableEntity>? todos;
         int pageSize = 10;
 
@@ -116,7 +119,9 @@ public class AzureTableRepositoryTests : IntegrationTestBase
             Assert.IsNotNull(todos);
             fullList.AddRange(todos);
         }
+#pragma warning disable S2589 // False positive - Boolean expressions should not be gratuitous
         while (continuationToken != null);
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         Assert.IsNotNull(fullList);
     }
@@ -131,7 +136,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         //LINQ - page with filter
         Expression<Func<TodoItemTableEntity, bool>> filterLinq;
@@ -174,7 +179,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         string filterOData = "Status eq 'Completed'";
         var batchSize = 10;
@@ -213,7 +218,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         //LINQ - page with filter
         Expression<Func<TodoItemTableEntity, bool>> filterLinq;
@@ -256,7 +261,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         string filterOData = "Status eq 'Completed'";
         var maxConcurrent = 10;
@@ -295,7 +300,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         string filterOData = "Status eq 'Completed'";
 
@@ -333,7 +338,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         await PopulateTableData();
 
         //threadsafe collection on the client side
-        ConcurrentBag<TodoItemTableEntity> fullList = new();
+        ConcurrentBag<TodoItemTableEntity> fullList = [];
 
         string filterOData = "Status eq 'Completed'";
 

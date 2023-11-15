@@ -1,0 +1,37 @@
+/* 
+  https://stryker-mutator.io/docs/stryker-net/getting-started/ (prerequisites)
+  https://stryker-mutator.io/docs/stryker-net/configuration/ 
+  https://stryker-mutator.io/docs/stryker-net/mutations/
+
+  Note that Stryker can not use transitive projects, 
+  so each project tested must be directly reference in the test project
+
+  Install Stryker globally: dotnet tool install -g dotnet-stryker
+  Install Stryker locally: dotnet tool restore (uses /.config/dotnet-tools.json)
+
+  Auth errors - temporarily uncheck provate nuget package sources
+
+  Run Stryker from the test project folder> dotnet stryker
+*/
+{
+  "stryker-config": {
+    "solution": "../EF.SampleApp1.net.sln",
+    "project": "Application.Services.csproj",
+    "language-version": "Preview",
+    "mutation-level": "Advanced",
+    "reporters": [
+      "html",
+      "progress",
+      "cleartexttree"
+    ],
+    "ignore-mutations": [
+      "string"
+    ],
+    "ignore-methods": [
+      "*Log*", // Ignores Log methods 
+      "*Queue*", // Ignores all methods starting with Queue
+      "*Delay*", //background work not tested in main logic test
+      "*Exception.ctor" // Ignores all exception constructors
+    ]
+  }
+}

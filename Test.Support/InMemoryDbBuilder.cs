@@ -84,7 +84,7 @@ public class InMemoryDbBuilder
 
     public InMemoryDbBuilder UseEntityData(Action<List<TodoItem>> action)
     {
-        _entityData = new List<TodoItem>();
+        _entityData = [];
         action(_entityData);
         return this;
     }
@@ -94,9 +94,9 @@ public class InMemoryDbBuilder
         //RowVersion value required for SQLite insert = 'NOT NULL constraint failed: RowVersion'
         var list = new List<TodoItem>
         {
-            new TodoItem ("item1a", TodoItemStatus.Created),
-            new TodoItem ("item2a", TodoItemStatus.InProgress),
-            new TodoItem ("item3a", TodoItemStatus.Completed)
+            new("item1a", TodoItemStatus.Created),
+            new("item2a", TodoItemStatus.InProgress),
+            new("item3a", TodoItemStatus.Completed)
         };
         return list;
     }

@@ -26,7 +26,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
 
         stoppingToken.Register(() => Logger.Log(LogLevel.Information, "CronBackgroundService is stopping. Lifetime {LifetimeId}", _lifeTimeId));
 
-        List<Task> tasks = new();
+        List<Task> tasks = [];
         foreach (var cronJob in _settings.CronJobs)
         {
             tasks.Add(Task.Run(async () =>

@@ -25,7 +25,6 @@ public class ValidatorBenchmarks : IDisposable
     {
         _serviceScope = Utility.GetServiceProvider().CreateScope();
         _validationHelper = _serviceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
-        //_todoItemDto = new TodoItemDto { Name = $"a{Utility.RandomString(NameLength)}" };
         _todoItemDto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
     }
 
@@ -43,9 +42,17 @@ public class ValidatorBenchmarks : IDisposable
     }
 
     [Benchmark]
-    public async Task<FluentValidation.Results.ValidationResult> TodoItemValidateAsync()
+    public async Task<FluentValidation.Results.ValidationResult?> TodoItemValidateAsync()
     {
-        return await _validationHelper.ValidateAsync(_todoItemDto);
+        try
+        {
+            return await _validationHelper.ValidateAsync(_todoItemDto);
+        }
+        catch (Exception)
+        {
+            //ignore for benchmark test
+            return null;
+        }
     }
 
     [Benchmark]

@@ -24,25 +24,16 @@ namespace Functions;
 ///     
 /// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
-public class FunctionEventGridTriggerCustom
+public class FunctionEventGridTriggerCustom(IConfiguration configuration, ILoggerFactory loggerFactory,
+    IOptions<Settings1> settings)
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionEventGridTriggerCustom> _logger;
-    private readonly Settings1 _settings;
-
-    public FunctionEventGridTriggerCustom(IConfiguration configuration, ILoggerFactory loggerFactory,
-        IOptions<Settings1> settings)
-    {
-        _configuration = configuration;
-        _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerCustom>();
-        _settings = settings.Value;
-    }
+    private readonly ILogger<FunctionEventGridTriggerCustom> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerCustom>();
 
     [Function("EventGridTriggerCustom")]
     public async Task Run([EventGridTrigger] EventGridEvent egEvent)
     {
-        _ = _configuration.GetHashCode();
-        _ = _settings.GetHashCode();
+        _ = configuration.GetHashCode();
+        _ = settings.GetHashCode();
 
         _logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {inputEvent}", JsonSerializer.Serialize(egEvent));
 

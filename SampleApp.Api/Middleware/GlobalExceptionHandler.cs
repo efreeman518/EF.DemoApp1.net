@@ -5,24 +5,17 @@ using System.Text.Json;
 
 namespace SampleApp.Api.Middleware;
 
-public sealed class GlobalExceptionHandler
+/// <summary>
+/// Middleware is Singleton, so can only inject Singleton (not Scoped)
+/// </summary>
+/// <param name="next"></param>
+/// <param name="loggerFactory"></param>
+/// <param name="hostEnvironment"></param>
+public sealed class GlobalExceptionHandler(RequestDelegate next, ILoggerFactory loggerFactory, IHostEnvironment hostEnvironment)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
-    private readonly IHostEnvironment _hostEnvironment;
-
-    /// <summary>
-    /// Middleware is Singleton, so can only inject Singleton (not Scoped)
-    /// </summary>
-    /// <param name="next"></param>
-    /// <param name="loggerFactory"></param>
-    /// <param name="hostEnvironment"></param>
-    public GlobalExceptionHandler(RequestDelegate next, ILoggerFactory loggerFactory, IHostEnvironment hostEnvironment)
-    {
-        _next = next;
-        _logger = loggerFactory.CreateLogger<GlobalExceptionHandler>();
-        _hostEnvironment = hostEnvironment;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger _logger = loggerFactory.CreateLogger<GlobalExceptionHandler>();
+    private readonly IHostEnvironment _hostEnvironment = hostEnvironment;
 
     public async Task Invoke(HttpContext context)
     {

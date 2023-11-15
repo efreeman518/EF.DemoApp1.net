@@ -24,7 +24,7 @@ public static class Utility
             .AddJsonFile("appsettings.json", false); //from api
 
         IConfigurationRoot config = builder.Build();
-        string env = config.GetValue<string>("Environment", "development")!;
+        string env = config.GetValue<string>("Environment", "Development")!;
         var isDevelopment = env?.ToLower() == "development";
         if (env != null)
         {

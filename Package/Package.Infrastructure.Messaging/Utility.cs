@@ -16,7 +16,7 @@ internal static class Utility
 
     public static string BinaryToString(this string data, Encoding encoding)
     {
-        List<Byte> byteList = new();
+        List<Byte> byteList = [];
 
         for (int i = 0; i < data.Length; i += 8)
         {

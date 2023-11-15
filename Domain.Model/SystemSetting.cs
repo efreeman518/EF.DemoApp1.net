@@ -2,14 +2,9 @@
 using Package.Infrastructure.Data.Contracts;
 
 namespace Domain.Model;
-public class SystemSetting : EntityBase
+public class SystemSetting(string key, string? value) : EntityBase
 {
-    public SystemSetting(string key, string? value)
-    {
-        Key = key;
-        Value = value;
-    }
-    public string Key { get; set; }
-    public string? Value { get; set; }
+    public string Key { get; set; } = key;
+    public string? Value { get; set; } = value;
     public SystemSettings Flags { get; set; }
 }

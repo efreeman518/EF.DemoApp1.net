@@ -1,10 +1,12 @@
-﻿using Azure;
+﻿using Application.Contracts.Interfaces;
+using Azure;
 using Azure.Identity;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
@@ -84,7 +86,7 @@ public abstract class IntegrationTestBase
                 .WithName("EventGridPublisherTopic1");
             }
 
-            //KeyVault Secret
+            //KeyVault
             configSection = Config.GetSection("KeyVaultManager1");
             if (configSection.Exists())
             {
@@ -119,7 +121,7 @@ public abstract class IntegrationTestBase
             services.Configure<EventGridPublisherSettings1>(configSection);
         }
 
-        //KeyVault
+        //KeyVaultManager
         configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
         if (configSection.Exists())
         {
@@ -157,8 +159,11 @@ public abstract class IntegrationTestBase
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Key", Config.GetValue<string>("WeatherServiceSettings:Key")!);
                 client.DefaultRequestHeaders.Add("X-RapidAPI-Host", Config.GetValue<string>("WeatherServiceSettings:Host")!);
             })
-            .AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
-            .AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
+            //resiliency
+            //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
+            //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
+            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
+            .AddStandardResilienceHandler();
         }
 
         //OpenAI chat service

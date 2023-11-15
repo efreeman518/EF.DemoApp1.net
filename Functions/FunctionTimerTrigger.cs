@@ -5,26 +5,17 @@ using Microsoft.Extensions.Options;
 
 namespace Functions;
 
-public class FunctionTimerTrigger
+public class FunctionTimerTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
+    IOptions<Settings1> settings)
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<FunctionTimerTrigger> _logger;
-    private readonly Settings1 _settings;
-
-    public FunctionTimerTrigger(IConfiguration configuration, ILoggerFactory loggerFactory,
-        IOptions<Settings1> settings)
-    {
-        _configuration = configuration;
-        _logger = loggerFactory.CreateLogger<FunctionTimerTrigger>();
-        _settings = settings.Value;
-    }
+    private readonly ILogger<FunctionTimerTrigger> _logger = loggerFactory.CreateLogger<FunctionTimerTrigger>();
 
     [Function("TimerTrigger")]
     [ExponentialBackoffRetry(5, "00:00:05", "00:15:00")]
     public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
     {
-        _ = _configuration.GetHashCode();
-        _ = _settings.GetHashCode();
+        _ = configuration.GetHashCode();
+        _ = settings.GetHashCode();
         _logger.Log(LogLevel.Information, "TimerTrigger - Start {ExecutionUtc}", DateTime.UtcNow);
 
         //await some service call

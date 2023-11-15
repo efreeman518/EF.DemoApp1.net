@@ -2,6 +2,8 @@
 	Add, edit, remove TodoItems
 
 #Run the api in another VS
+#The versions of Chrome and Edge must match the versions of the drivers in the bin folder
+#This scenario does not currently search or page through items, so less than 10 in the DB required to show on the first page
 @ignore
 @tag1
 

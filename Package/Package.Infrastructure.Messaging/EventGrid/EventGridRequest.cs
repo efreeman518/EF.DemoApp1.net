@@ -1,16 +1,11 @@
 ﻿namespace Package.Infrastructure.Messaging.EventGrid;
 
-public class EventGridRequest
+public class EventGridRequest(string clientName, EventGridEvent eventData)
 {
-    public EventGridRequest(string clientName, EventGridEvent eventData)
-    {
-        ClientName = clientName;
-        Event = eventData;
-    }
     /// <summary>
     /// configured at startup with Creds/StorageAccountUri/ConnectionString
     /// </summary>
-    public string ClientName { get; set; }
+    public string ClientName { get; set; } = clientName;
 
-    public EventGridEvent Event { get; set; }
+    public EventGridEvent Event { get; set; } = eventData;
 }

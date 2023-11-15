@@ -4,13 +4,8 @@ using Package.Infrastructure.Data;
 
 namespace Infrastructure.Data;
 
-public class SystemSettingsDbContext : DbContextBase
+public class SystemSettingsDbContext(DbContextOptions<SystemSettingsDbContext> options) : DbContextBase(options)
 {
-
-    public SystemSettingsDbContext(DbContextOptions<SystemSettingsDbContext> options) : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

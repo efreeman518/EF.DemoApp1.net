@@ -8,9 +8,11 @@ namespace Package.Infrastructure.AspNetCore;
 
 public static class HealthCheckHelper
 {
+    static readonly JsonSerializerOptions jsOoptions = new() { WriteIndented = true };
+
     public static string ParseReport(HealthReport result)
     {
-        string response = JsonSerializer.Serialize(result, typeof(HealthReport), new JsonSerializerOptions { WriteIndented = true });
+        string response = JsonSerializer.Serialize(result, typeof(HealthReport), jsOoptions);
 
         //convert all Status enums to string
         string reMatchStatus = "\"Status\": ([0-9])";

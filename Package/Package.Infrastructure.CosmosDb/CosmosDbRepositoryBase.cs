@@ -94,7 +94,7 @@ public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
         var query = queryable.Where(filter);
         int total = includeTotal ? (await query.CountAsync(cancellationToken)).Resource : -1;
         if (sorts != null) query = query.OrderBy(sorts.AsEnumerable());
-        List<TProject> items = new();
+        List<TProject> items = [];
 
         using var feedIterator = query.ToFeedIterator();
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount
@@ -132,7 +132,7 @@ public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
             MaxItemCount = pageSize,
             MaxConcurrency = maxConcurrency //-1 system decides number of concurrent operations to run
         };
-        List<TProject> items = new();
+        List<TProject> items = [];
 
         using var feedIterator = _dbClient3.GetContainer(_dbId, typeof(TSource).Name).GetItemQueryIterator<TProject>(query, continuationToken, o);
         if (feedIterator.HasMoreResults) //Asynchronous query execution - loads to end; does not abide by MaxItemCount/pageSize

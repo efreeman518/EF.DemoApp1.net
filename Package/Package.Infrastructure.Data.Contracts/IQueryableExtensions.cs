@@ -111,7 +111,7 @@ public static class IQueryableExtensions
                 (count == 0 ? "OrderByDescending" : "ThenByDescending") :
                 (count == 0 ? "OrderBy" : "ThenBy");
             expression = Expression.Call(typeof(Queryable), method,
-                new Type[] { source.ElementType, selector.Type },
+                [source.ElementType, selector.Type],
                 expression, Expression.Quote(Expression.Lambda(selector, parameter)));
             count++;
         }

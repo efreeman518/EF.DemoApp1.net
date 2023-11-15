@@ -2,10 +2,6 @@
 
 namespace Infrastructure.Data;
 
-public class TodoDbContextTrxn : TodoDbContextBase
+public class TodoDbContextTrxn(DbContextOptions<TodoDbContextTrxn> options) : TodoDbContextBase(options)
 {
-    public TodoDbContextTrxn(DbContextOptions<TodoDbContextTrxn> options) : base(options)
-    {
-
-    }
 }

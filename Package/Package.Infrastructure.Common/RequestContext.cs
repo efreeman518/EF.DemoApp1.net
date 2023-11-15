@@ -1,16 +1,7 @@
 ﻿namespace Package.Infrastructure.Common;
 
-public class RequestContext : IRequestContext
+public class RequestContext(string correlationId, string auditId) : IRequestContext
 {
-    private readonly string _auditId;
-    private readonly string _correlationId;
-
-    public string CorrelationId => _correlationId;
-    public string AuditId => _auditId;
-
-    public RequestContext(string correlationId, string auditId)
-    {
-        _correlationId = correlationId;
-        _auditId = auditId;
-    }
+    public string CorrelationId => correlationId;
+    public string AuditId => auditId;
 }

@@ -2,10 +2,6 @@
 
 namespace Infrastructure.Data;
 
-public class TodoDbContextQuery : TodoDbContextBase
+public class TodoDbContextQuery(DbContextOptions<TodoDbContextQuery> options) : TodoDbContextBase(options)
 {
-    public TodoDbContextQuery(DbContextOptions<TodoDbContextQuery> options) : base(options)
-    {
-
-    }
 }

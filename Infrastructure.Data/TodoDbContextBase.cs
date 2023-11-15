@@ -18,6 +18,9 @@ namespace Infrastructure.Data;
  * set the env variable for connection string in PMC before running commands
  * $env:EFCORETOOLSDB = "Server=[server name];Database=[db name];Integrated Security=true;MultipleActiveResultSets=True;Column Encryption Setting=enabled;TrustServerCertificate=true"
  * 
+ * if using Always Encrypted column encryption with Azure Key Vault, set env var path to the AKV key used for SQL Column Master Key
+ * $env:AKVCMKURL = "https://vault-dev.vault.azure.net/keys/SQL-ColMaskerKey-Default/abc123"
+ * 
  * Note - EF migrations design time will run the app to build the service collection, 
  * then fail out - this is ok, PMC will show Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
  * 

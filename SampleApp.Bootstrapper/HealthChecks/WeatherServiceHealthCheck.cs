@@ -1,19 +1,13 @@
-﻿using Infrastructure.RapidApi.WeatherApi;
+﻿using Application.Contracts.Interfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 
 namespace SampleApp.Bootstrapper.HealthChecks;
 
-public class WeatherServiceHealthCheck : IHealthCheck
+public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger, IWeatherService weatherService) : IHealthCheck
 {
-    private readonly ILogger<WeatherServiceHealthCheck> _logger;
-    private readonly IWeatherService _weatherService;
-
-    public WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger, IWeatherService weatherService)
-    {
-        _logger = logger;
-        _weatherService = weatherService;
-    }
+    private readonly ILogger<WeatherServiceHealthCheck> _logger = logger;
+    private readonly IWeatherService _weatherService = weatherService;
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
