@@ -1,12 +1,10 @@
 # Introduction 
 C# Sample App - A modern domain-centric service api template
-- main branch - .net7 latest release
-- net8 branch - .net8 latest preview release
+- main branch - .net8 latest release
 
 # Prerequisites
-1. [Visual Studio 2022 Latest (>=17.8 preview needed for .net8)](https://visualstudio.microsoft.com/vs/)
-2. [.net7 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) (main branch)
-3. [.net8 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (net8 branch, will merge to main when released)
+1. [Visual Studio 2022 Latest](https://visualstudio.microsoft.com/vs/)
+2. [.net8 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) 
 
 # Getting Started
 Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger page opens, using the same port and root path shows a basic js UI

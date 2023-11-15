@@ -1,10 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http.Resilience;
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Extensions.Http;
-using Polly.Retry;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
