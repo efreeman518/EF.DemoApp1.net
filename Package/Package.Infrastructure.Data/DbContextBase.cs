@@ -53,6 +53,8 @@ public abstract class DbContextBase : DbContext
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (winner == OptimisticConcurrencyWinner.Throw) throw;
+
                 foreach (var entry in ex.Entries)
                 {
                     var proposedValues = entry.CurrentValues;
@@ -82,11 +84,9 @@ public abstract class DbContextBase : DbContext
 
     private async Task<int> SaveChangesAsync(string auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
     {
+        //Audit table tracking option - create audit records alternative to audit properties on the entity
         foreach (var entity in ChangeTracker.Entries<EntityBase>())
         {
-            //assign Id
-            if (entity.State != EntityState.Added) continue;
-
             //check entity/properties for audit
             var auditChange = Attribute.GetCustomAttribute(entity.GetType(), typeof(AuditChangeAttribute));
             if (auditChange != null)
@@ -101,13 +101,11 @@ public abstract class DbContextBase : DbContext
             if (auditableEntity.State == EntityState.Added ||
                 auditableEntity.State == EntityState.Modified)
             {
-                // modify updated date and updated by column for 
-                // adds of updates.
+                //update audit preperties
                 auditableEntity.Entity.UpdatedDate = DateTime.UtcNow;
                 auditableEntity.Entity.UpdatedBy = auditId;
 
-                // pupulate created date and created by columns for
-                // newly added record.
+                //populate created date and created by columns for newly added record.
                 if (auditableEntity.State == EntityState.Added)
                 {
                     auditableEntity.Entity.CreatedDate = DateTime.UtcNow;
@@ -115,8 +113,7 @@ public abstract class DbContextBase : DbContext
                 }
                 else
                 {
-                    // we also want to make sure that code is not inadvertly
-                    // modifying created date and created by columns 
+                    //make sure that code is not inadvertly modifying created date and created by columns 
                     auditableEntity.Property(t => t.CreatedDate).IsModified = false;
                     auditableEntity.Property(t => t.CreatedBy).IsModified = false;
                 }
