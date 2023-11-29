@@ -19,6 +19,7 @@ namespace Package.Infrastructure.AspNetCore.Swagger;
 /// Initializes a new instance of the <see cref="SwaggerGenConfigurationOptions"/> class.
 /// </remarks>
 /// <param name="provider">The <see cref="IApiVersionDescriptionProvider">provider</see> used to generate Swagger documents.</param>
+/// <param name="settings"></param>
 public class SwaggerGenConfigurationOptions(IApiVersionDescriptionProvider provider, IOptions<SwaggerSettings> settings) : IConfigureOptions<SwaggerGenOptions>
 {
     /// <inheritdoc />

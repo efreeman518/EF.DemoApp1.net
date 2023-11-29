@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Infrastructure.Configuration;
+using Microsoft.AspNetCore.DataProtection;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 
@@ -67,6 +68,19 @@ try
     {
         builder.Logging.AddConsole();
         builder.Logging.AddDebug();
+    }
+
+    //Data Protection - use blobstorage (key file) and keyvault; server farm will all use the same keys
+    //register here since credential has been configured
+    //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-8.0
+    string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
+    string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
+    if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
+    {
+        loggerStartup.LogInformation("{ServiceName} - Configure Data Protection.", SERVICE_NAME);
+        builder.Services.AddDataProtection()
+            .PersistKeysToAzureBlobStorage(new Uri(dataProtectionKeysFileUrl), credential)
+            .ProtectKeysWithAzureKeyVault(new Uri(dataProtectionEncryptionKeyUrl), credential);
     }
 
     loggerStartup.LogInformation("{ServiceName} - Register services.", SERVICE_NAME);
