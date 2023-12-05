@@ -72,7 +72,7 @@ try
 
     //Data Protection - use blobstorage (key file) and keyvault; server farm will all use the same keys
     //register here since credential has been configured
-    //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-8.0
+    //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
     string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
     string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))

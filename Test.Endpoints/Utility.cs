@@ -7,7 +7,7 @@ namespace Test.Endpoints;
 
 /// <summary>
 /// Uses WebApplicationFactory to create a test http service which can be hit using httpclient
-/// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0
+/// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
 /// </summary>
 public static class Utility
 {

@@ -5,7 +5,7 @@ namespace Package.Infrastructure.Common.Extensions;
 public static class LoggerExtensions
 {
     //Performant Logging
-    //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage?view=aspnetcore-6.0
+    //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
     private static readonly Action<ILogger, string, Exception?> _infoLog =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
     private static readonly Action<ILogger, string, Exception?> _errorLog =

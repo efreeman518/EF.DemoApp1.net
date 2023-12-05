@@ -43,6 +43,9 @@ internal static class IServiceCollectionExtensions
         //header propagation
         services.AddHeaderPropagation(); // (options => options.Headers.Add("x-username-etc"));
 
+        //convenient for model validation
+        services.AddProblemDetails();
+
         //https://github.com/stevejgordon/CorrelationId/wiki
         services.AddDefaultCorrelationId(options =>
         {

@@ -38,6 +38,11 @@ public static partial class WebApplicationBuilderExtensions
         //ChatGPT https not supported
         app.UseHttpsRedirection();
 
+        //exception handler when not using UseExceptionHandler 
+        //https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors
+        //global error handler
+        app.UseMiddleware(typeof(GlobalExceptionHandler));
+
         app.UseRouting();
         app.UseCors("AllowSpecific");
         app.UseAuthentication();
@@ -45,15 +50,8 @@ public static partial class WebApplicationBuilderExtensions
         app.UseCorrelationId(); //internal service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
         app.UseHeaderPropagation();
 
-        //exception handler when not using UseExceptionHandler 
-        //https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors?view=aspnetcore-7.0
-        //global error handler
-        app.UseMiddleware(typeof(GlobalExceptionHandler));
-
         app.MapControllers();
-
         app.MapGrpcService<TodoGrpcService>();
-
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
             // Exclude all checks and return a 200 - Ok.

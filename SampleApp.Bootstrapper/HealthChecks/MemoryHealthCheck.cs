@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace SampleApp.Bootstrapper.HealthChecks;
 
-//https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-7.0
+//https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks
 
 public class MemoryCheckOptions
 {

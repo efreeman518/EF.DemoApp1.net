@@ -1,0 +1,35 @@
+﻿@baseurl=https://localhost:44318
+
+GET {{baseurl}}/api/v1/todoitems?pageSize=10&pageIndex=1
+
+###
+
+POST {{baseurl}}/api/v1/todoitems
+Content-Type: application/json
+
+{
+  "name": "a2sdf3",
+  "status": 1,
+  "secureRandom": "secrand",
+  "secureDeterministic": "secdet"
+}
+
+###
+
+GET {{baseurl}}/api/v1/todoitems/d0484e69-484a-48e3-85ae-3ae05f0ea94b
+
+###
+
+PUT {{baseurl}}/api/v1/todoitems/d0484e69-484a-48e3-85ae-3ae05f0ea94b
+Content-Type: application/json
+{
+  "name": "a5555588",
+  "status": 1,
+  "secureRandom": "secrand5588",
+  "secureDeterministic": "secdet5588"
+}
+
+###
+
+DELETE {{baseurl}}/api/v1/todoitems/d0484e69-484a-48e3-85ae-3ae05f0ea94b
+

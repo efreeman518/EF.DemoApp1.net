@@ -106,6 +106,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.KeyV
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Configuration", "Infrastructure.Configuration\Infrastructure.Configuration.csproj", "{38649064-BD91-48E9-A81F-1E69202F31D6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{34AF777A-E561-482E-8119-CEA004087FDF}"
+	ProjectSection(SolutionItems) = preProject
+		todoitem.http = todoitem.http
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -317,6 +322,7 @@ Global
 		{3A930A9F-7248-41F3-A23A-D8811BCB4A29} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{0E39FC7D-1D0C-48C4-BC3B-D56C178D2C8A} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{38649064-BD91-48E9-A81F-1E69202F31D6} = {C90D2F43-238F-4264-AFC4-FED54F80E073}
+		{34AF777A-E561-482E-8119-CEA004087FDF} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

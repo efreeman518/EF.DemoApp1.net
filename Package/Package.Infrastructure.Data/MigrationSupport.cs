@@ -39,7 +39,7 @@ namespace Package.Infrastructure.Data;
  * The easiest way to grant the application the required permission is to add its identity to the "Key Vault Crypto User" role
  * 
  * Rotating Keys
- * https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/rotate-always-encrypted-keys-using-ssms?view=sql-server-ver16
+ * https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/rotate-always-encrypted-keys-using-ssms
  */
 
 [ExcludeFromCodeCoverage]

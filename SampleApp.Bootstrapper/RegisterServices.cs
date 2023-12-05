@@ -71,7 +71,7 @@ public static class IServiceCollectionExtensions
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         services.AddLazyCache();
 
-        //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-6.0
+        //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
         string? connectionString = config.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(connectionString))
         {
