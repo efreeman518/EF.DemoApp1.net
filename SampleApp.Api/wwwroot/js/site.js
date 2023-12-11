@@ -18,7 +18,13 @@ async function getItems() {
     displayItems(response.data);
 }
 
+function editItem(item) {
+    popEdit(item.id, item.status == TodoItemStatus.Completed, item.name, item.secureRandom, item.secureDeterministic);
+    document.getElementById('btn-save').textContent = 'Update';
+}
+
 async function deleteItem(id) {
+    clearEditRow();
     const url = `${urlTodo}/${id}`; 
     await _utility.HttpSend("DELETE", url, null, null, "");
     await getItems();
@@ -51,24 +57,18 @@ async function saveItem() {
     }
 }
 
-function popEdit(item) {
-    document.getElementById('message').innerText = "";
-
-    document.getElementById('edit-row').setAttribute("data-id", item.id);
-    document.getElementById('btn-save').textContent = 'Update';
-    document.getElementById('edit-name').value = item.name;
-    document.getElementById('edit-isComplete').checked = item.status == TodoItemStatus.Completed;
-    document.getElementById('edit-secure-random').value = item.secureRandom;
-    document.getElementById('edit-secure-deterministic').value = item.secureDeterministic;
+function clearEditRow() {
+    popEdit("", false, "", "", "")
+    document.getElementById('btn-save').textContent = 'Add';
 }
 
-function clearEditRow() {
-    document.getElementById('edit-row').setAttribute("data-id", "");
-    document.getElementById('edit-isComplete').checked = false;
-    document.getElementById('edit-name').value = "";
-    document.getElementById('edit-secure-random').value = "";
-    document.getElementById('edit-secure-deterministic').value = "";
-    document.getElementById('btn-save').textContent = 'Add';
+function popEdit(id, isComplete, name, secureRandom, secureDeterministic) {
+    document.getElementById('message').innerText = "";
+    document.getElementById('edit-row').setAttribute("data-id", id);
+    document.getElementById('edit-isComplete').checked = isComplete;
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-secure-random').value = secureRandom;
+    document.getElementById('edit-secure-deterministic').value = secureDeterministic;
 }
 
 function displayCount(itemCount) {
@@ -93,7 +93,7 @@ function displayItems(data) {
 
         let editButton = button.cloneNode(false);
         editButton.innerText = 'Edit';
-        editButton.addEventListener("click", (event) => { popEdit(item); });
+        editButton.addEventListener("click", (event) => { editItem(item); });
 
         let deleteButton = button.cloneNode(false);
         deleteButton.innerText = 'Delete';

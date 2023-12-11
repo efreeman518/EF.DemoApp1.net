@@ -70,7 +70,7 @@ try
         builder.Logging.AddDebug();
     }
 
-    //Data Protection - use blobstorage (key file) and keyvault; server farm will all use the same keys
+    //Data Protection - use blobstorage (key file) and keyvault; server farm/instances will all use the same keys
     //register here since credential has been configured
     //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
     string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file

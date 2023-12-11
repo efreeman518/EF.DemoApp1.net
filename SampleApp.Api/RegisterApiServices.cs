@@ -3,6 +3,7 @@ using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Package.Infrastructure.AspNetCore.Swagger;
+using Package.Infrastructure.AspNetCore.ExceptionHandlers;
 using Package.Infrastructure.Grpc;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -30,6 +31,9 @@ internal static class IServiceCollectionExtensions
         {
             module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("EnableSqlCommandTextInstrumentation", false);
         });
+
+        //exception handling
+        services.AddExceptionHandler<DefaultExceptionHandler>();
 
         //api versioning
         var apiVersioningBulder = services.AddApiVersioning(options =>

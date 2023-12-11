@@ -38,10 +38,11 @@ public static partial class WebApplicationBuilderExtensions
         //ChatGPT https not supported
         app.UseHttpsRedirection();
 
-        //exception handler when not using UseExceptionHandler 
-        //https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors
         //global error handler
-        app.UseMiddleware(typeof(GlobalExceptionHandler));
+        app.UseExceptionHandler();
+
+        //any other middleware
+        //app.UseMiddleware<SomeMiddleware>();
 
         app.UseRouting();
         app.UseCors("AllowSpecific");

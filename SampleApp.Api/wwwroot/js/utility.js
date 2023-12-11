@@ -43,7 +43,7 @@ export default class Utility {
             else {
                 const err = await response.json();
                 console.error(err);
-                throw new Error(`${err.Detail}`);
+                throw new Error(`${err.detail}`);
             }
         }
         catch (error) {
