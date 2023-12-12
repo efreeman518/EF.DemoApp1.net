@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Common.Extensions;
 
-namespace Package.Infrastructure.AspNetCore.ExceptionHandlers;
+namespace Sample.Api.ExceptionHandlers;
 
 /// <summary>
 /// Singleton
@@ -20,13 +18,13 @@ public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> log
     {
         try
         {
-            logger.LogError(exception, "DefaultExceptionHandler caught exception: {Message}", exception.Message);
+            logger.ErrorLog("DefaultExceptionHandler caught exception", exception);
         }
         catch (Exception exInternal)
         {
             try
             {
-                logger.LogError(exInternal, "DefaultExceptionHandler internal exception when attempting to log an application exception ({Message})", exception.Message);
+                logger.ErrorLog("DefaultExceptionHandler internal exception when attempting to log an application exception", exInternal);
             }
             catch
             {

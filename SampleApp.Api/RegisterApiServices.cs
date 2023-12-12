@@ -3,8 +3,8 @@ using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Package.Infrastructure.AspNetCore.Swagger;
-using Package.Infrastructure.AspNetCore.ExceptionHandlers;
 using Package.Infrastructure.Grpc;
+using Sample.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

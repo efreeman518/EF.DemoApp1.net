@@ -10,36 +10,31 @@ internal sealed class SomeMiddleware(RequestDelegate next, ILoggerFactory logger
 {
     private readonly ILogger _logger = loggerFactory.CreateLogger<SomeMiddleware>();
 
-    public async Task Invoke(HttpContext context)
+    /// <summary>
+    /// method can accept scoped services
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task InvokeAsync(HttpContext context)
     {
-        try
-        
-        {
-            //do something before next middleware
-            _ = hostEnvironment.GetHashCode();
+        _logger.LogDebug("SomeMiddleware invoked");
 
-            //execute next middleware; catch any exceptions
-            await next(context);
-        }
-        catch (Exception ex)
-        {
-            try
-            {
-                _logger.LogError(ex, "SomeMiddleware exception: {Message}", ex.Message);
-            }
-            catch (Exception exInternal)
-            {
-                try
-                {
-                    _logger.Log(LogLevel.Error, exInternal, "SomeMiddleware internal exception when attempting to log an application exception ({Message})", ex.Message);
-                }
-                catch
-                {
-                    //internal logging error; throw the original
-                    throw ex;
-                }
-            }
-        }
+        //manipulate the request/do something before next middleware
+        _ = hostEnvironment.GetHashCode();
+
+        //execute next middleware
+        await next(context);
+    }
+}
+
+/// <summary>
+/// pipeline convenience extension
+/// </summary>
+public static class SomeMiddlewareiddlewareExtensions
+{
+    public static IApplicationBuilder UseSomeMiddleware(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<SomeMiddleware>();
     }
 }
 

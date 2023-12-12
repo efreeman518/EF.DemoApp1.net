@@ -1,4 +1,5 @@
 ﻿using Application.Contracts.Interfaces;
+using Application.Services.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
@@ -38,7 +39,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     public async Task<TodoItemDto> AddItemAsync(TodoItemDto dto)
     {
         //structured logging
-        Logger.Log(LogLevel.Information, "AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
+        Logger.LogInformation("AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
 
         //dto - FluentValidation
         await validationHelper.ValidateAndThrowAsync(dto);
@@ -69,7 +70,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             Logger.LogInformation("Some scoped work done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
-        Logger.Log(LogLevel.Information, "AddItemAsync Complete - {TodoItem}", todo.SerializeToJson());
+        Logger.TodoItemAddedLog(todo);
 
         //return mapped domain -> app
         return mapper.Map<TodoItem, TodoItemDto>(todo);

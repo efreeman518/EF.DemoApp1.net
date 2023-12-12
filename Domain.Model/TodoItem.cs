@@ -1,6 +1,7 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
 using System.Text.RegularExpressions;
@@ -12,7 +13,10 @@ public partial class TodoItem : EntityBase
     public string Name { get; private set; }
     public bool IsComplete => Status == TodoItemStatus.Completed;
     public TodoItemStatus Status { get; private set; }
+
+    [Mask("***")]
     public string? SecureRandom { get; set; }
+    [Mask("***")]
     public string? SecureDeterministic { get; set; }
 
     public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)

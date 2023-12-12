@@ -41,15 +41,15 @@ public static partial class WebApplicationBuilderExtensions
         //global error handler
         app.UseExceptionHandler();
 
-        //any other middleware
-        //app.UseMiddleware<SomeMiddleware>();
-
         app.UseRouting();
         app.UseCors("AllowSpecific");
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseCorrelationId(); //internal service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
         app.UseHeaderPropagation();
+
+        //any other middleware
+        app.UseSomeMiddleware();
 
         app.MapControllers();
         app.MapGrpcService<TodoGrpcService>();
