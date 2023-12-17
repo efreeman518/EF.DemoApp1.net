@@ -263,16 +263,17 @@ public static class EFExtensions
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="includes"></param>
     /// <returns></returns>
     public static async Task<T?> GetEntityAsync<T>(this DbSet<T> dbSet, bool tracking,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        IQueryable<T> query = dbSet.ComposeIQueryable(tracking, null, null, filter, orderBy, includes);
+        IQueryable<T> query = dbSet.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes);
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -287,19 +288,20 @@ public static class EFExtensions
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includeTotal"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>List<T> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(List<T>, int)> QueryPageAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
-        query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, includes);
+        query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         return (await query.ToListAsync(cancellationToken), total);
     }
 
@@ -314,6 +316,7 @@ public static class EFExtensions
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includeTotal"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>List<TProject> page results with total (-1 if includeTotal = false) </returns>
@@ -321,13 +324,13 @@ public static class EFExtensions
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken) : -1;
-        query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, includes);
+        query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         var results = await query.ProjectTo<TProject>(mapperConfigProvider).ToListAsync(cancellationToken);
         return (results, total);
     }

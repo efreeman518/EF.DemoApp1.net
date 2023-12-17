@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
 using AutoMapper;
+using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
@@ -9,6 +10,17 @@ namespace Infrastructure.Repositories;
 
 public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext rc, IMapper mapper) : RepositoryBase<TodoDbContextQuery>(dbContext, rc), ITodoRepositoryQuery
 {
+    //compile frequently used query
+    //https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#compiled-queries
+    private static readonly Func<TodoDbContextQuery, TodoItemStatus, IAsyncEnumerable<TodoItem>> queryTodoItemsByStatus =
+        EF.CompileAsyncQuery((TodoDbContextQuery db, TodoItemStatus status) =>
+                   db.TodoItems.Where(t => t.Status == status));
+
+    public IAsyncEnumerable<TodoItem> GetTodoItemsByStatus(TodoItemStatus status)
+    {
+        return queryTodoItemsByStatus(DB, status);
+    }
+
     /// <summary>
     /// Return a cref="PagedResponse" projected to Dto
     /// </summary>

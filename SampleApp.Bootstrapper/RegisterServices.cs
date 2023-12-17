@@ -148,6 +148,8 @@ public static class IServiceCollectionExtensions
         }
         else
         {
+            //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
+
             services.AddDbContextPool<TodoDbContextTrxn>(options =>
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
@@ -167,6 +169,12 @@ public static class IServiceCollectionExtensions
                     sqlServerOptionsAction: sqlOptions =>
                     {
                         sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                        //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
+                        //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
+                        //sqlOptions.UseRelationalNulls(true);
+                        //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
+                        //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+                        //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                     })
                 );
 

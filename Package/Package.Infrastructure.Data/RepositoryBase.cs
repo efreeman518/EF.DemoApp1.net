@@ -7,25 +7,25 @@ using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
 
-public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbContext : DbContextBase
+public abstract class RepositoryBase<TDbContext>(TDbContext dbContext, IRequestContext requestContext)
+    : IRepositoryBase where TDbContext : DbContextBase
 {
-    protected TDbContext DB;
-    private readonly string _auditId;
+    protected TDbContext DB => dbContext;
+    private string AuditId => requestContext.AuditId;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="requestContext"></param>
-    protected RepositoryBase(TDbContext dbContext, IRequestContext requestContext)
-    {
-        DB = dbContext;
-        _auditId = requestContext.AuditId;
-    }
+    //protected RepositoryBase(TDbContext dbContext, IRequestContext requestContext)
+    //{
+    //    _auditId = requestContext.AuditId;
+    //}
 
     public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
-        return await DB.Set<T>().ExistsAsync(filter);
+        return await dbContext.Set<T>().ExistsAsync(filter);
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public async Task UpsertAsync<T>(T entity) where T : EntityBase
     {
-        await DB.UpsertAsync(entity);
+        await dbContext.UpsertAsync(entity);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public void Create<T>(ref T entity) where T : class
     {
-        DB.Create(ref entity);
+        dbContext.Create(ref entity);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     public void PrepareForUpdate<T>(ref T entity) where T : EntityBase
     {
         //entity may already be attached so get that or create it in order to update
-        DB.PrepareForUpdate<T>(ref entity);
+        dbContext.PrepareForUpdate<T>(ref entity);
 
     }
 
@@ -69,7 +69,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public void UpdateFull<T>(ref T entity) where T : EntityBase
     {
-        DB.UpdateFull<T>(ref entity);
+        dbContext.UpdateFull<T>(ref entity);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     public void Delete<T>(T entity) where T : EntityBase
     {
         //entity may already be attached so get that or create it in order to remove
-        DB.Delete(entity);
+        dbContext.Delete(entity);
     }
 
     /// <summary>
@@ -90,8 +90,8 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public async Task DeleteAsync<T>(params object[] keys) where T : class
     {
-        T? entity = await DB.Set<T>().FindAsync(keys);
-        if (entity != null) DB.Set<T>().Remove(entity);
+        T? entity = await dbContext.Set<T>().FindAsync(keys);
+        if (entity != null) dbContext.Set<T>().Remove(entity);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="filter"></param>
     public async Task DeleteAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
-        await DB.Set<T>().DeleteAsync(filter);
+        await dbContext.Set<T>().DeleteAsync(filter);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await DB.SaveChangesAsync(cancellationToken);
+        return await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, CancellationToken cancellationToken = default)
     {
-        return DB.SaveChangesAsync(winner, _auditId, cancellationToken: cancellationToken);
+        return dbContext.SaveChangesAsync(winner, AuditId, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="value"></param>
     public void SetAutoDetectChanges(bool value)
     {
-        DB.ChangeTracker.AutoDetectChangesEnabled = value;
+        dbContext.ChangeTracker.AutoDetectChangesEnabled = value;
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// </summary>
     public void DetectChanges()
     {
-        DB.ChangeTracker.DetectChanges();
+        dbContext.ChangeTracker.DetectChanges();
     }
 
     /// <summary>
@@ -155,12 +155,12 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public async Task<T?> GetEntityAsync<T>(bool tracking = false,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return await DB.Set<T>().GetEntityAsync<T>(tracking, filter, orderBy, cancellationToken, includes);
+        return await dbContext.Set<T>().GetEntityAsync<T>(tracking, filter, orderBy, splitQuery, cancellationToken, includes);
     }
 
     /// <summary>
@@ -177,12 +177,12 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     public async Task<PagedResponse<T>> QueryPageAsync<T>(bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<T> data, int total) = await DB.Set<T>().QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+        (List<T> data, int total) = await dbContext.Set<T>().QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes);
         return new PagedResponse<T>
         {
             PageSize = pageSize ?? -1,
@@ -211,13 +211,13 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
         IConfigurationProvider mapperConfigProvider,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<TProject> data, int total) = await DB.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
-            pageSize, pageIndex, filter, orderBy, includeTotal, cancellationToken, includes);
+        (List<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
+            pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes);
         return new PagedResponse<TProject>
         {
             PageSize = pageSize ?? -1,
@@ -237,11 +237,11 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <param name="includes"></param>
     /// <returns></returns>
     public IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return DB.Set<T>().GetStream(tracking, filter, orderBy, includes);
+        return dbContext.Set<T>().GetStream(tracking, filter, orderBy, splitQuery, includes);
     }
 
     /// <summary>
@@ -257,11 +257,11 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
     /// <returns></returns>
     public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(IConfigurationProvider mapperConfigProvider,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return DB.Set<T>().GetStreamProjection<T, TProject>(mapperConfigProvider, tracking, filter, orderBy, includes);
+        return dbContext.Set<T>().GetStreamProjection<T, TProject>(mapperConfigProvider, tracking, filter, orderBy, splitQuery, includes);
     }
 
     /// <summary>
@@ -280,6 +280,6 @@ public abstract class RepositoryBase<TDbContext> : IRepositoryBase where TDbCont
 
     private async Task ExecuteSqlCommandAsync(string sql)
     {
-        await DB.Database.ExecuteSqlRawAsync(sql);
+        await dbContext.Database.ExecuteSqlRawAsync(sql);
     }
 }

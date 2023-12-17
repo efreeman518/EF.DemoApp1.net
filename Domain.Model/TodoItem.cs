@@ -19,6 +19,9 @@ public partial class TodoItem : EntityBase
     [Mask("***")]
     public string? SecureDeterministic { get; set; }
 
+    //enable soft deletes
+    public bool IsDeleted { get; set; }
+
     public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)
     {
         Name = name;

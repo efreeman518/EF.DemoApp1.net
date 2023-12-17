@@ -32,8 +32,14 @@ namespace Infrastructure.Data;
  * EntityFrameworkCore\update-database
  */
 
-/*Default Retry execution strategy when adding context to DI (in Bootstrapper) does not support user initiated transactions:
+/* Default Retry execution strategy when adding context to DI (in Bootstrapper) does not support user initiated transactions:
  * https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
+ */
+
+/* Enable multi-tenant (with DbContext pooling) 
+ * https://learn.microsoft.com/en-us/ef/core/miscellaneous/multitenancy
+ * https://learn.microsoft.com/en-us/ef/core/querying/filters
+ * https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant
  */
 
 public abstract class TodoDbContextBase : DbContextBase

@@ -24,16 +24,18 @@ public static class IQueryableExtensions
     /// <param name="pageIndex">1-based; If null, then return IQueryable for streaming (no paging)</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IQueryable<T> ComposeIQueryable<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        query = tracking ? query.AsTracking() : query.AsNoTracking();
+        //https://dotnetdocs.ir/Post/45/the-difference-between-asnotracking-and-asnotrackingwithidentityresolution
+        query = tracking ? query.AsTracking() : query.AsNoTrackingWithIdentityResolution();
 
         //Where
         if (filter != null) query = query.Where(filter);
@@ -55,6 +57,9 @@ public static class IQueryableExtensions
             {
                 query = include(query);
             });
+
+            //Split (discretionary) reduces cartesian explosion when joining (multiple includes at the same level)
+            if (splitQuery) query = query.AsSplitQuery();
         }
 
         return query;
@@ -68,14 +73,15 @@ public static class IQueryableExtensions
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IAsyncEnumerable<T> GetStream<T>(this IQueryable<T> query, bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, includes).AsAsyncEnumerable();
+        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).AsAsyncEnumerable();
     }
 
     /// <summary>
@@ -88,15 +94,16 @@ public static class IQueryableExtensions
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, IConfigurationProvider mapperConfigProvider,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, includes).ProjectTo<TProject>(mapperConfigProvider).AsAsyncEnumerable();
+        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).ProjectTo<TProject>(mapperConfigProvider).AsAsyncEnumerable();
     }
 
     public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<Sort> sorts)

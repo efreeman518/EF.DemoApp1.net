@@ -95,7 +95,7 @@ public class TodoServiceTests : UnitTestBase
 
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
-                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
+                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>(),
                 It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()))
             .Returns(() => Task.FromResult<TodoItem?>(dbTodo));
 
@@ -134,7 +134,7 @@ public class TodoServiceTests : UnitTestBase
             Times.Once);
         RepositoryTrxnMock.Verify(
            r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
-               It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<CancellationToken>(),
+               It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>(),
                It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()),
            Times.Exactly(2)); //called for Update and Get
         RepositoryTrxnMock.Verify(
