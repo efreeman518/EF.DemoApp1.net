@@ -26,10 +26,10 @@ namespace Functions;
 ///     
 /// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
-public class FunctionEventGridTriggerBlob(IConfiguration configuration, ILoggerFactory loggerFactory,
+public class FunctionEventGridTriggerBlob(ILogger<FunctionEventGridTriggerBlob> logger, IConfiguration configuration, 
     IOptions<Settings1> settings)
 {
-    private readonly ILogger<FunctionEventGridTriggerBlob> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerBlob>();
+    //private readonly ILogger<FunctionEventGridTriggerBlob> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerBlob>();
 
     [Function("EventGridTriggerBlob")]
     public async Task Run([EventGridTrigger] EventGridEvent inputEvent)
@@ -39,13 +39,13 @@ public class FunctionEventGridTriggerBlob(IConfiguration configuration, ILoggerF
 
         string? fileName = Path.GetFileName(inputEvent.Subject);
 
-        _logger.Log(LogLevel.Information, "EventGridTriggerBlob - Start {fileName} {inputEvent}", fileName, JsonSerializer.Serialize(inputEvent));
+        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Start {fileName} {inputEvent}", fileName, JsonSerializer.Serialize(inputEvent));
 
         _ = inputEvent.Data?.ToString(); //extract from inputEvent
 
         //await some service call
         await Task.CompletedTask;
 
-        _logger.Log(LogLevel.Information, "EventGridTriggerBlob - Finish {fileName}", fileName);
+        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Finish {fileName}", fileName);
     }
 }
