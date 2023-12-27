@@ -12,11 +12,12 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
 
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 1)
     {
-        _ = logger.GetHashCode();
         _ = settings.GetHashCode();
 
-        string qs = $"?pagesize={pageSize}&pageindex={pageIndex}";
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<PagedResponse<TodoItemDto>>(HttpMethod.Get, $"{urlSegment}{qs}");
+        string path = $"{urlSegment}?pagesize={pageSize}&pageindex={pageIndex}";
+
+        logger.LogInformation("SampleApiRestClient.GetPageAsync - {Url}", $"{httpClient.BaseAddress}{path}");
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<PagedResponse<TodoItemDto>>(HttpMethod.Get, path);
         return parsedResponse!;
     }
 
