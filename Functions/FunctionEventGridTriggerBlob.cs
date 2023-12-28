@@ -31,7 +31,7 @@ public class FunctionEventGridTriggerBlob(ILogger<FunctionEventGridTriggerBlob> 
 {
     //private readonly ILogger<FunctionEventGridTriggerBlob> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerBlob>();
 
-    [Function("EventGridTriggerBlob")]
+    [Function(nameof(FunctionEventGridTriggerBlob))]
     public async Task Run([EventGridTrigger] EventGridEvent inputEvent)
     {
         _ = configuration.GetHashCode();

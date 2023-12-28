@@ -14,7 +14,7 @@ public class FunctionStorageQueueTrigger(ILogger<FunctionStorageQueueTrigger> lo
 {
     //private readonly ILogger<FunctionStorageQueueTrigger> _logger = loggerFactory.CreateLogger<FunctionStorageQueueTrigger>();
 
-    [Function("QueueTrigger")]
+    [Function(nameof(FunctionStorageQueueTrigger))]
     public async Task Run([QueueTrigger("%StorageQueueName%", Connection = "StorageQueue1")] string queueItem)
     {
         _ = configuration.GetHashCode();

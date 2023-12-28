@@ -20,7 +20,7 @@ public class FunctionHttpTrigger(ILogger<FunctionHttpTrigger> logger, IConfigura
     //https://blog.bredvid.no/patterns-for-securing-your-azure-functions-2fef634f4020
     //local/debug - auth is disabled
     //azure - include the function key in the x-functions-key HTTP request header
-    [Function("HttpTrigger")]
+    [Function(nameof(FunctionHttpTrigger))]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
     {
         _ = configuration.GetHashCode();

@@ -16,7 +16,7 @@ namespace Functions;
 /// <param name="settings"></param>
 public class FunctionHttpHealth(ILogger<FunctionHttpHealth> logger, IConfiguration configuration, IOptions<Settings1> settings)
 {
-    [Function("FunctionHttpHealth")]
+    [Function(nameof(FunctionHttpHealth))]
     public async Task<HealthCheckResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     //public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {

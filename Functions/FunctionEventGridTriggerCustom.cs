@@ -29,7 +29,7 @@ public class FunctionEventGridTriggerCustom(ILogger<FunctionEventGridTriggerCust
 {
     //private readonly ILogger<FunctionEventGridTriggerCustom> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerCustom>();
 
-    [Function("EventGridTriggerCustom")]
+    [Function(nameof(FunctionEventGridTriggerCustom))]
     public async Task Run([EventGridTrigger] EventGridEvent egEvent)
     {
         _ = configuration.GetHashCode();

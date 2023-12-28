@@ -8,7 +8,8 @@ namespace Functions;
 
 public class FunctionServiceBusTopic(ILogger<FunctionServiceBusTopic> logger, IConfiguration configuration, IOptions<Settings1> settings)
 {
-    [Function(nameof(FunctionServiceBusTopic))]
+    //wire up a service bus then uncomment
+    //[Function(nameof(FunctionServiceBusTopic))]
     public async Task Run([ServiceBusTrigger("%ServiceBusTopicName%", "%ServiceBusSubscriptionName%", Connection = "ServiceBusTopic")] ServiceBusReceivedMessage message)
     {
         _ = configuration.GetHashCode();

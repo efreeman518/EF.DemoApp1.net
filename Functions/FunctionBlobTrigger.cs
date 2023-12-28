@@ -17,7 +17,7 @@ public class FunctionBlobTrigger(ILogger<FunctionBlobTrigger> logger, IConfigura
     /// <param name="fileName"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    [Function("BlobTrigger")]
+    [Function(nameof(FunctionBlobTrigger))]
     public async Task Run([BlobTrigger("%BlobContainer%/{fileName}", Connection = "StorageBlob1")] string fileContent, string fileName)
     {
         _ = configuration.GetHashCode();

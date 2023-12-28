@@ -9,7 +9,7 @@ public class FunctionTimerTrigger(ILogger<FunctionTimerTrigger> logger, IConfigu
 {
     //private readonly ILogger<FunctionTimerTrigger> _logger = loggerFactory.CreateLogger<FunctionTimerTrigger>();
 
-    [Function("TimerTrigger")]
+    [Function(nameof(FunctionTimerTrigger))]
     [ExponentialBackoffRetry(5, "00:00:05", "00:15:00")]
     public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)
     {
