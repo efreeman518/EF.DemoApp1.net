@@ -14,8 +14,8 @@ public static class IQueryableExtensions
 
     /// <summary>
     /// Returns the IQueryable for further composition or streaming; 
-    /// client code expected to subsequently call GetListAsync() with the query to run it async and return paged results,
-    /// or iterate for streaming
+    /// client code expected to subsequently call ToListAsync() on the IQueryable<T> to return (paged) results,
+    /// or GetStream/GetStreamProjection which returns IAsyncEnumerable<T> for streaming
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>

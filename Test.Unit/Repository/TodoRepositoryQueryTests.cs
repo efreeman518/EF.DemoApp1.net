@@ -299,7 +299,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
 
         var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
-        var maxDegreesOfParallelism = -1;
+        var maxDegreesOfParallelism = -1;  //Environment.ProcessorCount;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
@@ -348,7 +348,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
 
         var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
-        var maxDegreesOfParallelism = -1;
+        var maxDegreesOfParallelism = -1; //Environment.ProcessorCount;
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
