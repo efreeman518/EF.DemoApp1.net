@@ -1,4 +1,4 @@
-﻿--enable managed identity login
+﻿--enable managed identity login (managed identity must exist on a resource in Azure)
 CREATE USER [managed-identity-name] FROM EXTERNAL PROVIDER;
 ALTER ROLE db_datareader ADD MEMBER [managed-identity-name];
 ALTER ROLE db_datawriter ADD MEMBER [managed-identity-name];
