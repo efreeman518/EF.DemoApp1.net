@@ -16,9 +16,9 @@ public interface IRepositoryBase
 
     void Delete<T>(T entity) where T : EntityBase;
 
-    Task DeleteAsync<T>(params object[] keys) where T : class;
+    Task DeleteAsync<T>(CancellationToken cancellationToken = default, params object[] keys) where T : class;
 
-    Task DeleteAsync<T>(Expression<Func<T, bool>> filter) where T : class;
+    Task DeleteAsync<T>(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class;
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

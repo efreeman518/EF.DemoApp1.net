@@ -21,7 +21,8 @@ public static class HttpClientExtensions
     /// <param name="headers"></param>
     /// <returns></returns>
     public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TResponse>(this HttpClient client,
-        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null, bool ensureSuccessStatusCode = true)
+        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null, 
+        bool ensureSuccessStatusCode = true, CancellationToken cancellationToken = default)
     {
         var httpRequest = new HttpRequestMessage(method, url);
         if (payload != null)
@@ -33,17 +34,17 @@ public static class HttpClientExtensions
         });
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
 
-        using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest);
+        using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         if (ensureSuccessStatusCode)
             httpResponse.EnsureSuccessStatusCode();
 
         if (typeof(TResponse) == typeof(IHtmlDocument))
         {
-            return (httpResponse, (TResponse)await GetDocumentAsync(httpResponse)); //must cast even though we know TResponse is IHtmlDocument
+            return (httpResponse, (TResponse)await GetDocumentAsync(httpResponse, cancellationToken)); //must cast even though we know TResponse is IHtmlDocument
         }
 
         TResponse? response = default;
-        using Stream s = await httpResponse.Content.ReadAsStreamAsync();
+        using Stream s = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
 
         if (typeof(TResponse).IsPrimitive)
         {
@@ -51,7 +52,7 @@ public static class HttpClientExtensions
             if (httpResponse.IsSuccessStatusCode)
             {
                 StreamReader reader = new(s);
-                val = await reader.ReadToEndAsync();
+                val = await reader.ReadToEndAsync(cancellationToken);
                 response = (TResponse)Convert.ChangeType(val, typeof(TResponse));
             }
             else
@@ -60,7 +61,7 @@ public static class HttpClientExtensions
         else
         {
             if (s.Length > 0)
-                response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions);
+                response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions, cancellationToken);
         }
         //might not be expecting a response payload (Http Delete - TResponse = object)
         //if (response == null) throw new InvalidOperationException("empty response");
@@ -72,10 +73,10 @@ public static class HttpClientExtensions
     /// </summary>
     /// <param name="response"></param>
     /// <returns></returns>
-    private static async Task<IHtmlDocument> GetDocumentAsync(HttpResponseMessage response)
+    private static async Task<IHtmlDocument> GetDocumentAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
     {
-        var content = await response.Content.ReadAsStringAsync();
-        var document = await BrowsingContext.New().OpenAsync(ResponseFactory, CancellationToken.None);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var document = await BrowsingContext.New().OpenAsync(ResponseFactory, cancellationToken);
         return (IHtmlDocument)document;
 
         void ResponseFactory(VirtualResponse htmlResponse)

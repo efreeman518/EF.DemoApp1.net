@@ -88,9 +88,9 @@ public abstract class RepositoryBase<TDbContext>(TDbContext dbContext, IRequestC
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="keys"></param>
     /// <returns></returns>
-    public async Task DeleteAsync<T>(params object[] keys) where T : class
+    public async Task DeleteAsync<T>(CancellationToken cancellationToken = default, params object[] keys) where T : class
     {
-        T? entity = await dbContext.Set<T>().FindAsync(keys);
+        T? entity = await dbContext.Set<T>().FindAsync(keys, cancellationToken);
         if (entity != null) dbContext.Set<T>().Remove(entity);
     }
 
@@ -99,9 +99,9 @@ public abstract class RepositoryBase<TDbContext>(TDbContext dbContext, IRequestC
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="filter"></param>
-    public async Task DeleteAsync<T>(Expression<Func<T, bool>> filter) where T : class
+    public async Task DeleteAsync<T>(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class
     {
-        await dbContext.Set<T>().DeleteAsync(filter);
+        await dbContext.Set<T>().DeleteAsync(filter, cancellationToken);
     }
 
     /// <summary>

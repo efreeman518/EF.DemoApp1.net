@@ -109,9 +109,9 @@ public static class EFExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="context"></param>
     /// <param name="entity"></param>
-    public static async Task UpsertAsync<T>(this DbContext context, T entity) where T : EntityBase
+    public static async Task UpsertAsync<T>(this DbContext context, T entity, CancellationToken cancellationToken = default) where T : EntityBase
     {
-        if (!await context.Set<T>().AnyAsync(e => e.Id == entity.Id))
+        if (!await context.Set<T>().AnyAsync(e => e.Id == entity.Id, cancellationToken))
             Create(context, ref entity);
         else
             UpdateFull(context, ref entity);

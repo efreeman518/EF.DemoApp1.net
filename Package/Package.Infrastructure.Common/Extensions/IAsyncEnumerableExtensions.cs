@@ -94,6 +94,7 @@ public static class IAsyncEnumerableExtensions
         {
             Interlocked.Increment(ref total);
             await method(item);
+            options.CancellationToken.ThrowIfCancellationRequested();
         });
         return total;
     }
@@ -115,6 +116,7 @@ public static class IAsyncEnumerableExtensions
 
         await Parallel.ForEachAsync(stream, options, (item, token) =>
         {
+            options.CancellationToken.ThrowIfCancellationRequested();
             Interlocked.Increment(ref total);
             method(item);
             return ValueTask.CompletedTask;

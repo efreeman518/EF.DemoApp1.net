@@ -106,7 +106,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     {
         Logger.Log(LogLevel.Information, "DeleteItemAsync Start - {id}", id);
 
-        await repoTrxn.DeleteAsync<TodoItem>(id);
+        await repoTrxn.DeleteAsync<TodoItem>(CancellationToken.None, id);
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
         Logger.Log(LogLevel.Information, "DeleteItemAsync Complete - {id}", id);
