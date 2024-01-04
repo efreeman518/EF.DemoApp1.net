@@ -31,7 +31,7 @@ public static partial class WebApplicationBuilderExtensions
             {
                 options.ConfigureRefresh(refresh =>
                 {
-                    refresh.Register(sentinelSetting, refreshAll: true).SetCacheExpiration(cacheExpire ?? new TimeSpan(0, 5, 0));
+                    refresh.Register(sentinelSetting, refreshAll: true).SetCacheExpiration(cacheExpire ?? new TimeSpan(1, 0, 0));
                 });
             }
         });

@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Infrastructure.Configuration;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 
@@ -39,13 +40,15 @@ try
     string env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
     //configuration
+    string? endpoint;
 
     //Azure AppConfig
-    var endpoint = builder.Configuration.GetValue<string>("AzureAppConfig:Endpoint");
-    if (!string.IsNullOrEmpty(endpoint))
+    var appConfig = builder.Configuration.GetSection("AzureAppConfig");
+    if (appConfig != null)
     {
+        endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{ServiceName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint, credential, env, builder.Configuration.GetValue<string>("AzureAppConfig:Sentinel"), new TimeSpan(0, 0, 30));
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1,0,0)));
     }
 
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
