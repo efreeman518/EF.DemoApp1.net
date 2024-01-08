@@ -223,26 +223,26 @@ public static class IServiceCollectionExtensions
         {
             services.Configure<SampleApiRestClientSettings>(configSection);
             //check auth configured
-            var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
-            if (scopes != null)
+
+            services.AddScoped(provider =>
             {
-                services.AddScoped(provider =>
+                //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+                //so if we need a 'client' AAD App Reg, set the env vars
+                if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
                 {
-                    //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-                    //so if we need a 'client' AAD App Reg, set the env vars
-                    if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
-                    {
-                        Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
-                        Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
-                        Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
-                    }
-                    return new SampleRestApiAuthMessageHandler(scopes);
-                });
-            }
+                    Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+                    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+                    Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+                }
+                var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+                return new SampleRestApiAuthMessageHandler(scopes!);
+            });
+
             var httpClientBuilder = services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
             {
                 options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
-            });
+            })
+                .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); 
 
             //TODO - move this to register Api services
             //integration testing breaks since there is no existing http request, so no headers to propagate
@@ -255,10 +255,10 @@ public static class IServiceCollectionExtensions
             //.AddCorrelationIdForwarding();
 
             //auth is configured
-            if (scopes != null)
-            {
-                httpClientBuilder.AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
-            }
+            //if (scopes != null)
+            //{
+            //    httpClientBuilder.AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+            //}
 
             //resiliency
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())

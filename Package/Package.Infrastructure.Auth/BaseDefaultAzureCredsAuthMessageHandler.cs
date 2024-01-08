@@ -17,18 +17,10 @@ namespace Package.Infrastructure.Auth;
   .AddHttpMessageHandler<InheritFromBaseDefaultCredsAuthMessageHandler>();  
  */
 
-public abstract class BaseDefaultAzureCredsAuthMessageHandler : DelegatingHandler
+public abstract class BaseDefaultAzureCredsAuthMessageHandler(string[] scopes) : DelegatingHandler 
 {
-    private readonly TokenRequestContext TokenRequestContext;
-    private readonly DefaultAzureCredential Credentials;
-
-    protected BaseDefaultAzureCredsAuthMessageHandler(string[] scopes)
-    {
-        //TokenRequestContext supports other options
-        //This parameter is a list of scopes; if your target App Service/Function has defined scopes then use them here.
-        TokenRequestContext = new(scopes);
-        Credentials = new DefaultAzureCredential();
-    }
+    private readonly TokenRequestContext TokenRequestContext = new(scopes);
+    private readonly DefaultAzureCredential Credentials = new (true);
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {

@@ -1,7 +1,5 @@
 using Azure.Identity;
-using Infrastructure.Configuration;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.IdentityModel.Tokens;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 
