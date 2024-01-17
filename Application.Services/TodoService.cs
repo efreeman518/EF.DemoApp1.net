@@ -9,8 +9,9 @@ using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace Application.Services;
 
-public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServiceSettings> settings, IValidationHelper validationHelper,
-    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue) : ServiceBase(logger), ITodoService
+public class TodoService(ILogger<TodoService> logger, IRequestContext requestContext, IOptionsMonitor<TodoServiceSettings> settings, IValidationHelper validationHelper,
+    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
+    : ServiceBase(logger, requestContext.TenantId), ITodoService
 {
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0)
     {

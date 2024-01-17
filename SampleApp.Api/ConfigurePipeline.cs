@@ -45,7 +45,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseCors("AllowSpecific");
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseCorrelationId(); //internal service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
+        app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
         app.UseHeaderPropagation();
 
         //any other middleware

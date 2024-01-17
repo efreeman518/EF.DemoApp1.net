@@ -21,7 +21,7 @@ public static class HttpClientExtensions
     /// <param name="headers"></param>
     /// <returns></returns>
     public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TResponse>(this HttpClient client,
-        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null, 
+        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null,
         bool ensureSuccessStatusCode = true, CancellationToken cancellationToken = default)
     {
         var httpRequest = new HttpRequestMessage(method, url);

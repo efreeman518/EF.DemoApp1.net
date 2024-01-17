@@ -17,16 +17,16 @@ namespace Package.Infrastructure.Auth;
   .AddHttpMessageHandler<InheritFromBaseDefaultCredsAuthMessageHandler>();  
  */
 
-public abstract class BaseDefaultAzureCredsAuthMessageHandler(string[] scopes) : DelegatingHandler 
+public abstract class BaseDefaultAzureCredsAuthMessageHandler(string[] scopes) : DelegatingHandler
 {
     private readonly TokenRequestContext TokenRequestContext = new(scopes);
-    private readonly DefaultAzureCredential Credentials = new (true);
+    private readonly DefaultAzureCredential Credentials = new();
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         //DefaultAzureCredential caches internally and knows when to refresh
-        var tokenResult = await Credentials.GetTokenAsync(TokenRequestContext, cancellationToken);
-        var authorizationHeader = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
+        var accessToken = await Credentials.GetTokenAsync(TokenRequestContext, cancellationToken);
+        var authorizationHeader = new AuthenticationHeaderValue("Bearer", accessToken.Token);
         request.Headers.Authorization = authorizationHeader;
         return await base.SendAsync(request, cancellationToken);
     }

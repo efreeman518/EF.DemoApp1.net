@@ -69,6 +69,7 @@ public static class IServiceCollectionExtensions
         }
 
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
+        //https://github.com/alastairtree/LazyCache
         services.AddLazyCache();
 
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
@@ -120,7 +121,12 @@ public static class IServiceCollectionExtensions
                 ?? "NoAuthImplemented"
                 ;
 
-            return new Package.Infrastructure.Common.RequestContext(correlationContext!.CorrelationId, auditId);
+            //determine tenantId from token claim or header
+            string? tenantId =
+                //AAD from user
+                user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
+
+            return new Package.Infrastructure.Common.RequestContext(correlationContext!.CorrelationId, auditId, tenantId);
         });
 
         //Infrastructure Services
@@ -222,12 +228,11 @@ public static class IServiceCollectionExtensions
         if (configSection.Exists())
         {
             services.Configure<SampleApiRestClientSettings>(configSection);
-            //check auth configured
 
             services.AddScoped(provider =>
             {
                 //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-                //so if we need a 'client' AAD App Reg, set the env vars
+                //so if we need a 'client' Entra App Reg, set the env vars
                 if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
                 {
                     Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
@@ -242,23 +247,8 @@ public static class IServiceCollectionExtensions
             {
                 options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
             })
-                .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); 
-
-            //TODO - move this to register Api services
-            //integration testing breaks since there is no existing http request, so no headers to propagate
-            //'app.UseHeaderPropagation()' required. Header propagation can only be used within the context of an HTTP request, not a test.
-            //.AddHeaderPropagation(options =>
-            //{
-            //    options.Headers.Add("x-request-id");
-            //    options.Headers.Add("x-correlation-id");
-            //}); 
-            //.AddCorrelationIdForwarding();
-
-            //auth is configured
-            //if (scopes != null)
-            //{
-            //    httpClientBuilder.AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
-            //}
+            .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+            //.AddCorrelationIdForwarding(); not here - breaks integration tests since there is no http request and no headers to propagate
 
             //resiliency
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())

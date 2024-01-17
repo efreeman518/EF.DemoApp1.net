@@ -44,11 +44,15 @@ internal static class IServiceCollectionExtensions
             options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method
         });
 
-        //header propagation
-        services.AddHeaderPropagation(); // (options => options.Headers.Add("x-username-etc"));
-
-        //convenient for model validation
-        services.AddProblemDetails();
+        //header propagation - implement here since integration testing breaks when there is no existing http request, so no headers to propagate
+        services.AddHeaderPropagation();
+        //.AddHeaderPropagation(options =>
+        //{
+        //    options.Headers.Add("x-request-id");
+        //    options.Headers.Add("x-correlation-id");
+        //    options.Headers.Add("x-username-etc");
+        //}); 
+        //.AddCorrelationIdForwarding();
 
         //https://github.com/stevejgordon/CorrelationId/wiki
         services.AddDefaultCorrelationId(options =>
@@ -56,6 +60,9 @@ internal static class IServiceCollectionExtensions
             options.AddToLoggingScope = true;
             options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
         });
+
+        //convenient for model validation
+        services.AddProblemDetails();
 
         services.AddCors(opt =>
         {

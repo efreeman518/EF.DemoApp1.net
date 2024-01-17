@@ -24,7 +24,7 @@ namespace Functions;
 ///     
 /// https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry
 /// </summary>
-public class FunctionEventGridTriggerCustom(ILogger<FunctionEventGridTriggerCustom> logger, IConfiguration configuration, 
+public class FunctionEventGridTriggerCustom(ILogger<FunctionEventGridTriggerCustom> logger, IConfiguration configuration,
     IOptions<Settings1> settings)
 {
     //private readonly ILogger<FunctionEventGridTriggerCustom> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerCustom>();
