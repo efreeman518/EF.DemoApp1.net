@@ -11,38 +11,31 @@ using Microsoft.Extensions.Logging;
 namespace SampleApp.Bootstrapper.StartupTasks;
 public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCache appCache, IDistributedCache distCache, ITodoRepositoryQuery repoQuery, IMapper mapper) : IStartupTask
 {
-    private readonly IConfiguration _config = config;
-    private readonly ILogger<LoadCache> _logger = logger;
-    private readonly IAppCache _appCache = appCache;
-    private readonly IDistributedCache _distCache = distCache;
-    private readonly ITodoRepositoryQuery _repoQuery = repoQuery;
-    private readonly IMapper _mapper = mapper;
-
     public async Task Execute(CancellationToken cancellationToken = default)
     {
-        _logger.Log(LogLevel.Information, "Startup LoadCache Start");
+        logger.Log(LogLevel.Information, "Startup LoadCache Start");
         try
         {
-            _ = _config.GetHashCode();
+            _ = config.GetHashCode();
 
             //memory cache
-            var cacheSettings = await _repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(_mapper.ConfigurationProvider,
+            var cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(mapper.ConfigurationProvider,
                 filter: s => (s.Flags & SystemSettings.MemoryCache) == SystemSettings.MemoryCache);
-            cacheSettings.Data.ForEach(s => _appCache.Add(s.Key, s.Value));
+            cacheSettings.Data.ForEach(s => appCache.Add(s.Key, s.Value));
 
             //distributed cache
-            cacheSettings = await _repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(_mapper.ConfigurationProvider,
+            cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(mapper.ConfigurationProvider,
                                filter: s => (s.Flags & SystemSettings.DistributedCache) == SystemSettings.DistributedCache);
             foreach (var s in cacheSettings.Data)
             {
-                if (s.Value != null) await _distCache.SetStringAsync(s.Key, s.Value, new DistributedCacheEntryOptions(), cancellationToken);
+                if (s.Value != null) await distCache.SetStringAsync(s.Key, s.Value, new DistributedCacheEntryOptions(), cancellationToken);
             }
 
-            _logger.Log(LogLevel.Information, "Startup LoadCache Finish");
+            logger.Log(LogLevel.Information, "Startup LoadCache Finish");
         }
         catch (Exception ex)
         {
-            _logger.Log(LogLevel.Error, ex, "Startup LoadCache Failed");
+            logger.Log(LogLevel.Error, ex, "Startup LoadCache Failed");
             throw; //stop app
         }
     }

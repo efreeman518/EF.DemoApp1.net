@@ -249,6 +249,7 @@ public static class IServiceCollectionExtensions
             })
             .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
             //.AddCorrelationIdForwarding(); not here - breaks integration tests since there is no http request and no headers to propagate
+            //.AddHeaderPropagation(); not here - breaks integration tests since there is no http request and no headers to propagate
 
             //resiliency
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
