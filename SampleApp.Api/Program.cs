@@ -87,16 +87,16 @@ try
     loggerStartup.LogInformation("{ServiceName} - Register services.", SERVICE_NAME);
     var config = builder.Configuration;
     builder.Services
-        //api services - controllers, versioning, health checks, swagger, telemetry
-        .RegisterApiServices(config)
-        //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
+        //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
         .RegisterInfrastructureServices(config)
         //domain services
         .RegisterDomainServices(config)
         //app services
         .RegisterApplicationServices(config)
         //background services
-        .RegisterBackgroundServices(config);
+        .RegisterBackgroundServices(config)
+        //api services - controllers, versioning, health checks, swagger, telemetry
+        .RegisterApiServices(config);
 
     var app = builder.Build().ConfigurePipeline();
     await app.RunStartupTasks();

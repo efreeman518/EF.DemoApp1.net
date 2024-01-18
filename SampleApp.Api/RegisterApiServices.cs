@@ -133,6 +133,8 @@ internal static class IServiceCollectionExtensions
             .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: healthCheckTagsFullDb)
             .AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
 
+        //Todo - for http clients previously registered in infrastructure services, add header propagation here since it only applies at runtime when an http context is present
+
         return services;
     }
 }
