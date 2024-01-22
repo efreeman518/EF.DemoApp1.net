@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.7" />
+    <PackageReference Include="AngleSharp" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
