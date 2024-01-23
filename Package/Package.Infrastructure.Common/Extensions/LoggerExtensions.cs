@@ -6,6 +6,8 @@ public static class LoggerExtensions
 {
     //Performant Logging
     //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
+    private static readonly Action<ILogger, string, Exception?> _debugLog =
+        LoggerMessage.Define<string>(LogLevel.Debug, new EventId(1, nameof(InfoLog)), "{message}");
     private static readonly Action<ILogger, string, Exception?> _infoLog =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
     private static readonly Action<ILogger, string, Exception?> _errorLog =
@@ -18,6 +20,10 @@ public static class LoggerExtensions
     {
     }
 
+    public static void DebugLog(this ILogger logger, string message)
+    {
+        _debugLog(logger, message, null);
+    }
     public static void InfoLog(this ILogger logger, string message)
     {
         _infoLog(logger, message, null);

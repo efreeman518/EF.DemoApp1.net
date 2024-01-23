@@ -8,6 +8,10 @@ namespace Package.Infrastructure.BackgroundServices;
 //https://blog.elmah.io/async-processing-of-long-running-tasks-in-asp-net-core/amp/
 //https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim
 
+/// <summary>
+/// Singleton queue of background tasks
+/// </summary>
+/// <param name="serviceScopeFactory"></param>
 public class BackgroundTaskQueue(IServiceScopeFactory serviceScopeFactory) : IBackgroundTaskQueue
 {
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();

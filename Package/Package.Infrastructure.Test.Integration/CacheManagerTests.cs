@@ -5,14 +5,14 @@ using Package.Infrastructure.Test.Integration.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("Key Vault setup required.")]
+[Ignore("Redis setup required.")]
 
 [TestClass]
-public class KeyVaultManagerTests : IntegrationTestBase
+public class CacheManagerTests : IntegrationTestBase
 {
     private readonly IDistCacheManager1 _vault;
 
-    public KeyVaultManagerTests()
+    public CacheManagerTests()
     {
         _vault = Services.GetRequiredService<IDistCacheManager1>();
     }

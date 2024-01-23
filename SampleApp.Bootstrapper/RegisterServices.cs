@@ -98,12 +98,14 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRequestContext>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
-            var correlationContext = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext;
+            //https://github.com/stevejgordon/CorrelationId/wiki
+            
+            var correlationId = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
+                ?? Guid.NewGuid().ToString();
 
             //Background services will not have an http context
             if (httpContext == null)
             {
-                var correlationId = Guid.NewGuid().ToString();
                 return new Package.Infrastructure.Common.RequestContext(correlationId, $"BackgroundService-{correlationId}");
             }
 
@@ -126,7 +128,7 @@ public static class IServiceCollectionExtensions
                 //AAD from user
                 user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
 
-            return new Package.Infrastructure.Common.RequestContext(correlationContext!.CorrelationId, auditId, tenantId);
+            return new Package.Infrastructure.Common.RequestContext(correlationId, auditId, tenantId);
         });
 
         //Infrastructure Services

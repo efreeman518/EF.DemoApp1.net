@@ -111,6 +111,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{34AF777A-E
 		todoitem.http = todoitem.http
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package.Infrastructure.Cache", "Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj", "{D67379F8-3A3F-42A0-93E2-7160E90EB9B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -277,6 +279,10 @@ Global
 		{38649064-BD91-48E9-A81F-1E69202F31D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38649064-BD91-48E9-A81F-1E69202F31D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38649064-BD91-48E9-A81F-1E69202F31D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D67379F8-3A3F-42A0-93E2-7160E90EB9B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D67379F8-3A3F-42A0-93E2-7160E90EB9B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D67379F8-3A3F-42A0-93E2-7160E90EB9B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D67379F8-3A3F-42A0-93E2-7160E90EB9B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -323,6 +329,7 @@ Global
 		{0E39FC7D-1D0C-48C4-BC3B-D56C178D2C8A} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{38649064-BD91-48E9-A81F-1E69202F31D6} = {C90D2F43-238F-4264-AFC4-FED54F80E073}
 		{34AF777A-E561-482E-8119-CEA004087FDF} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
+		{D67379F8-3A3F-42A0-93E2-7160E90EB9B2} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

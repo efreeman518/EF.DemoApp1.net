@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.Cache;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
@@ -120,11 +121,19 @@ public abstract class IntegrationTestBase
         }
 
         //KeyVaultManager
-        configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
+        configSection = Config.GetSection(DistCacheManagerSettings1.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
-            services.Configure<KeyVaultManagerSettings1>(configSection);
+            services.AddSingleton<IDistCacheManager1, DistCacheManager1>();
+            services.Configure<DistCacheManagerSettings1>(configSection);
+        }
+
+        //KeyVaultManager
+        configSection = Config.GetSection(DistCacheManagerSettings1.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddSingleton<IDistCacheManager1, DistCacheManager1>();
+            services.Configure<DistCacheManagerSettings1>(configSection);
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
@@ -144,6 +153,24 @@ public abstract class IntegrationTestBase
                 });
             }
         }
+
+        //Redis distributed cache
+        connectionString = Config.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = connectionString;
+                options.InstanceName = "redis1";
+            });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
+        }
+
+        //distributed cache manager
+        services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
 
         //external weather service
         configSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
