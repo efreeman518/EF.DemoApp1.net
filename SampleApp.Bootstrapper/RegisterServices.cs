@@ -94,12 +94,12 @@ public static class IServiceCollectionExtensions
                 new GrpcMappingProfile() // map grpc <-> app 
             ]);
 
-        //IRequestContext - injected into repositories
+        //IRequestContext - injected into repositories, cache managers, etc
         services.AddScoped<IRequestContext>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
             //https://github.com/stevejgordon/CorrelationId/wiki
-            
+
             var correlationId = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
                 ?? Guid.NewGuid().ToString();
 

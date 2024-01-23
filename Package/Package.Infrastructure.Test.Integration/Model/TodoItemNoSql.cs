@@ -1,5 +1,4 @@
 ﻿using Domain.Shared.Constants;
-using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.CosmosDb;

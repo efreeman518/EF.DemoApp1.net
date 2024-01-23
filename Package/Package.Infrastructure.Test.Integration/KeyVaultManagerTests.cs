@@ -10,11 +10,11 @@ namespace Package.Infrastructure.Test.Integration;
 [TestClass]
 public class KeyVaultManagerTests : IntegrationTestBase
 {
-    private readonly IDistCacheManager1 _vault;
+    private readonly IKeyVaultManager1 _vault;
 
     public KeyVaultManagerTests()
     {
-        _vault = Services.GetRequiredService<IDistCacheManager1>();
+        _vault = Services.GetRequiredService<IKeyVaultManager1>();
     }
 
     [TestMethod]

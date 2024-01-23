@@ -69,7 +69,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IR
 
     public async Task RemoveAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        key = CacheUtility.BuildCacheKey<T>(key);
+        key = CacheUtility.BuildCacheKey<T>(key, requestContext.TenantId);
         logger.InfoLog($"RemoveAsync - Cache key: {key}.");
         await distCache.RemoveAsync(key, cancellationToken).ConfigureAwait(false);
     }

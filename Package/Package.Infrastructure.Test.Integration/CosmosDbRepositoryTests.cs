@@ -1,5 +1,4 @@
-﻿using Domain.Shared.Enums;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.CosmosDb;
 using Package.Infrastructure.Data.Contracts;

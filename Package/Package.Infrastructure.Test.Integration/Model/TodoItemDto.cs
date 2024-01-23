@@ -1,6 +1,5 @@
-﻿using Domain.Shared.Enums;
+﻿namespace Package.Infrastructure.Test.Integration.Model;
 
-namespace Package.Infrastructure.Test.Integration.Model;
 public class TodoItemDto
 {
     public string Id { get; set; } = null!;

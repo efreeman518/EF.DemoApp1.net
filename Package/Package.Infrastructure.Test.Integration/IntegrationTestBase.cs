@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
@@ -121,19 +122,11 @@ public abstract class IntegrationTestBase
         }
 
         //KeyVaultManager
-        configSection = Config.GetSection(DistCacheManagerSettings1.ConfigSectionName);
+        configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddSingleton<IDistCacheManager1, DistCacheManager1>();
-            services.Configure<DistCacheManagerSettings1>(configSection);
-        }
-
-        //KeyVaultManager
-        configSection = Config.GetSection(DistCacheManagerSettings1.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddSingleton<IDistCacheManager1, DistCacheManager1>();
-            services.Configure<DistCacheManagerSettings1>(configSection);
+            services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
+            services.Configure<KeyVaultManagerSettings1>(configSection);
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
@@ -154,6 +147,10 @@ public abstract class IntegrationTestBase
             }
         }
 
+        //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
+        //https://github.com/alastairtree/LazyCache
+        services.AddLazyCache();
+
         //Redis distributed cache
         connectionString = Config.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(connectionString))
@@ -171,6 +168,12 @@ public abstract class IntegrationTestBase
 
         //distributed cache manager
         services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
+
+        //IRequestContext - injected into repositories, cache managers, etc
+        services.AddScoped<IRequestContext>(provider =>
+        {
+            return new Common.RequestContext(Guid.NewGuid().ToString(), "IntegrationTest", "SomeTenantId");
+        });
 
         //external weather service
         configSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);

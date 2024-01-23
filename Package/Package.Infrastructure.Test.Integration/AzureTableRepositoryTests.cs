@@ -1,5 +1,4 @@
-﻿using Domain.Shared.Enums;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Table;
 using Package.Infrastructure.Test.Integration.Model;

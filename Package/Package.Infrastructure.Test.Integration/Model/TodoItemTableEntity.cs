@@ -1,6 +1,5 @@
 ﻿using Azure; //ETag
 using Domain.Shared.Constants;
-using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
 using System.Text.RegularExpressions;
