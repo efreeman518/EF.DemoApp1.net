@@ -249,7 +249,7 @@ public static class IServiceCollectionExtensions
             {
                 options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
             })
-            .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>();
+            .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); //SendAysnc pipeline
             //.AddCorrelationIdForwarding(); not here - breaks integration tests since there is no http request and no headers to propagate
             //.AddHeaderPropagation(); not here - breaks integration tests since there is no http request and no headers to propagate
 

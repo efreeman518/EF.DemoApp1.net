@@ -152,6 +152,8 @@ public abstract class IntegrationTestBase
         services.AddLazyCache();
 
         //Redis distributed cache
+        //cache providers - https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-5.0#multiple-cache-providers
+        //multiple redis instances requires a different pattern - https://stackoverflow.com/questions/71329765/how-to-use-multiple-implementations-of-microsoft-extensions-caching-stackexchang
         connectionString = Config.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(connectionString))
         {

@@ -1,46 +1,47 @@
 ﻿using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Common.Constants;
 
 namespace Package.Infrastructure.Common.Extensions;
 
 public static class LoggerExtensions
 {
-    //Performant Logging
-    //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
-    private static readonly Action<ILogger, string, Exception?> _debugLog =
-        LoggerMessage.Define<string>(LogLevel.Debug, new EventId(1, nameof(InfoLog)), "{message}");
-    private static readonly Action<ILogger, string, Exception?> _infoLog =
-        LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
-    private static readonly Action<ILogger, string, Exception?> _errorLog =
-        LoggerMessage.Define<string>(LogLevel.Error, new EventId(1, nameof(ErrorLog)), "{message}");
-    private static readonly Action<ILogger, string, string, string?, string?, Exception?> _extLog =
-        LoggerMessage.Define<string, string, string?, string?>(LogLevel.Information, new EventId(1, nameof(ExtLog)),
-            "{message} {param1} {param2} {param3}");
+    ////Performant Logging
+    ////https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
+    //private static readonly Action<ILogger, string, Exception?> _debugLog =
+    //    LoggerMessage.Define<string>(LogLevel.Debug, new EventId(1, nameof(DebugLog)), "{message}");
+    //private static readonly Action<ILogger, string, Exception?> _infoLog =
+    //    LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, nameof(InfoLog)), "{message}");
+    //private static readonly Action<ILogger, string, Exception?> _errorLog =
+    //    LoggerMessage.Define<string>(LogLevel.Error, new EventId(1, nameof(ErrorLog)), "{message}");
+    //private static readonly Action<ILogger, string, string, string?, string?, Exception?> _extLog =
+    //    LoggerMessage.Define<string, string, string?, string?>(LogLevel.Information, new EventId(1, nameof(ExtLog)),
+    //        "{message} {param1} {param2} {param3}");
 
-    static LoggerExtensions()
-    {
-    }
+    //static LoggerExtensions()
+    //{
+    //}
 
-    public static void DebugLog(this ILogger logger, string message)
-    {
-        _debugLog(logger, message, null);
-    }
-    public static void InfoLog(this ILogger logger, string message)
-    {
-        _infoLog(logger, message, null);
-    }
+    //public static void DebugLog(this ILogger logger, string message)
+    //{
+    //    _debugLog(logger, message, null);
+    //}
+    //public static void InfoLog(this ILogger logger, string message)
+    //{
+    //    _infoLog(logger, message, null);
+    //}
 
-    public static void ErrorLog(this ILogger logger, string message, Exception ex)
-    {
-        _errorLog(logger, message, ex);
-    }
+    //public static void ErrorLog(this ILogger logger, string message, Exception ex)
+    //{
+    //    _errorLog(logger, message, ex);
+    //}
 
-    public static void ExtLog(this ILogger logger, string message, string param1, string? param2, string? param3, Exception? ex)
-    {
-        _extLog(logger, message, param1, param2, param3, ex);
-    }
+    //public static void ExtLog(this ILogger logger, string message, string param1, string? param2, string? param3, Exception? ex)
+    //{
+    //    _extLog(logger, message, param1, param2, param3, ex);
+    //}
 
     /// <summary>
-    /// 
+    /// Slow logging - dynamic structured logging
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="logLevel"></param>
@@ -103,4 +104,29 @@ public static class LoggerExtensions
 #pragma warning restore CA2254 // Template should be a static expression
 
     }
+}
+
+/// <summary>
+/// Source Generated Logging - not currently supported when ILogger is injected by primary constructor 
+/// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/loggermessage
+/// </summary>
+public static partial class LoggerMessageDefinitionSG
+{
+    [LoggerMessage(LoggerEventConstants.DebugDefault, LogLevel.Debug, "{message}")]
+    public static partial void DebugLog(this ILogger logger, string message);
+
+    [LoggerMessage(LoggerEventConstants.DebugDefault, LogLevel.Debug, "{message} {param1} {param2} {param3}")]
+    public static partial void DebugLogExt(this ILogger logger, string message, string? param1 = null, string? param2 = null, string? param3 = null);
+
+    [LoggerMessage(LoggerEventConstants.InfoDefault, LogLevel.Information, "{message}")]
+    public static partial void InfoLog(this ILogger logger, string message);
+
+    [LoggerMessage(LoggerEventConstants.InfoDefault, LogLevel.Information, "{message} {param1} {param2} {param3}")]
+    public static partial void InfoLogExt(this ILogger logger, string message, string? param1 = null, string? param2 = null, string? param3 = null);
+
+    [LoggerMessage(LoggerEventConstants.ErrorDefault, LogLevel.Error, "{message}", SkipEnabledCheck = true)]
+    public static partial void ErrorLog(this ILogger logger, string message, Exception exception);
+
+    [LoggerMessage(LoggerEventConstants.ErrorDefault, LogLevel.Error, "{message} {param1} {param2} {param3}", SkipEnabledCheck = true)]
+    public static partial void ErrorLogExt(this ILogger logger, string message, Exception exception, string? param1 = null, string? param2 = null, string? param3 = null);
 }

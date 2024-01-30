@@ -17,6 +17,11 @@ namespace Package.Infrastructure.Auth;
   .AddHttpMessageHandler<InheritFromBaseDefaultCredsAuthMessageHandler>();  
  */
 
+/// <summary>
+/// In the http client SendAsync pipeline, this handler will get a token from the DefaultAzureCredential and add it to the request header
+/// then call the next handler in the pipeline - base.SendAsync
+/// </summary>
+/// <param name="scopes"></param>
 public abstract class BaseDefaultAzureCredsAuthMessageHandler(string[] scopes) : DelegatingHandler
 {
     private readonly TokenRequestContext TokenRequestContext = new(scopes);

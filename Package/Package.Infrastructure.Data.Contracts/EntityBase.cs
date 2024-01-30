@@ -1,9 +1,9 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public class EntityBase : IEntityBase, IAuditable
+public abstract class EntityBase : IEntityBase, IAuditable
 {
     private readonly Guid _id = Guid.NewGuid();
-    public EntityBase()
+    protected EntityBase()
     {
     }
 

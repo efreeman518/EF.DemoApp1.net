@@ -13,13 +13,15 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
+    private readonly ILogger<TodoService> _logger = logger;
+
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0)
     {
         //avoid compiler warning
         _ = settings.GetHashCode();
 
         //performant logging
-        Logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
+        _logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
         return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, pageSize, pageIndex, includeTotal: true);
@@ -28,7 +30,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     public async Task<TodoItemDto> GetItemAsync(Guid id)
     {
         //performant logging
-        Logger.InfoLog($"GetItemAsync - id:{id}");
+        _logger.InfoLog($"GetItemAsync - {id}");
 
         var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id)
             ?? throw new NotFoundException($"Id '{id}' not found.");
@@ -40,7 +42,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     public async Task<TodoItemDto> AddItemAsync(TodoItemDto dto)
     {
         //structured logging
-        Logger.LogInformation("AddItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
+        _logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
         //dto - FluentValidation
         await validationHelper.ValidateAndThrowAsync(dto);
@@ -60,7 +62,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         {
             //await some work
             await Task.Delay(3000, token);
-            Logger.LogInformation("Some work done at {Time}", DateTime.UtcNow.TimeOfDay);
+            _logger.InfoLog($"Some work done");
         });
 
         //queue some scoped work - fire and forget (update DB)
@@ -68,10 +70,10 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         {
             //await some work
             await Task.Delay(3000, token);
-            Logger.LogInformation("Some scoped work done at {Time}", DateTime.UtcNow.TimeOfDay);
+            _logger.InfoLog("Some scoped work done");
         });
 
-        Logger.TodoItemAddedLog(todo);
+        _logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
         //return mapped domain -> app
         return mapper.Map<TodoItem, TodoItemDto>(todo);
@@ -79,7 +81,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
 
     public async Task<TodoItemDto?> UpdateItemAsync(TodoItemDto dto)
     {
-        Logger.Log(LogLevel.Information, "UpdateItemAsync Start - {TodoItemDto}", dto.SerializeToJson());
+        _logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
         //FluentValidation
         await validationHelper.ValidateAndThrowAsync(dto);
@@ -97,7 +99,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
-        Logger.Log(LogLevel.Information, "UpdateItemAsync Complete - {TodoItem}", dbTodo.SerializeToJson());
+        _logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
 
         //return mapped domain -> app 
         return mapper.Map<TodoItemDto>(dbTodo);
@@ -105,26 +107,23 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
 
     public async Task DeleteItemAsync(Guid id)
     {
-        Logger.Log(LogLevel.Information, "DeleteItemAsync Start - {id}", id);
+        _logger.TodoItemCRUD("DeleteItemAsync Start", id.ToString());
 
         await repoTrxn.DeleteAsync<TodoItem>(CancellationToken.None, id);
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
 
-        Logger.Log(LogLevel.Information, "DeleteItemAsync Complete - {id}", id);
+        _logger.TodoItemCRUD("DeleteItemAsync Complete", id.ToString());
     }
 
     public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request)
     {
-        Logger.Log(LogLevel.Information, "SearchAsync - {request}", request.SerializeToJson());
-
+        _logger.InfoLogExt($"SearchAsync", request.SerializeToJson());
         return await repoQuery.SearchTodoItemAsync(request);
     }
 
     public async Task<PagedResponse<TodoItemDto>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0)
     {
-        //performant logging
-        Logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
-
+        _logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
         return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex);
     }
 }
