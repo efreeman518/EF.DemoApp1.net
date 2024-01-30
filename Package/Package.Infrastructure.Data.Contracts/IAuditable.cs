@@ -1,9 +1,9 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public interface IAuditable
+public interface IAuditable<TId>
 {
     DateTime CreatedDate { get; set; }
-    string CreatedBy { get; set; }
-    DateTime UpdatedDate { get; set; }
-    string? UpdatedBy { get; set; }
+    TId CreatedBy { get; set; }
+    DateTime? UpdatedDate { get; set; }
+    TId? UpdatedBy { get; set; }
 }

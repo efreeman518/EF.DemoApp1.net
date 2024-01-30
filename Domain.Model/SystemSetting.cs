@@ -2,7 +2,7 @@
 using Package.Infrastructure.Data.Contracts;
 
 namespace Domain.Model;
-public class SystemSetting(string key, string? value) : EntityBase
+public class SystemSetting(string key, string? value) : AuditableBase<string>
 {
     public string Key { get; set; } = key;
     public string? Value { get; set; } = value;

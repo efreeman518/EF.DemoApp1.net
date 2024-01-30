@@ -8,7 +8,7 @@ using InfraCommon = Package.Infrastructure.Common;
 
 namespace Domain.Model;
 
-public partial class TodoItem : EntityBase
+public partial class TodoItem : AuditableBase<string>
 {
     [Required(AllowEmptyStrings = false)]
     public string Name { get; private set; }

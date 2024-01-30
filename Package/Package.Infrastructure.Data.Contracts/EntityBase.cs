@@ -1,6 +1,6 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public abstract class EntityBase : IEntityBase, IAuditable
+public abstract class EntityBase : IEntityBase<Guid>
 {
     private readonly Guid _id = Guid.NewGuid();
     protected EntityBase()
@@ -12,11 +12,6 @@ public abstract class EntityBase : IEntityBase, IAuditable
         get { return _id; }
         init { if (value != Guid.Empty) _id = value; }
     }
-
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-    public string CreatedBy { get; set; } = "New";
-    public DateTime UpdatedDate { get; set; }
-    public string? UpdatedBy { get; set; }
 
     //using as a shadow property causes concurrency problems when not tracked then attached, so keeping it on the base class, we always have it 
     public byte[]? RowVersion { get; set; }

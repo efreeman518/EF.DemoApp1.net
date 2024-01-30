@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 namespace Package.Infrastructure.Data;
 
 public abstract class RepositoryBase<TDbContext>(TDbContext dbContext, IRequestContext requestContext)
-    : IRepositoryBase where TDbContext : DbContextBase
+    : IRepositoryBase where TDbContext : DbContextBase<string>
 {
     protected TDbContext DB => dbContext;
     private string AuditId => requestContext.AuditId;

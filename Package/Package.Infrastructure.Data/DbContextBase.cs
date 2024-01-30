@@ -4,7 +4,7 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Package.Infrastructure.Data;
 
-public abstract class DbContextBase : DbContext
+public abstract class DbContextBase<TAuditType> : DbContext
 {
     protected DbContextBase(DbContextOptions options) : base(options)
     {
@@ -41,7 +41,7 @@ public abstract class DbContextBase : DbContext
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="DbUpdateConcurrencyException"></exception>
-    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, string auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, TAuditType auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
     {
         int retryCount = 0;
         while (retryCount++ < concurrencyExceptionRetries)
@@ -82,7 +82,7 @@ public abstract class DbContextBase : DbContext
     //    return entry.Entity.GetType().IsSubclassOf(typeBase);
     //}
 
-    private async Task<int> SaveChangesAsync(string auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
+    private async Task<int> SaveChangesAsync(TAuditType auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
     {
         //Audit table tracking option - create audit records alternative to audit properties on the entity
         foreach (var entity in ChangeTracker.Entries<EntityBase>())
@@ -96,7 +96,7 @@ public abstract class DbContextBase : DbContext
         }
 
         //basic entity row audit
-        foreach (var auditableEntity in ChangeTracker.Entries<IAuditable>())
+        foreach (var auditableEntity in ChangeTracker.Entries<IAuditable<TAuditType>>())
         {
             if (auditableEntity.State == EntityState.Added ||
                 auditableEntity.State == EntityState.Modified)
