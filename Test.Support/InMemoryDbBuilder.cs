@@ -94,9 +94,9 @@ public class InMemoryDbBuilder
         //RowVersion value required for SQLite insert = 'NOT NULL constraint failed: RowVersion'
         var list = new List<TodoItem>
         {
-            new("item1a", TodoItemStatus.Created),
-            new("item2a", TodoItemStatus.InProgress),
-            new("item3a", TodoItemStatus.Completed)
+            new("item1a", TodoItemStatus.Created) { CreatedBy = "Test"},
+            new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test"},
+            new("item3a", TodoItemStatus.Completed) { CreatedBy = "Test"}
         };
         return list;
     }

@@ -33,9 +33,7 @@ public class ChatService(IOptions<ChatServiceSettings> settings) : IChatService
             Model = Model.ChatGPTTurbo,
             Temperature = 0.5,
             MaxTokens = 50,
-            Messages = new ChatMessage[] {
-            new(ChatMessageRole.User, request.Prompt)
-        }
+            Messages = [new(ChatMessageRole.User, request.Prompt)]
         });
         // or
         //var result = api.Chat.CreateChatCompletionAsync("Hello!");

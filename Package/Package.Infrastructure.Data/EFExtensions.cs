@@ -215,7 +215,11 @@ public static class EFExtensions
     public static async Task DeleteAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default) where T : class
     {
         var objects = (await QueryPageAsync<T>(dbSet, false, null, null, filter, cancellationToken: cancellationToken)).Item1;
-        Parallel.ForEach(objects, o => { dbSet.Remove(o); });
+        //Parallel.ForEach(objects, o => { dbSet.Remove(o); });
+        foreach (var item in objects)
+        {
+            dbSet.Remove(item);
+        }
     }
 
     /// <summary>

@@ -26,19 +26,13 @@ public class TodoRepositoryQueryTests : UnitTestBase
     {
         //arrange
 
-        //custom data scenario that default seed data does not cover
-        static void customData(List<TodoItem> entities)
-        {
-            entities.Add(new TodoItem("custom entity a"));
-        }
-
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var rc = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, rc, _mapper);
 
         //act & assert
@@ -66,19 +60,13 @@ public class TodoRepositoryQueryTests : UnitTestBase
     {
         //arrange
 
-        //custom data scenario that default seed data does not cover
-        static void customData(List<TodoItem> entities)
-        {
-            entities.Add(new TodoItem("custom entity a"));
-        }
-
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
             .BuildSQLite<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -105,19 +93,14 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetPageEntitiesAsync_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -141,19 +124,14 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetPageProjectionAsync_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -177,31 +155,20 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetStream_and_batch_concurrent_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a1"));
-            entities.Add(new TodoItem("some entity a2"));
-            entities.Add(new TodoItem("some entity a3"));
-            entities.Add(new TodoItem("some entity a4"));
-            entities.Add(new TodoItem("some entity a5"));
-            entities.Add(new TodoItem("some entity a6"));
-            entities.Add(new TodoItem("some entity a7"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(10)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
 
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
         var batchsize = 3;
         var stopwatch = new Stopwatch();
@@ -225,31 +192,20 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetStream_and_pipe_concurrent_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a1"));
-            entities.Add(new TodoItem("some entity a2"));
-            entities.Add(new TodoItem("some entity a3"));
-            entities.Add(new TodoItem("some entity a4"));
-            entities.Add(new TodoItem("some entity a5"));
-            entities.Add(new TodoItem("some entity a6"));
-            entities.Add(new TodoItem("some entity a7"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
 
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
         var maxConcurrent = 3;
         var stopwatch = new Stopwatch();
@@ -273,31 +229,20 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetStream_process_parallel_async_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a1"));
-            entities.Add(new TodoItem("some entity a2"));
-            entities.Add(new TodoItem("some entity a3"));
-            entities.Add(new TodoItem("some entity a4"));
-            entities.Add(new TodoItem("some entity a5"));
-            entities.Add(new TodoItem("some entity a6"));
-            entities.Add(new TodoItem("some entity a7"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
 
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
         var maxDegreesOfParallelism = -1;  //Environment.ProcessorCount;
         var stopwatch = new Stopwatch();
@@ -322,31 +267,20 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task GetStream_process_parallel_sync_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a1"));
-            entities.Add(new TodoItem("some entity a2"));
-            entities.Add(new TodoItem("some entity a3"));
-            entities.Add(new TodoItem("some entity a4"));
-            entities.Add(new TodoItem("some entity a5"));
-            entities.Add(new TodoItem("some entity a6"));
-            entities.Add(new TodoItem("some entity a7"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(10)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
 
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         var stream = repoQuery.GetStream<TodoItem>();
         var maxDegreesOfParallelism = -1; //Environment.ProcessorCount;
         var stopwatch = new Stopwatch();
@@ -374,12 +308,12 @@ public class TodoRepositoryQueryTests : UnitTestBase
         static void customData(List<TodoItem> entities)
         {
             //custom data scenario that default seed data does not cover
-            entities.AddRange(new List<TodoItem>
-                {
-                    new("A some entity a", TodoItemStatus.InProgress),
-                    new("B some entity a", TodoItemStatus.InProgress),
-                    new("C some entity a", TodoItemStatus.InProgress)
-                });
+            entities.AddRange(
+                [
+                    Utility.TodoItemFactory("A some entity a", TodoItemStatus.InProgress),
+                    Utility.TodoItemFactory("B some entity a", TodoItemStatus.InProgress),
+                    Utility.TodoItemFactory("C some entity a", TodoItemStatus.InProgress)
+                ]);
         }
 
         //InMemory setup & seed
@@ -388,7 +322,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //search criteria
@@ -417,19 +351,14 @@ public class TodoRepositoryQueryTests : UnitTestBase
     public async Task ProcessResultSetConcurrent_pass()
     {
         //arrange
-        static void customData(List<TodoItem> entities)
-        {
-            //custom data scenario that default seed data does not cover
-            entities.Add(new TodoItem("some entity a"));
-        }
 
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(customData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
 
         //act & assert
@@ -449,4 +378,5 @@ public class TodoRepositoryQueryTests : UnitTestBase
         await Task.WhenAll(tasks);
         Assert.AreEqual(4, cBag.Count);
     }
+
 }

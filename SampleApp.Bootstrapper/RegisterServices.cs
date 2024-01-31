@@ -95,7 +95,7 @@ public static class IServiceCollectionExtensions
             ]);
 
         //IRequestContext - injected into repositories, cache managers, etc
-        services.AddScoped<IRequestContext>(provider =>
+        services.AddScoped<IRequestContext<string>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
             //https://github.com/stevejgordon/CorrelationId/wiki
@@ -106,7 +106,7 @@ public static class IServiceCollectionExtensions
             //Background services will not have an http context
             if (httpContext == null)
             {
-                return new Package.Infrastructure.Common.RequestContext(correlationId, $"BackgroundService-{correlationId}");
+                return new Package.Infrastructure.Common.RequestContext<string>(correlationId, $"BackgroundService-{correlationId}");
             }
 
             var user = httpContext.User;
@@ -128,7 +128,7 @@ public static class IServiceCollectionExtensions
                 //AAD from user
                 user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
 
-            return new Package.Infrastructure.Common.RequestContext(correlationId, auditId, tenantId);
+            return new RequestContext<string>(correlationId, auditId, tenantId);
         });
 
         //Infrastructure Services

@@ -172,9 +172,9 @@ public abstract class IntegrationTestBase
         services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
 
         //IRequestContext - injected into repositories, cache managers, etc
-        services.AddScoped<IRequestContext>(provider =>
+        services.AddScoped<IRequestContext<string>>(provider =>
         {
-            return new Common.RequestContext(Guid.NewGuid().ToString(), "IntegrationTest", "SomeTenantId");
+            return new Common.RequestContext<string>(Guid.NewGuid().ToString(), "IntegrationTest", "SomeTenantId");
         });
 
         //external weather service

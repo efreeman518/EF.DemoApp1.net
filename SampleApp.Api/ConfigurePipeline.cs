@@ -1,7 +1,6 @@
 ﻿using CorrelationId;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.OpenApi.Models;
 using Package.Infrastructure.AspNetCore;
 using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
@@ -76,7 +75,7 @@ public static partial class WebApplicationBuilderExtensions
                 {
                     o.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
                     {
-                        swaggerDoc.Servers = new List<OpenApiServer> { new() { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" } };
+                        swaggerDoc.Servers = [new() { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" }];
                     });
                 }
             });

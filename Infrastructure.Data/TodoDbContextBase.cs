@@ -42,12 +42,8 @@ namespace Infrastructure.Data;
  * https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant
  */
 
-public abstract class TodoDbContextBase : DbContextBase<string>
+public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBase(options)
 {
-    protected TodoDbContextBase(DbContextOptions options) : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

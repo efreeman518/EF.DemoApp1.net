@@ -4,12 +4,8 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Package.Infrastructure.Data;
 
-public abstract class DbContextBase<TAuditType> : DbContext
+public abstract class DbContextBase(DbContextOptions options) : DbContext(options)
 {
-    protected DbContextBase(DbContextOptions options) : base(options)
-    {
-    }
-
     //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
     //This approach does not lend itself to testing (unless you target the full database).
     //https://docs.microsoft.com/en-us/ef/core/miscellaneous/configuring-dbcontext
@@ -24,9 +20,7 @@ public abstract class DbContextBase<TAuditType> : DbContext
     {
         await Task.CompletedTask;
         throw new NotImplementedException("SaveChangesAsync() overload with auditId must be used.");
-
     }
-
 
     /// https://msdn.microsoft.com/en-us/data/jj592904.aspx
     /// 
@@ -41,7 +35,7 @@ public abstract class DbContextBase<TAuditType> : DbContext
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="DbUpdateConcurrencyException"></exception>
-    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, TAuditType auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync<TAuditIdType>(OptimisticConcurrencyWinner winner, TAuditIdType auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
     {
         int retryCount = 0;
         while (retryCount++ < concurrencyExceptionRetries)
@@ -82,7 +76,7 @@ public abstract class DbContextBase<TAuditType> : DbContext
     //    return entry.Entity.GetType().IsSubclassOf(typeBase);
     //}
 
-    private async Task<int> SaveChangesAsync(TAuditType auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
+    private async Task<int> SaveChangesAsync<TAuditIdType>(TAuditIdType auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
     {
         //Audit table tracking option - create audit records alternative to audit properties on the entity
         foreach (var entity in ChangeTracker.Entries<EntityBase>())
@@ -96,7 +90,7 @@ public abstract class DbContextBase<TAuditType> : DbContext
         }
 
         //basic entity row audit
-        foreach (var auditableEntity in ChangeTracker.Entries<IAuditable<TAuditType>>())
+        foreach (var auditableEntity in ChangeTracker.Entries<IAuditable<TAuditIdType>>())
         {
             if (auditableEntity.State == EntityState.Added ||
                 auditableEntity.State == EntityState.Modified)

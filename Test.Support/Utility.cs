@@ -24,4 +24,27 @@ public static class Utility
                 new("item3a", TodoItemStatus.Completed)
         });
     }
+
+    public static List<TodoItem> TodoItemListFactory(int size, TodoItemStatus? status = null)
+    {
+        var list = new List<TodoItem>();
+        for (int i = 0; i < size; i++)
+        {
+            list.Add(TodoItemFactory($"a some entity {i}", status ?? RandomEnumValue<TodoItemStatus>()));
+        }
+        return list;
+    }
+
+    public static TodoItem TodoItemFactory(string name, TodoItemStatus? status = null, DateTime? createdDate = null)
+    {
+        return new TodoItem(name, status ?? RandomEnumValue<TodoItemStatus>()) { CreatedBy = "Test.Unit", CreatedDate = createdDate ?? DateTime.UtcNow };
+    }
+
+    private static readonly Random _R = new();
+    private static TEnum? RandomEnumValue<TEnum>()
+    {
+        var v = Enum.GetValues(typeof(TEnum));
+        return (TEnum?)v.GetValue(_R.Next(v.Length));
+    }
+
 }

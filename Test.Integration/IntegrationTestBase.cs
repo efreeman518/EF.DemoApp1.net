@@ -41,10 +41,10 @@ public abstract class IntegrationTestBase
         services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
-        services.AddTransient<IRequestContext>(provider =>
+        services.AddTransient<IRequestContext<string>>(provider =>
         {
             var correlationId = Guid.NewGuid().ToString();
-            return new RequestContext(correlationId, $"Test.Integration-{correlationId}");
+            return new RequestContext<string>(correlationId, $"Test.Integration-{correlationId}");
         });
 
         //build IServiceProvider for subsequent use finding/injecting services

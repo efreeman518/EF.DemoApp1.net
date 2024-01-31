@@ -68,12 +68,12 @@ public class TodoServiceTests : UnitTestBase
             .UseEntityData(entities =>
             {
                 //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem("some entity a"));
-                entities.Add(new TodoItem("some other entity a"));
+                entities.Add(Utility.TodoItemFactory("some entity a"));
+                entities.Add(Utility.TodoItemFactory("some other entity a"));
             })
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         _repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         _repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 

@@ -20,7 +20,7 @@ public class MemoryHealthCheck(IOptionsMonitor<MemoryCheckOptions> options) : IH
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var options = _options.Get(context.Registration.Name);
+        var optionReg = _options.Get(context.Registration.Name);
 
         // Include GC information in the reported diagnostics.
         var allocated = GC.GetTotalMemory(forceFullCollection: false);
@@ -32,11 +32,11 @@ public class MemoryHealthCheck(IOptionsMonitor<MemoryCheckOptions> options) : IH
                 { "Gen2Collections", GC.CollectionCount(2) },
             };
 
-        var status = (allocated < options.Threshold) ? HealthStatus.Healthy : HealthStatus.Degraded;
+        var status = (allocated < optionReg.Threshold) ? HealthStatus.Healthy : HealthStatus.Degraded;
 
         return Task.FromResult(new HealthCheckResult(
             status,
-            description: $"Reports degraded status if allocated bytes >= {options.Threshold} bytes.",
+            description: $"Reports degraded status if allocated bytes >= {optionReg.Threshold} bytes.",
             exception: null,
             data: data));
     }

@@ -19,11 +19,11 @@ public class Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IAppCache a
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_auth0Options.ClientId}:{_auth0Options.ClientSecret}")));
 
-            var content = new FormUrlEncodedContent(new[]
-            {
+            var content = new FormUrlEncodedContent(
+            [
                 new KeyValuePair<string, string>("grant_type", "client_credentials"),
                 new KeyValuePair<string, string>("audience", _auth0Options.Audience)
-            });
+            ]);
 
             var response = await httpClient.PostAsync($"https://{_auth0Options.Domain}/oauth/token", content);
             var responseContent = await response.Content.ReadAsStringAsync();

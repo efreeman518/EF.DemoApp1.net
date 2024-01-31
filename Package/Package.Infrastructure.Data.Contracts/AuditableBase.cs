@@ -1,13 +1,9 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public abstract class AuditableBase<TId> : EntityBase, IAuditable<TId>
+public abstract class AuditableBase<TAuditIdType> : EntityBase, IAuditable<TAuditIdType>
 {
-    protected AuditableBase()
-    {
-    }
-
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-    public TId CreatedBy { get; set; } = default!;
+    public TAuditIdType CreatedBy { get; set; } = default!; //must be set by the caller
     public DateTime? UpdatedDate { get; set; }
-    public TId? UpdatedBy { get; set; }
+    public TAuditIdType? UpdatedBy { get; set; }
 }

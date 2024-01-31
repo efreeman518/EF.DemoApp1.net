@@ -46,7 +46,7 @@ public abstract class EventHubProducerBase : IEventHubProducer
             };
         }
         //producer can only send a batch
-        IEnumerable<EventData> batch = new List<EventData> { eventData };
+        IEnumerable<EventData> batch = [eventData];
 
         try
         {

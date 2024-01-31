@@ -1,16 +1,15 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Extensions;
 
 namespace Package.Infrastructure.Cache;
 
 /// <summary>
-/// Scoped, depends on Package.Infrastructure.Common (IRequestContext), so package build order is important
+/// 
 /// </summary>
 /// <param name="requestContext">holds TenantId for cache key</param>
 /// <param name="distCache"></param>
-public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IRequestContext requestContext, IDistributedCache distCache)
+public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, DistributedCacheManagerOptions mOptions, IDistributedCache distCache)
     : IDistributedCacheManager
 {
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -20,7 +19,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IR
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(factory);
-        key = CacheUtility.BuildCacheKey<T>(key, requestContext.TenantId);
+        key = CacheUtility.BuildCacheKey<T>(key, mOptions.TenantId);
         if (forceRefresh) await distCache.RemoveAsync(key, cancellationToken);
         logger.DebugLog($"GetOrAddAsync - Cache key: {key}, forceRefresh:{forceRefresh}.");
 
@@ -69,7 +68,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IR
 
     public async Task RemoveAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        key = CacheUtility.BuildCacheKey<T>(key, requestContext.TenantId);
+        key = CacheUtility.BuildCacheKey<T>(key, mOptions.TenantId);
         logger.InfoLog($"RemoveAsync - Cache key: {key}.");
         await distCache.RemoveAsync(key, cancellationToken).ConfigureAwait(false);
     }

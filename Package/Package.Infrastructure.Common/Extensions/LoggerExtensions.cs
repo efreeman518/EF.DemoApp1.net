@@ -81,23 +81,23 @@ public static class LoggerExtensions
         switch (logLevel)
         {
             case LogLevel.Critical:
-                logger.LogCritical(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogCritical(eventId, exception, logTemplate, logValues);
 
                 break;
             case LogLevel.Debug:
-                logger.LogDebug(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogDebug(eventId, exception, logTemplate, logValues);
                 break;
             case LogLevel.Information:
-                logger.LogInformation(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogInformation(eventId, exception, logTemplate, logValues);
                 break;
             case LogLevel.Error:
-                logger.LogError(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogError(eventId, exception, logTemplate, logValues);
                 break;
             case LogLevel.Trace:
-                logger.LogTrace(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogTrace(eventId, exception, logTemplate, logValues);
                 break;
             case LogLevel.Warning:
-                logger.LogWarning(eventId, exception, logTemplate, [.. logValues]);
+                logger.LogWarning(eventId, exception, logTemplate, logValues);
                 break;
         }
 
@@ -115,18 +115,18 @@ public static partial class LoggerMessageDefinitionSG
     [LoggerMessage(LoggerEventConstants.DebugDefault, LogLevel.Debug, "{message}")]
     public static partial void DebugLog(this ILogger logger, string message);
 
-    [LoggerMessage(LoggerEventConstants.DebugDefault, LogLevel.Debug, "{message} {param1} {param2} {param3}")]
+    [LoggerMessage(LoggerEventConstants.DebugDefault + 1, LogLevel.Debug, "{message} {param1} {param2} {param3}")]
     public static partial void DebugLogExt(this ILogger logger, string message, string? param1 = null, string? param2 = null, string? param3 = null);
 
     [LoggerMessage(LoggerEventConstants.InfoDefault, LogLevel.Information, "{message}")]
     public static partial void InfoLog(this ILogger logger, string message);
 
-    [LoggerMessage(LoggerEventConstants.InfoDefault, LogLevel.Information, "{message} {param1} {param2} {param3}")]
+    [LoggerMessage(LoggerEventConstants.InfoDefault + 1, LogLevel.Information, "{message} {param1} {param2} {param3}")]
     public static partial void InfoLogExt(this ILogger logger, string message, string? param1 = null, string? param2 = null, string? param3 = null);
 
     [LoggerMessage(LoggerEventConstants.ErrorDefault, LogLevel.Error, "{message}", SkipEnabledCheck = true)]
     public static partial void ErrorLog(this ILogger logger, string message, Exception exception);
 
-    [LoggerMessage(LoggerEventConstants.ErrorDefault, LogLevel.Error, "{message} {param1} {param2} {param3}", SkipEnabledCheck = true)]
+    [LoggerMessage(LoggerEventConstants.ErrorDefault + 1, LogLevel.Error, "{message} {param1} {param2} {param3}", SkipEnabledCheck = true)]
     public static partial void ErrorLogExt(this ILogger logger, string message, Exception exception, string? param1 = null, string? param2 = null, string? param3 = null);
 }

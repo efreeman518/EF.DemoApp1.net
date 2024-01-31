@@ -1,11 +1,9 @@
 ﻿namespace Application.Services;
 
-public abstract class ServiceBase
+public abstract class ServiceBase(ILogger<ServiceBase> logger)
 {
-    protected readonly ILogger<ServiceBase> Logger;
-
-    protected ServiceBase(ILogger<ServiceBase> logger)
+    protected void SomeCommonMethod()
     {
-        Logger = logger;
+        _ = logger;
     }
 }

@@ -8,7 +8,7 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.Repositories;
 
-public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext rc, IMapper mapper) : RepositoryBase<TodoDbContextQuery>(dbContext, rc), ITodoRepositoryQuery
+public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<string> rc, IMapper mapper) : RepositoryBase<TodoDbContextQuery, string>(dbContext, rc), ITodoRepositoryQuery
 {
     //compile frequently used query
     //https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#compiled-queries

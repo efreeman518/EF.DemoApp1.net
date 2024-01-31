@@ -1,12 +1,12 @@
 using Application.Contracts.Model;
 using Application.Services.Validators;
-using Domain.Model;
 using FluentValidation.TestHelper;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using Test.Support;
+using Utility = Test.Support.Utility;
 
 namespace Test.Unit.Application.Rules;
 
@@ -15,21 +15,15 @@ public class TodoItemDtoValidatorTests : UnitTestBase
 {
     private readonly TodoRepositoryQuery _todoRepositoryQuery;
 
-    //custom data scenario that default seed data does not cover
-    static void CustomData(List<TodoItem> entities)
-    {
-        entities.Add(new TodoItem("custom entity a"));
-    }
-
     public TodoItemDtoValidatorTests()
     {
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(CustomData)
+            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("custom entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var rc = new RequestContext(Guid.NewGuid().ToString(), "Test.Unit");
+        var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         _todoRepositoryQuery = new TodoRepositoryQuery(db, rc, _mapper);
     }
 

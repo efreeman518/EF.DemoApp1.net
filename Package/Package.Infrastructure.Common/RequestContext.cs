@@ -1,9 +1,9 @@
 ﻿namespace Package.Infrastructure.Common;
 
-public class RequestContext(string correlationId, string auditId, string? tenantId = null) : IRequestContext
+public class RequestContext<TAuditIdType>(string correlationId, TAuditIdType auditId, string? tenantId = null) : IRequestContext<TAuditIdType>
 {
     public string CorrelationId => correlationId;
-    public string AuditId => auditId;
+    public TAuditIdType AuditId => auditId;
     public string? TenantId => tenantId;
 
 }

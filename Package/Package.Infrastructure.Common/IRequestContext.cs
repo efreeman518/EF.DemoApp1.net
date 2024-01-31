@@ -1,7 +1,7 @@
 ﻿namespace Package.Infrastructure.Common;
-public interface IRequestContext
+public interface IRequestContext<out TAuditIdType>
 {
     string CorrelationId { get; }
-    string AuditId { get; }
+    TAuditIdType AuditId { get; }
     string? TenantId { get; }
 }

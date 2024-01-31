@@ -18,7 +18,7 @@ public class CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronS
     /// <returns></returns>
     protected override async Task RunOnScheduleAsync(string TraceId, CustomCronJob cronJob, CancellationToken stoppingToken = default)
     {
-        Logger.Log(LogLevel.Information, "{CronJob} - Start scheduled background work {Runtime}", cronJob.JobName, DateTime.Now);
+        logger.Log(LogLevel.Information, "{CronJob} - Start scheduled background work {Runtime}", cronJob.JobName, DateTime.Now);
 
         try
         {
@@ -35,10 +35,10 @@ public class CronService(IServiceScopeFactory serviceScopeFactory, ILogger<CronS
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{CronJob} - Failed during scheduled background work.", cronJob.JobName);
+            logger.LogError(ex, "{CronJob} - Failed during scheduled background work.", cronJob.JobName);
         }
 
-        Logger.Log(LogLevel.Information, null, "{CronJob} - Complete scheduled background work {Runtime} ", cronJob.JobName, DateTime.Now);
+        logger.Log(LogLevel.Information, null, "{CronJob} - Complete scheduled background work {Runtime} ", cronJob.JobName, DateTime.Now);
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

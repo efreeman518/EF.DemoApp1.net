@@ -4,27 +4,22 @@ using static NCrontab.CrontabSchedule;
 
 namespace Package.Infrastructure.BackgroundServices;
 
-public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.BackgroundService where T : CronJobSettings
+public abstract class CronBackgroundService<T>(ILogger<CronBackgroundService<T>> logger, IOptions<CronJobBackgroundServiceSettings<T>> settings)
+    : Microsoft.Extensions.Hosting.BackgroundService() where T : CronJobSettings
 {
     //Inheriting class must implement
     protected abstract Task RunOnScheduleAsync(string TraceId, T cronService, CancellationToken stoppingToken = default);
 
-    protected readonly ILogger<CronBackgroundService<T>> Logger;
-    private readonly CronJobBackgroundServiceSettings<T> _settings;
+    //protected readonly ILogger<CronBackgroundService<T>> Logger = logger;
+    private readonly CronJobBackgroundServiceSettings<T> _settings = settings.Value;
     private readonly Guid _lifeTimeId = Guid.NewGuid();
-
-    protected CronBackgroundService(ILogger<CronBackgroundService<T>> logger, IOptions<CronJobBackgroundServiceSettings<T>> settings) : base()
-    {
-        _settings = settings.Value;
-        Logger = logger;
-    }
 
     //https://blog.stephencleary.com/2020/05/backgroundservice-gotcha-silent-failure.html
     protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
     {
         if (_settings.CronJobs == null) return;
 
-        stoppingToken.Register(() => Logger.Log(LogLevel.Information, "CronBackgroundService is stopping. Lifetime {LifetimeId}", _lifeTimeId));
+        stoppingToken.Register(() => logger.Log(LogLevel.Information, "CronBackgroundService is stopping. Lifetime {LifetimeId}", _lifeTimeId));
 
         List<Task> tasks = [];
         foreach (var cronJob in _settings.CronJobs)
@@ -41,7 +36,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
     {
         try
         {
-            Logger.Log(LogLevel.Information, "{CronJob} is starting. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
+            logger.Log(LogLevel.Information, "{CronJob} is starting. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
             ParseOptions o = new()
             {
                 IncludingSeconds = true
@@ -49,7 +44,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
             var schedule = TryParse(cronJob.Cron, o);
             if (schedule == null)
             {
-                Logger.Log(LogLevel.Warning, "'{Cron}' is not a valid CRON expression; scheduled service will not run.", cronJob.Cron);
+                logger.Log(LogLevel.Warning, "'{Cron}' is not a valid CRON expression; scheduled service will not run.", cronJob.Cron);
                 return;
             }
             var nextRun = schedule.GetNextOccurrence(DateTime.Now);
@@ -72,7 +67,7 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
                     }
                     catch (Exception ex)
                     {
-                        Logger.Log(LogLevel.Error, ex, "{CronJob} exception. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
+                        logger.Log(LogLevel.Error, ex, "{CronJob} exception. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
                     }
                     finally
                     {
@@ -88,11 +83,11 @@ public abstract class CronBackgroundService<T> : Microsoft.Extensions.Hosting.Ba
             }
 
 
-            Logger.Log(LogLevel.Information, "{CronJob} is stopping. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
+            logger.Log(LogLevel.Information, "{CronJob} is stopping. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
         }
         catch (Exception ex)
         {
-            Logger.Log(LogLevel.Critical, ex, "{CronJob} fatal error. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
+            logger.Log(LogLevel.Critical, ex, "{CronJob} fatal error. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
             throw;
         }
     }

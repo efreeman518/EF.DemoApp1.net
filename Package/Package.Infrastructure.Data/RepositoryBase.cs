@@ -7,11 +7,11 @@ using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
 
-public abstract class RepositoryBase<TDbContext>(TDbContext dbContext, IRequestContext requestContext)
-    : IRepositoryBase where TDbContext : DbContextBase<string>
+public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbContext, IRequestContext<TAuditIdType> requestContext)
+    : IRepositoryBase where TDbContext : DbContextBase
 {
     protected TDbContext DB => dbContext;
-    private string AuditId => requestContext.AuditId;
+    private TAuditIdType AuditId => requestContext.AuditId;
 
     /// <summary>
     /// 
