@@ -25,7 +25,7 @@ namespace Package.Infrastructure.Auth;
 public abstract class BaseDefaultAzureCredsAuthMessageHandler(string[] scopes) : DelegatingHandler
 {
     private readonly TokenRequestContext TokenRequestContext = new(scopes);
-    private readonly DefaultAzureCredential Credentials = new(true);
+    private readonly DefaultAzureCredential Credentials = new();
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
