@@ -21,8 +21,11 @@ public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCac
             //memory cache
             var cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(mapper.ConfigurationProvider,
                 filter: s => (s.Flags & SystemSettings.MemoryCache) == SystemSettings.MemoryCache);
-            cacheSettings.Data.ForEach(s => appCache.Add(s.Key, s.Value));
-
+            //cacheSettings.Data.ForEach(s => appCache.Add(s.Key, s.Value));
+            foreach(var item in cacheSettings.Data)
+            {
+                appCache.Add(item.Key, item.Value);
+            }
             //distributed cache
             cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(mapper.ConfigurationProvider,
                                filter: s => (s.Flags & SystemSettings.DistributedCache) == SystemSettings.DistributedCache);

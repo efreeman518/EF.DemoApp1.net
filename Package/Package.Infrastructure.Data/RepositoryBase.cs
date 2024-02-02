@@ -182,7 +182,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<T> data, int total) = await dbContext.Set<T>().QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes);
+        (IReadOnlyList<T> data, int total) = await dbContext.Set<T>().QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes);
         return new PagedResponse<T>
         {
             PageSize = pageSize ?? -1,
@@ -216,7 +216,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        (List<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
+        (IReadOnlyList<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
             pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes);
         return new PagedResponse<TProject>
         {
