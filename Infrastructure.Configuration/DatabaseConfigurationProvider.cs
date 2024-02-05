@@ -58,7 +58,7 @@ public class DatabaseConfigurationProvider : ConfigurationProvider
         };
 
         context.SystemSettings.AddRange(
-            settings.Select(kvp => new SystemSetting(kvp.Key, kvp.Value))
+            settings.Select(kvp => new SystemSetting(kvp.Key, kvp.Value) { CreatedBy = "Initializer" })
                     .ToArray());
 
         context.SaveChanges();

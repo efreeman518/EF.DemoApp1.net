@@ -14,7 +14,7 @@ public class TodoItemRulesTests
     [DataRow("asdfgsd456yrt", 20, false)]
     public void NameLengthRule_ReturnsExpected(string name, int nameLength, bool expectedValid)
     {
-        var item = new TodoItem(name);
+        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         bool isValid = new TodoNameLengthRule(nameLength).IsSatisfiedBy(item);
         Assert.AreEqual(expectedValid, isValid);
     }
@@ -25,7 +25,7 @@ public class TodoItemRulesTests
     [DataRow("axyzsdfghxyz", "xyz")]
     public void NameContentRule_pass(string name, string contains)
     {
-        var item = new TodoItem(name);
+        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         bool isValid = new TodoNameRegexRule(contains).IsSatisfiedBy(item);
         Assert.IsTrue(isValid);
     }
@@ -35,7 +35,7 @@ public class TodoItemRulesTests
     [DataRow("axyzsdfghxyz", 5, "xyz")]
     public void CompositeRule_pass(string name, int nameLength, string contains)
     {
-        var item = new TodoItem(name);
+        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         bool isValid = new TodoCompositeRule(nameLength, contains).IsSatisfiedBy(item);
         Assert.IsTrue(isValid);
     }
@@ -46,7 +46,7 @@ public class TodoItemRulesTests
     [DataRow("asgfdgr", 5, "xyz")]
     public void CompositeRule_fail(string name, int nameLength, string contains)
     {
-        var item = new TodoItem(name);
+        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         bool isValid = new TodoCompositeRule(nameLength, contains).IsSatisfiedBy(item);
         Assert.IsFalse(isValid);
     }

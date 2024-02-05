@@ -12,7 +12,7 @@ public class TodoItemTests
     [DataRow("sdfgsd4a56yrt")]
     public void Validate_Success(string name)
     {
-        var item = new TodoItem(name);
+        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         var response = item.Validate();
         Assert.IsTrue(response.IsValid);
     }
@@ -26,6 +26,6 @@ public class TodoItemTests
     [ExpectedException(typeof(ValidationException))]
     public void Validate_Throws(string name)
     {
-        _ = new TodoItem(name);
+        _ = new TodoItem(name) { CreatedBy = "Test.Unit" };
     }
 }

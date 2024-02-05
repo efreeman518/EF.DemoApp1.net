@@ -21,7 +21,7 @@ public class RulesBenchmarks
     [IterationSetup]
     public void Setup()
     {
-        _todoItemDto = new TodoItem($"a{Utility.RandomString(NameLength)}");
+        _todoItemDto = new TodoItem($"a{Utility.RandomString(NameLength)}") { CreatedBy = "Test.Benchmarks" };
         _regexMatch = $"{_todoItemDto.Name[..1]}.*{_todoItemDto.Name[^3..]}";
     }
 

@@ -2,7 +2,6 @@
 using Domain.Shared.Enums;
 using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Data.Contracts;
-using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using InfraCommon = Package.Infrastructure.Common;
 
@@ -10,7 +9,6 @@ namespace Domain.Model;
 
 public partial class TodoItem : AuditableBase<string>
 {
-    [Required(AllowEmptyStrings = false)]
     public string Name { get; private set; }
     public bool IsComplete => Status == TodoItemStatus.Completed;
     public TodoItemStatus Status { get; private set; }

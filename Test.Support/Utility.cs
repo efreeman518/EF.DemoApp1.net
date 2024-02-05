@@ -19,9 +19,9 @@ public static class Utility
         if (clear) db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
         db.Set<TodoItem>().AddRange(new List<TodoItem>
         {
-                new("item1a", TodoItemStatus.Created),
-                new("item2a", TodoItemStatus.InProgress),
-                new("item3a", TodoItemStatus.Completed)
+                new("item1a", TodoItemStatus.Created) { CreatedBy = "Test.Unit" },
+                new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test.Unit" },
+                new("item3a", TodoItemStatus.Completed){ CreatedBy = "Test.Unit" }
         });
     }
 
