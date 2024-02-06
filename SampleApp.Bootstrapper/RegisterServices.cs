@@ -98,15 +98,15 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRequestContext<string>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
+            
             //https://github.com/stevejgordon/CorrelationId/wiki
-
             var correlationId = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
                 ?? Guid.NewGuid().ToString();
 
             //Background services will not have an http context
             if (httpContext == null)
             {
-                return new Package.Infrastructure.Common.RequestContext<string>(correlationId, $"BackgroundService-{correlationId}");
+                return new RequestContext<string>(correlationId, $"BackgroundService-{correlationId}");
             }
 
             var user = httpContext.User;

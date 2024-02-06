@@ -31,11 +31,12 @@ public abstract class ServiceBusSenderBase : IServiceBusSender
     /// <param name="metadata"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task SendMessageAsync(string queueOrTopicName, string message, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(string queueOrTopicName, string message, string? correlationId = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
     {
         ServiceBusSender sender = GetServiceBusSenderAsync(queueOrTopicName);
 
         ServiceBusMessage sbMessage = new(message);
+        if (correlationId != null) sbMessage.CorrelationId = correlationId;
         if (metadata != null)
         {
             foreach (var item in metadata)
@@ -57,7 +58,7 @@ public abstract class ServiceBusSenderBase : IServiceBusSender
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task SendBatchAsync<T>(string queueOrTopicName, ICollection<T> batch, CancellationToken cancellationToken = default)
+    public async Task SendBatchAsync<T>(string queueOrTopicName, ICollection<T> batch, string? correlationId = null, CancellationToken cancellationToken = default)
     {
         //assemble batch into a local queue
         Queue<ServiceBusMessage> q = new();
@@ -67,6 +68,7 @@ public abstract class ServiceBusSenderBase : IServiceBusSender
             sbm = new ServiceBusMessage(JsonSerializer.Serialize(m));
             sbm.ApplicationProperties.Add("MessageType", typeof(T).Name);
             sbm.ApplicationProperties.Add("MessageTypeFull", typeof(T).FullName);
+            if (correlationId != null) sbm.CorrelationId = correlationId;
             q.Enqueue(sbm);
         });
 

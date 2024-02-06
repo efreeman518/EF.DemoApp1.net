@@ -23,10 +23,11 @@ public abstract class EventHubProducerBase : IEventHubProducer
         _ehProducerClient = clientFactory.CreateClient(_settings.EventHubProducerClientName);
     }
 
-    public async Task SendAsync(string message, string? partitionId = null, string? partitionKey = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
+    public async Task SendAsync(string message, string? partitionId = null, string? partitionKey = null, string? correlationId = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
     {
         var eventBody = new BinaryData(message);
         var eventData = new EventData(eventBody);
+        if(correlationId != null) eventData.CorrelationId = correlationId;
         if (metadata != null)
         {
             foreach (var item in metadata)
@@ -68,7 +69,7 @@ public abstract class EventHubProducerBase : IEventHubProducer
         }
     }
 
-    public async Task SendBatchAsync<T>(ICollection<T> batch, string? partitionId = null, string? partitionKey = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
+    public async Task SendBatchAsync<T>(ICollection<T> batch, string? partitionId = null, string? partitionKey = null, string? correlationId = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)
     {
         //assemble batch into a local queue
         Queue<EventData> q = new();
@@ -78,6 +79,7 @@ public abstract class EventHubProducerBase : IEventHubProducer
             eventData = new EventData(new BinaryData(JsonSerializer.Serialize(m)));
             eventData.Properties.Add("MessageType", typeof(T).Name);
             eventData.Properties.Add("MessageTypeFull", typeof(T).FullName);
+            if (correlationId != null) eventData.CorrelationId = correlationId;
             if (metadata != null)
             {
                 foreach (var item in metadata)
