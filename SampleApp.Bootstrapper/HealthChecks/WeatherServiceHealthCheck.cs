@@ -14,6 +14,7 @@ public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger
         _logger.LogInformation("WeatherServiceHealthCheck - Start");
 
         var status = HealthStatus.Healthy;
+        Exception? exHealth = null;
         try
         {
             var response = _weatherService.GetCurrentAsync("San Diego, CA");
@@ -22,13 +23,14 @@ public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger
         }
         catch (Exception ex)
         {
+            exHealth = ex;
             status = HealthStatus.Unhealthy;
             _logger.LogError(ex, "WeatherServiceHealthCheck - Error");
         }
 
         return Task.FromResult(new HealthCheckResult(status,
             description: $"WeatherService is {status}.",
-            exception: null,
+            exception: exHealth,
             data: null));
     }
 }

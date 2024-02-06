@@ -126,7 +126,10 @@ internal static class IServiceCollectionExtensions
         }
 
         //HealthChecks - having infrastructure references
+        //search nuget aspnetcore.healthchecks - many prebuilt health checks 
         //tag full will run when hitting health/full
+        //var credentials = new DefaultAzureCredential();
+
         services.AddHealthChecks()
             .AddMemoryHealthCheck("memory", tags: healthCheckTagsFullMem, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
             .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: healthCheckTagsFullDb)
