@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Services.Logging;
+using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Exceptions;
@@ -27,32 +28,42 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, pageSize, pageIndex, includeTotal: true);
     }
 
-    public async Task<TodoItemDto> GetItemAsync(Guid id)
+    public async Task<TodoItemDto?> GetItemAsync(Guid id)
     {
         //performant logging
         logger.InfoLog($"GetItemAsync - {id}");
 
-        var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id)
-            ?? throw new NotFoundException($"Id '{id}' not found.");
+        var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id);
+
+        if (todo == null) return null;
 
         //return mapped domain -> app
         return mapper.Map<TodoItem, TodoItemDto>(todo);
     }
 
-    public async Task<TodoItemDto> AddItemAsync(TodoItemDto dto)
+    public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto)
     {
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
         //dto - FluentValidation
-        await validationHelper.ValidateAndThrowAsync(dto);
+        var valResultDto = await validationHelper.ValidateAsync(dto);
+        if (!valResultDto.IsValid)
+        {
+            var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
+            return new Result<TodoItemDto?>(error);
+        }
 
         //map app -> domain
-        var todo = mapper.Map<TodoItemDto, TodoItem>(dto);
+        var todo = mapper.Map<TodoItemDto, TodoItem>(dto)!;
 
         //domain entity - entity validation method
-        var validationResult = todo.Validate();
-        if (!validationResult.IsValid) throw new ValidationException(validationResult);
+        var valResultDomain = todo.Validate();
+        if (!valResultDomain.IsValid)
+        {
+            var error = new ValidationException(string.Join(",", valResultDomain.Messages));
+            return new Result<TodoItemDto?>(error);
+        }
 
         repoTrxn.Create(ref todo);
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
@@ -62,7 +73,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         {
             //await some work
             await Task.Delay(3000, token);
-            logger.InfoLog($"Some work done");
+            logger.InfoLog($"Some non-scoped work done");
         });
 
         //queue some scoped work - fire and forget (update DB)
@@ -76,19 +87,24 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
         //return mapped domain -> app
-        return mapper.Map<TodoItem, TodoItemDto>(todo);
+        return mapper.Map<TodoItem, TodoItemDto>(todo)!;
     }
 
-    public async Task<TodoItemDto?> UpdateItemAsync(TodoItemDto dto)
+    public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto)
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
         //FluentValidation
-        await validationHelper.ValidateAndThrowAsync(dto);
+        var valResultDto = await validationHelper.ValidateAsync(dto);
+        if (!valResultDto.IsValid)
+        {
+            var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
+            return new Result<TodoItemDto?>(error);
+        }
 
         //retrieve existing
-        var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id)
-            ?? throw new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
+        var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id);
+        if (dbTodo == null) return new Result<TodoItemDto?>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
 
         //update
         dbTodo.SetName(dto.Name);

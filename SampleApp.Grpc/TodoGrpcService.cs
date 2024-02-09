@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
@@ -55,15 +56,28 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         SampleAppModel.TodoItemDto? todo = mapper.Map<SampleAppGrpc.TodoItemDto, SampleAppModel.TodoItemDto>(request.Data);
 
         //Save = update/insert
-        if (todo.Id == Guid.Empty)
-            todo = await todoService.AddItemAsync(todo);
+        Result<SampleAppModel.TodoItemDto?> result;
+
+        if (todo == null)
+        {
+            result = new Result<SampleAppModel.TodoItemDto?>(new ArgumentNullException(nameof(request), "Request does not map to TodoItemDto"));
+        }
         else
-            todo = await todoService.UpdateItemAsync(todo);
+        {
+            if (todo.Id == Guid.Empty)
+                result = await todoService.AddItemAsync(todo);
+            else
+                result = await todoService.UpdateItemAsync(todo);
+
+            todo = result.Match(
+                dto => dto,
+                err => null);
+        }
 
         var response = new SampleAppGrpc.ServiceResponseTodoItem
         {
-            ResponseCode = SampleAppGrpc.ResponseCode.Success,
-            Data = mapper.Map<SampleAppModel.TodoItemDto?, SampleAppGrpc.TodoItemDto>(todo)
+            ResponseCode = result.IsSuccess ? SampleAppGrpc.ResponseCode.Success : SampleAppGrpc.ResponseCode.Failure,
+            Data = mapper.Map<SampleAppModel.TodoItemDto?, SampleAppGrpc.TodoItemDto?>(todo)
         };
 
         logger.Log(LogLevel.Information, "Save {TodoItemDto} - Finish", response.Data.SerializeToJson());

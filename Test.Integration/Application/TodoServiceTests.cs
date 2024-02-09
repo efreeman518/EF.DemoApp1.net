@@ -35,27 +35,34 @@ public class TodoServiceTests : IntegrationTestBase
         //act & assert
 
         //create
-        todo = await svc.AddItemAsync(todo);
+        var result = await svc.AddItemAsync(todo);
+        _ = result.Match(
+            dto => todo = dto,
+            err => null
+        );
         Assert.IsTrue(todo.Id != Guid.Empty);
         var id = todo.Id;
 
         //retrieve
         todo = await svc.GetItemAsync(id);
-        Assert.AreEqual(id, todo.Id);
+        Assert.AreEqual(id, todo?.Id);
 
         //update
         string newName = "mow lawn";
-        todo.Status = TodoItemStatus.Completed;
+        todo!.Status = TodoItemStatus.Completed;
         todo.Name = newName;
-        var updated = await svc.UpdateItemAsync(todo);
+        TodoItemDto? updated = null;
+        result = await svc.UpdateItemAsync(todo);
+        _ = result.Match(
+            dto => updated = dto,
+            err => null
+        );
         Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
-#pragma warning disable S2589 // Boolean expressions should not be gratuitous - FALSE POSITIVE
         Assert.AreEqual(newName, updated?.Name);
-#pragma warning restore S2589 // Boolean expressions should not be gratuitous
 
         //retrieve and make sure the update persisted
         todo = await svc.GetItemAsync(id);
-        Assert.AreEqual(updated!.Status, todo.Status);
+        Assert.AreEqual(updated!.Status, todo!.Status);
 
         //delete
         await svc.DeleteItemAsync(id);
@@ -77,7 +84,6 @@ public class TodoServiceTests : IntegrationTestBase
     [DataRow("sdfg")]
     [DataRow("sdfgsd456yrt")]
     [DataRow("sdfgs")]
-    [ExpectedException(typeof(FluentValidation.ValidationException))]
     public async Task Todo_AddItem_fail(string name)
     {
         Logger.Log(LogLevel.Information, "Starting Todo_AddItem_fail");
@@ -95,7 +101,8 @@ public class TodoServiceTests : IntegrationTestBase
         //act & assert
 
         //create
-        await svc.AddItemAsync(todo);
+        var result = await svc.AddItemAsync(todo);
+        Assert.IsTrue(result.IsFaulted);
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Package.Infrastructure.Common;
+
 public sealed class ValidationResult(bool valid, List<string>? messages = null) : IEquatable<ValidationResult>
 {
     public bool IsValid { get; set; } = valid;

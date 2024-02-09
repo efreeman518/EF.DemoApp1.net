@@ -2,6 +2,7 @@
 using Application.Contracts.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
@@ -75,8 +76,10 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoItem)
     {
-        todoItem = await _todoService.AddItemAsync(todoItem);
-        return CreatedAtAction(nameof(PostTodoItem), new { id = todoItem.Id }, todoItem);
+        var result = await _todoService.AddItemAsync(todoItem);
+        return result.Match<ActionResult<TodoItemDto>>(
+            dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
+            err => BadRequest(err.Message));
     }
 
     /// <summary>
@@ -93,13 +96,13 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
         {
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
-            //throw new ValidationException($"{Constants.ERROR_URL_BODY_ID_MISMATCH}: {id} != {todoItem.Id}");
         }
 
         todoItem.Id = id;
-        TodoItemDto? todoUpdated = await _todoService.UpdateItemAsync(todoItem);
-
-        return Ok(todoUpdated);
+        var result = await _todoService.UpdateItemAsync(todoItem);
+        return result.Match<ActionResult<TodoItemDto>>(
+            dto => dto is null ? NotFound(id) : Ok(dto),
+            err => BadRequest(err.Message));
     }
 
     /// <summary>

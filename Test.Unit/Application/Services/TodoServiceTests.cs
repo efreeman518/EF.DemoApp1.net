@@ -27,7 +27,7 @@ public class TodoServiceTests : UnitTestBase
 {
     //specific to this test class
     private readonly Mock<IServiceScopeFactory> ServiceScopeFactoryMock;
-    private readonly Mock<IValidationHelper> ValidationHelperMock;
+    //private readonly Mock<IValidationHelper> ValidationHelperMock;
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
     private readonly Mock<ISampleApiRestClient> SampleApiRestClientMock;
@@ -38,11 +38,13 @@ public class TodoServiceTests : UnitTestBase
     private readonly ITodoRepositoryQuery _repoQuery;
     private readonly IValidationHelper _validationHelper;
 
+    private readonly ServiceCollection _services = new();
+
     public TodoServiceTests() : base()
     {
         //use Mock repo
         ServiceScopeFactoryMock = _mockFactory.Create<IServiceScopeFactory>();
-        ValidationHelperMock = _mockFactory.Create<IValidationHelper>();
+        //ValidationHelperMock = _mockFactory.Create<IValidationHelper>();
         RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
         RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
         SampleApiRestClientMock = _mockFactory.Create<ISampleApiRestClient>();
@@ -55,8 +57,8 @@ public class TodoServiceTests : UnitTestBase
         SettingsMock.Setup(m => m.CurrentValue).Returns(_settings);
 
         //or use DbContext with InMemory provider (dependencies on EF, InMemoryProvider, Infrastructure.Data, Infrastructure.Repositories
-        ServiceCollection services = new();
-        services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
+        //ServiceCollection services = new();
+        _services.AddTransient<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
 
         //arrange default for some tests
         //InMemory setup & seed
@@ -77,10 +79,10 @@ public class TodoServiceTests : UnitTestBase
         _repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         _repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
 
-        services.AddTransient<IValidationHelper, ValidationHelper>();
-        services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
-        services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>(provider => (TodoRepositoryQuery)_repoQuery);
-        _validationHelper = new ValidationHelper(services.BuildServiceProvider());
+        _services.AddTransient<IValidationHelper, ValidationHelper>();
+        _services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
+        _services.AddTransient<ITodoRepositoryQuery, TodoRepositoryQuery>(provider => (TodoRepositoryQuery)_repoQuery);
+        _validationHelper = new ValidationHelper(_services.BuildServiceProvider());
 
     }
 
@@ -103,7 +105,7 @@ public class TodoServiceTests : UnitTestBase
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, ValidationHelperMock.Object,
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper,
             RepositoryTrxnMock.Object, RepositoryQueryMock.Object, SampleApiRestClientMock.Object,
             _mapper, BackgroundTaskQueueMock.Object);
 
@@ -111,18 +113,28 @@ public class TodoServiceTests : UnitTestBase
 
         //create
         var todoNew = new TodoItemDto { Name = name, Status = TodoItemStatus.Created };
-        var todoSaved = await svc.AddItemAsync(todoNew); //new Id has been assigned
-        Assert.IsTrue(todoNew.Id != todoSaved.Id); //orig dto will still have empty Guid id
-        Assert.IsTrue(todoNew.Name == todoSaved.Name);
+        TodoItemDto? todoSaved = null;
+        var result = await svc.AddItemAsync(todoNew); //new Id has been assigned
+        _ = result.Match<TodoItemDto?>(
+            dto => todoSaved = dto,
+            err => null
+        );
+        Assert.IsTrue(todoNew.Id != todoSaved!.Id); //orig dto will still have empty Guid id
+        Assert.IsTrue(todoNew.Name == todoSaved!.Name);
         Assert.AreEqual(todoNew.Status, todoSaved.Status);
 
         //retrieve
         var todoGet = await svc.GetItemAsync(todoSaved.Id);
-        Assert.AreEqual(todoSaved.Id, todoGet?.Id);
-        Assert.AreEqual(todoSaved.Name, todoGet?.Name);
+        Assert.AreEqual(todoSaved.Id, todoGet!.Id);
+        Assert.AreEqual(todoSaved.Name, todoGet!.Name);
 
         //update
-        TodoItemDto? todoUpdated = await svc.UpdateItemAsync(todoGet!); //mock set to return a specific todoItem
+        TodoItemDto? todoUpdated = null;
+        result = await svc.UpdateItemAsync(todoGet!); //mock set to return a specific todoItem
+        _ = result.Match(
+            dto => todoUpdated = dto,
+            err => null
+        );
         Assert.IsTrue(todoUpdated != null);
 
         //delete
@@ -152,46 +164,49 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
 
         //create
-        todo = await svc.AddItemAsync(todo);
+        var result = await svc.AddItemAsync(todo);
+        _ = result.Match(
+            dto => todo = dto,
+            err => null
+        );
         Assert.IsTrue(todo.Id != Guid.Empty);
-        var id = todo.Id;
+        var id = todo!.Id;
 
         //retrieve
         todo = await svc.GetItemAsync(id);
-        Assert.AreEqual(id, todo.Id);
+        Assert.AreEqual(id, todo!.Id);
 
         //update
         string newName = "mow lawn";
         todo.Status = TodoItemStatus.Completed;
         todo.Name = newName;
-        var updated = await svc.UpdateItemAsync(todo);
+
+        TodoItemDto? updated = null;
+        result = await svc.UpdateItemAsync(todo);
+        _ = result.Match(
+            dto => updated = dto,
+            err => null
+        );
         Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         //retrieve and make sure the update persisted
         todo = await svc.GetItemAsync(id);
-        Assert.AreEqual(updated!.Status, todo.Status);
+        Assert.AreEqual(updated!.Status, todo?.Status);
 
         //delete
         await svc.DeleteItemAsync(id);
 
-        //ensure NotFoundException after delete
-        try
-        {
-            _ = await svc.GetItemAsync(id);
-            throw new Exception("Should not have found a deleted item.");
-        }
-        catch (NotFoundException ex)
-        {
-            Assert.IsTrue(ex != null);
-        }
+        //ensure not found after delete
+        todo = await svc.GetItemAsync(id);
+        Assert.IsNull(todo);
+
     }
 
     [DataTestMethod]
     [DataRow("")]
     [DataRow("asd")]
     [DataRow("fhjkjfgkhj")]
-    [ExpectedException(typeof(FluentValidation.ValidationException))]
     public async Task Todo_AddItemAsync_fail(string name)
     {
         //arrange
@@ -199,11 +214,11 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto { Name = name, Status = TodoItemStatus.Created };
 
         //act & assert
-        await svc.AddItemAsync(todo);
+        var result = await svc.AddItemAsync(todo);
+        Assert.IsTrue(result.IsFaulted);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(NotFoundException))]
     public async Task Todo_UpdateAsync_notfound()
     {
         //arrange
@@ -212,11 +227,13 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto { Id = Guid.NewGuid(), Name = "asdsa", Status = TodoItemStatus.Created };
 
         //act & assert
-        await svc.UpdateItemAsync(todo);
+        var result = await svc.UpdateItemAsync(todo);
+        Assert.IsTrue(result.IsFaulted);
+        result.IfFail(ex => Assert.IsTrue(ex is NotFoundException));
+        result.IfSucc(todo => Assert.Fail($"Should not have found id {todo!.Id} to update"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FluentValidation.ValidationException))]
     public async Task Todo_UpdateAsync_fail()
     {
         //arrange
@@ -225,7 +242,10 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto { Id = Guid.NewGuid(), Name = "sdsa", Status = TodoItemStatus.Created };
 
         //act & assert
-        await svc.UpdateItemAsync(todo);
+        var result = await svc.UpdateItemAsync(todo);
+        Assert.IsTrue(result.IsFaulted);
+        result.IfFail(ex => Assert.IsTrue(ex is Package.Infrastructure.Common.Exceptions.ValidationException));
+        result.IfSucc(todo => Assert.Fail($"Should not have found id {todo!.Id} to update"));
     }
 
     [TestMethod]

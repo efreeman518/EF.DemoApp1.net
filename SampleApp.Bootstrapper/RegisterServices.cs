@@ -98,7 +98,7 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRequestContext<string>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
-            
+
             //https://github.com/stevejgordon/CorrelationId/wiki
             var correlationId = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
                 ?? Guid.NewGuid().ToString();

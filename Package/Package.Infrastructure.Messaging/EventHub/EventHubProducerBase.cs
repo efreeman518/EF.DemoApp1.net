@@ -27,7 +27,7 @@ public abstract class EventHubProducerBase : IEventHubProducer
     {
         var eventBody = new BinaryData(message);
         var eventData = new EventData(eventBody);
-        if(correlationId != null) eventData.CorrelationId = correlationId;
+        if (correlationId != null) eventData.CorrelationId = correlationId;
         if (metadata != null)
         {
             foreach (var item in metadata)
