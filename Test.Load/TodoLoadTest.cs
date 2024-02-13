@@ -28,7 +28,7 @@ internal static class TodoLoadTest
                     (context) =>
                     {
                         var name = $"a{Guid.NewGuid()}";
-                        return new TodoItemDto (null, name, TodoItemStatus.Created, name, name );
+                        return new TodoItemDto(null, name, TodoItemStatus.Created, name, name);
                     });
                 await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/v1.1/TodoItems",
                     //assemble the url for this step request using previous step response
@@ -48,7 +48,7 @@ internal static class TodoLoadTest
                     (context) =>
                     {
                         var todoItem = (TodoItemDto)context.Data["get"];
-                        return new TodoItemDto (todoItem.Id, $"updated {todoItem.Name}", TodoItemStatus.Created);
+                        return new TodoItemDto(todoItem.Id, $"updated {todoItem.Name}", TodoItemStatus.Created);
                     });
 
                 return Response.Ok();

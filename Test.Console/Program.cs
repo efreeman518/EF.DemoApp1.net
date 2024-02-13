@@ -136,7 +136,7 @@ while (true)
             {
                 //REST
                 //await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
-                await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto(id, input2 ?? Guid.NewGuid().ToString(), TodoItemStatus.Created )));
+                await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto(id, input2 ?? Guid.NewGuid().ToString(), TodoItemStatus.Created)));
             }
             else
             {

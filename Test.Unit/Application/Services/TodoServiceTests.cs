@@ -112,7 +112,7 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
 
         //create
-        var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created );
+        var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created);
         TodoItemDto? todoSaved = null;
         var result = await svc.AddItemAsync(todoNew); //new Id has been assigned
         _ = result.Match<TodoItemDto?>(
@@ -161,7 +161,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //arrange
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
-        var todo = new TodoItemDto (null, "wash car", TodoItemStatus.Created);
+        var todo = new TodoItemDto(null, "wash car", TodoItemStatus.Created);
 
         //act & assert
 
@@ -181,7 +181,7 @@ public class TodoServiceTests : UnitTestBase
         //update
         string newName = "mow lawn";
         var todo2 = todo with { Name = newName, Status = TodoItemStatus.Completed };
-        
+
         TodoItemDto? updated = null;
         result = await svc.UpdateItemAsync(todo2);
         _ = result.Match(
@@ -225,7 +225,7 @@ public class TodoServiceTests : UnitTestBase
         //arrange
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         //random Id to 'update'
-        var todo = new TodoItemDto(Guid.NewGuid(), "asdsa",TodoItemStatus.Created);
+        var todo = new TodoItemDto(Guid.NewGuid(), "asdsa", TodoItemStatus.Created);
 
         //act & assert
         var result = await svc.UpdateItemAsync(todo);

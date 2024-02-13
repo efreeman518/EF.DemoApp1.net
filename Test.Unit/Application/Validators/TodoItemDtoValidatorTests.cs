@@ -49,7 +49,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
     public async Task Validation_Update_exception()
     {
         var validator = new TodoItemDtoValidator(_todoRepositoryQuery);
-        var item = new TodoItemDto(Guid.NewGuid(), "custom entity a" , TodoItemStatus.Created); //existing
+        var item = new TodoItemDto(Guid.NewGuid(), "custom entity a", TodoItemStatus.Created); //existing
         var result = await validator.TestValidateAsync(item);
         Assert.IsFalse(result.IsValid);
     }

@@ -41,7 +41,7 @@ public class SampleApiRestClientTests : IntegrationTestBase
 
         //PUT update
         todo = todoResponse;
-        var todo2 = todo with { Name = $"Update {name}" }; 
+        var todo2 = todo with { Name = $"Update {name}" };
         todoResponse = await svc.SaveItemAsync(todo2)!;
         Assert.AreEqual(todo2.Name, todoResponse!.Name);
 

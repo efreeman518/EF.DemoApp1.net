@@ -46,7 +46,7 @@ public class TodoServiceTests : IntegrationTestBase
 
         //update
         string newName = "mow lawn";
-        var todo2 = todo! with { Name = newName, Status = TodoItemStatus.Completed};
+        var todo2 = todo! with { Name = newName, Status = TodoItemStatus.Completed };
         TodoItemDto? updated = null;
         result = await svc.UpdateItemAsync(todo2);
         _ = result.Match(

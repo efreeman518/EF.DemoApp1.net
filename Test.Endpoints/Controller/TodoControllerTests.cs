@@ -47,7 +47,7 @@ public class TodoControllerTests : EndpointTestBase
         string urlBase = "api/v1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
- 
+
         //act
 
         //POST create (insert)

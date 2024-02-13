@@ -2,7 +2,6 @@
 using Application.Contracts.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
