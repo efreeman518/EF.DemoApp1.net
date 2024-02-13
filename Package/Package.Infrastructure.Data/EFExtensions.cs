@@ -25,11 +25,11 @@ namespace Package.Infrastructure.Data;
  * be included in an update statement by the entity’s primary key upon SaveChangesAsync().
  * 
  * Filter parameter structure:
- *    Expression<Func<ContextEntity, bool>>? filter = null;
+ *    Expression<Func<Entity, bool>>? filter = null;
  *    if (someparameter != null) filter = t => t.Property == someparameter;
  * 
  * Include parameter structure: 
- *   List<Func<IQueryable<ContextEntity>, IIncludableQueryable<ContextEntity, object?>>> includes = new List<Func<IQueryable<ContextEntity>, IIncludableQueryable<ContextEntity, object?>>>(); 
+ *   List<Func<IQueryable<Entity>, IIncludableQueryable<Entity, object?>>> includes = new List<Func<IQueryable<Entity>, IIncludableQueryable<Entity, object?>>>(); 
  *   if (includeChildren) includes.Add(e1 => e1.Include(e => e.Children));
  */
 

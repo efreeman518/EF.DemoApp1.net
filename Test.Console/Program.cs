@@ -1,5 +1,6 @@
 ﻿//logging for initialization
 using Application.Contracts.Interfaces;
+using Domain.Shared.Enums;
 using Google.Protobuf.WellKnownTypes;
 using Infrastructure.SampleApi;
 using Microsoft.Extensions.Configuration;
@@ -134,7 +135,8 @@ while (true)
             if (command.Contains("r-"))
             {
                 //REST
-                await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+                //await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto { Id = id, Name = input2 ?? Guid.NewGuid().ToString() }));
+                await AttemptRestAsync(() => restClient.SaveItemAsync(new SampleAppModel.TodoItemDto(id, input2 ?? Guid.NewGuid().ToString(), TodoItemStatus.Created )));
             }
             else
             {

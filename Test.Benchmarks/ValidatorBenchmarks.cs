@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Model;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
+using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Common;
 
@@ -25,7 +26,7 @@ public class ValidatorBenchmarks : IDisposable
     {
         _serviceScope = Utility.GetServiceProvider().CreateScope();
         _validationHelper = _serviceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
-        _todoItemDto = new TodoItemDto { Name = Guid.NewGuid().ToString() };
+        _todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
     }
 
     [IterationCleanup]

@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
+using Domain.Shared.Enums;
 using Infrastructure.SampleApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,10 +20,7 @@ public class SampleApiRestClientTests : IntegrationTestBase
     {
         //arrange
         string name = $"Todo-a-{Guid.NewGuid()}";
-        var todo = new TodoItemDto
-        {
-            Name = name
-        };
+        var todo = new TodoItemDto(Guid.Empty, name, TodoItemStatus.Created);
 
         //arrange
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
@@ -43,9 +41,9 @@ public class SampleApiRestClientTests : IntegrationTestBase
 
         //PUT update
         todo = todoResponse;
-        todo.Name = $"Update {name}";
-        todoResponse = await svc.SaveItemAsync(todo)!;
-        Assert.AreEqual(todo.Name, todoResponse!.Name);
+        var todo2 = todo with { Name = $"Update {name}" }; 
+        todoResponse = await svc.SaveItemAsync(todo2)!;
+        Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //GET retrieve
         todoResponse = await svc.GetItemAsync(id);

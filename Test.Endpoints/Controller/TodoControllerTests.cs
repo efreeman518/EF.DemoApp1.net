@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 using Application.Contracts.Model;
+using Domain.Shared.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using System.Net;
@@ -45,11 +46,8 @@ public class TodoControllerTests : EndpointTestBase
         //arrange
         string urlBase = "api/v1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";
-        var todo = new TodoItemDto
-        {
-            Name = name
-        };
-
+        var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
+ 
         //act
 
         //POST create (insert)
@@ -65,13 +63,13 @@ public class TodoControllerTests : EndpointTestBase
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
-        todo.Name = $"Update {name}";
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo);
-        Assert.AreEqual(todo.Name, parsedResponse?.Name);
+        var todo2 = todo with { Name = $"Update {name}" };
+        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
+        Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //GET retrieve
         (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
-        Assert.AreEqual(todo.Name, parsedResponse?.Name);
+        Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //DELETE
         (var httpResponse, _) = await _client.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);

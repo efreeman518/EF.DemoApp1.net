@@ -5,9 +5,9 @@ namespace Package.Infrastructure.AspNetCore;
 
 public static class ProblemDetailsHelper
 {
-    public static ProblemDetails BuildProblemDetailsResponse(string? message = null, Exception? exception = null)
+    public static ProblemDetails BuildProblemDetailsResponse(string? title = "Error", string? message = null, Exception? exception = null)
     {
-        var statusCode = exception.GetType().Name switch
+        var statusCode = exception?.GetType().Name switch
         {
             "ValidationException" => StatusCodes.Status400BadRequest,
             "NotFoundException" => StatusCodes.Status404NotFound,
@@ -16,9 +16,9 @@ public static class ProblemDetailsHelper
 
         var problemDetails = new ProblemDetails
         {
-            Type = exception.GetType().Name,
-            Title = "Error occurred",
-            Detail = exception.Message,
+            Type = exception?.GetType().Name,
+            Title = title,
+            Detail = exception?.Message ?? message,
             Status = statusCode
         };
 

@@ -1,5 +1,6 @@
 using Application.Contracts.Model;
 using Application.Services.Rules;
+using Domain.Shared.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Unit.Application.Rules;
@@ -14,7 +15,7 @@ public class TodoItemDtoRulesTests
     [DataRow("sdfgsd456yrt", 20, false)]
     public void NameLengthRule_pass(string name, int nameLength, bool expectedValid)
     {
-        var item = new TodoItemDto { Name = name };
+        var item = new TodoItemDto(null, name, TodoItemStatus.Created);
         bool isValid = new TodoNameLengthRule(nameLength).IsSatisfiedBy(item);
         Assert.AreEqual(expectedValid, isValid);
     }
@@ -26,7 +27,7 @@ public class TodoItemDtoRulesTests
     [DataRow("xyzsdfghxyz", "xyz", true)]
     public void NameContentRule_pass(string name, string contains, bool expectedValid)
     {
-        var item = new TodoItemDto { Name = name };
+        var item = new TodoItemDto(null, name, TodoItemStatus.Created);
         bool isValid = new TodoNameRegexRule(contains).IsSatisfiedBy(item);
         Assert.AreEqual(expectedValid, isValid);
     }
@@ -39,7 +40,7 @@ public class TodoItemDtoRulesTests
     [DataRow("xyzsdfghxyz", 5, "xyz", true)]
     public void CompositeRule_pass(string name, int nameLength, string contains, bool expectedValid)
     {
-        var item = new TodoItemDto { Name = name };
+        var item = new TodoItemDto(null, name, TodoItemStatus.Created);
         bool isValid = new TodoCompositeRule(nameLength, contains).IsSatisfiedBy(item);
         Assert.AreEqual(expectedValid, isValid);
     }

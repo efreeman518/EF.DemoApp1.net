@@ -1,11 +1,11 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
-public class SearchRequest<TFilter>
+public record SearchRequest<TFilter>
 {
-    public int PageSize { get; set; }
+    public int PageSize { get; init; }
 
-    public int PageIndex { get; set; }
+    public int PageIndex { get; init; }
 
-    public List<Sort>? Sorts { get; set; }
+    public List<Sort>? Sorts { get; init; }
 
-    public TFilter? Filter { get; set; }
+    public TFilter? Filter { get; init; }
 }

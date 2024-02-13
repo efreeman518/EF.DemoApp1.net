@@ -79,7 +79,8 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase
         var result = await _todoService.AddItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
-            err => BadRequest(err.Message));
+            err => BadRequest(err)
+            );
     }
 
     /// <summary>
@@ -98,7 +99,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
         }
 
-        todoItem.Id = id;
         var result = await _todoService.UpdateItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => dto is null ? NotFound(id) : Ok(dto),

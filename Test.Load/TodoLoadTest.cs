@@ -1,4 +1,5 @@
 ﻿using Application.Contracts.Model;
+using Domain.Shared.Enums;
 using NBomber.Contracts.Stats;
 using NBomber.CSharp;
 using NBomber.Plugins.Network.Ping;
@@ -27,7 +28,7 @@ internal static class TodoLoadTest
                     (context) =>
                     {
                         var name = $"a{Guid.NewGuid()}";
-                        return new TodoItemDto { Name = name, SecureRandom = name, SecureDeterministic = name };
+                        return new TodoItemDto (null, name, TodoItemStatus.Created, name, name );
                     });
                 await Utility.RunStep<object, TodoItemDto>(context, httpClient, "get", HttpMethod.Get, $"{baseUrl}/api/v1.1/TodoItems",
                     //assemble the url for this step request using previous step response
@@ -47,7 +48,7 @@ internal static class TodoLoadTest
                     (context) =>
                     {
                         var todoItem = (TodoItemDto)context.Data["get"];
-                        return new TodoItemDto { Id = todoItem.Id, Name = $"updated {todoItem.Name}" };
+                        return new TodoItemDto (todoItem.Id, $"updated {todoItem.Name}", TodoItemStatus.Created);
                     });
 
                 return Response.Ok();

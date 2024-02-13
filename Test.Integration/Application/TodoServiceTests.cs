@@ -26,11 +26,8 @@ public class TodoServiceTests : IntegrationTestBase
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
 
-        TodoItemDto? todo = new()
-        {
-            Name = name,
-            Status = TodoItemStatus.Created
-        };
+        TodoItemDto? todo = new(null, name, TodoItemStatus.Created);
+
 
         //act & assert
 
@@ -41,7 +38,7 @@ public class TodoServiceTests : IntegrationTestBase
             err => null
         );
         Assert.IsTrue(todo.Id != Guid.Empty);
-        var id = todo.Id;
+        Guid id = (Guid)todo.Id!;
 
         //retrieve
         todo = await svc.GetItemAsync(id);
@@ -49,10 +46,9 @@ public class TodoServiceTests : IntegrationTestBase
 
         //update
         string newName = "mow lawn";
-        todo!.Status = TodoItemStatus.Completed;
-        todo.Name = newName;
+        var todo2 = todo! with { Name = newName, Status = TodoItemStatus.Completed};
         TodoItemDto? updated = null;
-        result = await svc.UpdateItemAsync(todo);
+        result = await svc.UpdateItemAsync(todo2);
         _ = result.Match(
             dto => updated = dto,
             err => null
@@ -92,11 +88,8 @@ public class TodoServiceTests : IntegrationTestBase
 
         //arrange
         TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
-        TodoItemDto? todo = new()
-        {
-            Name = name,
-            Status = TodoItemStatus.Created
-        };
+        TodoItemDto? todo = new(Guid.Empty, name, TodoItemStatus.Created);
+
 
         //act & assert
 

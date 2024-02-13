@@ -61,9 +61,6 @@ internal static class IServiceCollectionExtensions
             options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
         });
 
-        //convenient for model validation
-        services.AddProblemDetails();
-
         services.AddCors(opt =>
         {
             opt.AddPolicy(name: "AllowSpecific", options =>
@@ -75,6 +72,14 @@ internal static class IServiceCollectionExtensions
         });
 
         services.AddControllers();
+
+        //convenient for model validation
+        services.AddProblemDetails(options =>
+            options.CustomizeProblemDetails = ctx =>
+            {
+                ctx.ProblemDetails.Extensions.Add("nodeId", Environment.MachineName);
+            }
+        );
 
         //Add gRPC framework services
         services.AddGrpc(options =>

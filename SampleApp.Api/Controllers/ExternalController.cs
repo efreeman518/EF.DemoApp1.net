@@ -68,10 +68,8 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
         {
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
-            //throw new ValidationException($"{Constants.ERROR_URL_BODY_ID_MISMATCH}: {id} != {todoItem.Id}");
         }
 
-        todoItem.Id = id;
         TodoItemDto? todoUpdated = await _apiClient.SaveItemAsync(todoItem);
 
         return Ok(todoUpdated);

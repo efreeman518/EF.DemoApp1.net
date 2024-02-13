@@ -1,5 +1,6 @@
 using Application.Contracts.Model;
 using Application.Services.Validators;
+using Domain.Shared.Enums;
 using FluentValidation.TestHelper;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -37,7 +38,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
     public async Task Validation_Check_pass(string name, bool expectedValid)
     {
         var validator = new TodoItemDtoValidator(_todoRepositoryQuery);
-        var item = new TodoItemDto { Name = name };
+        var item = new TodoItemDto(null, name, TodoItemStatus.Created);
         var result = await validator.TestValidateAsync(item);
         bool isValid = result.IsValid;
         Assert.AreEqual(expectedValid, isValid);
@@ -48,7 +49,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
     public async Task Validation_Update_exception()
     {
         var validator = new TodoItemDtoValidator(_todoRepositoryQuery);
-        var item = new TodoItemDto { Id = Guid.NewGuid(), Name = "custom entity a" }; //existing
+        var item = new TodoItemDto(Guid.NewGuid(), "custom entity a" , TodoItemStatus.Created); //existing
         var result = await validator.TestValidateAsync(item);
         Assert.IsFalse(result.IsValid);
     }

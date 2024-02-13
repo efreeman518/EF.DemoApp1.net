@@ -24,7 +24,7 @@ public static class IQueryableExtensions
     /// <param name="pageIndex">1-based; If null, then return IQueryable for streaming (no paging)</param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
-    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    /// <param name="splitQuery">Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries</param>
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IQueryable<T> ComposeIQueryable<T>(this IQueryable<T> query, bool tracking = false,
@@ -73,7 +73,7 @@ public static class IQueryableExtensions
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
-    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    /// <param name="splitQuery">Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries</param>
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IAsyncEnumerable<T> GetStream<T>(this IQueryable<T> query, bool tracking = false, Expression<Func<T, bool>>? filter = null,
@@ -94,7 +94,7 @@ public static class IQueryableExtensions
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
-    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    /// <param name="splitQuery">Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries</param>
     /// <param name="includes"></param>
     /// <returns></returns>
     public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, IConfigurationProvider mapperConfigProvider,

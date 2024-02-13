@@ -2,13 +2,5 @@
 
 namespace Application.Contracts.Model;
 
-public class TodoItemDto
-{
-    public Guid Id { get; set; }
+public record TodoItemDto(Guid? Id, string Name, TodoItemStatus Status, string? SecureRandom = null, string? SecureDeterministic = null);
 
-    public string Name { get; set; } = null!;
-    public TodoItemStatus Status { get; set; }
-    public string? SecureRandom { get; set; }
-    public string? SecureDeterministic { get; set; }
-
-}
