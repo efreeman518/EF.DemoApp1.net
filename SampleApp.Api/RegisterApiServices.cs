@@ -32,7 +32,7 @@ internal static class IServiceCollectionExtensions
             module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("EnableSqlCommandTextInstrumentation", false);
         });
 
-        //exception handling
+        //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
 
         //api versioning
@@ -77,7 +77,7 @@ internal static class IServiceCollectionExtensions
         services.AddProblemDetails(options =>
             options.CustomizeProblemDetails = ctx =>
             {
-                ctx.ProblemDetails.Extensions.Add("nodeId", Environment.MachineName);
+                ctx.ProblemDetails.Extensions.Add("machineName", Environment.MachineName);
             }
         );
 
@@ -106,10 +106,8 @@ internal static class IServiceCollectionExtensions
                 // can also be used to control the format of the API version in route templates
                 o.SubstituteApiVersionInUrl = true;
             });
-            // this enables binding ApiVersion as a endpoint callback parameter. if you don't use it, then
-            // you should remove this configuration.
+            // this enables binding ApiVersion as a endpoint callback parameter. if you don't use it, then remove this configuration.
             //.EnableApiVersionBinding();
-
 
             services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
@@ -133,7 +131,6 @@ internal static class IServiceCollectionExtensions
         //HealthChecks - having infrastructure references
         //search nuget aspnetcore.healthchecks - many prebuilt health checks 
         //tag full will run when hitting health/full
-        //var credentials = new DefaultAzureCredential();
 
         services.AddHealthChecks()
             .AddMemoryHealthCheck("memory", tags: healthCheckTagsFullMem, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))

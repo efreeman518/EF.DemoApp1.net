@@ -2,6 +2,7 @@
 using Application.Contracts.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Data.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
@@ -14,7 +15,7 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class TodoItemsController(ITodoService todoService) : ControllerBase
+public class TodoItemsController(ITodoService todoService) : ControllerBase()
 {
     private readonly ITodoService _todoService = todoService;
 
@@ -68,18 +69,21 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase
     /// <summary>
     /// Saves a new TodoItem
     /// </summary>
+    /// <param name="hostEnv"></param>
     /// <param name="todoItem"></param>
     /// <returns>The new TodoItem that was saved</returns>
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model Binding Error", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
-    public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoItem)
+    public async Task<ActionResult<TodoItemDto>> PostTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
         var result = await _todoService.AddItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
-            err => BadRequest(err)
+            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
             );
+
     }
 
     /// <summary>

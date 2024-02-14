@@ -5,6 +5,8 @@ namespace Package.Infrastructure.AspNetCore;
 
 public static class HealthCheckHelper
 {
+    //currently using nuget package HealthChecks.UI.Client instead of this code
+
     //static readonly JsonSerializerOptions jsOoptions = new() { WriteIndented = true };
 
     //public static string ParseReport(HealthReport result)
@@ -29,6 +31,7 @@ public static class HealthCheckHelper
     //    httpContext.Response.ContentType = "application/json";
     //    return httpContext.Response.WriteAsync(report);
     //}
+
     public static HealthCheckOptions BuildHealthCheckOptions(string tag)
     {
         return new HealthCheckOptions()

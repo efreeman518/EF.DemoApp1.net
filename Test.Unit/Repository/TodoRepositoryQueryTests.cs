@@ -177,7 +177,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var total = await stream.ConcurrentBatchAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            await Task.Delay(1000);
+            await Task.Delay(10);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, batchsize, cancellationTokenSource.Token);
 
@@ -214,7 +214,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var total = await stream.ConcurrentPipeAsync(async (item) =>
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
-            await Task.Delay(1000);
+            await Task.Delay(10);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxConcurrent, cancellationTokenSource.Token);
 
@@ -252,7 +252,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             //some async work
-            await Task.Delay(1000);
+            await Task.Delay(10);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxDegreesOfParallelism, cancellationTokenSource.Token);
 
@@ -290,7 +290,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             //some sync work
-            Task.Delay(1000);
+            Task.Delay(10);
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxDegreesOfParallelism, cancellationTokenSource.Token);
 
