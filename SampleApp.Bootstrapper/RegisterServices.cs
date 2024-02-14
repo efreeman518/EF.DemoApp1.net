@@ -257,7 +257,7 @@ public static class IServiceCollectionExtensions
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             httpClientBuilder.AddStandardResilienceHandler();
             //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
-            if(hasHttpContext)
+            if (hasHttpContext)
             {
                 httpClientBuilder.AddCorrelationIdForwarding();
                 httpClientBuilder.AddHeaderPropagation();

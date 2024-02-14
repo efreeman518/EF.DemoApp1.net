@@ -37,7 +37,7 @@ public static class IHostEnvironmentExtensions
             Detail = message ?? exception?.Message,
             Status = statusCode
         };
-        if(traceId != null) problemDetails.Extensions.Add("traceId", traceId);
+        if (traceId != null) problemDetails.Extensions.Add("traceId", traceId);
         problemDetails.Extensions.Add("machineName", Environment.MachineName);
 
         if (env.IsDevelopment())
