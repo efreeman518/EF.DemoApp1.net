@@ -6,6 +6,7 @@ using Application.Services.Validators;
 using Azure;
 using Azure.Identity;
 using CorrelationId.Abstractions;
+using CorrelationId.HttpClient;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
@@ -59,7 +60,7 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
         //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
         //middleware triggers on http request, not background service scope
@@ -245,19 +246,22 @@ public static class IServiceCollectionExtensions
                 return new SampleRestApiAuthMessageHandler(scopes!);
             });
 
-            var httpClientBuilder = services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(options =>
+            var httpClientBuilder = services.AddHttpClient<ISampleApiRestClient, SampleApiRestClient>(provider =>
             {
-                options.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
+                provider.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
             })
-            .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); //SendAysnc pipeline
-            //.AddCorrelationIdForwarding(); not here - breaks integration tests since there is no http request and no headers to propagate
-            //.AddHeaderPropagation(); not here - breaks integration tests since there is no http request and no headers to propagate
-
+            .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); //SendAysnc pipeline gets/caches access token
             //resiliency
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
             //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             httpClientBuilder.AddStandardResilienceHandler();
+            //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
+            if(hasHttpContext)
+            {
+                httpClientBuilder.AddCorrelationIdForwarding();
+                httpClientBuilder.AddHeaderPropagation();
+            }
         }
 
         //OpenAI chat service

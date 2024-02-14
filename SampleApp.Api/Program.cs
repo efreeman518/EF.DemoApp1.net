@@ -88,7 +88,7 @@ try
     var config = builder.Configuration;
     builder.Services
         //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
-        .RegisterInfrastructureServices(config)
+        .RegisterInfrastructureServices(config, true)
         //domain services
         .RegisterDomainServices(config)
         //app services

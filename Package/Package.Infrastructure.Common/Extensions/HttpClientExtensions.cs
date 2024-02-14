@@ -64,7 +64,6 @@ public static class HttpClientExtensions
                 response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions, cancellationToken);
         }
         //might not be expecting a response payload (Http Delete - TResponse = object)
-        //if (response == null) throw new InvalidOperationException("empty response");
         return (httpResponse, response);
     }
 

@@ -47,7 +47,7 @@ public class SampleApiRestClientTests : IntegrationTestBase
 
         //GET retrieve
         todoResponse = await svc.GetItemAsync(id);
-        Assert.AreEqual(todo.Name, todoResponse!.Name);
+        Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //DELETE
         await svc.DeleteItemAsync(id);
