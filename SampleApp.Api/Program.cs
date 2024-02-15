@@ -35,7 +35,7 @@ try
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
-    string env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
+    var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
     //configuration
     string? endpoint;
