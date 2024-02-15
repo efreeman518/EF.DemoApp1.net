@@ -59,7 +59,7 @@ public static class Utility
     {
         string key = typeof(TEntryPoint).FullName!;
         if (_factories.TryGetValue(key, out var result)) return (WebApplicationFactory<TEntryPoint>)result;
-        var factory = new CustomWebApplicationFactory<TEntryPoint>(); //must live for duration of the client
+        var factory = new SampleApiFactory<TEntryPoint>(); //must live for duration of the client
         _factories.TryAdd(key, factory); //hold for subsequent use
         return factory;
     }
