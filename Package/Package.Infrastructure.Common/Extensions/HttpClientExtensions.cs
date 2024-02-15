@@ -9,20 +9,24 @@ namespace Package.Infrastructure.Common.Extensions;
 public static class HttpClientExtensions
 {
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>
     /// HttpClient extension method. Sends the http request and parses the response in to expected TResponse structure
     /// </summary>
-    /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
     /// <param name="client"></param>
     /// <param name="method"></param>
     /// <param name="url"></param>
     /// <param name="payload"></param>
     /// <param name="headers"></param>
+    /// <param name="ensureSuccessStatusCode"></param>
+    /// <param name="throwOnException"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="HttpRequestException"></exception>
     public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TResponse>(this HttpClient client,
         System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null,
-        bool ensureSuccessStatusCode = true, CancellationToken cancellationToken = default)
+        bool ensureSuccessStatusCode = true, bool throwOnException = true, CancellationToken cancellationToken = default)
     {
         var httpRequest = new HttpRequestMessage(method, url);
         if (payload != null)
@@ -46,23 +50,36 @@ public static class HttpClientExtensions
         TResponse? response = default;
         using Stream s = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
 
-        if (typeof(TResponse).IsPrimitive)
+        if (httpResponse.IsSuccessStatusCode)
         {
-            string? val = null;
-            if (httpResponse.IsSuccessStatusCode)
+            if (s.Length > 0)
             {
-                StreamReader reader = new(s);
-                val = await reader.ReadToEndAsync(cancellationToken);
-                response = (TResponse)Convert.ChangeType(val, typeof(TResponse));
+                if (typeof(TResponse).IsPrimitive)
+                {
+                    StreamReader reader = new(s);
+                    string val = await reader.ReadToEndAsync(cancellationToken);
+                    response = (TResponse)Convert.ChangeType(val, typeof(TResponse));
+                }
+                else
+                {
+                    response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions, cancellationToken);
+                }
             }
-            else
-                throw new InvalidOperationException($"{httpResponse.StatusCode} - {val}");
         }
         else
         {
-            if (httpResponse.IsSuccessStatusCode && s.Length > 0)
-                response = await JsonSerializer.DeserializeAsync<TResponse>(s, _jsonSerializerOptions, cancellationToken);
+            string? val = null;
+            if (s.Length > 0)
+            {
+                StreamReader reader = new(s);
+                val = await reader.ReadToEndAsync(cancellationToken);
+            }
+            if (throwOnException)
+            {
+                throw new HttpRequestException($"{val}", null, httpResponse.StatusCode);
+            }
         }
+
         //might not be expecting a response payload (Http Delete - TResponse = object)
         return (httpResponse, response);
     }
