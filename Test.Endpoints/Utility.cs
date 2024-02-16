@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Concurrent;
 
 namespace Test.Endpoints;
@@ -40,7 +39,18 @@ public static class Utility
         return _config;
     }
 
-    public static HttpClient GetClient<TEntryPoint>(bool allowAutoRedirect = true, string baseAddress = "http://localhost")
+    public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    {
+        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
+        await factory.StartDbContainer();
+    }
+    public static async Task StopDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    {
+        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
+        await factory.StopDbContainer();
+    }
+
+    public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")
         where TEntryPoint : class
     {
         WebApplicationFactoryClientOptions options = new()
@@ -48,25 +58,29 @@ public static class Utility
             AllowAutoRedirect = allowAutoRedirect, //default = true; set to false for testing app's first response being a redirect with Location header
             BaseAddress = new Uri(baseAddress) //default = http://localhost
         };
-        var factory = GetFactory<TEntryPoint>(); //must live for duration of the client
+        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
         HttpClient client = factory.CreateClient(options);
 
         return client;
     }
 
-    private static WebApplicationFactory<TEntryPoint> GetFactory<TEntryPoint>()
+    private static SampleApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null)
         where TEntryPoint : class
     {
-        string key = typeof(TEntryPoint).FullName!;
-        if (_factories.TryGetValue(key, out var result)) return (WebApplicationFactory<TEntryPoint>)result;
+        factoryKey ??= typeof(TEntryPoint).FullName!;
+        if (_factories.TryGetValue(factoryKey, out var result)) return (SampleApiFactory<TEntryPoint>)result;
         var factory = new SampleApiFactory<TEntryPoint>(); //must live for duration of the client
-        _factories.TryAdd(key, factory); //hold for subsequent use
+        _factories.TryAdd(factoryKey, factory); //hold for subsequent use
         return factory;
     }
 
-    [ClassCleanup]
-    public static void ClassCleanup()
+    public static void Cleanup<TEntryPoint>(string? factoryKey = null)
     {
-        _factories.ToList().ForEach(f => (f.Value).Dispose());
+        factoryKey ??= typeof(TEntryPoint).FullName!;
+        if (_factories.TryGetValue(factoryKey, out var _))
+        {
+            _factories[factoryKey].Dispose();
+            _factories.TryRemove(factoryKey, out _);
+        }
     }
 }

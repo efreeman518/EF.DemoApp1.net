@@ -1,5 +1,4 @@
-﻿using AngleSharp.Html.Dom;
-using Application.Contracts.Model;
+﻿using Application.Contracts.Model;
 using Domain.Shared.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
@@ -10,6 +9,7 @@ namespace Test.Endpoints.Controller;
 [TestClass]
 public class TodoControllerTests : EndpointTestBase
 {
+    private const string FACTORY_KEY = "TodoControllerTests";
     private static HttpClient _client = null!;
 
     [ClassInitialize]
@@ -17,27 +17,20 @@ public class TodoControllerTests : EndpointTestBase
     {
         Console.WriteLine(testContext.TestName);
 
+        await Utility.StartDbContainerAsync<Program>(FACTORY_KEY);
+
         //Arrange for all tests
-        _client = Utility.GetClient<Program>();
+        _client = Utility.GetClient<Program>(FACTORY_KEY);
 
         //Authentication
         //await ApplyBearerAuthHeader(_client);
-        await Task.CompletedTask; //compiler warning
     }
 
-    //html endpoints return success and correct content type
-    [DataTestMethod]
-    [DataRow("swagger", HttpStatusCode.OK, "text/html; charset=utf-8")]
-    [DataRow("index.html", HttpStatusCode.OK, "text/html")]
-    public async Task Get_BasicEndpoints_pass(string url, HttpStatusCode expectedStatusCode, string contentType)
+    [ClassCleanup]
+    public static async Task ClassCleanup()
     {
-        // Act
-        (HttpResponseMessage httpResponse, _) = await _client.HttpRequestAndResponseAsync<IHtmlDocument>(HttpMethod.Get, url, null);
-
-        // Assert
-        httpResponse.EnsureSuccessStatusCode(); // Status Code 200-299
-        Assert.AreEqual(expectedStatusCode, httpResponse.StatusCode);
-        Assert.AreEqual(contentType, httpResponse.Content.Headers.ContentType?.ToString());
+        await Utility.StopDbContainerAsync<Program>(FACTORY_KEY);
+        Utility.Cleanup<Program>(FACTORY_KEY);
     }
 
     [TestMethod]

@@ -1,7 +1,9 @@
 ﻿using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace Test.Support;
 public static class Utility
@@ -23,6 +25,24 @@ public static class Utility
                 new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test.Unit" },
                 new("item3a", TodoItemStatus.Completed){ CreatedBy = "Test.Unit" }
         });
+    }
+
+    public static async Task SeedRawSql(TodoDbContextBase db, List<string> pathToSQL)
+    {
+        // Run seed scripts
+        pathToSQL.ForEach(async path =>
+        {
+            string[] files = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path), "*.sql");
+            Array.Sort(files);
+            foreach (var file in files)
+            {
+                Debug.Assert(true, "Attempt to seed with file {0}.", file);
+                var sql = File.ReadAllText(file);
+                await db.Database.ExecuteSqlRawAsync(sql);
+            }
+        });
+
+        await db.SaveChangesAsync();
     }
 
     public static List<TodoItem> TodoItemListFactory(int size, TodoItemStatus? status = null)

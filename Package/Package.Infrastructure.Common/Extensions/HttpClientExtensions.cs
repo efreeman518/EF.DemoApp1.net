@@ -135,7 +135,7 @@ public static class HttpClientExtensions
                 StreamReader reader = new(s);
                 val = await reader.ReadToEndAsync(cancellationToken);
             }
-            
+
             return (httpResponse, new Result<TResponse?>(new HttpRequestException(val ?? httpResponse.ReasonPhrase, null, httpResponse.StatusCode)));
         }
     }
