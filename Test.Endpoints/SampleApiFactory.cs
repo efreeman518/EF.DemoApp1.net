@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.BackgroundServices;
+using SampleApp.BackgroundServices.Scheduler;
 using Testcontainers.MsSql;
 
 namespace Test.Endpoints;
@@ -52,6 +54,11 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
             })
             .ConfigureTestServices(services =>
             {
+                //remove unneeded services
+                //var dbContextDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(CronBackgroundService<CronJobSettings>));
+                //services.Remove(dbContextDescriptor);
+
+                //DB replacement
                 var dbSource = config.GetValue<string?>("DBSource", null);
 
                 //if dbSource is null, use the api defined DbContext/DB

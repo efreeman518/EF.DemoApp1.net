@@ -19,13 +19,6 @@ public static class Utility
     /// <returns></returns>
     public static IConfigurationRoot BuildConfiguration()
     {
-        //order matters here (last wins)
-        //var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-        //    .AddJsonFile("appsettings.json", false) //from api
-        //    .AddEnvironmentVariables();
-
-        //_config = builder.Build();
-
         var builder = Support.Utility.BuildConfiguration();
         var config = builder.Build();
         string env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
@@ -60,13 +53,24 @@ public static class Utility
         return client;
     }
 
+    private readonly static object _lockFactories = new();
     private static SampleApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null)
         where TEntryPoint : class
     {
         factoryKey ??= typeof(TEntryPoint).FullName!;
-        if (_factories.TryGetValue(factoryKey, out var result)) return (SampleApiFactory<TEntryPoint>)result;
-        var factory = new SampleApiFactory<TEntryPoint>(); //must live for duration of the client
-        _factories.TryAdd(factoryKey, factory); //hold for subsequent use
+        SampleApiFactory<TEntryPoint> factory;
+        if (_factories.TryGetValue(factoryKey, out var result))  return (SampleApiFactory<TEntryPoint>)result;
+
+        lock (_lockFactories)
+        {
+            if (_factories.TryGetValue(factoryKey, out result)) 
+                factory = (SampleApiFactory<TEntryPoint>)result;
+            else
+            {
+                factory = new SampleApiFactory<TEntryPoint>(); //must live for duration of the client
+                _factories.TryAdd(factoryKey, factory); //hold for subsequent use
+            }
+        }
         return factory;
     }
 
