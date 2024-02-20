@@ -99,9 +99,7 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
                 var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
                 var logger = scopedServices.GetRequiredService<ILogger<SampleApiFactory<TProgram>>>();
 
-
                 db.Database.EnsureCreated(); //does not use migrations
-
                 //Environment.SetEnvironmentVariable("AKVCMKURL", "");
                 //db.Database.Migrate(); //needs AKVCMKURL env var set
 

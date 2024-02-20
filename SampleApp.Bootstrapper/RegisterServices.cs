@@ -134,7 +134,7 @@ public static class IServiceCollectionExtensions
 
         //Infrastructure Services
 
-        //DB config change token
+        //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/change-tokens?view=aspnetcore-8.0
         //services.AddSingleton<IDatabaseConfigurationChangeToken, DatabaseChangeToken>();
 
         //EF-sql repositories
@@ -185,6 +185,7 @@ public static class IServiceCollectionExtensions
                         //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
                         //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                     })
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 );
 
             if (!_keyStoreProviderRegistered)

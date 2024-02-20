@@ -12,27 +12,6 @@ public class TodoControllerTests : EndpointTestBase
     private const string FACTORY_KEY = "TodoControllerTests";
     private static HttpClient _client = null!;
 
-    [ClassInitialize]
-    public static async Task ClassInit(TestContext testContext)
-    {
-        Console.WriteLine(testContext.TestName);
-
-        await Utility.StartDbContainerAsync<Program>(FACTORY_KEY);
-
-        //Arrange for all tests
-        _client = Utility.GetClient<Program>(FACTORY_KEY);
-
-        //Authentication
-        //await ApplyBearerAuthHeader(_client);
-    }
-
-    [ClassCleanup]
-    public static async Task ClassCleanup()
-    {
-        await Utility.StopDbContainerAsync<Program>(FACTORY_KEY);
-        Utility.Cleanup<Program>(FACTORY_KEY);
-    }
-
     [TestMethod]
     public async Task CRUD_pass()
     {
@@ -71,6 +50,26 @@ public class TodoControllerTests : EndpointTestBase
         //GET (NotFound) - ensure deleted
         (httpResponse, _) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
+    }
 
+    [ClassInitialize]
+    public static async Task ClassInit(TestContext testContext)
+    {
+        Console.WriteLine(testContext.TestName);
+
+        await Utility.StartDbContainerAsync<Program>(FACTORY_KEY);
+
+        //Arrange for all tests
+        _client = Utility.GetClient<Program>(FACTORY_KEY);
+
+        //Authentication
+        //await ApplyBearerAuthHeader(_client);
+    }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await Utility.StopDbContainerAsync<Program>(FACTORY_KEY);
+        Utility.Cleanup<Program>(FACTORY_KEY);
     }
 }

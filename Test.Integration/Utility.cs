@@ -4,21 +4,15 @@ namespace Test.Integration;
 
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config = BuildConfiguration();
-
-    static Utility()
-    {
-    }
+    public static readonly IConfigurationRoot Config = Config ?? BuildConfiguration();
 
     private static IConfigurationRoot BuildConfiguration()
     {
-        //var devEnvironmentVariable = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-        //var isDevelopment = devEnvironmentVariable?.ToLower() == "development";
-
         var builder = Support.Utility.BuildConfiguration();
-        builder.AddUserSecrets<IntegrationTestBase>();
-        IConfigurationRoot config = builder.Build();
-        return config;
+        var config = builder.Build();
+        string env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
+        var isDevelopment = env?.ToLower() == "development";
+        if (isDevelopment) builder.AddUserSecrets<IntegrationTestBase>();
+        return builder.Build();
     }
-
 }

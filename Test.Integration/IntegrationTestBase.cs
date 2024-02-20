@@ -1,15 +1,20 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using SampleApp.Bootstrapper;
+using Testcontainers.MsSql;
 
 namespace Test.Integration;
 
 /// <summary>
 /// Testing Application and Domain services and logic; not http endpoints
 /// </summary>
+[TestClass]
 public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
@@ -18,10 +23,13 @@ public abstract class IntegrationTestBase
     protected readonly IServiceProvider Services;
     protected readonly ILogger<IntegrationTestBase> Logger;
 
+    //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
+    public static readonly MsSqlContainer _dbContainer = new MsSqlBuilder().Build();
+
     protected IntegrationTestBase()
     {
-        //DI
-        ServiceCollection services = new();
+        //Services for DI
+        ServiceCollection services = [];
 
         var loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -36,9 +44,66 @@ public abstract class IntegrationTestBase
             .RegisterDomainServices(Config)
             .RegisterApplicationServices(Config);
 
-        //add logging for integration tests
-        //services.AddApplicationInsightsTelemetryWorkerService(Config);
-        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
+        //replace api registered services with test versions
+        var dbSource = Config.GetValue<string?>("TestSettings:DBSource", null);
+
+        //if dbSource is null, use the api defined DbContext/DB
+        if (!string.IsNullOrEmpty(dbSource))
+        {
+            services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
+            services.RemoveAll(typeof(TodoDbContextTrxn));
+            services.AddDbContext<TodoDbContextTrxn>(options =>
+            {
+                if (dbSource == "TestContainer")
+                {
+                    //use sql server test container
+                    options.UseSqlServer(_dbContainer.GetConnectionString(),
+                        //retry strategy does not support user initiated transactions 
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                        });
+                }
+                else if (dbSource == "UseInMemoryDatabase")
+                {
+                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
+                }
+                else
+                {
+                    options.UseSqlServer(dbSource,
+                        //retry strategy does not support user initiated transactions 
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                        });
+                }
+            }, ServiceLifetime.Singleton); 
+        }
+
+        var sp = services.BuildServiceProvider();
+        using var scope = sp.CreateScope();
+        var scopedServices = scope.ServiceProvider;
+
+        var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
+        db.Database.EnsureCreated();
+
+        //Seed Data
+        if (Config.GetValue("TestSettings:SeedData", false))
+        {
+            try
+            {
+                Support.Utility.SeedDefaultEntityData(db);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred seeding the database with test data. Error: {ex.Message}");
+            }
+        }
+
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         services.AddTransient<IRequestContext<string>>(provider =>
@@ -50,7 +115,8 @@ public abstract class IntegrationTestBase
         //build IServiceProvider for subsequent use finding/injecting services
         Services = services.BuildServiceProvider(validateScopes: true);
 
-        //logging
+        //add logging for integration tests
+        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
         Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
 
         Logger.Log(LogLevel.Information, "Test Initialized.");
@@ -61,5 +127,4 @@ public abstract class IntegrationTestBase
     {
         ctx.GetHashCode();
     }
-
 }

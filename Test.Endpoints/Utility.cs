@@ -10,30 +10,29 @@ namespace Test.Endpoints;
 /// </summary>
 public static class Utility
 {
-    private static IConfigurationRoot? _config = null;
+    public static readonly IConfigurationRoot Config = Config ?? BuildConfiguration();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
     /// <summary>
     /// The api doesn't expose its configuration, so get it here if needed
     /// </summary>
     /// <returns></returns>
-    public static IConfigurationRoot GetConfiguration()
+    public static IConfigurationRoot BuildConfiguration()
     {
-        if (_config != null) return _config;
-
         //order matters here (last wins)
-        var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", false) //from api
-            .AddEnvironmentVariables();
+        //var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+        //    .AddJsonFile("appsettings.json", false) //from api
+        //    .AddEnvironmentVariables();
 
-        _config = builder.Build();
-        string env = _config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
-        builder.AddJsonFile($"appsettings.{env}.json", true);
+        //_config = builder.Build();
+
+        var builder = Support.Utility.BuildConfiguration();
+        var config = builder.Build();
+        string env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
         var isDevelopment = env?.ToLower() == "development";
         if (isDevelopment) builder.AddUserSecrets<EndpointTestBase>();
         builder.AddJsonFile("appsettings-test.json", true); //test project settings file
-        _config = builder.Build();
-        return _config;
+        return builder.Build();
     }
 
     public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class

@@ -11,7 +11,7 @@ namespace Test.Endpoints;
 [TestClass]
 public abstract class EndpointTestBase
 {
-    protected readonly IConfigurationRoot _config = Utility.GetConfiguration();
+    protected readonly IConfigurationRoot _config = Utility.Config;
     protected readonly IAppCache _appcache;
     protected readonly IOAuth2TokenProvider _tokenProvider;
 

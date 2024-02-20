@@ -98,4 +98,15 @@ public class TodoServiceTests : IntegrationTestBase
         Assert.IsTrue(result.IsFaulted);
     }
 
+    [ClassInitialize]
+    public static async Task ClassInit(TestContext testContext)
+    {
+        await _dbContainer.StartAsync();
+    }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await _dbContainer.StopAsync();
+    }
 }
