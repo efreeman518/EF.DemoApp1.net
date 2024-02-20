@@ -35,50 +35,63 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         //The SUT's services (repos, DbContext, etc) are registered in its Startup.ConfigureServices method.
-        //The test app's builder.ConfigureServices callback is executed after the app's Startup.ConfigureServices code is executed.
+        //The test app's builder.ConfigureTestServices callback is executed after the app's Startup.ConfigureServices code is executed.
         //To use a different service for the tests, the app's service must be replaced here in builder.ConfigureServices
         //This methed enables replacing the endpoint project's registered services with test-purposed services
 
-        builder.ConfigureAppConfiguration(config =>
-        {
-            // Add custom configuration sources
-            config.AddJsonFile("appsettings.json", optional: false);
-            config.AddEnvironmentVariables(prefix: "ASPNETCORE_");
-        });
+        IConfiguration config = null!;
 
-        string env = Utility.GetConfiguration().GetValue<string>("Environment", "Development")!;
+        string env = builder.GetSetting("ASPNETCORE_ENVIRONMENT") ?? "Development"; // Utility.GetConfiguration().GetValue<string>("Environment", "Development")!;
         builder
             .UseEnvironment(env)
+            .ConfigureAppConfiguration((hostingContext, configuration) =>
+            {
+                //override api settings with test settings
+                configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(),"appsettings-test.json"));
+                config = configuration.Build();//get config for use here
+            })
             .ConfigureTestServices(services =>
             {
-                services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
-                services.AddDbContext<TodoDbContextTrxn>(options =>
+                var dbSource = config.GetValue<string?>("DBSource", null);
+
+                //if dbSource is null, use the api defined DbContext/DB
+                if (!string.IsNullOrEmpty(dbSource))
                 {
-                    //use sql server test container
-                    options.UseSqlServer(_dbContainer.GetConnectionString(),
-                        //retry strategy does not support user initiated transactions 
-                        sqlServerOptionsAction: sqlOptions =>
+                    services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
+                    services.RemoveAll(typeof(TodoDbContextTrxn));
+                    services.AddDbContext<TodoDbContextTrxn>(options =>
+                    {
+
+                        if (dbSource == "TestContainer")
                         {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                        });
+                            //use sql server test container
+                            options.UseSqlServer(_dbContainer.GetConnectionString(),
+                                //retry strategy does not support user initiated transactions 
+                                sqlServerOptionsAction: sqlOptions =>
+                                {
+                                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                                    errorNumbersToAdd: null);
+                                });
+                        }
+                        else if (dbSource == "UseInMemoryDatabase")
+                        {
+                            options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
+                        }
+                        else
+                        {
+                            options.UseSqlServer(dbSource,
+                                //retry strategy does not support user initiated transactions 
+                                sqlServerOptionsAction: sqlOptions =>
+                                {
+                                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                                    errorNumbersToAdd: null);
+                                });
+                        }
 
-                    //use in memory db
-                    //options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
-
-                    //use a different sql db for test
-                    //options.UseSqlServer(connectionString,
-                    //    //retry strategy does not support user initiated transactions 
-                    //    sqlServerOptionsAction: sqlOptions =>
-                    //    {
-                    //        sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                    //        maxRetryDelay: TimeSpan.FromSeconds(30),
-                    //        errorNumbersToAdd: null);
-                    //    });
-
-                }, ServiceLifetime.Singleton); //enables injection; otherwise AddDbContext is scoped and there is no scope
-
+                    }, ServiceLifetime.Singleton); //enables injection; otherwise AddDbContext is scoped and there is no scope
+                }
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var scopedServices = scope.ServiceProvider;
@@ -86,7 +99,11 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
                 var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
                 var logger = scopedServices.GetRequiredService<ILogger<SampleApiFactory<TProgram>>>();
 
-                db.Database.EnsureCreated();
+
+                db.Database.EnsureCreated(); //does not use migrations
+
+                //Environment.SetEnvironmentVariable("AKVCMKURL", "");
+                //db.Database.Migrate(); //needs AKVCMKURL env var set
 
                 //Seed DbContext replacement
                 try

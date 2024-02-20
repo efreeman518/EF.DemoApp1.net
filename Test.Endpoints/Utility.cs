@@ -13,29 +13,26 @@ public static class Utility
     private static IConfigurationRoot? _config = null;
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
+    /// <summary>
+    /// The api doesn't expose its configuration, so get it here if needed
+    /// </summary>
+    /// <returns></returns>
     public static IConfigurationRoot GetConfiguration()
     {
         if (_config != null) return _config;
 
         //order matters here (last wins)
         var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettingsPre.json", true) //test project settings
-            .AddJsonFile("appsettings.json", false); //from api
+            .AddJsonFile("appsettings.json", false) //from api
+            .AddEnvironmentVariables();
 
-        IConfigurationRoot config = builder.Build();
-        string env = config.GetValue<string>("Environment", "Development")!;
-        var isDevelopment = env?.ToLower() == "development";
-        if (env != null)
-        {
-            builder.AddJsonFile($"appsettings.{env}.json", true);
-        }
-        builder
-            .AddJsonFile("appsettingsPost.json", true) //test project override any api settings
-            .AddEnvironmentVariables(); //pipeline can override settings
-
-        if (isDevelopment) builder.AddUserSecrets<EndpointTestBase>();
         _config = builder.Build();
-
+        string env = _config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
+        builder.AddJsonFile($"appsettings.{env}.json", true);
+        var isDevelopment = env?.ToLower() == "development";
+        if (isDevelopment) builder.AddUserSecrets<EndpointTestBase>();
+        builder.AddJsonFile("appsettings-test.json", true); //test project settings file
+        _config = builder.Build();
         return _config;
     }
 
