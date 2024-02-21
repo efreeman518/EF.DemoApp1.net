@@ -45,8 +45,7 @@ ALTER ROLE [role-appname-user/admin-env] ADD MEMBER [appname-user/admin-env];
 select m.name as Member, r.name as Role
 from sys.database_role_members
 inner join sys.database_principals m on sys.database_role_members.member_principal_id = m.principal_id
-inner join sys.database_principals r on sys.database_role_members.role_principal_id = r.principal_idUSE [targetDB]; 
-ALTER USER [targetDBUser] WITH login = [server-login];
+inner join sys.database_principals r on sys.database_role_members.role_principal_id = r.principal_id
 
 /*
 For replicated backup databases - must create server logins synced with DB (not needed for contained users)
