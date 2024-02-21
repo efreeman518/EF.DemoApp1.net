@@ -81,7 +81,7 @@ public abstract class IntegrationTestBase
                             errorNumbersToAdd: null);
                         });
                 }
-            }, ServiceLifetime.Singleton); 
+            }, ServiceLifetime.Singleton);
         }
 
         var sp = services.BuildServiceProvider();

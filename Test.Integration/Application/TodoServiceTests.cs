@@ -72,7 +72,6 @@ public class TodoServiceTests : IntegrationTestBase
         {
             Assert.IsTrue(ex != null);
         }
-
     }
 
     [DataTestMethod]
@@ -101,6 +100,7 @@ public class TodoServiceTests : IntegrationTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
+        Console.WriteLine(testContext.TestName);
         await _dbContainer.StartAsync();
     }
 

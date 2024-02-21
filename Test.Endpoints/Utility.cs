@@ -59,11 +59,11 @@ public static class Utility
     {
         factoryKey ??= typeof(TEntryPoint).FullName!;
         SampleApiFactory<TEntryPoint> factory;
-        if (_factories.TryGetValue(factoryKey, out var result))  return (SampleApiFactory<TEntryPoint>)result;
+        if (_factories.TryGetValue(factoryKey, out var result)) return (SampleApiFactory<TEntryPoint>)result;
 
         lock (_lockFactories)
         {
-            if (_factories.TryGetValue(factoryKey, out result)) 
+            if (_factories.TryGetValue(factoryKey, out result))
                 factory = (SampleApiFactory<TEntryPoint>)result;
             else
             {

@@ -13,8 +13,8 @@ public static class Utility
     {
         //order matters here (last wins)
         var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
-        if(path != null) builder.AddJsonFile(path);
-        if(includeEnvironmentVars) builder.AddEnvironmentVariables();
+        if (path != null) builder.AddJsonFile(path);
+        if (includeEnvironmentVars) builder.AddEnvironmentVariables();
 
         var config = builder.Build();
         string env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;

@@ -8,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.BackgroundServices;
-using SampleApp.BackgroundServices.Scheduler;
 using Testcontainers.MsSql;
 
 namespace Test.Endpoints;
@@ -49,14 +47,13 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
             .ConfigureAppConfiguration((hostingContext, configuration) =>
             {
                 //override api settings with test settings
-                configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(),"appsettings-test.json"));
+                configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings-test.json"));
                 config = configuration.Build();//get config for use here
             })
             .ConfigureTestServices(services =>
             {
                 //remove unneeded services
-                //var dbContextDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(CronBackgroundService<CronJobSettings>));
-                //services.Remove(dbContextDescriptor);
+                services.RemoveAll<IHostedService>();
 
                 //DB replacement
                 var dbSource = config.GetValue<string?>("DBSource", null);
