@@ -26,15 +26,21 @@ public class BasicEndpointsTests : EndpointTestBase
         Assert.AreEqual(contentType, httpResponse.Content.Headers.ContentType?.ToString());
     }
 
+    //reset db after each test
+    [TestCleanup]
+    public async Task TestCleanup() => await ApiFactoryManager.ResetDatabaseAsync<Program>(FACTORY_KEY);
+
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
         Console.WriteLine(testContext.TestName);
 
-        await Utility.StartDbContainerAsync<Program>(FACTORY_KEY);
+        await ApiFactoryManager.StartDbContainerAsync<Program>(FACTORY_KEY);
 
         //Arrange for all tests in this class
-        _client = Utility.GetClient<Program>(FACTORY_KEY);
+        _client = ApiFactoryManager.GetClient<Program>(FACTORY_KEY);
+
+        await ApiFactoryManager.InitializeRespawnerAsync<Program>(FACTORY_KEY);
 
         //Authentication
         //await ApplyBearerAuthHeader(_client);
@@ -43,7 +49,7 @@ public class BasicEndpointsTests : EndpointTestBase
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        await Utility.StopDbContainerAsync<Program>(FACTORY_KEY);
-        Utility.Cleanup<Program>(FACTORY_KEY);
+        await ApiFactoryManager.StopDbContainerAsync<Program>(FACTORY_KEY);
+        ApiFactoryManager.Cleanup<Program>(FACTORY_KEY);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
 
 namespace Test.Endpoints;
@@ -8,9 +7,9 @@ namespace Test.Endpoints;
 /// Uses WebApplicationFactory to create a test http service which can be hit using httpclient
 /// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
 /// </summary>
-public static class Utility
+public static class ApiFactoryManager
 {
-    public static readonly IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
+    //public static readonly IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
     public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
@@ -18,10 +17,23 @@ public static class Utility
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
         await factory.StartDbContainer();
     }
+
     public static async Task StopDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
         await factory.StopDbContainer();
+    }
+
+    public static async Task InitializeRespawnerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    {
+        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
+        await factory.InitializeRespawner();
+    }
+
+    public static async Task ResetDatabaseAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    {
+        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
+        await factory.ResetDatabase();
     }
 
     public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")
@@ -33,29 +45,20 @@ public static class Utility
             BaseAddress = new Uri(baseAddress) //default = http://localhost
         };
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        HttpClient client = factory.CreateClient(options);
+        HttpClient client = factory.CreateClient(options); //could reuse the client
 
         return client;
     }
 
-    private readonly static object _lockFactories = new();
-    private static SampleApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null)
+    private static CustomApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null)
         where TEntryPoint : class
     {
         factoryKey ??= typeof(TEntryPoint).FullName!;
-        SampleApiFactory<TEntryPoint> factory;
-        if (_factories.TryGetValue(factoryKey, out var result)) return (SampleApiFactory<TEntryPoint>)result;
+        CustomApiFactory<TEntryPoint> factory;
+        if (_factories.TryGetValue(factoryKey, out var result)) return (CustomApiFactory<TEntryPoint>)result;
 
-        lock (_lockFactories)
-        {
-            if (_factories.TryGetValue(factoryKey, out result))
-                factory = (SampleApiFactory<TEntryPoint>)result;
-            else
-            {
-                factory = new SampleApiFactory<TEntryPoint>(); //must live for duration of the client
-                _factories.TryAdd(factoryKey, factory); //hold for subsequent use
-            }
-        }
+        factory = new CustomApiFactory<TEntryPoint>(); //must live for duration of the client
+        _factories.TryAdd(factoryKey, factory); //hold for subsequent use
         return factory;
     }
 

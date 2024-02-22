@@ -11,7 +11,7 @@ namespace Test.Endpoints;
 [TestClass]
 public abstract class EndpointTestBase
 {
-    protected readonly IConfigurationRoot _config = Utility.Config;
+    protected static readonly IConfigurationRoot _config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     protected readonly IAppCache _appcache;
     protected readonly IOAuth2TokenProvider _tokenProvider;
 
@@ -39,4 +39,5 @@ public abstract class EndpointTestBase
         var token = await _tokenProvider.GetAccessTokenAsync(scopes);
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
+
 }

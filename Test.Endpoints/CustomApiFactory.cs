@@ -2,12 +2,16 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Respawn;
+using Respawn.Graph;
+using System.Data.Common;
 using Testcontainers.MsSql;
 
 namespace Test.Endpoints;
@@ -16,16 +20,36 @@ namespace Test.Endpoints;
 /// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
 /// </summary>
 /// <typeparam name="TProgram"></typeparam>
-public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
-    where TProgram : class
+public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder().Build();
 
+    private DbConnection _dbConnection = null!;
+    private Respawner _respawner = null!;
+
     public async Task StartDbContainer()
     {
         await _dbContainer.StartAsync();
+        _dbConnection = new SqlConnection(_dbContainer.GetConnectionString());
     }
+
+    public async Task InitializeRespawner()
+    {
+        await _dbConnection.OpenAsync();
+        _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.SqlServer,
+            SchemasToInclude = ["todo"],
+            TablesToIgnore = [new Table("__EFMigrationsHistory")]
+        });
+    }
+
+    public async Task ResetDatabase()
+    {
+        await _respawner.ResetAsync(_dbConnection);
+    }
+
     public async Task StopDbContainer()
     {
         await _dbContainer.StopAsync();
@@ -101,7 +125,7 @@ public class SampleApiFactory<TProgram> : WebApplicationFactory<TProgram>
                 var scopedServices = scope.ServiceProvider;
 
                 var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
-                var logger = scopedServices.GetRequiredService<ILogger<SampleApiFactory<TProgram>>>();
+                var logger = scopedServices.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
 
                 db.Database.EnsureCreated(); //does not use migrations
                 //Environment.SetEnvironmentVariable("AKVCMKURL", "");
