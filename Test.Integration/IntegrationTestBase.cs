@@ -19,7 +19,7 @@ public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
 
-    protected readonly static IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
+    protected readonly static IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
 
     protected readonly IServiceProvider Services;
     protected readonly ILogger<IntegrationTestBase> Logger;

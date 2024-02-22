@@ -10,7 +10,7 @@ namespace Test.Endpoints;
 /// </summary>
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
+    public static readonly IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
     public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
