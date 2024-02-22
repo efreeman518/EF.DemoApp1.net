@@ -12,13 +12,14 @@ namespace Test.UI;
 [TestClass]
 public abstract class SeleniumTestBase : IDisposable
 {
-    protected IConfigurationRoot _config;
+    public readonly static IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().Build();
+    //protected IConfigurationRoot _config;
     protected IWebDriver _webDriver;
     protected WebDriverWait _waitMax10Seconds;
 
     protected SeleniumTestBase()
     {
-        _config = Support.Utility.BuildConfiguration().Build();
+        //_config = Support.Utility.BuildConfiguration().Build();
 
         //https://github.com/rosolko/WebDriverManager.Net
         //new DriverManager().SetUpDriver(new ChromeConfig());

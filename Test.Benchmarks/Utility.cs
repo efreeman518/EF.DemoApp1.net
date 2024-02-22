@@ -7,7 +7,7 @@ namespace Test.Benchmarks;
 
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config = BuildConfiguration();
+    public static readonly IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().Build();
     private static readonly IServiceCollection _services = new ServiceCollection();
     private static IServiceProvider? ServiceProvider;
 
@@ -21,20 +21,6 @@ public static class Utility
 
         //configure & register Automapper, application and infrastructure mapping profiles
         ConfigureAutomapper.Configure(_services);
-    }
-
-    private static IConfigurationRoot BuildConfiguration()
-    {
-        var devEnvironmentVariable = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-        var isDevelopment = devEnvironmentVariable?.ToLower() == "development";
-
-        var builder = Support.Utility.BuildConfiguration();
-
-        if (isDevelopment) builder.AddUserSecrets<Program>();
-
-        IConfigurationRoot config = builder.Build();
-
-        return config;
     }
 
     public static IServiceCollection GetServiceCollection()

@@ -10,23 +10,8 @@ namespace Test.Endpoints;
 /// </summary>
 public static class Utility
 {
-    public static readonly IConfigurationRoot Config = Config ?? BuildConfiguration();
+    public static readonly IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
-
-    /// <summary>
-    /// The api doesn't expose its configuration, so get it here if needed
-    /// </summary>
-    /// <returns></returns>
-    public static IConfigurationRoot BuildConfiguration()
-    {
-        var builder = Support.Utility.BuildConfiguration();
-        var config = builder.Build();
-        string env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT", "Development")!;
-        var isDevelopment = env?.ToLower() == "development";
-        if (isDevelopment) builder.AddUserSecrets<EndpointTestBase>();
-        builder.AddJsonFile("appsettings-test.json", true); //test project settings file
-        return builder.Build();
-    }
 
     public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
     {

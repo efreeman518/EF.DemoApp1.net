@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Grpc;
-using Test.Console;
 using SampleAppGrpc = SampleApp.Grpc.Proto;
 using SampleAppModel = Application.Contracts.Model;
 
@@ -21,8 +20,7 @@ using var loggerFactory = LoggerFactory.Create(builder =>
     builder.AddApplicationInsights();
 });
 var logger = loggerFactory.CreateLogger<Program>()!;
-
-var config = Utility.Config;
+var config = Test.Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
 
 //DI
 IServiceCollection services = new ServiceCollection();

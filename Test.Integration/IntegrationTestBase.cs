@@ -19,7 +19,8 @@ public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
 
-    protected static IConfigurationRoot Config => Utility.Config;
+    protected readonly static IConfigurationRoot Config = Config ?? Support.Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
+
     protected readonly IServiceProvider Services;
     protected readonly ILogger<IntegrationTestBase> Logger;
 
@@ -47,7 +48,7 @@ public abstract class IntegrationTestBase
         //replace api registered services with test versions
         var dbSource = Config.GetValue<string?>("TestSettings:DBSource", null);
 
-        //if dbSource is null, use the api defined DbContext/DB
+        //if dbSource is null, use the api defined DbContext/DB, otherwise switch out the DB here
         if (!string.IsNullOrEmpty(dbSource))
         {
             services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));

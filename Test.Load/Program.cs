@@ -4,5 +4,6 @@ using Test.Load;
 
 Console.WriteLine("Load Tester");
 
-string baseUrl = Utility.Config.GetValue<string>("SampleApi:BaseUrl")!;
+var config = Test.Support.Utility.BuildConfiguration().Build();
+string baseUrl = config.GetValue<string>("SampleApi:BaseUrl")!;
 TodoLoadTest.Run(baseUrl);
