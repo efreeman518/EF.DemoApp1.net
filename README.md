@@ -12,13 +12,16 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 # Run tests
 * Test projects (MSTest) include:
 	* Test.Unit - unit tests using in-memory DBContext, [CleanMoq](https://github.com/hassanhabib/CleanMoq), mutation testing using [Stryker.Net](https://stryker-mutator.io/) see stryker-config.json
-	* Test.Integration - integration tests
+	* Test.Integration - integration tests, optionally spin up SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
 	* Test.UI - browser UI tests using [Selenium](https://selenium.dev/)
 	* Test.SpecFlow.Specs - BDD tests using [SpecFlow](https://specflow.org/) and [Selenium](https://selenium.dev/)
-	* Test.Endpoints - api endpoint testing using MS [WebApplicationFactory](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests)
+	* Test.Endpoints - api endpoint testing using MS [WebApplicationFactory](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests) and SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
 	* Test.Load - load testing using [NBomber](https://nbomber.com/)
 	* Test.Benchmarks - benchmark testing using [BenchmarkDotNet](https://benchmarkdotnet.org/)
 	* Test.Console - console app tester for manually hitting enpoints
+
+* Test.Integration, Test.Endpoints can be configured to spin up a DB container which requires a local container environment [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
 * Some tests are ignored by default because they require further setup/integration
 	* Test.UI, Test.SpecFlow.Specs (UI feature) tests use Selenium which requires the appropriate versions of Chrome and Edge. 
 	* Test.Load, Test.UI, Test.SpecFlow.Specs (UI feature) require the app to be running in order to run the Load & Selenium UI tests. Load and run the solution in one VS, load into another VS to run the UI dependent tests.
@@ -28,7 +31,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 	* KeyVaultManagerTests needs an Azure KeyVault
 	* RapidApi tests require credentials (key & host headers) - https://rapidapi.com/ (free account)
 	* OpenAI Api tests require credentials (key) - https://platform.openai.com/docs/introduction/overview (paid account)
-   
+
 # Azure Functions App
 * Running the Azure Functions project requires various integrations set up
 * Blob/Queue Functions - run Azurite or a real storage account
