@@ -18,7 +18,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 	* Test.Endpoints - api endpoint testing using MS [WebApplicationFactory](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests) and SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
 	* Test.Load - load testing using [NBomber](https://nbomber.com/)
 	* Test.Benchmarks - benchmark testing using [BenchmarkDotNet](https://benchmarkdotnet.org/)
-	* Test.Console - console app tester for manually hitting enpoints
+	* Test.Console - console app tester for manually hitting the api http & gRPC enpoints
 
 * Test.Integration, Test.Endpoints can be configured to spin up a DB container which requires a local container environment [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
