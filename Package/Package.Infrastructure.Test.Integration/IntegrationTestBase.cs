@@ -87,13 +87,18 @@ public abstract class IntegrationTestBase
             }
 
             //KeyVault
-            configSection = Config.GetSection("KeyVaultManager1");
+            configSection = Config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
             if (configSection.Exists())
             {
                 var akvUrl = configSection.GetValue<string>("VaultUrl")!;
-                builder.AddSecretClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
-                builder.AddKeyClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
-                builder.AddCertificateClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
+                var name = configSection.GetValue<string>("KeyVaultClientName")!;
+                builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
+                builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
+                builder.AddCertificateClient(new Uri(akvUrl)).WithName(name);
+
+                //wrapper for key vault sdks
+                services.Configure<KeyVaultManager1Settings>(configSection);
+                services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
             }
         });
 
@@ -121,13 +126,7 @@ public abstract class IntegrationTestBase
             services.Configure<EventGridPublisherSettings1>(configSection);
         }
 
-        //KeyVaultManager
-        configSection = Config.GetSection(KeyVaultManagerSettings1.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
-            services.Configure<KeyVaultManagerSettings1>(configSection);
-        }
+
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
         var connectionString = Config.GetConnectionString("CosmosClient1");
