@@ -90,10 +90,10 @@ public abstract class IntegrationTestBase
             configSection = Config.GetSection("KeyVaultManager1");
             if (configSection.Exists())
             {
-                //(w/DefaultAzureCredential)
-                builder.AddSecretClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
-                builder.AddKeyClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
-                builder.AddCertificateClient(new Uri(configSection.GetValue<string>("VaultUrl")!)).WithName("KeyVaultManager1");
+                var akvUrl = configSection.GetValue<string>("VaultUrl")!;
+                builder.AddSecretClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
+                builder.AddKeyClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
+                builder.AddCertificateClient(new Uri(akvUrl)).WithName("KeyVaultManager1");
             }
         });
 
