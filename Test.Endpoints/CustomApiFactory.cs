@@ -34,6 +34,10 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
         _dbConnection = new SqlConnection(_dbContainer.GetConnectionString());
     }
 
+    /// <summary>
+    /// https://github.com/jbogard/Respawn
+    /// </summary>
+    /// <returns></returns>
     public async Task InitializeRespawner()
     {
         await _dbConnection.OpenAsync();
