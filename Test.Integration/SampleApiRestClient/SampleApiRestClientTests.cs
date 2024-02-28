@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Integration.Application;
 
-[Ignore("SampleApi must be running somewhere with any credentials required in config settings.")]
+[Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
 [TestClass]
 public class SampleApiRestClientTests : IntegrationTestBase
@@ -20,7 +20,7 @@ public class SampleApiRestClientTests : IntegrationTestBase
     {
         //arrange
         string name = $"Todo-a-{Guid.NewGuid()}";
-        var todo = new TodoItemDto(Guid.Empty, name, TodoItemStatus.Created);
+        var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
         //arrange
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
@@ -33,7 +33,7 @@ public class SampleApiRestClientTests : IntegrationTestBase
         Assert.IsNotNull(todoResponse);
 
         if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
-        Assert.IsTrue(id != Guid.Empty);
+        Assert.IsNotNull(id);
 
         //GET retrieve
         todoResponse = await svc.GetItemAsync(id);
@@ -53,13 +53,19 @@ public class SampleApiRestClientTests : IntegrationTestBase
         await svc.DeleteItemAsync(id);
 
         //GET (NotFound) - ensure deleted - NotFound exception expected
-        try
-        {
-            todoResponse = await svc.GetItemAsync(id);
-        }
-        catch (Exception ex)
-        {
-            Assert.IsNotNull(ex);
-        }
+        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await svc.GetItemAsync(id));
+    }
+
+    [ClassInitialize]
+    public static async Task ClassInit(TestContext testContext)
+    {
+        Console.WriteLine(testContext.TestName);
+        await _dbContainer.StartAsync();
+    }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await _dbContainer.StopAsync();
     }
 }

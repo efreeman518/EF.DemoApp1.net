@@ -5,7 +5,6 @@ using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Common.Exceptions;
 
 namespace Test.Integration.Application;
 
@@ -63,15 +62,9 @@ public class TodoServiceTests : IntegrationTestBase
         //delete
         await svc.DeleteItemAsync(id);
 
-        //ensure NotFoundException after delete
-        try
-        {
-            _ = svc.GetItemAsync(id);
-        }
-        catch (NotFoundException ex)
-        {
-            Assert.IsTrue(ex != null);
-        }
+        //ensure null after delete
+        todo = await svc.GetItemAsync(id);
+        Assert.IsNull(todo);
     }
 
     [DataTestMethod]

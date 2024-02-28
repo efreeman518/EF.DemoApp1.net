@@ -14,7 +14,6 @@ namespace Test.Integration;
 /// <summary>
 /// Testing Application and Domain services and logic; not http endpoints
 /// </summary>
-[TestClass]
 public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
@@ -128,4 +127,6 @@ public abstract class IntegrationTestBase
     {
         ctx.GetHashCode();
     }
+
+
 }

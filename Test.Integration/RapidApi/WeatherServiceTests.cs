@@ -52,4 +52,17 @@ public class WeatherServiceTests : IntegrationTestBase
 
         Logger.LogInformation("GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
     }
+
+    [ClassInitialize]
+    public static async Task ClassInit(TestContext testContext)
+    {
+        Console.WriteLine(testContext.TestName);
+        await _dbContainer.StartAsync();
+    }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await _dbContainer.StopAsync();
+    }
 }
