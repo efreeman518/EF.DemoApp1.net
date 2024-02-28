@@ -12,7 +12,7 @@ using Testcontainers.MsSql;
 namespace Test.Integration;
 
 /// <summary>
-/// Testing Application and Domain services and logic; not http endpoints
+/// Testing Domain, Application, and Infrastructure services and logic; not http endpoints
 /// </summary>
 public abstract class IntegrationTestBase
 {

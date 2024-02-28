@@ -1,68 +1,75 @@
-﻿using Application.Contracts.Interfaces;
-using Infrastructure.RapidApi.WeatherApi;
+﻿using Infrastructure.RapidApi.WeatherApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.Application;
 
-[Ignore("RapidApi credentials required in config settings.")]
+[Ignore("RapidApi (external weather service) credentials required in config settings.")]
 
 [TestClass]
-public class WeatherServiceTests : IntegrationTestBase
+public class WeatherServiceTests
 {
-    public WeatherServiceTests() : base()
-    { }
+    protected readonly ILogger<WeatherServiceTests> _logger;
+    private readonly WeatherService _svc;
+
+    public WeatherServiceTests()
+    {
+        IConfigurationRoot config = Support.Utility.BuildConfiguration().AddUserSecrets<WeatherServiceTests>().Build();
+
+        //logger
+        var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole().AddDebug().AddApplicationInsights();
+            });
+        _logger = loggerFactory.CreateLogger<WeatherServiceTests>();
+
+        //settings
+        WeatherServiceSettings settings = new();
+        config.GetSection(WeatherServiceSettings.ConfigSectionName).Bind(settings);
+        var oSettings = Options.Create(settings);
+
+        //httpclient
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(config.GetValue<string>("WeatherServiceSettings:BaseUrl")!)
+        };
+        httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherServiceSettings:Key")!);
+        httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherServiceSettings:Host")!);
+
+        _svc = new WeatherService(loggerFactory.CreateLogger<WeatherService>(), oSettings, httpClient);
+    }
 
     [TestMethod]
     public async Task GetCurrentAsync_pass()
     {
-        Logger.LogInformation("GetCurrentAsync_pass - Start");
-
-        //arrange
-        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        WeatherService svc = (WeatherService)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+        _logger.LogInformation("GetCurrentAsync_pass - Start");
 
         //act
-        var weather = await svc.GetCurrentAsync("San Diego, CA");
+        var weather = await _svc.GetCurrentAsync("San Diego, CA");
 
         //assert 
         Assert.IsNotNull(weather);
 
-        Logger.LogInformation("GetCurrentAsync_pass - Complete: {Weather}", weather.SerializeToJson());
+        _logger.LogInformation("GetCurrentAsync_pass - Complete: {Weather}", weather.SerializeToJson());
     }
 
     [TestMethod]
     public async Task GetForecastAsync_pass()
     {
-        Logger.LogInformation("GetForecastAsync_pass - Start");
-
-        //arrange
-        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        WeatherService svc = (WeatherService)serviceScope.ServiceProvider.GetRequiredService(typeof(IWeatherService));
+        _logger.LogInformation("GetForecastAsync_pass - Start");
 
         //act
-        var weather = await svc.GetForecastAsync("San Diego, CA", 3);
-        var weather2 = await svc.GetCurrentAsync("Paris, France");
+        var weather = await _svc.GetForecastAsync("San Diego, CA", 3);
+        var weather2 = await _svc.GetCurrentAsync("Paris, France");
 
         //assert 
         Assert.IsNotNull(weather);
         Assert.IsNotNull(weather2);
 
-        Logger.LogInformation("GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
-    }
-
-    [ClassInitialize]
-    public static async Task ClassInit(TestContext testContext)
-    {
-        Console.WriteLine(testContext.TestName);
-        await _dbContainer.StartAsync();
-    }
-
-    [ClassCleanup]
-    public static async Task ClassCleanup()
-    {
-        await _dbContainer.StopAsync();
+        _logger.LogInformation("GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
     }
 }

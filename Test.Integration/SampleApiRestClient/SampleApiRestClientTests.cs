@@ -1,8 +1,10 @@
-﻿using Application.Contracts.Interfaces;
-using Application.Contracts.Model;
+﻿using Application.Contracts.Model;
 using Domain.Shared.Enums;
 using Infrastructure.SampleApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Integration.Application;
@@ -10,10 +12,48 @@ namespace Test.Integration.Application;
 [Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
 [TestClass]
-public class SampleApiRestClientTests : IntegrationTestBase
+public class SampleApiRestClientTests //: IntegrationTestBase
 {
-    public SampleApiRestClientTests() : base()
-    { }
+    protected readonly ILogger<SampleApiRestClientTests> _logger;
+    private readonly SampleApiRestClient _svc;
+    private readonly HttpClient _httpClient;
+
+    public SampleApiRestClientTests() //: base()
+    {
+        IConfigurationRoot config = Support.Utility.BuildConfiguration().AddUserSecrets<SampleApiRestClientTests>().Build();
+
+        //logger
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole().AddDebug().AddApplicationInsights();
+        });
+        _logger = loggerFactory.CreateLogger<SampleApiRestClientTests>();
+
+        //settings
+        SampleApiRestClientSettings settings = new();
+        config.GetSection(SampleApiRestClientSettings.ConfigSectionName).Bind(settings);
+        var oSettings = Options.Create(settings);
+
+        if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+        {
+            Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+        }
+        var scopes = config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+        var handler = new SampleRestApiAuthMessageHandler(scopes!)
+        {
+            InnerHandler = new HttpClientHandler() //required for test which behaves different than runtime startup/registration
+        };
+
+        //httpclient
+        _httpClient = new HttpClient(handler)
+        {
+            BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!)
+        };
+
+        _svc = new SampleApiRestClient(loggerFactory.CreateLogger<SampleApiRestClient>(), oSettings, _httpClient);
+    }
 
     [TestMethod]
     public async Task CRUD_pass()
@@ -22,50 +62,33 @@ public class SampleApiRestClientTests : IntegrationTestBase
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
-        //arrange
-        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        SampleApiRestClient svc = (SampleApiRestClient)serviceScope.ServiceProvider.GetRequiredService(typeof(ISampleApiRestClient));
-
         //act
 
         //POST create (insert)
-        var todoResponse = await svc.SaveItemAsync(todo);
+        var todoResponse = await _svc.SaveItemAsync(todo);
         Assert.IsNotNull(todoResponse);
 
         if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
         Assert.IsNotNull(id);
 
         //GET retrieve
-        todoResponse = await svc.GetItemAsync(id);
+        todoResponse = await _svc.GetItemAsync(id);
         Assert.AreEqual(id, todoResponse!.Id);
 
         //PUT update
         todo = todoResponse;
         var todo2 = todo with { Name = $"Update {name}" };
-        todoResponse = await svc.SaveItemAsync(todo2)!;
+        todoResponse = await _svc.SaveItemAsync(todo2)!;
         Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //GET retrieve
-        todoResponse = await svc.GetItemAsync(id);
+        todoResponse = await _svc.GetItemAsync(id);
         Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //DELETE
-        await svc.DeleteItemAsync(id);
+        await _svc.DeleteItemAsync(id);
 
         //GET (NotFound) - ensure deleted - NotFound exception expected
-        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await svc.GetItemAsync(id));
-    }
-
-    [ClassInitialize]
-    public static async Task ClassInit(TestContext testContext)
-    {
-        Console.WriteLine(testContext.TestName);
-        await _dbContainer.StartAsync();
-    }
-
-    [ClassCleanup]
-    public static async Task ClassCleanup()
-    {
-        await _dbContainer.StopAsync();
+        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await _svc.GetItemAsync(id));
     }
 }
