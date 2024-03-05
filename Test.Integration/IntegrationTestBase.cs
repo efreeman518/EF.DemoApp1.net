@@ -56,8 +56,9 @@ public abstract class IntegrationTestBase
             {
                 if (dbSource == "TestContainer")
                 {
+                    var connectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
                     //use sql server test container
-                    options.UseSqlServer(_dbContainer.GetConnectionString(),
+                    options.UseSqlServer(connectionString,
                         //retry strategy does not support user initiated transactions 
                         sqlServerOptionsAction: sqlOptions =>
                         {
@@ -89,21 +90,30 @@ public abstract class IntegrationTestBase
         var scopedServices = scope.ServiceProvider;
 
         var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
-        db.Database.EnsureCreated();
+
+        //Environment.SetEnvironmentVariable("AKVCMKURL", "");
+        //db.Database.Migrate(); //needs AKVCMKURL env var set
+        db.Database.EnsureCreated(); //does not use migrations; uses DbContext to create tables
+
+        var seedPaths = Config.GetSection("TestSettings:SeedFiles:Paths").Get<string[]>();
+        if (seedPaths != null && seedPaths.Length > 0)
+        {
+            Support.Utility.SeedRawSqlFiles(db, [.. seedPaths], Config.GetValue("TestSettings:SeedFiles:SearchPattern", "*.sql")!);
+        }
 
         //Seed Data
         if (Config.GetValue("TestSettings:SeedData", false))
         {
             try
             {
-                Support.Utility.SeedDefaultEntityData(db);
+                Support.Utility.SeedDefaultEntityData(db, false);
+                db.SaveChanges();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred seeding the database with test data. Error: {ex.Message}");
             }
         }
-
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         services.AddTransient<IRequestContext<string>>(provider =>

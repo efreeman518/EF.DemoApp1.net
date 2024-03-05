@@ -3,7 +3,6 @@ using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 
 namespace Test.Support;
 
@@ -34,28 +33,37 @@ public static class Utility
         if (clear) db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
         db.Set<TodoItem>().AddRange(new List<TodoItem>
         {
-                new("item1a", TodoItemStatus.Created) { CreatedBy = "Test.Unit" },
-                new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test.Unit" },
-                new("item3a", TodoItemStatus.Completed){ CreatedBy = "Test.Unit" }
+            new("item1a", TodoItemStatus.Created) { CreatedBy = "Test.Unit" },
+            new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test.Unit" },
+            new("item3a", TodoItemStatus.Completed){ CreatedBy = "Test.Unit" }
         });
     }
 
-    public static async Task SeedRawSql(TodoDbContextBase db, List<string> pathToSQL)
+    public static void SeedRawSqlFiles(TodoDbContextBase db, List<string> relativePaths, string searhPattern)
     {
-        // Run seed scripts
-        pathToSQL.ForEach(async path =>
+        relativePaths.ForEach(path =>
         {
-            string[] files = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path), "*.sql");
-            Array.Sort(files);
-            foreach (var file in files)
+            string[] files = [.. Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path), searhPattern).OrderBy(f => f)]; //order by name
+            foreach (var filePath in files)
             {
-                Debug.Assert(true, "Attempt to seed with file {0}.", file);
-                var sql = File.ReadAllText(file);
-                await db.Database.ExecuteSqlRawAsync(sql);
+                SeedRawSqlFile(db, filePath);
             }
         });
 
-        await db.SaveChangesAsync();
+        //db.SaveChanges();
+    }
+
+    public static void SeedRawSqlFile(TodoDbContextBase db, string filePath)
+    {
+        try
+        {
+            var sql = File.ReadAllText(filePath);
+            db.Database.ExecuteSqlRaw(sql);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred seeding the database from file {filePath}. Error: {ex.Message}");
+        }
     }
 
     public static List<TodoItem> TodoItemListFactory(int size, TodoItemStatus? status = null)

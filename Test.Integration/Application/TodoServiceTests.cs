@@ -24,9 +24,7 @@ public class TodoServiceTests : IntegrationTestBase
         //arrange
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
-
         TodoItemDto? todo = new(null, name, TodoItemStatus.Created);
-
 
         //act & assert
 
