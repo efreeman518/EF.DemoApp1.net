@@ -33,7 +33,7 @@ public static class ApiFactoryManager
     public static async Task ResetDatabaseAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.ResetDatabase();
+        await factory.ResetDatabaseAsync();
     }
 
     public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")

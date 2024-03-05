@@ -46,7 +46,7 @@ public class WeatherServiceTests
     [TestMethod]
     public async Task GetCurrentAsync_pass()
     {
-        _logger.LogInformation("GetCurrentAsync_pass - Start");
+        _logger.InfoLog("GetCurrentAsync_pass - Start");
 
         //act
         var weather = await _svc.GetCurrentAsync("San Diego, CA");
@@ -54,13 +54,13 @@ public class WeatherServiceTests
         //assert 
         Assert.IsNotNull(weather);
 
-        _logger.LogInformation("GetCurrentAsync_pass - Complete: {Weather}", weather.SerializeToJson());
+        _logger.InfoLog($"GetCurrentAsync_pass - Complete: {weather.SerializeToJson()}");
     }
 
     [TestMethod]
     public async Task GetForecastAsync_pass()
     {
-        _logger.LogInformation("GetForecastAsync_pass - Start");
+        _logger.InfoLog("GetForecastAsync_pass - Start");
 
         //act
         var weather = await _svc.GetForecastAsync("San Diego, CA", 3);
@@ -70,6 +70,6 @@ public class WeatherServiceTests
         Assert.IsNotNull(weather);
         Assert.IsNotNull(weather2);
 
-        _logger.LogInformation("GetForecastAsync_pass - Complete: {Weather}", weather.SerializeToJson());
+        _logger.InfoLog($"GetForecastAsync_pass - Complete: {weather.SerializeToJson()}");
     }
 }

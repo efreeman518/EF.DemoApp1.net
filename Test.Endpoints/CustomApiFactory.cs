@@ -47,7 +47,7 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
         });
     }
 
-    public async Task ResetDatabase()
+    public async Task ResetDatabaseAsync()
     {
         await _respawner.ResetAsync(_dbConnection);
     }

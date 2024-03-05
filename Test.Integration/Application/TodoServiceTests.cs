@@ -5,6 +5,7 @@ using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.Application;
 
@@ -17,7 +18,7 @@ public class TodoServiceTests : IntegrationTestBase
     [TestMethod]
     public async Task Todo_CRUD_pass()
     {
-        Logger.Log(LogLevel.Information, "Starting Todo_CRUD_pass");
+        Logger.InfoLog("Starting Todo_CRUD_pass");
 
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
 
@@ -72,7 +73,7 @@ public class TodoServiceTests : IntegrationTestBase
     [DataRow("sdfgs")]
     public async Task Todo_AddItem_fail(string name)
     {
-        Logger.Log(LogLevel.Information, "Starting Todo_AddItem_fail");
+        Logger.InfoLog("Starting Todo_AddItem_fail");
 
         using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
 
@@ -88,16 +89,32 @@ public class TodoServiceTests : IntegrationTestBase
         Assert.IsTrue(result.IsFaulted);
     }
 
+    /// <summary>
+    /// run before each test
+    /// </summary>
+    /// <returns></returns>
+    [TestInitialize]
+    public async Task TestInit()
+    {
+        await ResetDatabaseAsync();
+    }
+
+    /// <summary>
+    /// run once at class initialization
+    /// </summary>
+    /// <param name="testContext"></param>
+    /// <returns></returns>
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        Console.WriteLine(testContext.TestName);
-        await _dbContainer.StartAsync();
+        _ = testContext.GetHashCode();
+        await StartContainerAsync();
+        await ConfigureTestInstanceAsync();
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        await _dbContainer.StopAsync();
+        await StopContainerAsync();
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Support;
 
@@ -31,7 +32,7 @@ public static class Utility
         return builder;
     }
 
-    public static void ConfigureTestDB(ILogger logger, IServiceCollection services, IConfigurationSection config, string? dbConnectionString = null) 
+    public static void ConfigureTestDB(ILogger logger, IServiceCollection services, IConfigurationSection config, string? dbConnectionString = null)
     {
         //replace api registered services with test versions
         var dbSource = config.GetValue<string?>("DBSource", null);
@@ -39,6 +40,8 @@ public static class Utility
         //if dbSource is null, use the api defined DbContext/DB, otherwise switch out the DB here
         if (!string.IsNullOrEmpty(dbSource))
         {
+            logger.InfoLog($"Using test database source: {dbSource}");
+
             services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
             services.RemoveAll(typeof(TodoDbContextTrxn));
             services.AddDbContext<TodoDbContextTrxn>(options =>
@@ -93,6 +96,7 @@ public static class Utility
         {
             try
             {
+                logger.InfoLog($"Seeding default entity data.");
                 db.SeedDefaultEntityData(false);
                 db.SaveChanges();
             }
@@ -130,12 +134,13 @@ public static class Utility
     {
         try
         {
+            logger.InfoLog($"Seeding test database from file: {filePath}");
             var sql = File.ReadAllText(filePath);
             db.Database.ExecuteSqlRaw(sql);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred seeding the database from file {filePath}");
+            logger.ErrorLog($"An error occurred seeding the database from file {filePath}", ex);
         }
     }
 

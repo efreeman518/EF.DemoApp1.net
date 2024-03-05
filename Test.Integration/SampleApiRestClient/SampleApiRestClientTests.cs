@@ -6,19 +6,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.Application;
 
 [Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
 [TestClass]
-public class SampleApiRestClientTests //: IntegrationTestBase
+public class SampleApiRestClientTests 
 {
-    protected readonly ILogger<SampleApiRestClientTests> _logger;
+    private readonly ILogger<SampleApiRestClientTests> _logger;
     private readonly SampleApiRestClient _svc;
     private readonly HttpClient _httpClient;
 
-    public SampleApiRestClientTests() //: base()
+    public SampleApiRestClientTests()
     {
         IConfigurationRoot config = Support.Utility.BuildConfiguration().AddUserSecrets<SampleApiRestClientTests>().Build();
 
@@ -53,6 +54,8 @@ public class SampleApiRestClientTests //: IntegrationTestBase
         };
 
         _svc = new SampleApiRestClient(loggerFactory.CreateLogger<SampleApiRestClient>(), oSettings, _httpClient);
+
+        _logger.InfoLog("SampleApiRestClientTests - constructor finished.");
     }
 
     [TestMethod]
