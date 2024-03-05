@@ -3,6 +3,9 @@ using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Test.Support;
 
@@ -28,7 +31,79 @@ public static class Utility
         return builder;
     }
 
-    public static void SeedDefaultEntityData(TodoDbContextBase db, bool clear = true)
+    public static void ConfigureTestDB(ILogger logger, IServiceCollection services, IConfigurationSection config, string? dbConnectionString = null) 
+    {
+        //replace api registered services with test versions
+        var dbSource = config.GetValue<string?>("DBSource", null);
+
+        //if dbSource is null, use the api defined DbContext/DB, otherwise switch out the DB here
+        if (!string.IsNullOrEmpty(dbSource))
+        {
+            services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
+            services.RemoveAll(typeof(TodoDbContextTrxn));
+            services.AddDbContext<TodoDbContextTrxn>(options =>
+            {
+                if (dbSource == "TestContainer")
+                {
+                    //use sql server test container
+                    options.UseSqlServer(dbConnectionString,
+                        //retry strategy does not support user initiated transactions 
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                        });
+                }
+                else if (dbSource == "UseInMemoryDatabase")
+                {
+                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
+                }
+                else
+                {
+                    options.UseSqlServer(dbSource,
+                        //retry strategy does not support user initiated transactions 
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                        });
+                }
+            }, ServiceLifetime.Singleton);
+        }
+
+        var sp = services.BuildServiceProvider();
+        using var scope = sp.CreateScope();
+        var scopedServices = scope.ServiceProvider;
+        var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
+
+        //Environment.SetEnvironmentVariable("AKVCMKURL", "");
+        //db.Database.Migrate(); //needs AKVCMKURL env var set
+        db.Database.EnsureCreated(); //does not use migrations; uses DbContext to create tables
+
+        var seedPaths = config.GetSection("SeedFiles:Paths").Get<string[]>();
+        if (seedPaths != null && seedPaths.Length > 0)
+        {
+            db.SeedRawSqlFiles(logger, [.. seedPaths], config.GetValue("SeedFiles:SearchPattern", "*.sql")!);
+        }
+
+        //Seed Data
+        if (config.GetValue("SeedData", false))
+        {
+            try
+            {
+                db.SeedDefaultEntityData(false);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred seeding the database with test data. Error: {Message}", ex.Message);
+            }
+        }
+    }
+
+    public static void SeedDefaultEntityData(this TodoDbContextBase db, bool clear = true)
     {
         if (clear) db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
         db.Set<TodoItem>().AddRange(new List<TodoItem>
@@ -39,21 +114,19 @@ public static class Utility
         });
     }
 
-    public static void SeedRawSqlFiles(TodoDbContextBase db, List<string> relativePaths, string searhPattern)
+    public static void SeedRawSqlFiles(this TodoDbContextBase db, ILogger logger, List<string> relativePaths, string searhPattern)
     {
         relativePaths.ForEach(path =>
         {
             string[] files = [.. Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path), searhPattern).OrderBy(f => f)]; //order by name
             foreach (var filePath in files)
             {
-                SeedRawSqlFile(db, filePath);
+                db.SeedRawSqlFile(logger, filePath);
             }
         });
-
-        //db.SaveChanges();
     }
 
-    public static void SeedRawSqlFile(TodoDbContextBase db, string filePath)
+    public static void SeedRawSqlFile(this TodoDbContextBase db, ILogger logger, string filePath)
     {
         try
         {
@@ -62,7 +135,7 @@ public static class Utility
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred seeding the database from file {filePath}. Error: {ex.Message}");
+            logger.LogError(ex, $"An error occurred seeding the database from file {filePath}");
         }
     }
 

@@ -1,8 +1,5 @@
-﻿using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
@@ -44,76 +41,11 @@ public abstract class IntegrationTestBase
             .RegisterDomainServices(Config)
             .RegisterApplicationServices(Config);
 
-        //replace api registered services with test versions
-        var dbSource = Config.GetValue<string?>("TestSettings:DBSource", null);
-
-        //if dbSource is null, use the api defined DbContext/DB, otherwise switch out the DB here
-        if (!string.IsNullOrEmpty(dbSource))
-        {
-            services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
-            services.RemoveAll(typeof(TodoDbContextTrxn));
-            services.AddDbContext<TodoDbContextTrxn>(options =>
-            {
-                if (dbSource == "TestContainer")
-                {
-                    var connectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
-                    //use sql server test container
-                    options.UseSqlServer(connectionString,
-                        //retry strategy does not support user initiated transactions 
-                        sqlServerOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                        });
-                }
-                else if (dbSource == "UseInMemoryDatabase")
-                {
-                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
-                }
-                else
-                {
-                    options.UseSqlServer(dbSource,
-                        //retry strategy does not support user initiated transactions 
-                        sqlServerOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                        });
-                }
-            }, ServiceLifetime.Singleton);
-        }
-
         var sp = services.BuildServiceProvider();
-        using var scope = sp.CreateScope();
-        var scopedServices = scope.ServiceProvider;
-
-        var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
-
-        //Environment.SetEnvironmentVariable("AKVCMKURL", "");
-        //db.Database.Migrate(); //needs AKVCMKURL env var set
-        db.Database.EnsureCreated(); //does not use migrations; uses DbContext to create tables
-
-        var seedPaths = Config.GetSection("TestSettings:SeedFiles:Paths").Get<string[]>();
-        if (seedPaths != null && seedPaths.Length > 0)
-        {
-            Support.Utility.SeedRawSqlFiles(db, [.. seedPaths], Config.GetValue("TestSettings:SeedFiles:SearchPattern", "*.sql")!);
-        }
-
-        //Seed Data
-        if (Config.GetValue("TestSettings:SeedData", false))
-        {
-            try
-            {
-                Support.Utility.SeedDefaultEntityData(db, false);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred seeding the database with test data. Error: {ex.Message}");
-            }
-        }
+        var logger = sp.GetRequiredService<ILogger<IntegrationTestBase>>();
+        var testConfigSection = Config.GetSection("TestSettings");
+        var dbConnectionString = _dbContainer.GetConnectionString().Replace("master", testConfigSection.GetValue("DBName", "TestDB"));
+        Support.Utility.ConfigureTestDB(logger, services, testConfigSection, dbConnectionString);
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         services.AddTransient<IRequestContext<string>>(provider =>
@@ -137,6 +69,4 @@ public abstract class IntegrationTestBase
     {
         ctx.GetHashCode();
     }
-
-
 }

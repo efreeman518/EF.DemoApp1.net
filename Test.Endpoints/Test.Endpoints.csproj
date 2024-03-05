@@ -10,10 +10,14 @@
 
   <ItemGroup>
     <None Remove="appsettings-test.json" />
+    <None Remove="SeedSql\seed1.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings-test.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SeedSql\seed1.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -1,9 +1,7 @@
-﻿using Infrastructure.Data;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -26,12 +24,12 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder().Build();
 
     private DbConnection _dbConnection = null!;
+    private string _dbConnectionString = null!;
     private Respawner _respawner = null!;
 
     public async Task StartDbContainer()
     {
         await _dbContainer.StartAsync();
-        _dbConnection = new SqlConnection(_dbContainer.GetConnectionString());
     }
 
     /// <summary>
@@ -83,70 +81,17 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
                 //remove unneeded services
                 services.RemoveAll<IHostedService>();
 
-                //DB replacement
-                var dbSource = config.GetValue<string?>("DBSource", null);
-
-                //if dbSource is null, use the api defined DbContext/DB
-                if (!string.IsNullOrEmpty(dbSource))
-                {
-                    services.RemoveAll(typeof(DbContextOptions<TodoDbContextTrxn>));
-                    services.RemoveAll(typeof(TodoDbContextTrxn));
-                    services.AddDbContext<TodoDbContextTrxn>(options =>
-                    {
-
-                        if (dbSource == "TestContainer")
-                        {
-                            //use sql server test container
-                            options.UseSqlServer(_dbContainer.GetConnectionString(),
-                                //retry strategy does not support user initiated transactions 
-                                sqlServerOptionsAction: sqlOptions =>
-                                {
-                                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                                    errorNumbersToAdd: null);
-                                });
-                        }
-                        else if (dbSource == "UseInMemoryDatabase")
-                        {
-                            options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
-                        }
-                        else
-                        {
-                            options.UseSqlServer(dbSource,
-                                //retry strategy does not support user initiated transactions 
-                                sqlServerOptionsAction: sqlOptions =>
-                                {
-                                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                                    errorNumbersToAdd: null);
-                                });
-                        }
-
-                    }, ServiceLifetime.Singleton); //enables injection; otherwise AddDbContext is scoped and there is no scope
-                }
                 var sp = services.BuildServiceProvider();
-                using var scope = sp.CreateScope();
-                var scopedServices = scope.ServiceProvider;
+                var logger = sp.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
+                var testConfigSection = config.GetSection("TestSettings");
 
-                var db = scopedServices.GetRequiredService<TodoDbContextTrxn>();
-                var logger = scopedServices.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
+                //Database
+                _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", testConfigSection.GetValue("DBName", "TestDB"));
+                _dbConnection = new SqlConnection(_dbConnectionString);
+                Support.Utility.ConfigureTestDB(logger, services, testConfigSection, _dbConnectionString);
 
-                db.Database.EnsureCreated(); //does not use migrations
-                //Environment.SetEnvironmentVariable("AKVCMKURL", "");
-                //db.Database.Migrate(); //needs AKVCMKURL env var set
-
-                //Seed DbContext replacement
-                try
-                {
-                    Support.Utility.SeedDefaultEntityData(db);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "An error occurred seeding the database with test data. Error: {Message}", ex.Message);
-                }
             });
     }
-
 }
 
 public class CustomHttpHandler : DelegatingHandler
