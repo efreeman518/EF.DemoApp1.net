@@ -50,8 +50,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
-    <ProjectReference Include="..\..\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.KeyVault\Package.Infrastructure.KeyVault.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
