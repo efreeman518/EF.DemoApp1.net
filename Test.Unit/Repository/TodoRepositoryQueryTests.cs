@@ -29,7 +29,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
         var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -63,7 +63,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildSQLite<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -97,7 +97,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -128,7 +128,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -159,7 +159,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(10)))
+            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(10)))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -196,7 +196,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(100)))
+            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -233,7 +233,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(100)))
+            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -271,7 +271,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.AddRange(Utility.TodoItemListFactory(10)))
+            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(10)))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
@@ -310,9 +310,9 @@ public class TodoRepositoryQueryTests : UnitTestBase
             //custom data scenario that default seed data does not cover
             entities.AddRange(
                 [
-                    Utility.TodoItemFactory("A some entity a", TodoItemStatus.InProgress),
-                    Utility.TodoItemFactory("B some entity a", TodoItemStatus.InProgress),
-                    Utility.TodoItemFactory("C some entity a", TodoItemStatus.InProgress)
+                    TodoDbContextSupport.TodoItemFactory("A some entity a", TodoItemStatus.InProgress),
+                    TodoDbContextSupport.TodoItemFactory("B some entity a", TodoItemStatus.InProgress),
+                    TodoDbContextSupport.TodoItemFactory("C some entity a", TodoItemStatus.InProgress)
                 ]);
         }
 
@@ -350,7 +350,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("some entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");

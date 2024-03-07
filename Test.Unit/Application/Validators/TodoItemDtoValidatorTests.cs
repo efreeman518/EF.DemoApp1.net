@@ -7,7 +7,6 @@ using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common;
 using Test.Support;
-using Utility = Test.Support.Utility;
 
 namespace Test.Unit.Application.Rules;
 
@@ -21,7 +20,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.Add(Utility.TodoItemFactory("custom entity a")))
+            .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("custom entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
         var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");

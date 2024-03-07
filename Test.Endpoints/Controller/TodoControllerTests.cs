@@ -56,7 +56,7 @@ public class TodoControllerTests : EndpointTestBase
     }
 
     //reset db after each test
-    [TestCleanup]
+    [TestInitialize]
     public async Task TestCleanup() => await ApiFactoryManager.ResetDatabaseAsync<Program>(FACTORY_KEY);
 
     [ClassInitialize]

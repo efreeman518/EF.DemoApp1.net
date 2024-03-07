@@ -3,7 +3,6 @@ using Application.Contracts.Services;
 using Application.Services;
 using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 

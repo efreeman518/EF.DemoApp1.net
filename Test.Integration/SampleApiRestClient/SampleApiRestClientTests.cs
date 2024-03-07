@@ -13,7 +13,7 @@ namespace Test.Integration.Application;
 [Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
 [TestClass]
-public class SampleApiRestClientTests 
+public class SampleApiRestClientTests
 {
     private readonly ILogger<SampleApiRestClientTests> _logger;
     private readonly SampleApiRestClient _svc;

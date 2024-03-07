@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Infrastructure.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Respawn;
 using Respawn.Graph;
 using System.Data.Common;
+using Test.Support;
 using Testcontainers.MsSql;
 
 namespace Test.Endpoints;
@@ -23,6 +25,9 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder().Build();
 
+    private static ILogger<CustomApiFactory<TProgram>> _logger = null!;
+    private IConfigurationSection _testConfigSection = null!;
+    private TodoDbContextBase _dbContext = null!;
     private DbConnection _dbConnection = null!;
     private string _dbConnectionString = null!;
     private Respawner _respawner = null!;
@@ -47,9 +52,29 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
         });
     }
 
-    public async Task ResetDatabaseAsync()
+    public async Task ResetDatabaseAsync(bool reseed = true)
     {
         await _respawner.ResetAsync(_dbConnection);
+
+        if (reseed && _testConfigSection.GetValue("SeedData", false))
+        {
+            var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
+            if (seedPaths != null && seedPaths.Length > 0)
+            {
+                _dbContext.SeedRawSqlFiles(_logger, [.. seedPaths], _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!);
+            }
+
+            try
+            {
+                _logger.LogInformation($"Seeding default entity data.");
+                _dbContext.SeedDefaultEntityData(false);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred seeding the database with test data. Error: {Message}", ex.Message);
+            }
+        }
     }
 
     public async Task StopDbContainer()
@@ -83,14 +108,16 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
 
                 var sp = services.BuildServiceProvider();
                 var logger = sp.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
-                var testConfigSection = config.GetSection("TestSettings");
+                _testConfigSection = config.GetSection("TestSettings");
 
                 //Database
-                _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", testConfigSection.GetValue("DBName", "TestDB"));
+                _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", _testConfigSection.GetValue("DBName", "TestDB"));
                 _dbConnection = new SqlConnection(_dbConnectionString);
-                Support.Utility.ConfigureTestDB(logger, services, testConfigSection, _dbConnectionString);
-
+                var dbSource = _testConfigSection.GetValue<string?>("DBSource", null);
+                _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(logger, services, dbSource, _dbConnectionString);
+                _logger = services.BuildServiceProvider().GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
             });
+
     }
 }
 

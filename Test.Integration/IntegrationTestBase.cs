@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Infrastructure.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Respawn.Graph;
 using SampleApp.Bootstrapper;
 using System.Data;
 using System.Data.Common;
+using Test.Support;
 using Testcontainers.MsSql;
 
 namespace Test.Integration;
@@ -20,7 +22,8 @@ namespace Test.Integration;
 public abstract class IntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
-    protected readonly static IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
+    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
+    private readonly static IConfigurationSection _testConfigSection = Config.GetSection("TestSettings");
     protected static IServiceProvider Services => _services;
     protected static ILogger Logger => _logger;
 
@@ -30,6 +33,7 @@ public abstract class IntegrationTestBase
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
     private static readonly MsSqlContainer DbContainer = new MsSqlBuilder().Build();
     private static string _dbConnectionString = null!;
+    private static TodoDbContextBase _dbContext = null!;
 
     //https://github.com/jbogard/Respawn
     private static Respawner _respawner = null!;
@@ -46,7 +50,7 @@ public abstract class IntegrationTestBase
 
         var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.AddConsole().AddDebug().AddApplicationInsights();
+            builder.ClearProviders().AddConsole().AddDebug().AddApplicationInsights();
         });
         services.AddSingleton(loggerFactory);
 
@@ -57,10 +61,11 @@ public abstract class IntegrationTestBase
             .RegisterDomainServices(Config)
             .RegisterApplicationServices(Config);
 
+        _logger = services.BuildServiceProvider().GetRequiredService<ILogger<IntegrationTestBase>>();
+
         //database
-        var logger = services.BuildServiceProvider().GetRequiredService<ILogger<IntegrationTestBase>>();
-        var testConfigSection = Config.GetSection("TestSettings");
-        Support.Utility.ConfigureTestDB(logger, services, testConfigSection, _dbConnectionString);
+        var dbSource = _testConfigSection.GetValue<string?>("DBSource", null);
+        _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(_logger, services, dbSource, _dbConnectionString);
         await InitializeRespawner();
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
@@ -74,8 +79,8 @@ public abstract class IntegrationTestBase
         _services = services.BuildServiceProvider(validateScopes: true);
 
         //add logging for integration tests
-        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
-        _logger = _services.GetRequiredService<ILogger<IntegrationTestBase>>();
+        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
+        //Logger = _services.GetRequiredService<ILogger<IntegrationTestBase>>();
 
         _logger.Log(LogLevel.Information, "Test Initialized.");
     }
@@ -103,9 +108,28 @@ public abstract class IntegrationTestBase
         });
     }
 
-    public static async Task ResetDatabaseAsync()
+    public static async Task ResetDatabaseAsync(bool reseed = true)
     {
         await _respawner.ResetAsync(_dbConnection);
+        if (reseed && _testConfigSection.GetValue("SeedData", false))
+        {
+            var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
+            if (seedPaths != null && seedPaths.Length > 0)
+            {
+                _dbContext.SeedRawSqlFiles(_logger, [.. seedPaths], _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!);
+            }
+
+            try
+            {
+                _logger.LogInformation($"Seeding default entity data.");
+                _dbContext.SeedDefaultEntityData(false);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred seeding the database with test data. Error: {Message}", ex.Message);
+            }
+        }
     }
 
     [AssemblyInitialize]
