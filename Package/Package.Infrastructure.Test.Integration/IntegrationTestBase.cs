@@ -60,6 +60,14 @@ public abstract class IntegrationTestBase
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
+            //string accountName = "<storage-account-name>";
+            //string accountKey = "<storage-account-key";
+            //StorageSharedKeyCredential storageSharedKeyCredential =
+            //    new(accountName, accountKey);
+            //BlobServiceClient blobServiceClient = new BlobServiceClient(
+            //    new Uri($"https://{accountName}.blob.core.windows.net"),
+            //    storageSharedKeyCredential);
+
             //Blob 
             configSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
             if (configSection.Exists())

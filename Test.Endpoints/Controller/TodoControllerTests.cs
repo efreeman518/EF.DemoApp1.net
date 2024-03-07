@@ -4,6 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using System.Net;
 
+//parallel to the same api can cause intermittent failures
+[assembly: DoNotParallelize]
+
 namespace Test.Endpoints.Controller;
 
 [TestClass]

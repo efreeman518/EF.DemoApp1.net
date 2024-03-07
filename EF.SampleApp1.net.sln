@@ -12,6 +12,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{C90D2F43-238F-4264-AFC4-FED54F80E073}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{6A579746-EA50-43BA-891D-9CB90F9426AF}"
+	ProjectSection(SolutionItems) = preProject
+		.runsettings = .runsettings
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp.Api", "SampleApp.Api\SampleApp.Api.csproj", "{290DB1B9-6987-4A8A-8FFC-F0221ADE74AD}"
 EndProject

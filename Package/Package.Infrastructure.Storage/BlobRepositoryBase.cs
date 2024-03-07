@@ -1,9 +1,12 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage.Sas;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
+using System.Threading;
 
 namespace Package.Infrastructure.Storage;
 
@@ -69,6 +72,52 @@ public abstract class BlobRepositoryBase : IBlobRepository
     }
 
     /// <summary>
+    /// Generate a limited access/limitid time uri for a blob; generally provided to a client to upload/download a blob
+    /// </summary>
+    /// <param name="containerInfo"></param>
+    /// <param name="blobName"></param>
+    /// <param name="permissions"></param>
+    /// <param name="expiresOn"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<Uri?> GenerateBlobSasUriAsync(ContainerInfo containerInfo, string blobName, BlobSasPermissions permissions, DateTimeOffset expiresOn, CancellationToken cancellationToken = default)
+    {
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
+        BlobClient blobClient = containerClient.GetBlobClient(blobName);
+        if (blobClient.CanGenerateSasUri)
+        {
+            // Create a SAS token 
+            BlobSasBuilder sasBuilder = new()
+            {
+                BlobContainerName = containerInfo.ContainerName,
+                BlobName = blobName,
+                Resource = "b",  //blob
+                ExpiresOn = expiresOn
+            };
+            sasBuilder.SetPermissions(permissions);
+
+            return blobClient.GenerateSasUri(sasBuilder);
+        }
+        else
+        {
+            throw new InvalidOperationException($"BlobClient not authorized to generate sas; Client must be authenticated with Azure.Storage.StorageSharedKeyCredential.");
+        }
+    }
+
+    public async Task UploadBlobStreamSasUriAsync(Uri sasUri, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
+    {
+        BlobClient blobClient = new(sasUri);
+        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken);
+    }
+
+    public async Task<Stream> BlobStartDownloadStreamAsync(Uri sasUri, bool decrypt = false, CancellationToken cancellationToken = default)
+    {
+        BlobClient blobClient = new(sasUri);
+        return await BlobStartDownloadStreamAsync(blobClient, decrypt, cancellationToken);
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="containerName"></param>
@@ -82,20 +131,14 @@ public abstract class BlobRepositoryBase : IBlobRepository
     public async Task UploadBlobStreamAsync(ContainerInfo containerInfo, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
     {
         BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
-        await UploadContainerBlob(containerClient, blobName, stream, contentType, encrypt, metadata, cancellationToken);
+        BlobClient blobClient = containerClient.GetBlobClient(blobName);
+        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken);
     }
 
-    public async Task UploadBlobStreamToUriAsync(Uri sasUri, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
-    {
-        BlobContainerClient containerClient = new(sasUri);
-        await UploadContainerBlob(containerClient, blobName, stream, contentType, encrypt, metadata, cancellationToken);
-    }
-
-    private async Task UploadContainerBlob(BlobContainerClient containerClient, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
+    private async Task UploadBlobStream(BlobClient blobClient, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
     {
         _ = encrypt; //remove compiler message Remove unused parameter (IDE0060)
 
-        BlobClient blobClient = containerClient.GetBlobClient(blobName);
         BlobUploadOptions options = new();
 
         if (contentType != null)
@@ -108,30 +151,35 @@ public abstract class BlobRepositoryBase : IBlobRepository
         }
         if (metadata != null) options.Metadata = metadata;
 
-        _logger.LogInformation("UploadContainerBlob Start - {Container} {Blob}", containerClient.Name, blobName);
+        _logger.LogInformation("UploadBlob Start - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
         await blobClient.UploadAsync(stream, options, cancellationToken);
-        _logger.LogInformation("UploadContainerBlob Finish - {Container} {Blob}", containerClient.Name, blobName);
+        _logger.LogInformation("UploadBlob Finish - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="containerName"></param>
+    /// <param name="containerInfo"></param>
     /// <param name="blobName"></param>
     /// <param name="decrypt"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Stream> DownloadBlobStreamAsync(ContainerInfo containerInfo, string blobName, bool decrypt = false, CancellationToken cancellationToken = default)
+    public async Task<Stream> BlobStartDownloadStreamAsync(ContainerInfo containerInfo, string blobName, bool decrypt = false, CancellationToken cancellationToken = default)
     {
         BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         BlobClient blobClient = containerClient.GetBlobClient(blobName);
-        BlobOpenReadOptions options = new(false);
-
-        _logger.LogInformation("DownloadBlobStreamAsync Starting - {Container} {Blob}", containerInfo.ContainerName, blobName);
-        return await blobClient.OpenReadAsync(options, cancellationToken);
+        return await BlobStartDownloadStreamAsync(blobClient, decrypt, cancellationToken);
 
         ///var download = await blobClient.DownloadAsync(cancellationToken);
         ///return download.Value.Content;
+    }
+
+    private async Task<Stream> BlobStartDownloadStreamAsync(BlobClient blobClient, bool decrypt = false, CancellationToken cancellationToken = default)
+    {
+        _ = decrypt; //remove compiler message Remove unused parameter (IDE0060)
+        BlobOpenReadOptions options = new(false);
+        _logger.LogInformation("BlobStartDownloadStreamAsync - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
+        return await blobClient.OpenReadAsync(options, cancellationToken);
     }
 
     /// <summary>

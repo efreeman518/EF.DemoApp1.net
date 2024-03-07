@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Azure;
+using Azure.Storage.Sas;
+using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Storage;
 using Package.Infrastructure.Test.Integration.Blob;
 using System.Text;
@@ -43,7 +45,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         string? dataDown;
 
         //download
-        using (Stream downloadStream = await _blobRepo.DownloadBlobStreamAsync(containerInfo, blobName, cancellationToken: token))
+        using (Stream downloadStream = await _blobRepo.BlobStartDownloadStreamAsync(containerInfo, blobName, cancellationToken: token))
         {
             StreamReader reader = new(downloadStream);
             dataDown = await reader.ReadToEndAsync();
@@ -53,6 +55,40 @@ public class AzureBlobStorageTests : IntegrationTestBase
         await _blobRepo.DeleteContainerAsync(containerInfo, token);
 
         Assert.IsTrue(data == dataDown);
+    }
+
+    [TestMethod]
+    public async Task SasUploadDownloadDelete()
+    {
+        //arrange
+        string data = "123,Spiderman,123546789,435762985762,2000.19\n543,Batman,987654321,23457692854,199.45\n";
+        using MemoryStream uploadStream = new(Encoding.UTF8.GetBytes(data));
+
+        //azure blob container name: length:3-63; allowed:lowercase,number,-
+        string containerName = $"testcontainer-{Guid.NewGuid().ToString().ToLower()}";
+        string blobName = $"testblob-{Guid.NewGuid().ToString().ToLower()}";
+
+        ContainerInfo containerInfo = new()
+        {
+            ContainerName = containerName,
+            ContainerPublicAccessType = ContainerPublicAccessType.None,
+            CreateContainerIfNotExist = true
+        };
+
+        //act
+
+        //upload
+        var sasUriUpload = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Write, DateTimeOffset.UtcNow.AddMinutes(5));
+        Assert.IsNotNull(sasUriUpload);
+        await _blobRepo.UploadBlobStreamSasUriAsync(sasUriUpload!, uploadStream);
+
+        await Assert.ThrowsExceptionAsync<RequestFailedException>(async () =>
+        {
+            //download
+            using Stream downloadStream = await _blobRepo.BlobStartDownloadStreamAsync(containerInfo, blobName);
+            StreamReader reader = new(downloadStream);
+            await reader.ReadToEndAsync();
+        });
 
     }
 }

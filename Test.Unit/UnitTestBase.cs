@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SampleApp.Bootstrapper.Automapper;
 
-namespace Test.Unit;
+//no shared or external dependencies, run methods max parallel
+[assembly: Parallelize(Workers = 5, Scope = ExecutionScope.MethodLevel)]
 
+namespace Test.Unit;
 public abstract class UnitTestBase
 {
     protected MockRepository _mockFactory;
