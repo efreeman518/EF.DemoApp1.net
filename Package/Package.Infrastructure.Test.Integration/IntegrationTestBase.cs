@@ -60,15 +60,9 @@ public abstract class IntegrationTestBase
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
-            //string accountName = "<storage-account-name>";
-            //string accountKey = "<storage-account-key";
-            //StorageSharedKeyCredential storageSharedKeyCredential =
-            //    new(accountName, accountKey);
-            //BlobServiceClient blobServiceClient = new BlobServiceClient(
-            //    new Uri($"https://{accountName}.blob.core.windows.net"),
-            //    storageSharedKeyCredential);
-
-            //Blob 
+            //Azure storage generating SAS tokens require a StorageSharedKeyCredential or the managed identity to have permissions to create SAS tokens.
+            //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
+            //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
             configSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
             if (configSection.Exists())
             {
@@ -110,7 +104,7 @@ public abstract class IntegrationTestBase
             }
         });
 
-        //BlobStorage
+        //BlobRepository
         configSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
         if (configSection.Exists())
         {
@@ -118,7 +112,7 @@ public abstract class IntegrationTestBase
             services.Configure<BlobRepositorySettings1>(configSection);
         }
 
-        //TableStorage
+        //TableRepository
         configSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
         if (configSection.Exists())
         {
@@ -133,8 +127,6 @@ public abstract class IntegrationTestBase
             services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
             services.Configure<EventGridPublisherSettings1>(configSection);
         }
-
-
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
         var connectionString = Config.GetConnectionString("CosmosClient1");

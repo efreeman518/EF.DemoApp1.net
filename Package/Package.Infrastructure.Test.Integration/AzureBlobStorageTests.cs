@@ -13,6 +13,7 @@ namespace Package.Infrastructure.Test.Integration;
 public class AzureBlobStorageTests : IntegrationTestBase
 {
     private readonly IBlobRepository1 _blobRepo;
+    private const string _containerNameStatic = "test-local";
 
     public AzureBlobStorageTests()
     {
@@ -45,7 +46,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         string? dataDown;
 
         //download
-        using (Stream downloadStream = await _blobRepo.BlobStartDownloadStreamAsync(containerInfo, blobName, cancellationToken: token))
+        using (Stream downloadStream = await _blobRepo.StartDownloadBlobStreamAsync(containerInfo, blobName, cancellationToken: token))
         {
             StreamReader reader = new(downloadStream);
             dataDown = await reader.ReadToEndAsync();
@@ -65,30 +66,50 @@ public class AzureBlobStorageTests : IntegrationTestBase
         using MemoryStream uploadStream = new(Encoding.UTF8.GetBytes(data));
 
         //azure blob container name: length:3-63; allowed:lowercase,number,-
-        string containerName = $"testcontainer-{Guid.NewGuid().ToString().ToLower()}";
         string blobName = $"testblob-{Guid.NewGuid().ToString().ToLower()}";
 
         ContainerInfo containerInfo = new()
         {
-            ContainerName = containerName,
+            ContainerName = _containerNameStatic,
             ContainerPublicAccessType = ContainerPublicAccessType.None,
-            CreateContainerIfNotExist = true
+            CreateContainerIfNotExist = false
         };
 
         //act
 
-        //upload
-        var sasUriUpload = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Write, DateTimeOffset.UtcNow.AddMinutes(5));
-        Assert.IsNotNull(sasUriUpload);
-        await _blobRepo.UploadBlobStreamSasUriAsync(sasUriUpload!, uploadStream);
-
+        //request sas upload uri
+        var sasUri = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Write, DateTimeOffset.UtcNow.AddMinutes(5));
+        Assert.IsNotNull(sasUri);
+        //upload by sas upload uri
+        await _blobRepo.UploadBlobStreamAsync(sasUri, uploadStream);
+        //attemt download by sas upload uri - expect exception
         await Assert.ThrowsExceptionAsync<RequestFailedException>(async () =>
         {
-            //download
-            using Stream downloadStream = await _blobRepo.BlobStartDownloadStreamAsync(containerInfo, blobName);
+            using Stream downloadStream = await _blobRepo.StartDownloadBlobStreamAsync(sasUri);
             StreamReader reader = new(downloadStream);
             await reader.ReadToEndAsync();
         });
 
+        //request download sas uri
+        sasUri = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(5));
+        Assert.IsNotNull(sasUri);
+        //attemt upload by sas upload uri - expect exception
+        await Assert.ThrowsExceptionAsync<RequestFailedException>(async () =>
+        {
+            uploadStream.Position = 0;
+            await _blobRepo.UploadBlobStreamAsync(sasUri, uploadStream);
+        });
+        //download by sas download uri
+        string? dataDown;
+        using Stream downloadStream = await _blobRepo.StartDownloadBlobStreamAsync(sasUri);
+        StreamReader reader = new(downloadStream);
+        dataDown = await reader.ReadToEndAsync();
+        Assert.IsTrue(data == dataDown);
+
+        //request delete sas uri
+        sasUri = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Delete, DateTimeOffset.UtcNow.AddMinutes(5));
+        Assert.IsNotNull(sasUri);
+        //delete by sas delete uri
+        await _blobRepo.DeleteBlobAsync(sasUri);
     }
 }

@@ -19,9 +19,11 @@ public interface IBlobRepository
 
     Task UploadBlobStreamAsync(ContainerInfo containerInfo, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default);
 
-    Task UploadBlobStreamSasUriAsync(Uri sasUri, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default);
+    Task UploadBlobStreamAsync(Uri sasUri, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default);
 
-    Task<Stream> BlobStartDownloadStreamAsync(ContainerInfo containerInfo, string blobName, bool decrypt = false, CancellationToken cancellationToken = default);
+    Task<Stream> StartDownloadBlobStreamAsync(ContainerInfo containerInfo, string blobName, bool decrypt = false, CancellationToken cancellationToken = default);
+    Task<Stream> StartDownloadBlobStreamAsync(Uri sasUri, bool decrypt = false, CancellationToken cancellationToken = default);
 
     Task DeleteBlobAsync(ContainerInfo containerInfo, string blobName, CancellationToken cancellationToken = default);
+    Task DeleteBlobAsync(Uri sasUri, CancellationToken cancellationToken = default);
 }
