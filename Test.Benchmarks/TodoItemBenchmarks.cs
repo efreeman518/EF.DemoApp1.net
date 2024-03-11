@@ -17,7 +17,7 @@ public class TodoItemBenchmarks
     [IterationSetup]
     public void Setup()
     {
-        _todoItemDto = new TodoItem($"a{Utility.RandomString(NameLength)}") { CreatedBy = "Test.Benchmarks" };
+        _todoItemDto = new TodoItem($"a{Support.Utility.RandomString(NameLength)}") { CreatedBy = "Test.Benchmarks" };
     }
 
     [Benchmark]

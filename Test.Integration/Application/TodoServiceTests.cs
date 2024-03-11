@@ -5,11 +5,12 @@ using Domain.Shared.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
+using Test.Support;
 
 namespace Test.Integration.Application;
 
 [TestClass]
-public class TodoServiceTests : IntegrationTestBase
+public class TodoServiceTests : DbIntegrationTestBase
 {
     public TodoServiceTests() : base()
     { }

@@ -71,6 +71,10 @@ internal static class IServiceCollectionExtensions
             });
         });
 
+        services.AddAuthorizationBuilder()
+            .AddPolicy("admin", policy => policy.RequireRole("Admin"))
+            .AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
+
         services.AddControllers();
 
         //convenient for model validation

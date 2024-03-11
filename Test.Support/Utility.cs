@@ -23,4 +23,12 @@ public static class Utility
 
         return builder;
     }
+
+    private static readonly Random random = new();
+    public static string RandomString(int length)
+    {
+        const string chars = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
 }

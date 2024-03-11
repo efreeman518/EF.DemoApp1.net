@@ -1,10 +1,10 @@
-﻿using Application.Contracts.Model;
+﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Model;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
-using Infrastructure.Data;
 using Infrastructure.Repositories;
-using Package.Infrastructure.Common;
+using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Data.Contracts;
 using SampleApp.Bootstrapper.Automapper;
 using Test.Support;
@@ -16,41 +16,30 @@ namespace Test.Benchmarks;
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [RankColumn]
-public class RepositoryBenchmarks
+public class RepositoryBenchmarks : DbIntegrationTestBase
 {
-    //Infrastructure
-    private readonly TodoRepositoryQuery _repo;
+    private readonly IServiceScope _serviceScope = null!;
+    private readonly ITodoRepositoryQuery _repo = null!;
 
     public RepositoryBenchmarks()
     {
-        var mapper = ConfigureAutomapper.CreateMapper(
+        StartContainerAsync().GetAwaiter().GetResult();
+        ConfigureTestInstanceAsync().GetAwaiter().GetResult();
+
+        _ = ConfigureAutomapper.CreateMapper(
             [
                 new MappingProfile(),  //map domain <-> app 
                                        //new GrpcMappingProfile() // map grpc <-> app 
             ]);
 
-        TodoDbContextQuery db = new InMemoryDbBuilder()
-            .SeedDefaultEntityData()
-            .UseEntityData(entities =>
-            {
-                //custom data scenario that default seed data does not cover
-                entities.Add(new TodoItem("a entity") { CreatedBy = "Test.Benchmarks" });
-            })
-            .BuildInMemory<TodoDbContextQuery>();
-
-        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        _repo = new TodoRepositoryQuery(db, src, mapper);
-    }
-
-    [IterationSetup]
-    public void Setup()
-    {
-        _ = GetHashCode();
+        _serviceScope = Services.CreateScope(); //needed for injecting scoped services
+        _repo = (TodoRepositoryQuery)_serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoRepositoryQuery));
     }
 
     [Benchmark]
     public async Task Repo_SearchTodoItemAsync()
     {
+
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
         _ = await _repo.SearchTodoItemAsync(search);
     }
@@ -61,5 +50,18 @@ public class RepositoryBenchmarks
         _ = await _repo.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 1);
     }
 
+    //BenchmarkDotNet does not support async setup/teardown
+    ////https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
+    [IterationSetup]
+    public static void IterationSetup()
+    {
+        ResetDatabaseAsync().GetAwaiter().GetResult();
+    }
 
+    [GlobalCleanup]
+    public void GlobalCleanup()
+    {
+        _serviceScope.Dispose();
+        StopContainerAsync().GetAwaiter().GetResult();
+    }
 }
