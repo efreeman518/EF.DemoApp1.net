@@ -20,7 +20,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 	* Test.Benchmarks - benchmark testing using [BenchmarkDotNet](https://benchmarkdotnet.org/)
 	* Test.Console - console app tester for manually hitting the api http & gRPC endpoints
 
-* Test.Integration, Test.Endpoints can be configured to spin up a DB container which requires a local container environment [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+* Test.Integration, Test.Endpoints, Test.Benchmarks can be configured to spin up a DB container which requires a local container environment [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 * Some tests are ignored by default because they require further setup/integration
 	* Test.UI, Test.SpecFlow.Specs (UI feature) tests use Selenium which requires the appropriate versions of Chrome and Edge. 
