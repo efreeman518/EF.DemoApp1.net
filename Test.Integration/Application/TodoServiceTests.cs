@@ -12,19 +12,17 @@ namespace Test.Integration.Application;
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase
 {
-    public TodoServiceTests() : base()
-    { }
-
     [TestMethod]
     public async Task Todo_CRUD_pass()
     {
         Logger.InfoLog("Starting Todo_CRUD_pass");
 
-        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
+        //configure any test data for this test
+        await ResetDatabaseAsync();
 
         //arrange
         string name = $"Entity a {Guid.NewGuid()}";
-        TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
+        TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(null, name, TodoItemStatus.Created);
 
         //act & assert
@@ -75,12 +73,12 @@ public class TodoServiceTests : DbIntegrationTestBase
     {
         Logger.InfoLog("Starting Todo_AddItem_fail");
 
-        using IServiceScope serviceScope = Services.CreateScope(); //needed for injecting scoped services
+        //configure any test data for this test
+        await ResetDatabaseAsync();
 
         //arrange
-        TodoService svc = (TodoService)serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
+        TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(Guid.Empty, name, TodoItemStatus.Created);
-
 
         //act & assert
 
@@ -93,11 +91,11 @@ public class TodoServiceTests : DbIntegrationTestBase
     /// run before each test
     /// </summary>
     /// <returns></returns>
-    [TestInitialize]
-    public async Task TestInit()
-    {
-        await ResetDatabaseAsync();
-    }
+    //[TestInitialize]
+    //public async Task TestInit()
+    //{
+    //    await ResetDatabaseAsync();
+    //}
 
     /// <summary>
     /// run once at class initialization

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Data.Contracts;
 using Respawn;
 using Respawn.Graph;
 using System.Data.Common;
@@ -29,21 +30,20 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
     private IConfigurationSection _testConfigSection = null!;
     private TodoDbContextBase _dbContext = null!;
     private DbConnection _dbConnection = null!;
-    private string _dbConnectionString = null!;
     private Respawner _respawner = null!;
 
-    public async Task StartDbContainer()
+    public async Task StartDbContainer(CancellationToken cancellationToken = default)
     {
-        await _dbContainer.StartAsync();
+        await _dbContainer.StartAsync(cancellationToken);
     }
 
     /// <summary>
     /// https://github.com/jbogard/Respawn
     /// </summary>
     /// <returns></returns>
-    public async Task InitializeRespawner()
+    public async Task InitializeRespawner(CancellationToken cancellationToken = default)
     {
-        await _dbConnection.OpenAsync();
+        await _dbConnection.OpenAsync(cancellationToken);
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer,
@@ -52,23 +52,42 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
         });
     }
 
-    public async Task ResetDatabaseAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Reseed the database with data from the seed files and/or factories specified by the test, and/or from config
+    /// </summary>
+    /// <param name="seedFromConfig"></param>
+    /// <param name="seedFactories"></param>
+    /// <param name="seedPaths"></param>
+    /// <param name="seedSearchPattern"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task ResetDatabaseAsync(bool respawn = true, bool seedFromConfig = true, List<Action>? seedFactories = null,
+        List<string>? seedPaths = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
     {
-        await _respawner.ResetAsync(_dbConnection);
-        List<Action> seedFactories = [];
-        if (_testConfigSection.GetValue("SeedEntityData", false))
+        if (respawn)
         {
-            seedFactories.Add(() => _dbContext.SeedEntityData());
+            //reset to blank db
+            await _respawner.ResetAsync(_dbConnection);
         }
-        var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
-        var seatchPattern = _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!;
-        await _dbContext.Seed(_logger, seedPaths, seatchPattern, null!, cancellationToken);
 
+        //seed
+        seedFactories ??= [];
+        seedPaths ??= [];
+        if (seedFromConfig)
+        {
+            if (_testConfigSection.GetValue("SeedEntityData", false))
+            {
+                seedFactories.Add(() => _dbContext.SeedEntityData());
+            }
+            seedPaths.AddRange(_testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? []);
+        }
+        await _dbContext.SeedAsync(_logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
+        await _dbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
     }
 
-    public async Task StopDbContainer()
+    public async Task StopDbContainer(CancellationToken cancellationToken = default)
     {
-        await _dbContainer.StopAsync();
+        await _dbContainer.StopAsync(cancellationToken);
         await _dbContainer.DisposeAsync();
     }
 
@@ -100,13 +119,12 @@ public class CustomApiFactory<TProgram> : WebApplicationFactory<TProgram> where 
                 _testConfigSection = config.GetSection("TestSettings");
 
                 //Database
-                _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", _testConfigSection.GetValue("DBName", "TestDB"));
-                _dbConnection = new SqlConnection(_dbConnectionString);
+                var dbConnectionString = _dbContainer.GetConnectionString().Replace("master", _testConfigSection.GetValue("DBName", "TestDB"));
+                _dbConnection = new SqlConnection(dbConnectionString);
                 var dbSource = _testConfigSection.GetValue<string?>("DBSource", null);
-                _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(logger, services, dbSource, _dbConnectionString);
+                _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(logger, services, dbSource, dbConnectionString);
                 _logger = services.BuildServiceProvider().GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
             });
-
     }
 }
 

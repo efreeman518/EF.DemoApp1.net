@@ -15,10 +15,6 @@ namespace Test.Benchmarks;
 [RankColumn]
 public class ValidatorBenchmarks : DbIntegrationTestBase
 {
-    //protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<ValidatorBenchmarks>().Build();
-    //private IServiceScope _serviceScope = null!;
-    //private IServiceProvider _services = null!;
-    private IServiceScope _serviceScope = null!;
     private IValidationHelper _validationHelper = null!;
 
     //[Params(5, 10)]
@@ -67,14 +63,12 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     {
         StartContainerAsync().GetAwaiter().GetResult();
         ConfigureTestInstanceAsync().GetAwaiter().GetResult();
-        _serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        _validationHelper = _serviceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
+        _validationHelper = ServiceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
     }
 
     [GlobalCleanup]
     public void GlobalCleanup()
     {
-        _serviceScope.Dispose();
         StopContainerAsync().GetAwaiter().GetResult();
     }
 

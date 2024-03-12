@@ -12,28 +12,28 @@ public static class ApiFactoryManager
     //public static readonly IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
-    public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.StartDbContainer();
+        await factory.StartDbContainer(cancellationToken);
     }
 
-    public static async Task StopDbContainerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    public static async Task StopDbContainerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.StopDbContainer();
+        await factory.StopDbContainer(cancellationToken);
     }
 
-    public static async Task InitializeRespawnerAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    public static async Task InitializeRespawnerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.InitializeRespawner();
+        await factory.InitializeRespawner(cancellationToken);
     }
 
-    public static async Task ResetDatabaseAsync<TEntryPoint>(string? factoryKey = null) where TEntryPoint : class
+    public static async Task ResetDatabaseAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
     {
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.ResetDatabaseAsync();
+        await factory.ResetDatabaseAsync(cancellationToken: cancellationToken);
     }
 
     public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")

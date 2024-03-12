@@ -5,7 +5,18 @@ using Package.Infrastructure.Common.Extensions;
 namespace Test.Support;
 public static class DbContextExtensions
 {
-    public static async Task Seed(this DbContext dbContext, ILogger logger, string[]? seedPaths = null,
+    /// <summary>
+    /// Seed the database with data from the seed files and/or factories specified by the test, and/or from config
+    /// Caller or seedFactory delegates must SaveChanges to persist the seedFactories data
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="logger"></param>
+    /// <param name="seedPaths"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="seedFactories"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task SeedAsync(this DbContext dbContext, ILogger logger, string[]? seedPaths = null,
         string searchPattern = "*.sql", Action[]? seedFactories = null, CancellationToken cancellationToken = default)
     {
         if (seedPaths?.Length > 0)
@@ -18,7 +29,6 @@ public static class DbContextExtensions
             foreach (var action in seedFactories)
             {
                 action();
-                await dbContext.SaveChangesAsync(cancellationToken);
             }
         }
     }

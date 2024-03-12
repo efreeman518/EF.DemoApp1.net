@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.Data.Contracts;
 using Respawn;
 using Respawn.Graph;
 using SampleApp.Bootstrapper;
@@ -23,9 +24,11 @@ public abstract class DbIntegrationTestBase
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<DbIntegrationTestBase>().Build();
     private readonly static IConfigurationSection _testConfigSection = Config.GetSection("TestSettings");
     protected static IServiceProvider Services => _services;
+    protected static IServiceScope ServiceScope => _serviceScope;
     protected static ILogger Logger => _logger;
 
     private static IServiceProvider _services = null!;
+    private static IServiceScope _serviceScope = null!;
     private static ILogger<DbIntegrationTestBase> _logger = null!;
 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
@@ -38,7 +41,7 @@ public abstract class DbIntegrationTestBase
     private static DbConnection _dbConnection = null!;
 
     /// <summary>
-    /// Configure the test class; runs once before any test class at [ClassInitialize]
+    /// Configure the test class; runs once before any test class [MSTest:ClassInitialize], [BenchmarkDotNet:GlobalSetup]
     /// </summary>
     /// <returns></returns>
     protected static async Task ConfigureTestInstanceAsync()
@@ -76,6 +79,7 @@ public abstract class DbIntegrationTestBase
 
         //build IServiceProvider for subsequent use finding/injecting services
         _services = services.BuildServiceProvider(validateScopes: true);
+        _serviceScope = _services.CreateScope();
         _logger.Log(LogLevel.Information, "Test Initialized.");
     }
 
@@ -87,10 +91,15 @@ public abstract class DbIntegrationTestBase
     }
     protected static async Task StopContainerAsync()
     {
+        ServiceScope.Dispose();
         await _dbConnection.CloseAsync();
         await DbContainer.StopAsync();
     }
 
+    /// <summary>
+    /// https://github.com/jbogard/Respawn
+    /// </summary>
+    /// <returns></returns>
     private static async Task InitializeRespawner()
     {
         await _dbConnection.OpenAsync();
@@ -102,16 +111,36 @@ public abstract class DbIntegrationTestBase
         });
     }
 
-    public static async Task ResetDatabaseAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Reseed the database with data from the seed files and/or factories specified by the test, and/or from config
+    /// </summary>
+    /// <param name="seedFromConfig"></param>
+    /// <param name="seedFactories"></param>
+    /// <param name="seedPaths"></param>
+    /// <param name="seedSearchPattern"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected static async Task ResetDatabaseAsync(bool respawn = true, bool seedFromConfig = true, List<Action>? seedFactories = null, 
+        List<string>? seedPaths = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
     {
-        await _respawner.ResetAsync(_dbConnection);
-        List<Action> seedFactories = [];
-        if (_testConfigSection.GetValue("SeedEntityData", false))
+        if (respawn)
         {
-            seedFactories.Add(() => _dbContext.SeedEntityData());
+            //reset to blank db
+            await _respawner.ResetAsync(_dbConnection);
         }
-        var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
-        var seatchPattern = _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!;
-        await _dbContext.Seed(_logger, seedPaths, seatchPattern, null!, cancellationToken);
+
+        //seed
+        seedFactories ??= [];
+        seedPaths ??= [];
+        if (seedFromConfig)
+        {
+            if (_testConfigSection.GetValue("SeedEntityData", false))
+            {
+                seedFactories.Add(() => _dbContext.SeedEntityData());
+            }
+            seedPaths.AddRange(_testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? []);
+        }
+        await _dbContext.SeedAsync(_logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
+        await _dbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
     }
 }

@@ -17,7 +17,6 @@ namespace Test.Benchmarks;
 [RankColumn]
 public class RepositoryBenchmarks : DbIntegrationTestBase
 {
-    private IServiceScope _serviceScope = null!;
     private ITodoRepositoryQuery _repo = null!;
 
     [Benchmark]
@@ -36,6 +35,9 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     //BenchmarkDotNet does not support async setup/teardown
     ////https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
 
+    /// <summary>
+    /// Reset DB here to avoid the overhead of resetting the database for each benchmark
+    /// </summary>
     [IterationSetup]
     public static void IterationSetup()
     {
@@ -47,14 +49,12 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     {
         StartContainerAsync().GetAwaiter().GetResult();
         ConfigureTestInstanceAsync().GetAwaiter().GetResult();
-        _serviceScope = Services.CreateScope(); //needed for injecting scoped services
-        _repo = (TodoRepositoryQuery)_serviceScope.ServiceProvider.GetRequiredService(typeof(ITodoRepositoryQuery));
+        _repo = (TodoRepositoryQuery)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoRepositoryQuery));
     }
 
     [GlobalCleanup]
-    public void GlobalCleanup()
+    public static void GlobalCleanup()
     {
-        _serviceScope.Dispose();
         StopContainerAsync().GetAwaiter().GetResult();
     }
 }
