@@ -5,18 +5,13 @@ using Infrastructure.Data;
 namespace Test.Support;
 public static class TodoDbContextSupport
 {
-    public static void SeedDefaultEntityData(this TodoDbContextBase db, bool clear = true)
+    public static void SeedEntityData(this TodoDbContextBase db, bool clear = true, int size = 10, TodoItemStatus? status = null)
     {
         if (clear) db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
-        db.Set<TodoItem>().AddRange(new List<TodoItem>
-        {
-            new("item1a", TodoItemStatus.Created) { CreatedBy = "Test.Unit" },
-            new("item2a", TodoItemStatus.InProgress) { CreatedBy = "Test.Unit" },
-            new("item3a", TodoItemStatus.Completed){ CreatedBy = "Test.Unit" }
-        });
+        db.Set<TodoItem>().AddRange(TodoItemListFactory(size, status));
     }
 
-    public static List<TodoItem> TodoItemListFactory(int size, TodoItemStatus? status = null)
+    public static List<TodoItem> TodoItemListFactory(int size = 10, TodoItemStatus? status = null)
     {
         var list = new List<TodoItem>();
         for (int i = 0; i < size; i++)

@@ -62,32 +62,6 @@ public static class DbSupport
         return db;
     }
 
-    public static void SeedRawSqlFiles(this DbContext db, ILogger logger, List<string> relativePaths, string searchPattern)
-    {
-        relativePaths.ForEach(path =>
-        {
-            string[] files = [.. Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path), searchPattern).OrderBy(f => f)]; //order by name
-            foreach (var filePath in files)
-            {
-                db.SeedRawSqlFile(logger, filePath);
-            }
-        });
-    }
-
-    public static void SeedRawSqlFile(this DbContext db, ILogger logger, string filePath)
-    {
-        try
-        {
-            logger.InfoLog($"Seeding test database from file: {filePath}");
-            var sql = File.ReadAllText(filePath);
-            db.Database.ExecuteSqlRaw(sql);
-        }
-        catch (Exception ex)
-        {
-            logger.ErrorLog($"An error occurred seeding the database from file {filePath}", ex);
-        }
-    }
-
     private static readonly Random _R = new();
     public static TEnum? RandomEnumValue<TEnum>()
     {

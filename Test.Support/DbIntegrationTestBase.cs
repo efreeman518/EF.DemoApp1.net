@@ -102,27 +102,16 @@ public abstract class DbIntegrationTestBase
         });
     }
 
-    public static async Task ResetDatabaseAsync(bool reseed = true)
+    public static async Task ResetDatabaseAsync(CancellationToken cancellationToken = default)
     {
         await _respawner.ResetAsync(_dbConnection);
-        if (reseed && _testConfigSection.GetValue("SeedData", false))
+        List<Action> seedFactories = [];
+        if (_testConfigSection.GetValue("SeedEntityData", false))
         {
-            var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
-            if (seedPaths != null && seedPaths.Length > 0)
-            {
-                _dbContext.SeedRawSqlFiles(_logger, [.. seedPaths], _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!);
-            }
-
-            try
-            {
-                _logger.LogInformation($"Seeding default entity data.");
-                _dbContext.SeedDefaultEntityData(false);
-                _dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred seeding the database with test data. Error: {Message}", ex.Message);
-            }
+            seedFactories.Add(() => _dbContext.SeedEntityData());
         }
+        var seedPaths = _testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>();
+        var seatchPattern = _testConfigSection.GetValue("SeedFiles:SearchPattern", "*.sql")!;
+        await _dbContext.Seed(_logger, seedPaths, seatchPattern, null!, cancellationToken);
     }
 }

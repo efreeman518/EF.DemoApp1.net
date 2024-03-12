@@ -35,7 +35,7 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
 
     //BenchmarkDotNet does not support async setup/teardown
     ////https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
-    
+
     [IterationSetup]
     public static void IterationSetup()
     {
