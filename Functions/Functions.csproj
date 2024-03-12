@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage" Version="6.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Warmup" Version="4.0.2" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.0" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
