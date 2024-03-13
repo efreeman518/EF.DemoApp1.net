@@ -2,11 +2,10 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Shared.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Common;
 using Test.Support;
-
-//https://github.com/dotnet/BenchmarkDotNet
 
 namespace Test.Benchmarks;
 
@@ -52,10 +51,15 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     //BenchmarkDotNet does not support async setup/teardown
     //https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
 
+    /// <summary>
+    /// Reset & reseed DB here to avoid the overhead of resetting the database inside the benchmark test
+    /// </summary>
     [IterationSetup]
     public static void IterationSetup()
     {
-        ResetDatabaseAsync().GetAwaiter().GetResult();
+        List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        ResetDatabaseAsync(true, seedFactories, seedPaths).GetAwaiter().GetResult();
     }
 
     [GlobalSetup]
@@ -67,7 +71,7 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     }
 
     [GlobalCleanup]
-    public void GlobalCleanup()
+    public static void GlobalCleanup()
     {
         StopContainerAsync().GetAwaiter().GetResult();
     }

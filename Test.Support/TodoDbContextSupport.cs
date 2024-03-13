@@ -3,11 +3,16 @@ using Domain.Shared.Enums;
 using Infrastructure.Data;
 
 namespace Test.Support;
+
 public static class TodoDbContextSupport
 {
-    public static void SeedEntityData(this TodoDbContextBase db, bool clear = true, int size = 10, TodoItemStatus? status = null)
+    public static void ClearEntityData(this TodoDbContextBase db)
     {
-        if (clear) db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
+        db.Set<TodoItem>().RemoveRange(db.Set<TodoItem>());
+    }
+
+    public static void SeedEntityData(this TodoDbContextBase db, int size = 10, TodoItemStatus? status = null)
+    {
         db.Set<TodoItem>().AddRange(TodoItemListFactory(size, status));
     }
 
@@ -16,7 +21,7 @@ public static class TodoDbContextSupport
         var list = new List<TodoItem>();
         for (int i = 0; i < size; i++)
         {
-            list.Add(TodoItemFactory($"a some entity {i}", status ?? DbSupport.RandomEnumValue<TodoItemStatus>()));
+            list.Add(TodoItemFactory($"a-{Utility.RandomString(10)}", status ?? DbSupport.RandomEnumValue<TodoItemStatus>()));
         }
         return list;
     }

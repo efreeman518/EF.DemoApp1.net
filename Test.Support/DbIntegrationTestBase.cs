@@ -22,19 +22,21 @@ public abstract class DbIntegrationTestBase
 {
     protected const string ClientName = "IntegrationTest";
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<DbIntegrationTestBase>().Build();
-    private readonly static IConfigurationSection _testConfigSection = Config.GetSection("TestSettings");
+    protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
     protected static IServiceProvider Services => _services;
     protected static IServiceScope ServiceScope => _serviceScope;
     protected static ILogger Logger => _logger;
+    protected static TodoDbContextBase DbContext => _dbContext;
 
     private static IServiceProvider _services = null!;
     private static IServiceScope _serviceScope = null!;
     private static ILogger<DbIntegrationTestBase> _logger = null!;
+    private static TodoDbContextBase _dbContext = null!;
 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
     private static readonly MsSqlContainer DbContainer = new MsSqlBuilder().Build();
     private static string _dbConnectionString = null!;
-    private static TodoDbContextBase _dbContext = null!;
+
 
     //https://github.com/jbogard/Respawn
     private static Respawner _respawner = null!;
@@ -66,7 +68,7 @@ public abstract class DbIntegrationTestBase
         _logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
 
         //database
-        var dbSource = _testConfigSection.GetValue<string?>("DBSource", null);
+        var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
         _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(_logger, services, dbSource, _dbConnectionString);
         await InitializeRespawner();
 
@@ -112,34 +114,28 @@ public abstract class DbIntegrationTestBase
     }
 
     /// <summary>
-    /// Reseed the database with data from the seed files and/or factories specified by the test, and/or from config
+    /// Optionally reset and reseed the database with data from the seed files and/or factories specified by the test, and/or from config
     /// </summary>
-    /// <param name="seedFromConfig"></param>
+    /// <param name="respawn"></param>
+    /// <param name="clearData"></param>
     /// <param name="seedFactories"></param>
     /// <param name="seedPaths"></param>
     /// <param name="seedSearchPattern"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected static async Task ResetDatabaseAsync(bool respawn = true, bool seedFromConfig = true, List<Action>? seedFactories = null, 
+    protected static async Task ResetDatabaseAsync(bool respawn = false, List<Action>? seedFactories = null,
         List<string>? seedPaths = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
     {
+        //reset to blank db; clears data automatically
         if (respawn)
         {
-            //reset to blank db
             await _respawner.ResetAsync(_dbConnection);
         }
 
         //seed
         seedFactories ??= [];
         seedPaths ??= [];
-        if (seedFromConfig)
-        {
-            if (_testConfigSection.GetValue("SeedEntityData", false))
-            {
-                seedFactories.Add(() => _dbContext.SeedEntityData());
-            }
-            seedPaths.AddRange(_testConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? []);
-        }
+
         await _dbContext.SeedAsync(_logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
         await _dbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
     }

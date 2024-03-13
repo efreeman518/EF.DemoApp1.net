@@ -3,8 +3,6 @@ using BenchmarkDotNet.Order;
 using Domain.Model;
 using Domain.Rules;
 
-//https://github.com/dotnet/BenchmarkDotNet
-
 namespace Test.Benchmarks;
 
 [MemoryDiagnoser]

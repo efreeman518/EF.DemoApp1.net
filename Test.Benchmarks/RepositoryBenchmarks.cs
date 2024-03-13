@@ -4,11 +4,10 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
 using Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.Data.Contracts;
 using Test.Support;
-
-//https://github.com/dotnet/BenchmarkDotNet
 
 namespace Test.Benchmarks;
 
@@ -36,12 +35,14 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     ////https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
 
     /// <summary>
-    /// Reset DB here to avoid the overhead of resetting the database for each benchmark
+    /// Reset & reseed DB here to avoid the overhead of resetting the database inside the benchmark test
     /// </summary>
     [IterationSetup]
     public static void IterationSetup()
     {
-        ResetDatabaseAsync().GetAwaiter().GetResult();
+        List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        ResetDatabaseAsync(true, seedFactories, seedPaths).GetAwaiter().GetResult();
     }
 
     [GlobalSetup]

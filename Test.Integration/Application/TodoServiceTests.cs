@@ -1,7 +1,9 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Application.Services;
+using Domain.Model;
 using Domain.Shared.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
@@ -17,10 +19,17 @@ public class TodoServiceTests : DbIntegrationTestBase
     {
         Logger.InfoLog("Starting Todo_CRUD_pass");
 
-        //configure any test data for this test
-        await ResetDatabaseAsync();
-
         //arrange
+        //configure any test data for this test
+        List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        //generate another 5 completed items
+        seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
+        //add a single item
+        seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+
+
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(null, name, TodoItemStatus.Created);
@@ -73,10 +82,12 @@ public class TodoServiceTests : DbIntegrationTestBase
     {
         Logger.InfoLog("Starting Todo_AddItem_fail");
 
-        //configure any test data for this test
-        await ResetDatabaseAsync();
-
         //arrange
+        //configure any test data for this test
+        List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(Guid.Empty, name, TodoItemStatus.Created);
 
@@ -86,16 +97,6 @@ public class TodoServiceTests : DbIntegrationTestBase
         var result = await svc.AddItemAsync(todo);
         Assert.IsTrue(result.IsFaulted);
     }
-
-    /// <summary>
-    /// run before each test
-    /// </summary>
-    /// <returns></returns>
-    //[TestInitialize]
-    //public async Task TestInit()
-    //{
-    //    await ResetDatabaseAsync();
-    //}
 
     /// <summary>
     /// run once at class initialization
