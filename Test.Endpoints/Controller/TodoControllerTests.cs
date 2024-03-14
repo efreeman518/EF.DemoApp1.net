@@ -1,8 +1,11 @@
 ﻿using Application.Contracts.Model;
+using Domain.Model;
 using Domain.Shared.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using System.Net;
+using Test.Support;
 
 //parallel to the same api can cause intermittent failures
 [assembly: DoNotParallelize]
@@ -12,13 +15,20 @@ namespace Test.Endpoints.Controller;
 [TestClass]
 public class TodoControllerTests : EndpointTestBase
 {
-    private const string FACTORY_KEY = "TodoControllerTests";
-    private static HttpClient _client = null!;
-
     [TestMethod]
     public async Task CRUD_pass()
     {
         //arrange
+        //configure any test data for this test
+        List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        //generate another 5 completed items
+        seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
+        //add a single item
+        seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+        //add script files
+        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+
         string urlBase = "api/v1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
@@ -26,7 +36,7 @@ public class TodoControllerTests : EndpointTestBase
         //act
 
         //POST create (insert)
-        (var _, var parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
+        (var _, var parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
@@ -34,51 +44,43 @@ public class TodoControllerTests : EndpointTestBase
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
         var todo2 = todo with { Name = $"Update {name}" };
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
+        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //GET retrieve
-        (_, parsedResponse) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //DELETE
-        (var httpResponse, _) = await _client.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
+        (var httpResponse, _) = await ApiHttpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
         Assert.AreEqual(HttpStatusCode.OK, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await _client.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
+        (httpResponse, _) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
     }
-
-    //reset db after each test
-    [TestInitialize]
-    public async Task TestCleanup() => await ApiFactoryManager.ResetDatabaseAsync<Program>(FACTORY_KEY);
 
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        Console.WriteLine(testContext.TestName);
+        //await BaseClassInit(testContext);
+        Console.Write($"Start {testContext.TestName}");
 
-        await ApiFactoryManager.StartDbContainerAsync<Program>(FACTORY_KEY);
-
-        //Arrange for all tests
-        _client = ApiFactoryManager.GetClient<Program>(FACTORY_KEY);
-
-        await ApiFactoryManager.InitializeRespawnerAsync<Program>(FACTORY_KEY);
-
-        //Authentication
-        //await ApplyBearerAuthHeader(_client);
+        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        {
+            await StartDbContainerAsync();
+        }
+        await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        await ApiFactoryManager.StopDbContainerAsync<Program>(FACTORY_KEY);
-        ApiFactoryManager.Cleanup<Program>(FACTORY_KEY);
+        await BaseClassCleanup();
     }
 }

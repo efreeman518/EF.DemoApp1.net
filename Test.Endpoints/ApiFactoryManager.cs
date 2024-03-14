@@ -9,32 +9,7 @@ namespace Test.Endpoints;
 /// </summary>
 public static class ApiFactoryManager
 {
-    //public static readonly IConfigurationRoot Config = Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
-
-    public static async Task StartDbContainerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
-    {
-        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.StartDbContainer(cancellationToken);
-    }
-
-    public static async Task StopDbContainerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
-    {
-        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.StopDbContainer(cancellationToken);
-    }
-
-    public static async Task InitializeRespawnerAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
-    {
-        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.InitializeRespawner(cancellationToken);
-    }
-
-    public static async Task ResetDatabaseAsync<TEntryPoint>(string? factoryKey = null, CancellationToken cancellationToken = default) where TEntryPoint : class
-    {
-        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        await factory.ResetDatabaseAsync(cancellationToken: cancellationToken);
-    }
 
     public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")
         where TEntryPoint : class
@@ -50,14 +25,14 @@ public static class ApiFactoryManager
         return client;
     }
 
-    private static CustomApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null)
+    private static CustomApiFactory<TEntryPoint> GetFactory<TEntryPoint>(string? factoryKey = null, string? dbConnectionString = null)
         where TEntryPoint : class
     {
         factoryKey ??= typeof(TEntryPoint).FullName!;
         CustomApiFactory<TEntryPoint> factory;
         if (_factories.TryGetValue(factoryKey, out var result)) return (CustomApiFactory<TEntryPoint>)result;
 
-        factory = new CustomApiFactory<TEntryPoint>(); //must live for duration of the client
+        factory = new CustomApiFactory<TEntryPoint>(dbConnectionString); //must live for duration of the client
         _factories.TryAdd(factoryKey, factory); //hold for subsequent use
         return factory;
     }

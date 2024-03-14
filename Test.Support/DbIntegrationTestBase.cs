@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,9 +35,8 @@ public abstract class DbIntegrationTestBase
     private static TodoDbContextBase _dbContext = null!;
 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
-    private static readonly MsSqlContainer DbContainer = new MsSqlBuilder().Build();
+    private static MsSqlContainer _dbContainer = null!;
     private static string _dbConnectionString = null!;
-
 
     //https://github.com/jbogard/Respawn
     private static Respawner _respawner = null!;
@@ -46,7 +46,7 @@ public abstract class DbIntegrationTestBase
     /// Configure the test class; runs once before any test class [MSTest:ClassInitialize], [BenchmarkDotNet:GlobalSetup]
     /// </summary>
     /// <returns></returns>
-    protected static async Task ConfigureTestInstanceAsync()
+    protected static async Task ConfigureTestInstanceAsync(CancellationToken cancellationToken = default)
     {
         //Services for DI
         ServiceCollection services = [];
@@ -69,8 +69,16 @@ public abstract class DbIntegrationTestBase
 
         //database
         var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
-        _dbContext = DbSupport.ConfigureTestDB<TodoDbContextTrxn>(_logger, services, dbSource, _dbConnectionString);
-        await InitializeRespawner();
+        if (dbSource == "TestContainer")
+        {
+            dbSource = _dbConnectionString;
+        }
+        _dbContext = DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(_logger, services, dbSource);
+        if (!_dbContext.Database.IsInMemory())
+        {
+            await _dbConnection.OpenAsync(cancellationToken);
+            await InitializeRespawner();
+        }
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         services.AddTransient<IRequestContext<string>>(provider =>
@@ -85,17 +93,17 @@ public abstract class DbIntegrationTestBase
         _logger.Log(LogLevel.Information, "Test Initialized.");
     }
 
-    protected static async Task StartContainerAsync()
+    /// <summary>
+    /// Effective when using TestContainers
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected static async Task StartDbContainerAsync(CancellationToken cancellationToken = default)
     {
-        await DbContainer.StartAsync();
-        _dbConnectionString = DbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
-        _dbConnection = new SqlConnection(_dbConnectionString);
-    }
-    protected static async Task StopContainerAsync()
-    {
-        ServiceScope.Dispose();
-        await _dbConnection.CloseAsync();
-        await DbContainer.StopAsync();
+        _dbContainer = new MsSqlBuilder().Build();
+        await _dbContainer.StartAsync(cancellationToken);
+        _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
+        _dbConnection = new SqlConnection(_dbConnectionString); //respawner
     }
 
     /// <summary>
@@ -104,7 +112,8 @@ public abstract class DbIntegrationTestBase
     /// <returns></returns>
     private static async Task InitializeRespawner()
     {
-        await _dbConnection.OpenAsync();
+        if (_dbConnection == null) return;
+
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer,
@@ -113,30 +122,30 @@ public abstract class DbIntegrationTestBase
         });
     }
 
-    /// <summary>
-    /// Optionally reset and reseed the database with data from the seed files and/or factories specified by the test, and/or from config
-    /// </summary>
-    /// <param name="respawn"></param>
-    /// <param name="clearData"></param>
-    /// <param name="seedFactories"></param>
-    /// <param name="seedPaths"></param>
-    /// <param name="seedSearchPattern"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    protected static async Task ResetDatabaseAsync(bool respawn = false, List<Action>? seedFactories = null,
-        List<string>? seedPaths = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
+    protected static async Task ResetDatabaseAsync(bool respawn = false, List<Action>? seedFactories = null, List<string>? seedPaths = null,
+        string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
     {
-        //reset to blank db; clears data automatically
-        if (respawn)
+        if (!DbContext.Database.IsInMemory() && respawn)
         {
             await _respawner.ResetAsync(_dbConnection);
         }
+        await DbContext.ResetDatabaseAsync(Logger, seedFactories, seedPaths, seedSearchPattern, cancellationToken);
+        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, ClientName, cancellationToken: cancellationToken);
+    }
 
-        //seed
-        seedFactories ??= [];
-        seedPaths ??= [];
+    protected static async Task BaseClassCleanup(CancellationToken cancellationToken = default)
+    {
+        ServiceScope.Dispose();
+        if (_dbConnection != null)
+        {
+            await _dbConnection.CloseAsync();
+            await _dbConnection.DisposeAsync();
+        }
 
-        await _dbContext.SeedAsync(_logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
-        await _dbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
+        if (_dbContainer != null)
+        {
+            await _dbContainer.StopAsync(cancellationToken);
+            await _dbContainer.DisposeAsync();
+        }
     }
 }

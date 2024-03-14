@@ -29,7 +29,6 @@ public class TodoServiceTests : DbIntegrationTestBase
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
         await ResetDatabaseAsync(true, seedFactories, seedPaths);
 
-
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(null, name, TodoItemStatus.Created);
@@ -106,14 +105,22 @@ public class TodoServiceTests : DbIntegrationTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        _ = testContext.GetHashCode();
-        await StartContainerAsync();
+        Console.Write($"Start {testContext.TestName}");
+
+        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        {
+            await StartDbContainerAsync();
+        }
         await ConfigureTestInstanceAsync();
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        await StopContainerAsync();
+        ServiceScope.Dispose();
+        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        {
+            await BaseClassCleanup();
+        }
     }
 }

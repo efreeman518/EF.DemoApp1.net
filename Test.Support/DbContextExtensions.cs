@@ -1,10 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Data.Contracts;
 
 namespace Test.Support;
 public static class DbContextExtensions
 {
+    /// <summary>
+    /// Reseed the database with data from the seed files and/or factories specified by the test, and/or from config
+    /// InMemoryDatabase has limited functionality; does not support reset, sql execute.
+    /// Caller must SaveChangesAsync to persist the seed data
+    /// </summary>
+    /// <param name="respawn"></param>
+    /// <param name="seedFactories"></param>
+    /// <param name="seedPaths"></param>
+    /// <param name="seedSearchPattern"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task ResetDatabaseAsync(this DbContext dbContext, ILogger logger, List<Action>? seedFactories = null,
+        List<string>? seedPaths = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
+    {
+        if (dbContext.Database.IsInMemory())
+        {
+            seedPaths = null;
+        }
+
+        //seed
+        seedFactories ??= [];
+        seedPaths ??= [];
+
+        await dbContext.SeedAsync(logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
+    }
+
     /// <summary>
     /// Seed the database with data from the seed files and/or factories specified by the test, and/or from config
     /// Caller or seedFactory delegates must SaveChanges to persist the seedFactories data
@@ -19,7 +46,7 @@ public static class DbContextExtensions
     public static async Task SeedAsync(this DbContext dbContext, ILogger logger, string[]? seedPaths = null,
         string searchPattern = "*.sql", Action[]? seedFactories = null, CancellationToken cancellationToken = default)
     {
-        if (seedPaths?.Length > 0)
+        if (!dbContext.Database.IsInMemory() && seedPaths?.Length > 0)
         {
             await dbContext.SeedRawSqlFilesAsync(logger, [.. seedPaths], searchPattern, cancellationToken);
         }
