@@ -7,7 +7,8 @@ using Package.Infrastructure.Common.Extensions;
 using System.Net;
 using Test.Support;
 
-//parallel to the same api can cause intermittent failures
+//parallel to the same api can cause intermittent failures since the api & all tests are using the same database;
+//all will try to create the DB if it doesn't exist
 [assembly: DoNotParallelize]
 
 namespace Test.Endpoints.Controller;

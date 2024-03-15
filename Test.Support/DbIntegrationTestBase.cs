@@ -151,7 +151,6 @@ public abstract class DbIntegrationTestBase
 
         if (_dbContainer != null)
         {
-            await _dbContainer.StopAsync(cancellationToken);
             await _dbContainer.DisposeAsync();
         }
     }

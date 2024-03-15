@@ -22,4 +22,17 @@ public class BasicEndpointsTests : EndpointTestBase
         Assert.AreEqual(expectedStatusCode, httpResponse.StatusCode);
         Assert.AreEqual(contentType, httpResponse.Content.Headers.ContentType?.ToString());
     }
+
+    [ClassInitialize]
+    public static async Task ClassInit(TestContext testContext)
+    {
+        Console.Write($"Start {testContext.TestName}");
+        await ConfigureTestInstanceAsync(testContext.TestName!);
+    }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await BaseClassCleanup();
+    }
 }

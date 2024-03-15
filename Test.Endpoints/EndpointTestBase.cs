@@ -19,7 +19,6 @@ namespace Test.Endpoints;
 /// Testing http endpoints (MVC controllers, razor pages)
 /// Get the DB connection string & DbContext so data can be reset between tests 
 /// </summary>
-[TestClass]
 public abstract class EndpointTestBase
 {
     private static string _testContextName = null!;
@@ -90,6 +89,7 @@ public abstract class EndpointTestBase
         //if we are going to have a dbContext for resetting data, we need to make sure its created now in order for respawner to open the connection
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
         //db.Database.Migrate(); //needs AKVCMKURL env var set
+        //cannot run parallel tests - this throws
         _dbContext.Database.EnsureCreated(); //does not use migrations; uses DbContext to create tables
 
         if (!_dbContext.Database.IsInMemory())
@@ -152,7 +152,6 @@ public abstract class EndpointTestBase
 
         if (_dbContainer != null)
         {
-            await _dbContainer.StopAsync(cancellationToken);
             await _dbContainer.DisposeAsync();
         }
     }

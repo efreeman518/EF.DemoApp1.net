@@ -9,6 +9,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using Test.Support;
 
+//all tests in this class are using the same database
+[assembly: DoNotParallelize]
+
 namespace Test.Integration.Application;
 
 [TestClass]
