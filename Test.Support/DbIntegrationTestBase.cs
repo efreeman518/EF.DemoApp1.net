@@ -142,7 +142,7 @@ public abstract class DbIntegrationTestBase
         await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 
-    protected static async Task BaseClassCleanup(CancellationToken cancellationToken = default)
+    protected static async Task BaseClassCleanup()
     {
         ServiceScope.Dispose();
         if (_dbConnection != null)

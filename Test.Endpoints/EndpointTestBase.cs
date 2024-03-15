@@ -142,7 +142,7 @@ public abstract class EndpointTestBase
         await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 
-    public static async Task BaseClassCleanup(CancellationToken cancellationToken = default)
+    public static async Task BaseClassCleanup()
     {
         ApiFactoryManager.Cleanup<Program>(_testContextName);
 
