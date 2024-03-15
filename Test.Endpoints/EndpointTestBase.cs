@@ -72,6 +72,12 @@ public abstract class EndpointTestBase
     public static async Task ConfigureTestInstanceAsync(string testContextName, CancellationToken cancellationToken = default)
     {
         _testContextName = $"EndpointTest-{testContextName}";
+
+        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        {
+            await StartDbContainerAsync(cancellationToken);
+        }
+
         var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
 
         if (dbSource == "TestContainer")

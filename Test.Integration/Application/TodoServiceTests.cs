@@ -106,18 +106,12 @@ public class TodoServiceTests : DbIntegrationTestBase
     public static async Task ClassInit(TestContext testContext)
     {
         Console.Write($"Start {testContext.TestName}");
-
-        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
-        {
-            await StartDbContainerAsync();
-        }
-        await ConfigureTestInstanceAsync();
+        await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        ServiceScope.Dispose();
         if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
         {
             await BaseClassCleanup();

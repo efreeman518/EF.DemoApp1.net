@@ -48,8 +48,7 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     [GlobalSetup]
     public void GlobalSetup()
     {
-        StartDbContainerAsync().GetAwaiter().GetResult();
-        ConfigureTestInstanceAsync().GetAwaiter().GetResult();
+        ConfigureTestInstanceAsync(nameof(RepositoryBenchmarks)).GetAwaiter().GetResult();
         _repo = (TodoRepositoryQuery)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoRepositoryQuery));
     }
 

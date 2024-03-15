@@ -68,13 +68,7 @@ public class TodoControllerTests : EndpointTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        //await BaseClassInit(testContext);
         Console.Write($"Start {testContext.TestName}");
-
-        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
-        {
-            await StartDbContainerAsync();
-        }
         await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 

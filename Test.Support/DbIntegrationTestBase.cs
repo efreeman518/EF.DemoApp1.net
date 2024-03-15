@@ -21,7 +21,7 @@ namespace Test.Support;
 /// </summary>
 public abstract class DbIntegrationTestBase
 {
-    protected const string ClientName = "IntegrationTest";
+    private static string _testContextName = null!;
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<DbIntegrationTestBase>().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
     protected static IServiceProvider Services => _services;
@@ -46,8 +46,15 @@ public abstract class DbIntegrationTestBase
     /// Configure the test class; runs once before any test class [MSTest:ClassInitialize], [BenchmarkDotNet:GlobalSetup]
     /// </summary>
     /// <returns></returns>
-    protected static async Task ConfigureTestInstanceAsync(CancellationToken cancellationToken = default)
+    protected static async Task ConfigureTestInstanceAsync(string testContextName, CancellationToken cancellationToken = default)
     {
+        _testContextName = $"IntegrationTest-{testContextName}";
+
+        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        {
+            await StartDbContainerAsync(cancellationToken);
+        }
+
         //Services for DI
         ServiceCollection services = [];
 
@@ -90,7 +97,7 @@ public abstract class DbIntegrationTestBase
         //build IServiceProvider for subsequent use finding/injecting services
         _services = services.BuildServiceProvider(validateScopes: true);
         _serviceScope = _services.CreateScope();
-        _logger.Log(LogLevel.Information, "Test Initialized.");
+        _logger.Log(LogLevel.Information, $"{_testContextName} Initialized.");
     }
 
     /// <summary>
@@ -130,7 +137,7 @@ public abstract class DbIntegrationTestBase
             await _respawner.ResetAsync(_dbConnection);
         }
         await DbContext.ResetDatabaseAsync(Logger, seedFactories, seedPaths, seedSearchPattern, cancellationToken);
-        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, ClientName, cancellationToken: cancellationToken);
+        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 
     protected static async Task BaseClassCleanup(CancellationToken cancellationToken = default)

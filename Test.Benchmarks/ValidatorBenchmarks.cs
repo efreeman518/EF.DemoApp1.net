@@ -65,8 +65,7 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     [GlobalSetup]
     public void GlobalSetup()
     {
-        StartDbContainerAsync().GetAwaiter().GetResult();
-        ConfigureTestInstanceAsync().GetAwaiter().GetResult();
+        ConfigureTestInstanceAsync(nameof(ValidatorBenchmarks)).GetAwaiter().GetResult();
         _validationHelper = ServiceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
     }
 
