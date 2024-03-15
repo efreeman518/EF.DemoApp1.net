@@ -76,6 +76,7 @@ public abstract class EndpointTestBase
         {
             await StartDbContainerAsync(cancellationToken);
         }
+        
 
         var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
 
@@ -94,6 +95,8 @@ public abstract class EndpointTestBase
 
         if (!_dbContext.Database.IsInMemory())
         {
+            //supports respawner
+            _dbConnection = new SqlConnection(dbSource); 
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }
@@ -109,7 +112,6 @@ public abstract class EndpointTestBase
         _dbContainer = new MsSqlBuilder().Build();
         await _dbContainer.StartAsync(cancellationToken);
         _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
-        _dbConnection = new SqlConnection(_dbConnectionString); //respawner
     }
 
     /// <summary>

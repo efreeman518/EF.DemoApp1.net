@@ -50,7 +50,9 @@ public abstract class DbIntegrationTestBase
     {
         _testContextName = $"IntegrationTest-{testContextName}";
 
-        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
+
+        if (dbSource == "TestContainer")
         {
             await StartDbContainerAsync(cancellationToken);
         }
@@ -75,7 +77,6 @@ public abstract class DbIntegrationTestBase
         _logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
 
         //database
-        var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
         if (dbSource == "TestContainer")
         {
             dbSource = _dbConnectionString;
@@ -83,6 +84,8 @@ public abstract class DbIntegrationTestBase
         _dbContext = DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(_logger, services, dbSource);
         if (!_dbContext.Database.IsInMemory())
         {
+            //supports respawner
+            _dbConnection = new SqlConnection(dbSource); 
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }
@@ -104,13 +107,12 @@ public abstract class DbIntegrationTestBase
     /// Effective when using TestContainers
     /// </summary>
     /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <returns>DB connection string from the container</returns>
     protected static async Task StartDbContainerAsync(CancellationToken cancellationToken = default)
     {
         _dbContainer = new MsSqlBuilder().Build();
         await _dbContainer.StartAsync(cancellationToken);
         _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
-        _dbConnection = new SqlConnection(_dbConnectionString); //respawner
     }
 
     /// <summary>
