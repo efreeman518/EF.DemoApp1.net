@@ -21,9 +21,9 @@ public class ResilientTransaction
         var strategy = _context.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            await action();
-            await transaction.CommitAsync();
-        });
+            await using var transaction = await _context.Database.BeginTransactionAsync().ConfigureAwait(ConfigureAwaitOptions.None);
+            await action().ConfigureAwait(ConfigureAwaitOptions.None);
+            await transaction.CommitAsync().ConfigureAwait(ConfigureAwaitOptions.None);
+        }).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 }

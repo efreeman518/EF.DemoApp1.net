@@ -20,7 +20,7 @@ public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOpt
     {
         try
         {
-            TResponse val = await grpcResponse;
+            TResponse val = await grpcResponse.ConfigureAwait(ConfigureAwaitOptions.None);
             logger.Log(LogLevel.Debug, "Response received: {Response}", val);
             return val;
         }

@@ -47,7 +47,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
                         {
                             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheMinutes)
                         };
-                        await distCache.SetAsync(key, cacheItem, options, cancellationToken);
+                        await distCache.SetAsync(key, cacheItem, options, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
                     }
                 }
             }
@@ -70,7 +70,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
     {
         key = CacheUtility.BuildCacheKey<T>(key, mOptions.TenantId);
         logger.InfoLog($"RemoveAsync - Cache key: {key}.");
-        await distCache.RemoveAsync(key, cancellationToken).ConfigureAwait(false);
+        await distCache.RemoveAsync(key, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
 }

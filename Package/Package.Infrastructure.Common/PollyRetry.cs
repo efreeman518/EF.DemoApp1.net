@@ -117,7 +117,8 @@ public static class PollyRetry
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
         List<Type> retryExceptions = [typeof(HttpRequestException)];
-        return await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
+        return await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(),
+            retryExceptions, false, null, returnCallback).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -142,7 +143,8 @@ public static class PollyRetry
         bool returnCallback(HttpResponseMessage r) => retryHttpStatusCodes.Contains(r.StatusCode);
 
         List<Type> retryExceptions = [typeof(HttpRequestException)];
-        await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(), retryExceptions, false, null, returnCallback);
+        await RetryAsync(factory, retrySettings ?? new RetrySettings(), circuitBreakerSettings ?? new CircuitBreakerSettings(),
+            retryExceptions, false, null, returnCallback).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -161,7 +163,7 @@ public static class PollyRetry
     {
         var retry = WaitAndRetryAsyncPolicy(retrySettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
         var circuitBreaker = CiruitBreakerAsyncPolicy<T>(circuitBreakerSettings, retryExceptions, includeInner, exceptionCallback, returnCallback);
-        var result = await Policy.WrapAsync(retry, circuitBreaker).ExecuteAndCaptureAsync(factory);
+        var result = await Policy.WrapAsync(retry, circuitBreaker).ExecuteAndCaptureAsync(factory).ConfigureAwait(ConfigureAwaitOptions.None);
         return result.Result;
     }
 

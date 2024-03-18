@@ -37,7 +37,7 @@ public abstract class TableRepositoryBase : ITableRepository
         try
         {
             _logger.LogInformation($"GetItemAsync<{typeof(T).Name}> {0} {1})", partitionKey, rowkey);
-            var response = await table.GetEntityAsync<T>(partitionKey, rowkey, selectProps, cancellationToken); //throws if no value (not found)
+            var response = await table.GetEntityAsync<T>(partitionKey, rowkey, selectProps, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None); //throws if no value (not found)
             return response.Value;
         }
         catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
@@ -51,7 +51,7 @@ public abstract class TableRepositoryBase : ITableRepository
         where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
-        var response = await table.AddEntityAsync(item, cancellationToken);
+        var response = await table.AddEntityAsync(item, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (HttpStatusCode)response.Status;
     }
 
@@ -59,7 +59,7 @@ public abstract class TableRepositoryBase : ITableRepository
         where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
-        var response = await table.UpsertEntityAsync(item, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
+        var response = await table.UpsertEntityAsync(item, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (HttpStatusCode)response.Status;
     }
 
@@ -67,14 +67,14 @@ public abstract class TableRepositoryBase : ITableRepository
         where T : Azure.Data.Tables.ITableEntity
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
-        var response = await table.UpdateEntityAsync(item, item.ETag, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken);
+        var response = await table.UpdateEntityAsync(item, item.ETag, (Azure.Data.Tables.TableUpdateMode)updateMode, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (HttpStatusCode)response.Status;
     }
 
     public async Task<HttpStatusCode> DeleteItemAsync<T>(string partitionKey, string rowkey, CancellationToken cancellationToken = default)
     {
         var table = _tableServiceClient.GetTableClient(typeof(T).Name);
-        var response = await table.DeleteEntityAsync(partitionKey, rowkey, cancellationToken: cancellationToken);
+        var response = await table.DeleteEntityAsync(partitionKey, rowkey, cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (HttpStatusCode)response.Status;
     }
 
@@ -100,7 +100,7 @@ public abstract class TableRepositoryBase : ITableRepository
         var pageable = filterLinq != null
             ? table.QueryAsync(filterLinq, pageSize, selectProps, cancellationToken)
             : table.QueryAsync<T>(filterOData, pageSize, selectProps, cancellationToken);
-        return await pageable.GetPageAsync(continuationToken, cancellationToken);
+        return await pageable.GetPageAsync(continuationToken, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     public IAsyncEnumerable<T> GetStream<T>(Expression<Func<T, bool>>? filterLinq = null, string? filterOData = null,
@@ -122,13 +122,13 @@ public abstract class TableRepositoryBase : ITableRepository
     /// <returns></returns>
     public async Task<TableClient> GetOrCreateTableAsync(string tableName, CancellationToken cancellationToken = default)
     {
-        await _tableServiceClient.CreateTableIfNotExistsAsync(tableName, cancellationToken);
+        await _tableServiceClient.CreateTableIfNotExistsAsync(tableName, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return _tableServiceClient.GetTableClient(tableName);
     }
 
     public async Task<HttpStatusCode> DeleteTableAsync(string tableName, CancellationToken cancellationToken = default)
     {
-        var response = await _tableServiceClient.DeleteTableAsync(tableName, cancellationToken);
+        var response = await _tableServiceClient.DeleteTableAsync(tableName, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (HttpStatusCode)response.Status;
     }
 }

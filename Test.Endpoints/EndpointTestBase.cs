@@ -4,7 +4,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Http.Tokens;
 using Respawn;
@@ -76,7 +75,7 @@ public abstract class EndpointTestBase
         {
             await StartDbContainerAsync(cancellationToken);
         }
-        
+
 
         var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
 
@@ -96,7 +95,7 @@ public abstract class EndpointTestBase
         if (!_dbContext.Database.IsInMemory())
         {
             //supports respawner
-            _dbConnection = new SqlConnection(dbSource); 
+            _dbConnection = new SqlConnection(dbSource);
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }

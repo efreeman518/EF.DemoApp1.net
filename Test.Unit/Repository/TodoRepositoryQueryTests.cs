@@ -290,14 +290,17 @@ public class TodoRepositoryQueryTests : UnitTestBase
         {
             Debug.WriteLine($"{DateTime.Now} {item.Name} start.");
             //some sync work
-            Task.Delay(10);
+            for (int i = 0; i < 1000; i++)
+            {
+                _ = i * 2;
+            }
             Debug.WriteLine($"{DateTime.Now} {item.Name} finish.");
         }, maxDegreesOfParallelism, cancellationTokenSource.Token);
 
         stopwatch.Stop();
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
-        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
+        Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} Elapsed MS:{elapsed_time}");
         Assert.IsTrue(true);
     }
 

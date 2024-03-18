@@ -25,7 +25,7 @@ public static class IAsyncEnumerableExtensions
             //if the batch is full, await those tasks and empty the bucket
             if (total % batchSize == 0)
             {
-                await Task.WhenAll(batchTasks);
+                await Task.WhenAll(batchTasks).ConfigureAwait(ConfigureAwaitOptions.None);
                 batchTasks.Clear();
             }
             cancellationToken.ThrowIfCancellationRequested();
@@ -33,7 +33,7 @@ public static class IAsyncEnumerableExtensions
         //all items have been iterated through but we might have some left in batchTasks
         if (batchTasks.Count > 0)
         {
-            await Task.WhenAll(batchTasks);
+            await Task.WhenAll(batchTasks).ConfigureAwait(ConfigureAwaitOptions.None);
         }
         return total;
     }
@@ -59,10 +59,10 @@ public static class IAsyncEnumerableExtensions
             total++;
             tasks.Add(Task.Run(async () =>
             {
-                await semaphore.WaitAsync();
+                await semaphore.WaitAsync().ConfigureAwait(ConfigureAwaitOptions.None);
                 try
                 {
-                    await method(item);
+                    await method(item).ConfigureAwait(ConfigureAwaitOptions.None);
                 }
                 finally
                 {
@@ -71,7 +71,7 @@ public static class IAsyncEnumerableExtensions
             }, cancellationToken));
             cancellationToken.ThrowIfCancellationRequested();
         }
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(ConfigureAwaitOptions.None);
         return total;
     }
 
@@ -93,9 +93,9 @@ public static class IAsyncEnumerableExtensions
         await Parallel.ForEachAsync(stream, options, async (item, token) =>
         {
             Interlocked.Increment(ref total);
-            await method(item);
+            await method(item).ConfigureAwait(ConfigureAwaitOptions.None);
             options.CancellationToken.ThrowIfCancellationRequested();
-        });
+        }).ConfigureAwait(ConfigureAwaitOptions.None);
         return total;
     }
 
@@ -120,8 +120,7 @@ public static class IAsyncEnumerableExtensions
             Interlocked.Increment(ref total);
             method(item);
             return ValueTask.CompletedTask;
-        });
+        }).ConfigureAwait(ConfigureAwaitOptions.None);
         return total;
     }
-
 }

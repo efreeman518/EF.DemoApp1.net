@@ -54,11 +54,11 @@ public abstract class EventHubProducerBase : IEventHubProducer
             _logger.LogDebug("SendAsync Start - {EventHubProducerClientName} {Message}", _settings.EventHubProducerClientName, _settings.LogMessageData ? eventData.Body : "LogMessageData = false");
             if (sendEventOptions == null)
             {
-                await _ehProducerClient.SendAsync(batch, cancellationToken);
+                await _ehProducerClient.SendAsync(batch, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
             }
             else
             {
-                await _ehProducerClient.SendAsync(batch, sendEventOptions, cancellationToken);
+                await _ehProducerClient.SendAsync(batch, sendEventOptions, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
             }
             _logger.LogDebug("SendAsync Finish - {EventHubProducerClientName}", _settings.EventHubProducerClientName);
         }
@@ -102,8 +102,8 @@ public abstract class EventHubProducerBase : IEventHubProducer
         {
             // start a new batch 
             using var eventBatch = (batchOptions == null)
-                ? await _ehProducerClient.CreateBatchAsync(cancellationToken)
-                : await _ehProducerClient.CreateBatchAsync(batchOptions, cancellationToken);
+                ? await _ehProducerClient.CreateBatchAsync(cancellationToken).ConfigureAwait(false)
+                : await _ehProducerClient.CreateBatchAsync(batchOptions, cancellationToken).ConfigureAwait(false);
 
             // add the first message to the batch
             if (eventBatch.TryAdd(q.Peek()))
@@ -128,7 +128,7 @@ public abstract class EventHubProducerBase : IEventHubProducer
             try
             {
                 _logger.LogDebug("SendBatchAsync Start - {EventHubProducerClientName} batch count {BatchCount}; remaining message count {RemainingMessageCount}", _settings.EventHubProducerClientName, batch.Count, q.Count);
-                await _ehProducerClient.SendAsync(eventBatch, cancellationToken);
+                await _ehProducerClient.SendAsync(eventBatch, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
                 _logger.LogDebug("SendBatchAsync Finish - {EventHubProducerClientName} batch count {BatchCount}; remaining message count {RemainingMessageCount}", _settings.EventHubProducerClientName, batch.Count, q.Count);
             }
             catch (Exception ex)

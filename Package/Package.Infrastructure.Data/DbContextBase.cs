@@ -43,7 +43,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
             try
             {
                 // Attempt to save changes to the database
-                return await SaveChangesAsync(auditId, acceptAllChangesOnSuccess, cancellationToken);
+                return await SaveChangesAsync(auditId, acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -114,6 +114,6 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
             }
         }
 
-        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 }

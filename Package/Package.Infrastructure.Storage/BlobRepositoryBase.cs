@@ -32,7 +32,8 @@ public abstract class BlobRepositoryBase : IBlobRepository
     public async Task CreateContainerAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
         _ = _settings.GetHashCode(); //remove compiler warning
-        await _blobServiceClient.CreateBlobContainerAsync(containerInfo.ContainerName, (PublicAccessType)containerInfo.ContainerPublicAccessType, null, cancellationToken: cancellationToken);
+        await _blobServiceClient.CreateBlobContainerAsync(containerInfo.ContainerName, (PublicAccessType)containerInfo.ContainerPublicAccessType,
+            null, cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     /// <returns></returns>
     public async Task DeleteContainerAsync(ContainerInfo containerInfo, CancellationToken cancellationToken = default)
     {
-        await _blobServiceClient.DeleteBlobContainerAsync(containerInfo.ContainerName, cancellationToken: cancellationToken);
+        await _blobServiceClient.DeleteBlobContainerAsync(containerInfo.ContainerName, cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -58,14 +59,14 @@ public abstract class BlobRepositoryBase : IBlobRepository
         BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         var pageable = container.GetBlobsAsync(blobTraits, blobStates, prefix, cancellationToken);
 
-        (var blobPage, continuationToken) = await pageable.GetPageAsync(continuationToken, cancellationToken);
+        (var blobPage, continuationToken) = await pageable.GetPageAsync(continuationToken, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (blobPage, continuationToken);
     }
 
     public async Task<IAsyncEnumerable<BlobItem>> GetStreamBlobList(ContainerInfo containerInfo,
         BlobTraits blobTraits = BlobTraits.None, BlobStates blobStates = BlobStates.None, string? prefix = null, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
+        BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return container.GetBlobsAsync(blobTraits, blobStates, prefix, cancellationToken);
     }
 
@@ -84,7 +85,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
         //if managed identities are used, https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
         //_blobServiceClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow, expiresOn, cancellationToken: cancellationToken);
 
-        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         BlobClient blobClient = containerClient.GetBlobClient(blobName);
         if (blobClient.CanGenerateSasUri)
         {
@@ -109,7 +110,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     public async Task UploadBlobStreamAsync(Uri sasUri, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
     {
         BlobClient blobClient = new(sasUri);
-        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken);
+        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -127,7 +128,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     {
         BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         BlobClient blobClient = containerClient.GetBlobClient(blobName);
-        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken);
+        await UploadBlobStream(blobClient, stream, contentType, encrypt, metadata, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     private async Task UploadBlobStream(BlobClient blobClient, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default)
@@ -147,7 +148,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
         if (metadata != null) options.Metadata = metadata;
 
         _logger.LogInformation("UploadBlob Start - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
-        await blobClient.UploadAsync(stream, options, cancellationToken);
+        await blobClient.UploadAsync(stream, options, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         _logger.LogInformation("UploadBlob Finish - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
     }
 
@@ -163,7 +164,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     {
         BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
         BlobClient blobClient = containerClient.GetBlobClient(blobName);
-        return await StartDownloadBlobStreamAsync(blobClient, decrypt, cancellationToken);
+        return await StartDownloadBlobStreamAsync(blobClient, decrypt, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
 
         ///var download = await blobClient.DownloadAsync(cancellationToken);
         ///return download.Value.Content;
@@ -172,7 +173,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     public async Task<Stream> StartDownloadBlobStreamAsync(Uri sasUri, bool decrypt = false, CancellationToken cancellationToken = default)
     {
         BlobClient blobClient = new(sasUri);
-        return await StartDownloadBlobStreamAsync(blobClient, decrypt, cancellationToken);
+        return await StartDownloadBlobStreamAsync(blobClient, decrypt, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     private async Task<Stream> StartDownloadBlobStreamAsync(BlobClient blobClient, bool decrypt = false, CancellationToken cancellationToken = default)
@@ -180,20 +181,20 @@ public abstract class BlobRepositoryBase : IBlobRepository
         _ = decrypt; //remove compiler message Remove unused parameter (IDE0060)
         BlobOpenReadOptions options = new(false);
         _logger.LogInformation("BlobStartDownloadStreamAsync - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
-        return await blobClient.OpenReadAsync(options, cancellationToken);
+        return await blobClient.OpenReadAsync(options, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     public async Task DeleteBlobAsync(ContainerInfo containerInfo, string blobName, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken);
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         BlobClient blob = containerClient.GetBlobClient(blobName);
-        await DeleteBlobAsync(blob, cancellationToken);
+        await DeleteBlobAsync(blob, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     public async Task DeleteBlobAsync(Uri sasUri, CancellationToken cancellationToken = default)
     {
         BlobClient blobClient = new(sasUri);
-        await DeleteBlobAsync(blobClient, cancellationToken);
+        await DeleteBlobAsync(blobClient, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -206,7 +207,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     private async Task DeleteBlobAsync(BlobClient blobClient, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("DeleteBlobAsync Start - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
-        await blobClient.DeleteAsync(cancellationToken: cancellationToken);
+        await blobClient.DeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         _logger.LogInformation("DeleteBlobAsync Finish - {Container} {Blob}", blobClient.BlobContainerName, blobClient.Name);
     }
 
@@ -214,12 +215,12 @@ public abstract class BlobRepositoryBase : IBlobRepository
     {
         BlobContainerClient container = _blobServiceClient.GetBlobContainerClient(containerInfo.ContainerName);
 
-        if (!(await container.ExistsAsync(cancellationToken)))
+        if (!(await container.ExistsAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None)))
         {
             if (containerInfo.CreateContainerIfNotExist)
             {
                 _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' does not exist; attempting to create.");
-                await container.CreateIfNotExistsAsync((PublicAccessType)containerInfo.ContainerPublicAccessType, cancellationToken: cancellationToken);
+                await container.CreateIfNotExistsAsync((PublicAccessType)containerInfo.ContainerPublicAccessType, cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
                 _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' created.");
             }
             else

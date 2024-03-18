@@ -8,7 +8,7 @@ public static class EncryptionUtility
     public static string CreateMD5Hash(string input)
     {
         // Step 1, calculate MD5 hash from input
-        byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
         byte[] hashBytes = MD5.HashData(inputBytes);
 
         // Step 2, convert byte array to hex string

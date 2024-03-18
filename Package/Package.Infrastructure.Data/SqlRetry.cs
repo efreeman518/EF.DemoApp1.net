@@ -20,7 +20,7 @@ public static class SqlRetry
         retrySqlErrorNumbers ??= _retrySqlErrorNumbers;
         bool exceptionCallback(Exception ex) => ex is SqlException sqlEx && retrySqlErrorNumbers.Contains(sqlEx.ErrorCode);
         var retryExceptions = new List<Type> { typeof(SqlException) };
-        return await PollyRetry.RetryAsync(factory, retrySettings, circuitBreakerSettings, retryExceptions, true, exceptionCallback);
+        return await PollyRetry.RetryAsync(factory, retrySettings, circuitBreakerSettings, retryExceptions, true, exceptionCallback).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     //sql - no return
@@ -31,6 +31,6 @@ public static class SqlRetry
         retrySqlErrorNumbers ??= _retrySqlErrorNumbers;
         bool exceptionCallback(Exception ex) => ex is SqlException sqlEx && retrySqlErrorNumbers.Contains(sqlEx.ErrorCode);
         var retryExceptions = new List<Type> { typeof(SqlException) };
-        await PollyRetry.RetryAsync(factory, retrySettings, circuitBreakerSettings, retryExceptions, true, exceptionCallback);
+        await PollyRetry.RetryAsync(factory, retrySettings, circuitBreakerSettings, retryExceptions, true, exceptionCallback).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 }

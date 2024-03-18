@@ -29,6 +29,8 @@ public static class HttpClientExtensions
         System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null,
         bool ensureSuccessStatusCode = true, bool throwOnException = true, CancellationToken cancellationToken = default)
     {
+        cancellationToken.Register(() => client.CancelPendingRequests());
+
         var httpRequest = BuildHttpRequest(method, url, payload, headers);
         using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         if (ensureSuccessStatusCode)

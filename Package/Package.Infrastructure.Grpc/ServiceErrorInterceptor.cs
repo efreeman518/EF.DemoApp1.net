@@ -15,7 +15,7 @@ public partial class ServiceErrorInterceptor(ILogger<ServiceErrorInterceptor> lo
         _logger.Log(LogLevel.Debug, "Executing {Path}", context.GetHttpContext().Request.Path);
         try
         {
-            return await continuation(request, context);
+            return await continuation(request, context).ConfigureAwait(ConfigureAwaitOptions.None);
         }
         catch (Exception ex)
         {

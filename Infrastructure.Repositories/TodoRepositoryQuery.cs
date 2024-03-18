@@ -62,10 +62,11 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
         }
 
         //sort and filter have already been applied
-        //await SetNoLock(); //InMemoryDbContext does not support
+        await SetNoLock();
         (var data, var total) = await q.QueryPageProjectionAsync<TodoItem, TodoItemDto>(
-            mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken);
-        //await SetLock(); //InMemoryDbContext does not support
+            mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+        await SetLock();
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = request.PageIndex,

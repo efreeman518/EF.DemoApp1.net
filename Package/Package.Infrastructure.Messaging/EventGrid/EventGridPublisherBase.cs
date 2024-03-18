@@ -30,7 +30,7 @@ public abstract class EventGridPublisherBase : IEventGridPublisher
         };
 
         _logger.LogInformation("SendAsync Start - {EventId} {Event}", aegEvent.Id, _settings.LogEventData ? JsonSerializer.Serialize(aegEvent.ToString()) : "LogEventData = false");
-        var response = await _egPublisherClient.SendEventAsync(aegEvent, cancellationToken);
+        var response = await _egPublisherClient.SendEventAsync(aegEvent, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         _logger.LogInformation("SendAsync Finish - {EventId}", aegEvent.Id);
         return response.Status;
     }

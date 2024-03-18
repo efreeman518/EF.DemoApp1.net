@@ -85,7 +85,7 @@ public abstract class DbIntegrationTestBase
         if (!_dbContext.Database.IsInMemory())
         {
             //supports respawner
-            _dbConnection = new SqlConnection(dbSource); 
+            _dbConnection = new SqlConnection(dbSource);
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }

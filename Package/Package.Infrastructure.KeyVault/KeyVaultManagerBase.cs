@@ -44,7 +44,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
         _ = _settings.GetHashCode(); //compilet warning
 
         _logger.LogInformation("GetSecretAsync - {name} {version}", name, version);
-        var response = await _secretClient.GetSecretAsync(name, version, cancellationToken);
+        var response = await _secretClient.GetSecretAsync(name, version, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Value;
     }
 
@@ -65,7 +65,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<string?> SaveSecretAsync(string name, string? value = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("SaveSecretAsync - {name}", name);
-        var response = await _secretClient.SetSecretAsync(name, value, cancellationToken);
+        var response = await _secretClient.SetSecretAsync(name, value, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Value;
     }
 
@@ -90,7 +90,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<DeletedSecret> StartDeleteSecretAsync(string name, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("StartDeleteSecretAsync - {name}", name);
-        var response = await _secretClient.StartDeleteSecretAsync(name, cancellationToken);
+        var response = await _secretClient.StartDeleteSecretAsync(name, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value;
     }
 
@@ -112,7 +112,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<JsonWebKey?> GetKeyAsync(string name, string? version = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("GetKeyAsync - {name} {version}", name, version);
-        var response = await _keyClient.GetKeyAsync(name, version, cancellationToken);
+        var response = await _keyClient.GetKeyAsync(name, version, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Key;
     }
 
@@ -130,7 +130,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<JsonWebKey?> CreateKeyAsync(string name, KeyType keyType, CreateKeyOptions? options = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("CreateKeyAsync - {name} {keyType}", name, keyType);
-        var response = await _keyClient.CreateKeyAsync(name, keyType, options, cancellationToken);
+        var response = await _keyClient.CreateKeyAsync(name, keyType, options, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Key;
     }
 
@@ -151,7 +151,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<KeyRotationPolicy> UpdateKeyRotationPolicyAsync(string name, KeyRotationPolicy policy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("UpdateKeyRotationPolicyAsync - {name}", name);
-        var response = await _keyClient.UpdateKeyRotationPolicyAsync(name, policy, cancellationToken);
+        var response = await _keyClient.UpdateKeyRotationPolicyAsync(name, policy, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value;
     }
 
@@ -170,7 +170,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<JsonWebKey?> RotateKeyAsync(string name, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("RotateKeyAsync - {name}", name);
-        var response = await _keyClient.RotateKeyAsync(name, cancellationToken);
+        var response = await _keyClient.RotateKeyAsync(name, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Key;
     }
 
@@ -197,7 +197,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<JsonWebKey?> DeleteKeyAsync(string name, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("DeleteKeyAsync - {name}", name);
-        var response = await _keyClient.StartDeleteKeyAsync(name, cancellationToken);
+        var response = await _keyClient.StartDeleteKeyAsync(name, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Key;
     }
 
@@ -214,7 +214,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<byte[]?> GetCertAsync(string certificateName, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("GetCertAsync - {name}", certificateName);
-        var response = await _certClient.GetCertificateAsync(certificateName, cancellationToken);
+        var response = await _certClient.GetCertificateAsync(certificateName, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Cer;
     }
 
@@ -232,7 +232,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     public async Task<byte[]?> ImportCertAsync(ImportCertificateOptions importCertificateOptions, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("ImportCertAsync");
-        var response = await _certClient.ImportCertificateAsync(importCertificateOptions, cancellationToken);
+        var response = await _certClient.ImportCertificateAsync(importCertificateOptions, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Cer;
     }
 
