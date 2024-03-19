@@ -16,7 +16,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
 {
     //private readonly ILogger<TodoService> _logger = logger;
 
-    public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0)
+    public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         //avoid compiler warning
         _ = settings.GetHashCode();
@@ -25,15 +25,15 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
-        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, true, pageSize, pageIndex, includeTotal: true);
+        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, true, pageSize, pageIndex, includeTotal: true, cancellationToken: cancellationToken);
     }
 
-    public async Task<TodoItemDto?> GetItemAsync(Guid id)
+    public async Task<TodoItemDto?> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         //performant logging
         logger.InfoLog($"GetItemAsync - {id}");
 
-        var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id);
+        var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id, cancellationToken: cancellationToken);
 
         if (todo == null) return null;
 
@@ -41,13 +41,13 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return mapper.Map<TodoItem, TodoItemDto>(todo);
     }
 
-    public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto)
+    public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
         //dto - FluentValidation
-        var valResultDto = await validationHelper.ValidateAsync(dto);
+        var valResultDto = await validationHelper.ValidateAsync(dto, cancellationToken);
         if (!valResultDto.IsValid)
         {
             var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
@@ -66,23 +66,23 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
 
         repoTrxn.Create(ref todo);
-        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
 
         //queue some non-scoped work - fire and forget (notification)
-        taskQueue.QueueBackgroundWorkItem(async token =>
+        taskQueue.QueueBackgroundWorkItem(async cancellationToken =>
         {
             //await some work
-            await Task.Delay(3000, token);
+            await Task.Delay(200, cancellationToken);
             logger.InfoLog($"Some non-scoped work done");
         });
 
         //queue some scoped work - fire and forget (update DB)
-        taskQueue.QueueScopedBackgroundWorkItem<ITodoRepositoryTrxn>(async (scopedRepositoryTrxn, token) =>
+        taskQueue.QueueScopedBackgroundWorkItem<ITodoRepositoryTrxn>(async (scopedRepositoryTrxn, cancellationToken) =>
         {
             //await some work
-            await Task.Delay(3000, token);
+            await Task.Delay(200, cancellationToken);
             logger.InfoLog("Some scoped work done");
-        });
+        },cancellationToken: cancellationToken);
 
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
@@ -90,12 +90,12 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return mapper.Map<TodoItem, TodoItemDto>(todo)!;
     }
 
-    public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto)
+    public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
         //FluentValidation
-        var valResultDto = await validationHelper.ValidateAsync(dto);
+        var valResultDto = await validationHelper.ValidateAsync(dto, cancellationToken);
         if (!valResultDto.IsValid)
         {
             var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
@@ -103,7 +103,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
 
         //retrieve existing
-        var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id);
+        var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id, cancellationToken: cancellationToken);
         if (dbTodo == null) return new Result<TodoItemDto?>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
 
         //update
@@ -113,7 +113,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         dbTodo.SecureRandom = dto.SecureRandom;
 
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
-        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
 
         logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
 
@@ -121,25 +121,25 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return mapper.Map<TodoItemDto>(dbTodo);
     }
 
-    public async Task DeleteItemAsync(Guid id)
+    public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.TodoItemCRUD("DeleteItemAsync Start", id.ToString());
 
-        await repoTrxn.DeleteAsync<TodoItem>(CancellationToken.None, id);
-        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins);
+        await repoTrxn.DeleteAsync<TodoItem>(cancellationToken, id);
+        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
 
         logger.TodoItemCRUD("DeleteItemAsync Complete", id.ToString());
     }
 
-    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request)
+    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
     {
         logger.InfoLogExt($"SearchAsync", request.SerializeToJson());
-        return await repoQuery.SearchTodoItemAsync(request);
+        return await repoQuery.SearchTodoItemAsync(request, cancellationToken);
     }
 
-    public async Task<PagedResponse<TodoItemDto>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0)
+    public async Task<PagedResponse<TodoItemDto>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
-        return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex);
+        return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex, cancellationToken);
     }
 }

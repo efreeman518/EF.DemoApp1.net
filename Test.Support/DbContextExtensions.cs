@@ -46,6 +46,7 @@ public static class DbContextExtensions
     public static async Task SeedAsync(this DbContext dbContext, ILogger logger, string[]? seedPaths = null,
         string searchPattern = "*.sql", Action[]? seedFactories = null, CancellationToken cancellationToken = default)
     {
+        //run seed scripts first since they could affect db structure
         if (!dbContext.Database.IsInMemory() && seedPaths?.Length > 0)
         {
             await dbContext.SeedRawSqlFilesAsync(logger, [.. seedPaths], searchPattern, cancellationToken);

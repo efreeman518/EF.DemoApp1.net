@@ -5,7 +5,9 @@ using Domain.Model;
 using Domain.Shared.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Extensions;
 using Test.Support;
 
@@ -17,10 +19,19 @@ namespace Test.Integration.Application;
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase
 {
+    //Some services under test inject IBackgroundTaskQueue which runs in a background thread
+    //To prevent these tests from terminating immediately, we can use a task completion source that
+    //completes from within the last queued workitem at the end of the test.
+    private static readonly BackgroundTaskService _bgTaskService = (BackgroundTaskService)Services.GetRequiredService<IHostedService>();
+    private static readonly IBackgroundTaskQueue _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
+    private static readonly TaskCompletionSource<bool> _tcs = new (TaskCreationOptions.RunContinuationsAsynchronously);
+
     [TestMethod]
     public async Task Todo_CRUD_pass()
     {
         Logger.InfoLog("Starting Todo_CRUD_pass");
+
+        await _bgTaskService!.StartAsync(new CancellationToken());
 
         //arrange
         //configure any test data for this test
@@ -73,6 +84,16 @@ public class TodoServiceTests : DbIntegrationTestBase
         //ensure null after delete
         todo = await svc.GetItemAsync(id);
         Assert.IsNull(todo);
+
+        //queue the task to complete the test; this enables the test to wait for the background tasks to complete
+        _bgTaskQueue.QueueBackgroundWorkItem(async token =>
+        {
+            await Task.CompletedTask;
+            _tcs.SetResult(true);
+        });
+
+        //await our task completion source task so that the sut will execute until tcs.SetResult(true).
+        await _tcs.Task;
     }
 
     [DataTestMethod]
