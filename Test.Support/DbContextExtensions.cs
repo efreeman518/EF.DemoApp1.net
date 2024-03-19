@@ -17,7 +17,7 @@ public static class DbContextExtensions
     /// <param name="seedSearchPattern"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task ResetDatabaseAsync(this DbContext dbContext, ILogger logger,  List<string>? seedPaths = null, 
+    public static async Task ResetDatabaseAsync(this DbContext dbContext, ILogger logger, List<string>? seedPaths = null,
         List<Action>? seedFactories = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
     {
         if (dbContext.Database.IsInMemory())

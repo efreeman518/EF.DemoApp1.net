@@ -24,7 +24,7 @@ public class TodoServiceTests : DbIntegrationTestBase
     //completes from within the last queued workitem at the end of the test.
     private static readonly BackgroundTaskService _bgTaskService = (BackgroundTaskService)Services.GetRequiredService<IHostedService>();
     private static readonly IBackgroundTaskQueue _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
-    private static readonly TaskCompletionSource<bool> _tcs = new (TaskCreationOptions.RunContinuationsAsynchronously);
+    private static readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     [TestMethod]
     public async Task Todo_CRUD_pass()

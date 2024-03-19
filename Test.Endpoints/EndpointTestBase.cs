@@ -130,7 +130,7 @@ public abstract class EndpointTestBase
         });
     }
 
-    protected static async Task ResetDatabaseAsync(bool respawn = false, List<string>? seedPaths = null, string seedSearchPattern = "*.sql", 
+    protected static async Task ResetDatabaseAsync(bool respawn = false, List<string>? seedPaths = null, string seedSearchPattern = "*.sql",
         List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
     {
         if (!DbContext.Database.IsInMemory() && respawn)

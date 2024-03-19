@@ -82,7 +82,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             //await some work
             await Task.Delay(200, cancellationToken);
             logger.InfoLog("Some scoped work done");
-        },cancellationToken: cancellationToken);
+        }, cancellationToken: cancellationToken);
 
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
