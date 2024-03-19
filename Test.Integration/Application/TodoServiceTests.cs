@@ -41,7 +41,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
@@ -109,7 +109,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         //configure any test data for this test
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(Guid.Empty, name, TodoItemStatus.Created);

@@ -28,7 +28,7 @@ public class TodoControllerTests : EndpointTestBase
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
         //add script files
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        await ResetDatabaseAsync(true, seedFactories, seedPaths);
+        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 
         string urlBase = "api/v1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";

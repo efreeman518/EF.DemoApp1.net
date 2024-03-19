@@ -59,7 +59,7 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     {
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        ResetDatabaseAsync(true, seedFactories, seedPaths).GetAwaiter().GetResult();
+        ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories).GetAwaiter().GetResult();
     }
 
     [GlobalSetup]
