@@ -19,15 +19,15 @@ public class TodoControllerTests : EndpointTestBase
     [TestMethod]
     public async Task CRUD_pass()
     {
-        //arrange
-        //configure any test data for this test
+        //arrange - configure any test data for this test
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         //generate another 5 completed items
         seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
-        //add script files
+        //grab the seed paths for this test 
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        //reset the DB with the seed scripts & data
         await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 
         string urlBase = "api/v1/todoitems";

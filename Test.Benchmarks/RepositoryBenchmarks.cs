@@ -32,7 +32,7 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     }
 
     //BenchmarkDotNet does not support async setup/teardown
-    ////https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
+    //https://github.com/dotnet/BenchmarkDotNet/issues/1738#issuecomment-1687832731
 
     /// <summary>
     /// Reset & reseed DB here to avoid the overhead of resetting the database inside the benchmark test
@@ -42,19 +42,19 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     {
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories).GetAwaiter().GetResult();
+        ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories).GetAwaiter().GetResult(); //no async support
     }
 
     [GlobalSetup]
     public void GlobalSetup()
     {
-        ConfigureTestInstanceAsync(nameof(RepositoryBenchmarks)).GetAwaiter().GetResult();
+        ConfigureTestInstanceAsync(nameof(RepositoryBenchmarks)).GetAwaiter().GetResult(); //no async support
         _repo = (TodoRepositoryQuery)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoRepositoryQuery));
     }
 
     [GlobalCleanup]
     public static void GlobalCleanup()
     {
-        BaseClassCleanup().GetAwaiter().GetResult();
+        BaseClassCleanup().GetAwaiter().GetResult(); //no async support
     }
 }

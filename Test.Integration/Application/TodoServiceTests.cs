@@ -19,9 +19,9 @@ namespace Test.Integration.Application;
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase
 {
-    //Some services under test inject IBackgroundTaskQueue which runs in a background thread
-    //To prevent these tests from terminating immediately, we can use a task completion source that
-    //completes from within the last queued workitem at the end of the test.
+    //Some services under test are injected with IBackgroundTaskQueue which runs in a background thread
+    //To prevent these tests from terminating prior to bacvkground task completion, at the end of the test,
+    //we await a TaskCompletionSource that completes from within the last queued workitem at the end of the test.
     private static readonly BackgroundTaskService _bgTaskService = (BackgroundTaskService)Services.GetRequiredService<IHostedService>();
     private static readonly IBackgroundTaskQueue _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
     private static readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -33,14 +33,15 @@ public class TodoServiceTests : DbIntegrationTestBase
 
         await _bgTaskService!.StartAsync(new CancellationToken());
 
-        //arrange
-        //configure any test data for this test
+        //arrange - configure any test data for this test
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         //generate another 5 completed items
         seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+        //grab the seed paths for this test 
         List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        //reset the DB with the seed scripts & data
         await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 
         string name = $"Entity a {Guid.NewGuid()}";
