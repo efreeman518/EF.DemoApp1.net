@@ -30,6 +30,20 @@
         </tr>
         <tr><td colspan="7" style="background-color: #4472b1;"></td></tr>
         <tbody id="todos"></tbody>
+        <tr>
+            <td colspan="7" style="text-align:right">
+                <span id="pagination">
+                    <select id="pageSizeSelect">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                    </select>
+                    <button id="prevBtn">Previous</button>
+                    <span id="currentPage"></span>
+                    <button id="nextBtn">Next</button>
+                </span>
+            </td>
+        </tr>
     </table>
 
     <script defer src="js/site.js" type="module" asp-append-version="true"></script>
