@@ -110,6 +110,8 @@ public abstract class DbIntegrationTestBase
     /// <returns>DB connection string from the container</returns>
     protected static async Task StartDbContainerAsync(CancellationToken cancellationToken = default)
     {
+        //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
+
         _dbContainer = new MsSqlBuilder().Build();
         await _dbContainer.StartAsync(cancellationToken);
         _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));

@@ -28,8 +28,12 @@ namespace Infrastructure.Data;
  * EntityFrameworkCore\update-database -migration 0  -Context TodoDbContextTrxn : Db back to ground zero
  * EntityFrameworkCore\remove-migration -Context TodoDbContextTrxn : removes the last migration
  * EntityFrameworkCore\add-migration [name] -Context TodoDbContextTrxn : adds a new migration
- * EntityFrameworkCore\script-migration -Context TodoDbContextTrxn -From Specifies the starting migration. -To Specifies target migration
+ * EntityFrameworkCore\script-migration --idempotent -Context TodoDbContextTrxn // -From [starting migration] -To [migration]
  * EntityFrameworkCore\update-database
+ * 
+ * generate a migration-bundle .exe to apply migrations in a pipeline https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli
+ * EntityFrameworkCore\Bundle-Migration -SelfContained -TargetRuntime linux-x64 -Context TodoDbContextTrxn -output ./migrations-exe
+ * then run the exe in the pipeline: .\efbundle.exe --connection '[connection string]'
  */
 
 /* Default Retry execution strategy when adding context to DI (in Bootstrapper) does not support user initiated transactions:
