@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0" />
     <PackageReference Include="Respawn" Version="6.2.1" />
-    <PackageReference Include="Testcontainers.MsSql" Version="3.7.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="3.8.0" />
   </ItemGroup>
 
   <ItemGroup>
