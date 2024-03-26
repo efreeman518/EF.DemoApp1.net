@@ -2,8 +2,8 @@
 using Application.Contracts.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.SampleApi;
 public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<SampleApiRestClientSettings> settings, HttpClient httpClient) : ISampleApiRestClient

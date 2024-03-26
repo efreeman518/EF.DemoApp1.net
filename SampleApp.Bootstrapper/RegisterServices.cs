@@ -22,6 +22,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;

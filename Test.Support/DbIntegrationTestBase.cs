@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using Respawn;
 using Respawn.Graph;

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
 

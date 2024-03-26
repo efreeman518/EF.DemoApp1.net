@@ -5,7 +5,7 @@ using FluentValidation.TestHelper;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Test.Support;
 
 namespace Test.Unit.Application.Rules;

@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Data.Contracts;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
 public class PagedResponse<T>
 {

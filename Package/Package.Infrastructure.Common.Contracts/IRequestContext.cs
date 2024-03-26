@@ -1,4 +1,5 @@
-﻿namespace Package.Infrastructure.Common;
+﻿namespace Package.Infrastructure.Common.Contracts;
+
 public interface IRequestContext<out TAuditIdType>
 {
     string CorrelationId { get; }

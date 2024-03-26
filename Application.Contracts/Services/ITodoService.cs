@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Model;
 using LanguageExt.Common;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 
 namespace Application.Contracts.Services;
 

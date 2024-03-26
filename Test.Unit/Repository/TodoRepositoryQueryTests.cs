@@ -5,7 +5,7 @@ using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
 using System.Collections.Concurrent;

@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;

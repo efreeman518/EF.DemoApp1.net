@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Common;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
 public class RequestContext<TAuditIdType>(string correlationId, TAuditIdType auditId, string? tenantId = null) : IRequestContext<TAuditIdType>
 {

@@ -1,5 +1,5 @@
 ﻿using Application.Contracts.Model;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 
 namespace Application.Contracts.Interfaces;
 

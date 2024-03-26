@@ -3,7 +3,7 @@ using Domain.Shared.Enums;
 using NBomber.Contracts.Stats;
 using NBomber.CSharp;
 using NBomber.Plugins.Network.Ping;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 
 //https://nbomber.com/
 

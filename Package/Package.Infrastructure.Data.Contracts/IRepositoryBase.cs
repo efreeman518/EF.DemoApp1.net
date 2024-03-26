@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.Query;
+using Package.Infrastructure.Common.Contracts;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data.Contracts;

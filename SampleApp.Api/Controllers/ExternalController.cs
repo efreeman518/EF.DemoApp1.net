@@ -2,7 +2,7 @@
 using Application.Contracts.Model;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using AppConstants = Application.Contracts.Constants.Constants;
 

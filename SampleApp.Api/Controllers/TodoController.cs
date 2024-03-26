@@ -3,7 +3,7 @@ using Application.Contracts.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
 using AppConstants = Application.Contracts.Constants.Constants;

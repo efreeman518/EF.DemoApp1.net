@@ -2,7 +2,7 @@
 using Application.Contracts.Model;
 using AutoMapper;
 using Domain.Shared.Enums;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
 

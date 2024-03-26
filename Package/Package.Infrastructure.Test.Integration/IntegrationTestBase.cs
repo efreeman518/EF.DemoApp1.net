@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;

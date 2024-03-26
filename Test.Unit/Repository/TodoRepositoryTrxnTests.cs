@@ -4,7 +4,7 @@ using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using Test.Support;
 
