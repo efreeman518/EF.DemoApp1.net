@@ -19,8 +19,4 @@
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
-  </ItemGroup>
-
 </Project>

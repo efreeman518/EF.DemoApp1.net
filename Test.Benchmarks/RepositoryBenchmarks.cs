@@ -6,7 +6,7 @@ using Domain.Model;
 using Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 using Test.Support;
 
 namespace Test.Benchmarks;

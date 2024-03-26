@@ -1,6 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
-namespace Package.Infrastructure.Data.Contracts;
 public class Sort(string propertyName, SortOrder sortOrder)
 {
     public string PropertyName { get; set; } = propertyName;

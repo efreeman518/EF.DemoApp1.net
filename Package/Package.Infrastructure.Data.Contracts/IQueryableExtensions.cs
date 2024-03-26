@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Package.Infrastructure.Common.Contracts;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Contracts;
 using System.Linq.Expressions;
 using System.Net;
 

@@ -3,7 +3,8 @@ using Domain.Shared.Enums;
 using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Data.Contracts;
 using System.Text.RegularExpressions;
-using InfraCommon = Package.Infrastructure.Common;
+using Package.Infrastructure.Common;
+using Package.Infrastructure.Common.Exceptions;
 
 namespace Domain.Model;
 
@@ -41,13 +42,13 @@ public partial class TodoItem : AuditableBase<string>
         Status = status;
     }
 
-    public InfraCommon.ValidationResult Validate(bool throwOnInvalid = false)
+    public ValidationResult Validate(bool throwOnInvalid = false)
     {
         var errors = new List<string>();
         if (Name == null || Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
         if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) errors.Add("Name regex violation");
-        var result = new InfraCommon.ValidationResult(errors.Count == 0, errors);
-        if (errors.Count > 0 && throwOnInvalid) throw new InfraCommon.Exceptions.ValidationException(result);
+        var result = new ValidationResult(errors.Count == 0, errors);
+        if (errors.Count > 0 && throwOnInvalid) throw new ValidationException(result);
         return result;
     }
 

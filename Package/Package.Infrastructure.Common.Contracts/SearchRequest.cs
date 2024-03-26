@@ -1,4 +1,5 @@
-﻿namespace Package.Infrastructure.Data.Contracts;
+﻿namespace Package.Infrastructure.Common.Contracts;
+
 public record SearchRequest<TFilter>
 {
     public int PageSize { get; init; }

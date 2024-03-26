@@ -2,8 +2,8 @@
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Package.Infrastructure.Common.Extensions;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Package.Infrastructure.Grpc;
 public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings) : Interceptor
@@ -33,7 +33,7 @@ public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOpt
 
     private void AttemptLogException(Exception ex)
     {
-        List<KeyValuePair<string, string?>> logData = [];
+        StringBuilder logData = new();
         try
         {
             string text = "ClientErrorInterceptor caught exception: " + ex.Message + ".";
@@ -48,17 +48,17 @@ public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOpt
                 text = text2 + defaultInterpolatedStringHandler.ToStringAndClear();
                 exRpc.Trailers.ToList().ForEach(delegate (Metadata.Entry t)
                 {
-                    logData.Add(new KeyValuePair<string, string?>(t.Key, t.Value));
+                    logData.Append($"{t.Key}={t.Value};");
                 });
             }
 
-            logger.Log(LogLevel.Error, 0, text, ex, logData);
+            logger.Log(LogLevel.Error, 0, $"{text}; {logData}", ex);
         }
         catch (Exception exception)
         {
             try
             {
-                logger.Log(LogLevel.Error, 0, "ClientErrorInterceptor internal exception when attempting to log an application exception.", exception, logData);
+                logger.Log(LogLevel.Error, 0, $"ClientErrorInterceptor internal exception when attempting to log an application exception. {logData}", exception);
             }
             catch
             {

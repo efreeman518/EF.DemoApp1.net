@@ -1,7 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.CosmosDb;
-using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.Model;
 using System.Linq.Expressions;
