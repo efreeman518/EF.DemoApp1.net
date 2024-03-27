@@ -41,13 +41,20 @@ export default class Utility {
                 return { ok:response.ok, statusCode: response.status, data: data };
             }
             else {
-                const err = await response.json();
-                console.error(err);
-                throw new Error(`${err.detail ?? err.message}`);
+                let err = `Status: ${response.status}`;
+                try {
+                    //try to parse extra validation info from response
+                    const jsonErr = await response.json();
+                    err += `${err.detail ?? jsonErr.message}`;
+                }
+                catch {
+                    //igonore parsing error
+                }
+                throw new Error(err);
             }
         }
         catch (error) {
-            //console.error('HttpSend error:', error);
+            console.error(error);
             this.elMessage.classList.add("error");
             this.elMessage.innerText = error;
             if (this.throwOnError)

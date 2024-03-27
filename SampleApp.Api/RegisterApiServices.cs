@@ -1,7 +1,11 @@
 ﻿using Asp.Versioning;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
+using Infrastructure.SampleApi;
 using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Grpc;
 using Sample.Api.ExceptionHandlers;
@@ -71,9 +75,43 @@ internal static class IServiceCollectionExtensions
             });
         });
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy("Admin", policy => policy.RequireRole("Admin"))
-            .AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
+        //app clients - Enable JWT Bearer Authentication
+        var configSection = config.GetSection("AzureAd");
+        if (configSection.Exists())
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
+                    var clientId = configSection.GetValue<string?>("ClientId", null);
+                    options.Authority = $"{authority}/";
+                    options.Audience = clientId; 
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = $"{authority}/v2.0",
+                        ValidAudience = clientId
+                    };
+                });
+
+            //.AddMicrosoftIdentityWebApi(configSection, JwtBearerDefaults.AuthenticationScheme)
+            //.EnableTokenAcquisitionToCallDownstreamApi()
+            //.AddInMemoryTokenCaches()
+
+            //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
+            //services.AddAuthorizationBuilder()
+            //    .AddPolicy("Admin", policy => policy.RequireRole("Admin"))
+            //    .AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
+            });
+        }
 
         services.AddControllers();
 

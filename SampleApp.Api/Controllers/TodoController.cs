@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;
@@ -28,6 +29,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [MapToApiVersion("1.0")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
         var items = await _todoService.GetPageAsync(pageSize, pageIndex);
