@@ -13,13 +13,17 @@ const TodoItemStatus = {
 
 let pageIndex = 1;
 let pageSize = 10;
-let todos = [];
+let itemTotal = 0; //support for paging btnNext
 
 async function getPage() {
     if(pageIndex < 1) pageIndex = 1;
     const url = `${urlTodo}?pageSize=${pageSize}&pageIndex=${pageIndex}`;
     const response = await _utility.HttpSend("GET", url);
-    displayItems(response.data);
+    if (response.data != null) {
+        itemTotal = response.data.total;
+        displayCount();
+        displayItems(response.data);
+    }
 }
 
 function editItem(item) {
@@ -75,17 +79,16 @@ function popEdit(id, isComplete, name, secureRandom, secureDeterministic) {
     document.getElementById('edit-secure-deterministic').value = secureDeterministic;
 }
 
-function displayCount(itemCount) {
-    const name = (itemCount === 1) ? 'to-do' : 'to-dos';
-    document.getElementById('counter').innerText = `${itemCount} ${name}`;
+function displayCount() {
+    const name = (itemTotal === 1) ? 'to-do' : 'to-dos';
+    document.getElementById('counter').innerText = `${itemTotal} ${name}`;
 }
 
 function displayItems(data) {
     const tBody = document.getElementById('todos');
     tBody.innerHTML = '';
 
-    todos = data;
-    const items = todos.data;
+    const items = data.data;
     displayCount(data.total);
 
     const button = document.createElement('button');
@@ -136,7 +139,6 @@ function displayItems(data) {
     currentPageSpan.textContent = `Page ${pageIndex} of ${totalPages}`;
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
-    
 }
 
 const prevBtn = document.getElementById('prevBtn');
@@ -157,7 +159,7 @@ prevBtn.addEventListener('click', () => {
 });
 
 nextBtn.addEventListener('click', () => {
-    const maxPage = Math.ceil(todos.total / pageSize);
+    const maxPage = Math.ceil(itemTotal / pageSize); //need page state ItemTotal for paging
     if (pageIndex < maxPage) {
         pageIndex++;
         getPage();
