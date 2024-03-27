@@ -15,7 +15,8 @@ public interface IBlobRepository
     Task<IAsyncEnumerable<BlobItem>> GetStreamBlobList(ContainerInfo containerInfo,
         BlobTraits blobTraits = BlobTraits.None, BlobStates blobStates = BlobStates.None, string? prefix = null, CancellationToken cancellationToken = default);
 
-    Task<Uri?> GenerateBlobSasUriAsync(ContainerInfo containerInfo, string blobName, BlobSasPermissions permissions, DateTimeOffset expiresOn, CancellationToken cancellationToken = default);
+    Task<Uri?> GenerateBlobSasUriAsync(ContainerInfo containerInfo, string blobName, BlobSasPermissions permissions, 
+        DateTimeOffset expiresOn, SasIPRange? ipRange = null, CancellationToken cancellationToken = default);
 
     Task UploadBlobStreamAsync(ContainerInfo containerInfo, string blobName, Stream stream, string? contentType = null, bool encrypt = false, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default);
 
