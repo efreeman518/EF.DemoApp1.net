@@ -80,7 +80,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<Uri?> GenerateBlobSasUriAsync(ContainerInfo containerInfo, string blobName, BlobSasPermissions permissions, 
+    public async Task<Uri?> GenerateBlobSasUriAsync(ContainerInfo containerInfo, string blobName, BlobSasPermissions permissions,
          DateTimeOffset expiresOn, SasIPRange? ipRange = null, CancellationToken cancellationToken = default)
     {
         //if managed identities are used, https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
@@ -92,14 +92,14 @@ public abstract class BlobRepositoryBase : IBlobRepository
         {
             // Create a SAS token 
             BlobSasBuilder sasBuilder = new()
-            { 
+            {
                 BlobContainerName = containerInfo.ContainerName,
                 BlobName = blobName,
                 Resource = "b",  //blob
                 StartsOn = DateTimeOffset.UtcNow,
-                ExpiresOn = expiresOn, 
+                ExpiresOn = expiresOn,
             };
-            if(ipRange != null) sasBuilder.IPRange = (SasIPRange)ipRange;
+            if (ipRange != null) sasBuilder.IPRange = (SasIPRange)ipRange;
             sasBuilder.SetPermissions(permissions);
 
             return blobClient.GenerateSasUri(sasBuilder);

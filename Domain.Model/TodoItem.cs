@@ -1,10 +1,10 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Attributes;
+using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
 using System.Text.RegularExpressions;
-using Package.Infrastructure.Common;
-using Package.Infrastructure.Common.Exceptions;
 
 namespace Domain.Model;
 

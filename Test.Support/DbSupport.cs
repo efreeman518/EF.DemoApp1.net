@@ -8,25 +8,25 @@ using Package.Infrastructure.Common.Extensions;
 namespace Test.Support;
 public static class DbSupport
 {
-    public static T ConfigureServicesTestDB<T>(ILogger logger, IServiceCollection services, string? dbSource) //, string? dbConnectionString = null)
+    public static T ConfigureServicesTestDB<T>(ILogger logger, IServiceCollection services, string? dbConnectionString)
         where T : DbContext
     {
-        //if dbSource is null, use the api defined DbContext/DB, otherwise switch out the DB here
-        if (!string.IsNullOrEmpty(dbSource))
+        //if _dbConnectionString is null, use the api defined DbContext/DB, otherwise switch out the DB here
+        if (!string.IsNullOrEmpty(dbConnectionString))
         {
-            logger.InfoLog($"Swapping services DbContext to use test database source: {dbSource}");
+            logger.InfoLog($"Swapping services DbContext to use test database source: {dbConnectionString}");
 
             services.RemoveAll(typeof(DbContextOptions<T>));
             services.RemoveAll(typeof(T));
             services.AddDbContext<T>(options =>
             {
-                if (dbSource == "UseInMemoryDatabase")
+                if (dbConnectionString == "UseInMemoryDatabase")
                 {
                     options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
                 }
                 else
                 {
-                    options.UseSqlServer(dbSource,
+                    options.UseSqlServer(dbConnectionString,
                         //retry strategy does not support user initiated transactions 
                         sqlServerOptionsAction: sqlOptions =>
                         {

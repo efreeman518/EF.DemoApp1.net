@@ -9,7 +9,7 @@ using Test.Support;
 
 //parallel to the same api can cause intermittent failures since the api & all tests are using the same database;
 //all will try to create the DB if it doesn't exist
-[assembly: DoNotParallelize]
+//[assembly: DoNotParallelize]
 
 namespace Test.Endpoints.Controller;
 
@@ -17,6 +17,7 @@ namespace Test.Endpoints.Controller;
 public class TodoControllerTests : EndpointTestBase
 {
     [TestMethod]
+    [DoNotParallelize]
     public async Task CRUD_pass()
     {
         //arrange - configure any test data for this test
@@ -26,7 +27,7 @@ public class TodoControllerTests : EndpointTestBase
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
         //grab the seed paths for this test 
-        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
         //reset the DB with the seed scripts & data
         await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
 

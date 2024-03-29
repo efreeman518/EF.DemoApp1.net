@@ -15,7 +15,7 @@ namespace Test.Endpoints;
 /// https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
 /// </summary>
 /// <typeparam name="TProgram"></typeparam>
-public class CustomApiFactory<TProgram>(string? dbSource = null) : WebApplicationFactory<TProgram> where TProgram : class
+public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : WebApplicationFactory<TProgram> where TProgram : class
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -43,7 +43,7 @@ public class CustomApiFactory<TProgram>(string? dbSource = null) : WebApplicatio
                 var sp = services.BuildServiceProvider();
                 var logger = sp.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
 
-                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(logger, services, dbSource);
+                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(logger, services, dbConnectionString);
             });
     }
 }

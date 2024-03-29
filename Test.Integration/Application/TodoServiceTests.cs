@@ -11,14 +11,14 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Extensions;
 using Test.Support;
 
-//all tests in this class are using the same database
-[assembly: DoNotParallelize]
-
 namespace Test.Integration.Application;
 
+//for all tests in this class are using the same database [DoNotParallelize]
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase
 {
+    //private const string DBSnapshotName = "TodoServiceTests";
+
     //Some services under test are injected with IBackgroundTaskQueue which runs in a background thread
     //To prevent these tests from terminating prior to bacvkground task completion, at the end of the test,
     //we await a TaskCompletionSource that completes from within the last queued workitem at the end of the test.
@@ -27,6 +27,7 @@ public class TodoServiceTests : DbIntegrationTestBase
     private static readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     [TestMethod]
+    [DoNotParallelize]
     public async Task Todo_CRUD_pass()
     {
         Logger.InfoLog("Starting Todo_CRUD_pass");
@@ -34,15 +35,19 @@ public class TodoServiceTests : DbIntegrationTestBase
         await _bgTaskService!.StartAsync(new CancellationToken());
 
         //arrange - configure any test data for this test
+
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         //generate another 5 completed items
         seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
         //grab the seed paths for this test 
-        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
+        List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
         //reset the DB with the seed scripts & data
-        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
+        await ResetDatabaseAsync(true, null, seedPaths: seedPaths, seedFactories: seedFactories);
+
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        //await ResetDatabaseAsync(false, DBSnapshotName);
 
         string name = $"Entity a {Guid.NewGuid()}";
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
@@ -98,6 +103,7 @@ public class TodoServiceTests : DbIntegrationTestBase
     }
 
     [DataTestMethod]
+    [DoNotParallelize]
     [DataRow("asg")]
     [DataRow("sdfg")]
     [DataRow("sdfgsd456yrt")]
@@ -107,10 +113,14 @@ public class TodoServiceTests : DbIntegrationTestBase
         Logger.InfoLog("Starting Todo_AddItem_fail");
 
         //arrange
+
         //configure any test data for this test
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
-        List<string>? seedPaths = [.. TestConfigSection.GetSection("SeedFiles:Paths").Get<string[]>() ?? null];
-        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
+        List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
+        await ResetDatabaseAsync(true, seedPaths: seedPaths, seedFactories: seedFactories);
+
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        //await ResetDatabaseAsync(false, DBSnapshotName);
 
         TodoService svc = (TodoService)ServiceScope.ServiceProvider.GetRequiredService(typeof(ITodoService));
         TodoItemDto? todo = new(Guid.Empty, name, TodoItemStatus.Created);
@@ -130,13 +140,27 @@ public class TodoServiceTests : DbIntegrationTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        Console.Write($"Start {testContext.TestName}");
-        await ConfigureTestInstanceAsync(testContext.TestName!);
+        Console.Write($"Start {testContext.FullyQualifiedTestClassName}");
+        await ConfigureTestInstanceAsync(testContext.FullyQualifiedTestClassName!);
+
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        //if (!string.IsNullOrEmpty(DBSnapshotName))
+        //{
+        //    List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+        //    seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
+        //    seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+        //    List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
+        //    await ResetDatabaseAsync(true, seedPaths: seedPaths, seedFactories: seedFactories);
+        //    await CreateDbSnapshot(DBSnapshotName);
+        //}
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        //if (!string.IsNullOrEmpty(DBSnapshotName)) await DeleteDbSnapshot(DBSnapshotName);
+
         if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
         {
             await BaseClassCleanup();

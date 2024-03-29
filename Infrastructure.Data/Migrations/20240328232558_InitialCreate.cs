@@ -24,11 +24,11 @@ public partial class InitialCreate : Migration
                 Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 Value = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                 Flags = table.Column<int>(type: "int", nullable: false),
+                RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                 CreatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                 CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                UpdatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
-                UpdatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                UpdatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
+                UpdatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
             },
             constraints: table =>
             {
@@ -44,14 +44,14 @@ public partial class InitialCreate : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 Status = table.Column<int>(type: "int", nullable: false),
-                SecureRandom = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                SecureDeterministic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                SecureRandom = table.Column<byte[]>(type: "varbinary(100)", maxLength: 100, nullable: true),
+                SecureDeterministic = table.Column<byte[]>(type: "varbinary(100)", maxLength: 100, nullable: true),
                 IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                 CreatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                 CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                UpdatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
-                UpdatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                UpdatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
+                UpdatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
             },
             constraints: table =>
             {
@@ -75,7 +75,8 @@ public partial class InitialCreate : Migration
             unique: true)
             .Annotation("SqlServer:Clustered", true);
 
-        string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL");//set in PMC: $env:AKVCMKURL = "https://vault-dev.vault.azure.net/keys/SQL-ColMaskerKey-Default/abc123"
+        //add to migration class - customize for always encrypted (until supported in fluent syntax)
+        string url_AKV_CMK = "[AKV-Url-CMK]";
         string schema_table = "[todo].[TodoItem]";
         string cmkName = "CMK_WITH_AKV";
 
@@ -85,11 +86,11 @@ public partial class InitialCreate : Migration
         string cekName = "CEK_WITH_AKV";
         support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
 
-        string colDef = "[SecureDeterministic] nvarchar(100)";
-        support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "DETERMINISTIC");
+        string colDef = "[SecureDeterministic] varbinary(100)"; //non string so collate: null
+        support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "DETERMINISTIC");
 
-        colDef = "[SecureRandom] nvarchar(100)";
-        support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "RANDOMIZED");
+        colDef = "[SecureRandom] varbinary(100)"; //non string so collate: null
+        support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "RANDOMIZED");
     }
 
     /// <inheritdoc />

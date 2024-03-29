@@ -1,10 +1,11 @@
 ﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Text;
 
 namespace Infrastructure.Data.Configuration;
 
-public class TodoItemConfiguration : EntityBaseConfiguration<TodoItem>
+public class TodoItemConfiguration : AuditableBaseConfiguration<TodoItem>
 {
     public override void Configure(EntityTypeBuilder<TodoItem> builder)
     {
@@ -16,7 +17,18 @@ public class TodoItemConfiguration : EntityBaseConfiguration<TodoItem>
         builder.HasQueryFilter(p => !p.IsDeleted);
 
         builder.Property(b => b.Name).HasMaxLength(100);
-        builder.Property(b => b.SecureDeterministic).HasMaxLength(100);
-        builder.Property(b => b.SecureRandom).HasMaxLength(100);
+
+        builder.Property(b => b.SecureDeterministic)
+            .HasMaxLength(100)
+            .HasConversion(
+                v => v != null ? Encoding.UTF8.GetBytes(v) : null,
+                v => v != null ? Encoding.UTF8.GetString(v) : null
+                );
+        builder.Property(b => b.SecureRandom)
+            .HasMaxLength(100)
+            .HasConversion(
+                v => v != null ? Encoding.UTF8.GetBytes(v) : null,
+                v => v != null ? Encoding.UTF8.GetString(v) : null
+                );
     }
 }

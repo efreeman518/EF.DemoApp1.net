@@ -139,7 +139,7 @@ public abstract class EndpointTestBase
         {
             await _respawner.ResetAsync(_dbConnection);
         }
-        await DbContext.ResetDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, seedSearchPattern, cancellationToken);
+        await DbContext.SeedDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, seedSearchPattern, cancellationToken);
         await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 

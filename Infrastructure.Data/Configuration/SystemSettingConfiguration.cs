@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configuration;
 
-public class SystemSettingConfiguration : EntityBaseConfiguration<SystemSetting>
+public class SystemSettingConfiguration : AuditableBaseConfiguration<SystemSetting>
 {
     public override void Configure(EntityTypeBuilder<SystemSetting> builder)
     {

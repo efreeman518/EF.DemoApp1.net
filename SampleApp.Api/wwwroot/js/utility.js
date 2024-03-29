@@ -41,11 +41,11 @@ export default class Utility {
                 return { ok:response.ok, statusCode: response.status, data: data };
             }
             else {
-                let err = `Status: ${response.status}`;
+                let err = `Status: ${response.status} `;
                 try {
                     //try to parse extra validation info from response
                     const jsonErr = await response.json();
-                    err += `${err.detail ?? jsonErr.message}`;
+                    err += `${jsonErr.detail ?? jsonErr.message}`;
                 }
                 catch {
                     //igonore parsing error

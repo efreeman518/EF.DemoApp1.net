@@ -1,11 +1,9 @@
 ﻿using Asp.Versioning;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
-using Infrastructure.SampleApi;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
 using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Grpc;
 using Sample.Api.ExceptionHandlers;
@@ -76,26 +74,30 @@ internal static class IServiceCollectionExtensions
         });
 
         //app clients - Enable JWT Bearer Authentication
-        var configSection = config.GetSection("AzureAd");
+        var configSection = config.GetSection("xAzureAd");
         if (configSection.Exists())
         {
+            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
+            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
-                    var clientId = configSection.GetValue<string?>("ClientId", null);
-                    options.Authority = $"{authority}/";
-                    options.Audience = clientId; 
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = $"{authority}/v2.0",
-                        ValidAudience = clientId
-                    };
-                });
+                .AddMicrosoftIdentityWebApi(configSection)
+                //.AddJwtBearer(options =>
+                //{
+                //    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
+                //    var clientId = configSection.GetValue<string?>("ClientId", null);
+                //    options.Authority = $"{authority}/";
+                //    options.Audience = clientId; 
+                //    options.TokenValidationParameters = new TokenValidationParameters
+                //    {
+                //        ValidateIssuer = true,
+                //        ValidateAudience = true,
+                //        ValidateLifetime = true,
+                //        ValidateIssuerSigningKey = true,
+                //        ValidIssuer = $"{authority}/v2.0",
+                //        ValidAudience = clientId
+                //    };
+                //})
+                ;
 
             //.AddMicrosoftIdentityWebApi(configSection, JwtBearerDefaults.AuthenticationScheme)
             //.EnableTokenAcquisitionToCallDownstreamApi()

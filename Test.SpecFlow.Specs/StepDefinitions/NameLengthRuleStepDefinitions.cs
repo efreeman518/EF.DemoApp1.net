@@ -1,6 +1,9 @@
 using Domain.Model;
 using Domain.Rules;
 
+//https://docs.specflow.org/projects/specflow/en/latest/Execution/Parallel-Execution.html
+[assembly: DoNotParallelize]
+
 namespace Test.SpecFlow.Specs.StepDefinitions;
 
 [Binding]
