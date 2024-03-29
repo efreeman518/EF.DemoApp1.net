@@ -110,6 +110,20 @@ public abstract class DbIntegrationTestBase
     }
 
     /// <summary>
+    /// Effective when using TestContainers
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>DB connection string from the container</returns>
+    private static async Task<string> StartDbContainerAsync(CancellationToken cancellationToken = default)
+    {
+        //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
+
+        _dbContainer = new MsSqlBuilder().Build();
+        await _dbContainer.StartAsync(cancellationToken);
+        return _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
+    }
+
+    /// <summary>
     /// Currently works only with existing database; not TestContainer or InMemoryDatabase
     /// Create a snapshot of the database; run before each test [MSTest:TestInitialize], [BenchmarkDotNet:IterationSetup]
     /// Then at the beginning of appropriate tests, restore the database to the snapshot
@@ -125,18 +139,7 @@ public abstract class DbIntegrationTestBase
         {
             throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
         }
-        var dbName = TestConfigSection.GetValue<string>("DBName", "DBTest1")!;
-        var snapshotPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TestConfigSection.GetValue("SnapshotPath", "DBSnapshot")!);
-        var snapshotUtility = new SqlDatabaseSnapshotUtility(_dbConnectionString);
-
-        // Try to delete the snapshot in case it was left over from aborted test runs
-        try
-        {
-            await snapshotUtility.DeleteSnapshotAsync(snapshotName, cancellationToken);
-        }
-        catch { /* this should fail with snapshot does not exist */ }
-
-        await snapshotUtility.CreateSnapshotAsync(dbName, snapshotPath, snapshotName, cancellationToken);
+        await DbSupport.CreateDbSnapshot(snapshotName, _dbConnection.Database, _dbConnectionString, cancellationToken);
     }
 
     /// <summary>
@@ -153,23 +156,7 @@ public abstract class DbIntegrationTestBase
         {
             throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
         }
-
-        var snapshotUtility = new SqlDatabaseSnapshotUtility(_dbConnectionString);
-        await snapshotUtility.DeleteSnapshotAsync(snapshotName, cancellationToken);
-    }
-
-    /// <summary>
-    /// Effective when using TestContainers
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns>DB connection string from the container</returns>
-    private static async Task<string> StartDbContainerAsync(CancellationToken cancellationToken = default)
-    {
-        //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
-
-        _dbContainer = new MsSqlBuilder().Build();
-        await _dbContainer.StartAsync(cancellationToken);
-        return _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
+        await DbSupport.DeleteDbSnapshot(snapshotName, _dbConnectionString, cancellationToken);
     }
 
     /// <summary>
@@ -192,29 +179,28 @@ public abstract class DbIntegrationTestBase
     /// Configure the database for the test; runs before each test [MSTest:TestInitialize], [BenchmarkDotNet:IterationSetup]
     /// </summary>
     /// <param name="respawn">based on Respawner configuration, clear all data to schema only</param>
-    /// <param name="snapshotName">Currently works only with existing database; not TestContainer or InMemoryDatabase; Name of the snapshot file</param>
+    /// <param name="dbSnapshotName">Currently works only with existing database; not TestContainer or InMemoryDatabase; Name of the snapshot file</param>
     /// <param name="seedPaths">Paths to seed script files</param>
     /// <param name="seedSearchPattern">Pattern for seed script files</param>
     /// <param name="seedFactories">Methods that will run against DbContext to create data</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected static async Task ResetDatabaseAsync(bool respawn = false, string? snapshotName = null,
-        List<string>? seedPaths = null, string seedSearchPattern = "*.sql",
-        List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
+    protected static async Task ResetDatabaseAsync(bool respawn = false, string? dbSnapshotName = null,
+        List<string>? seedPaths = null, List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
     {
         if (!DbContext.Database.IsInMemory())
         {
             if (respawn) await _respawner.ResetAsync(_dbConnection);
 
             //Currently works only with existing database; not TestContainer or InMemoryDatabase
-            if (snapshotName != null)
+            if (!string.IsNullOrEmpty(dbSnapshotName))
             {
                 var snapshotUtility = new SqlDatabaseSnapshotUtility(_dbConnectionString);
-                var dbName = TestConfigSection.GetValue("DBName", "TestDB1")!;
-                await snapshotUtility.RestoreSnapshotAsync(dbName, snapshotName, cancellationToken);
+                var dbName = _dbConnection.Database;
+                await snapshotUtility.RestoreSnapshotAsync(dbName, dbSnapshotName, cancellationToken);
             }
         }
-        await DbContext.SeedDatabaseAsync(Logger, seedPaths, seedFactories, seedSearchPattern, cancellationToken);
+        await DbContext.SeedDatabaseAsync(Logger, seedPaths, seedFactories, cancellationToken);
         await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 

@@ -50,6 +50,39 @@ public static class DbSupport
         return db;
     }
 
+    /// <summary>
+    /// Currently works only with existing database; not TestContainer or InMemoryDatabase
+    /// </summary>
+    /// <param name="snapshotName"></param>
+    /// <param name="dbName"></param>
+    /// <param name="dbConnectionString"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task CreateDbSnapshot(string snapshotName, string dbName, string dbConnectionString, CancellationToken cancellationToken = default)
+    {
+        var snapshotPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DBSnapshot");
+        var snapshotUtility = new SqlDatabaseSnapshotUtility(dbConnectionString);
+
+        // Try to delete the snapshot in case it was left over from aborted test runs
+        try { await snapshotUtility.DeleteSnapshotAsync(snapshotName, cancellationToken); }
+        catch { /* expect fail when snapshot does not exist */ }
+
+        await snapshotUtility.CreateSnapshotAsync(dbName, snapshotPath, snapshotName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Currently works only with existing database; not TestContainer or InMemoryDatabase
+    /// </summary>
+    /// <param name="snapshotName"></param>
+    /// <param name="dbConnectionString"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task DeleteDbSnapshot(string snapshotName, string dbConnectionString, CancellationToken cancellationToken = default)
+    {
+        var snapshotUtility = new SqlDatabaseSnapshotUtility(dbConnectionString);
+        await snapshotUtility.DeleteSnapshotAsync(snapshotName, cancellationToken);
+    }
+
     private static readonly Random _R = new();
     public static TEnum? RandomEnumValue<TEnum>()
     {

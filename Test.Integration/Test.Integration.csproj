@@ -61,8 +61,4 @@
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DBSnapshot\" />
-  </ItemGroup>
-
 </Project>

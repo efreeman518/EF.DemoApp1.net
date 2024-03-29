@@ -71,20 +71,12 @@ public abstract class EndpointTestBase
     {
         _testContextName = $"EndpointTest-{testContextName}";
 
-        if (TestConfigSection.GetValue<string?>("DBSource", null) == "TestContainer")
+        _dbConnectionString = TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase")!;
+        if (_dbConnectionString == "TestContainer")
         {
-            await StartDbContainerAsync(cancellationToken);
+            await StartDbContainerAsync(cancellationToken); //sets _dbConnectionString
         }
-
-
-        var dbSource = TestConfigSection.GetValue<string?>("DBSource", null);
-
-        if (dbSource == "TestContainer")
-        {
-            dbSource = _dbConnectionString;
-        }
-        //create the DbContext so that tests can arrange data prior to running
-        _dbContext = NewTodoDbContextTrxn(dbSource!);
+        _dbContext = NewTodoDbContextTrxn(_dbConnectionString);
 
         //if we are going to have a dbContext for resetting data, we need to make sure its created now in order for respawner to open the connection
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
@@ -95,7 +87,7 @@ public abstract class EndpointTestBase
         if (!_dbContext.Database.IsInMemory())
         {
             //supports respawner
-            _dbConnection = new SqlConnection(dbSource);
+            _dbConnection = new SqlConnection(_dbConnectionString);
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }
@@ -116,6 +108,42 @@ public abstract class EndpointTestBase
     }
 
     /// <summary>
+    /// Currently works only with existing database; not TestContainer or InMemoryDatabase
+    /// Create a snapshot of the database; run before each test [MSTest:TestInitialize], [BenchmarkDotNet:IterationSetup]
+    /// Then at the beginning of appropriate tests, restore the database to the snapshot
+    /// </summary>
+    /// <param name="snapshotName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    protected static async Task CreateDbSnapshot(string snapshotName, CancellationToken cancellationToken = default)
+    {
+        string[] notAllowedTypes = ["UseInMemoryDatabase", "TestContainer"];
+        if (notAllowedTypes.Contains(TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase")) || _dbConnectionString == null)
+        {
+            throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
+        }
+        await DbSupport.CreateDbSnapshot(snapshotName, _dbConnection.Database, _dbConnectionString, cancellationToken);
+    }
+
+    /// <summary>
+    /// Currently works only with existing database; not TestContainer or InMemoryDatabase
+    /// </summary>
+    /// <param name="snapshotName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    protected static async Task DeleteDbSnapshot(string snapshotName, CancellationToken cancellationToken = default)
+    {
+        string[] notAllowedTypes = ["UseInMemoryDatabase", "TestContainer"];
+        if (notAllowedTypes.Contains(TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase")) || _dbConnectionString == null)
+        {
+            throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
+        }
+        await DbSupport.DeleteDbSnapshot(snapshotName, _dbConnectionString, cancellationToken);
+    }
+
+    /// <summary>
     /// https://github.com/jbogard/Respawn
     /// Effective when using real DB (not in-memory)
     /// </summary>
@@ -132,14 +160,32 @@ public abstract class EndpointTestBase
         });
     }
 
-    protected static async Task ResetDatabaseAsync(bool respawn = false, List<string>? seedPaths = null, string seedSearchPattern = "*.sql",
-        List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Configure the database for the test; runs before each test [MSTest:TestInitialize], [BenchmarkDotNet:IterationSetup]
+    /// </summary>
+    /// <param name="respawn">based on Respawner configuration, clear all data to schema only</param>
+    /// <param name="dbSnapshotName">Currently works only with existing database; not TestContainer or InMemoryDatabase; Name of the snapshot file</param>
+    /// <param name="seedPaths">Paths to seed script files</param>
+    /// <param name="seedSearchPattern">Pattern for seed script files</param>
+    /// <param name="seedFactories">Methods that will run against DbContext to create data</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected static async Task ResetDatabaseAsync(bool respawn = false, string? dbSnapshotName = null,
+        List<string>? seedPaths = null, List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
     {
-        if (!DbContext.Database.IsInMemory() && respawn)
+        if (!DbContext.Database.IsInMemory())
         {
-            await _respawner.ResetAsync(_dbConnection);
+            if (respawn) await _respawner.ResetAsync(_dbConnection);
+
+            //Currently works only with existing database; not TestContainer or InMemoryDatabase
+            if (!string.IsNullOrEmpty(dbSnapshotName))
+            {
+                var snapshotUtility = new SqlDatabaseSnapshotUtility(_dbConnectionString);
+                var dbName = _dbConnection.Database;
+                await snapshotUtility.RestoreSnapshotAsync(dbName, dbSnapshotName, cancellationToken);
+            }
         }
-        await DbContext.SeedDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, seedSearchPattern, cancellationToken);
+        await DbContext.SeedDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, cancellationToken);
         await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
     }
 

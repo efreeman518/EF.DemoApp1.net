@@ -14,11 +14,10 @@ public static class DbContextExtensions
     /// <param name="respawn"></param>
     /// <param name="seedFactories"></param>
     /// <param name="seedPaths"></param>
-    /// <param name="seedSearchPattern"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static async Task SeedDatabaseAsync(this DbContext dbContext, ILogger logger, List<string>? seedPaths = null,
-        List<Action>? seedFactories = null, string seedSearchPattern = "*.sql", CancellationToken cancellationToken = default)
+        List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
     {
         if (dbContext.Database.IsInMemory()) seedPaths = null;
 
@@ -26,7 +25,7 @@ public static class DbContextExtensions
         seedFactories ??= [];
         seedPaths ??= [];
 
-        await dbContext.SeedAsync(logger, [.. seedPaths], seedSearchPattern, [.. seedFactories], cancellationToken);
+        await dbContext.SeedAsync(logger, [.. seedPaths], "*.sql", [.. seedFactories], cancellationToken);
     }
 
     /// <summary>

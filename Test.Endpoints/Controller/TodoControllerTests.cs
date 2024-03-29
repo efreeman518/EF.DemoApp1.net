@@ -16,20 +16,24 @@ namespace Test.Endpoints.Controller;
 [TestClass]
 public class TodoControllerTests : EndpointTestBase
 {
+    private static readonly string? DBSnapshotName = TestConfigSection.GetValue<string?>("DBSnapshotName", null);
+
     [TestMethod]
     [DoNotParallelize]
     public async Task CRUD_pass()
     {
-        //arrange - configure any test data for this test
+        //arrange - configure any test data for this test (optional, after snapshot)
+        bool respawn = string.IsNullOrEmpty(DBSnapshotName);
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
         //generate another 5 completed items
         seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
         //add a single item
-        seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
-        //grab the seed paths for this test 
-        List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
+        seedFactories.Add(() => DbContext.Add(new TodoItem("a123456") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+        //grab the seed paths for this test (can't duplicate snapshot)
+        List<string>? seedPaths = respawn ? [TestConfigSection.GetValue<string>("SeedFilePath")] : null;
         //reset the DB with the seed scripts & data
-        await ResetDatabaseAsync(true, seedPaths, "*.sql", seedFactories);
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        await ResetDatabaseAsync(respawn, DBSnapshotName, seedPaths, seedFactories);
 
         string urlBase = "api/v1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";
@@ -72,11 +76,26 @@ public class TodoControllerTests : EndpointTestBase
     {
         Console.Write($"Start {testContext.TestName}");
         await ConfigureTestInstanceAsync(testContext.TestName!);
+
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
+        {
+            List<Action> seedFactories = [() => DbContext.SeedEntityData()];
+            seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
+            seedFactories.Add(() => DbContext.Add(new TodoItem("a12345") { CreatedBy = "Test.Unit", CreatedDate = DateTime.UtcNow }));
+            List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
+            await ResetDatabaseAsync(true, seedPaths: seedPaths, seedFactories: seedFactories);
+            await CreateDbSnapshot(DBSnapshotName);
+        }
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
+        //existing sql db can reset db using snapshot created in ClassInitialize
+        if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
+            await DeleteDbSnapshot(DBSnapshotName);
+
         await BaseClassCleanup();
     }
 }

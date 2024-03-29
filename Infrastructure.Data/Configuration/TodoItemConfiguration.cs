@@ -22,13 +22,13 @@ public class TodoItemConfiguration : AuditableBaseConfiguration<TodoItem>
             .HasMaxLength(100)
             .HasConversion(
                 v => v != null ? Encoding.UTF8.GetBytes(v) : null,
-                v => v != null ? Encoding.UTF8.GetString(v) : null
-                );
+                v => v != null ? Encoding.UTF8.GetString(v) : null)
+            ;
         builder.Property(b => b.SecureRandom)
             .HasMaxLength(100)
             .HasConversion(
                 v => v != null ? Encoding.UTF8.GetBytes(v) : null,
-                v => v != null ? Encoding.UTF8.GetString(v) : null
-                );
+                v => v != null ? Encoding.UTF8.GetString(v) : null)
+            ;
     }
 }

@@ -44,3 +44,26 @@ public class SqlDatabaseSnapshotUtility(string dbConnectionString)
         conn.Close();
     }
 }
+
+/*
+Check DB for snapshots
+
+SELECT
+ db_name(db.source_database_id) source_database,
+ db.name AS snapshot_db_name,
+ db.database_id,
+ db.source_database_id,
+ db.create_date,
+ db.compatibility_level,
+ db.is_read_only,
+ mf.physical_name
+FROM sys.databases db
+INNER JOIN sys.master_files mf
+ ON db.database_id = mf.database_id
+WHERE db.source_database_id is not null
+ AND mf.is_sparse =1
+ORDER BY db.name;
+
+DROP DATABASE Snapshot1
+
+ */
