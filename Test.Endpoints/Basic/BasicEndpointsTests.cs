@@ -6,6 +6,7 @@ using System.Net;
 namespace Test.Endpoints.Basic;
 
 [TestClass]
+[DoNotParallelize]
 public class BasicEndpointsTests : EndpointTestBase
 {
     //html endpoints return success and correct content type
