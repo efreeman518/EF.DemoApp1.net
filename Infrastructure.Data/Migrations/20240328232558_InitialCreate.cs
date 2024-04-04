@@ -76,7 +76,7 @@ public partial class InitialCreate : Migration
             .Annotation("SqlServer:Clustered", true);
 
         //add to migration class - customize for always encrypted (until supported in fluent syntax)
-        string url_AKV_CMK = "[AKV-Url-CMK]";
+        string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL"); //set in PMC prior to running migration and script generation
         string schema_table = "[todo].[TodoItem]";
         string cmkName = "CMK_WITH_AKV";
 
