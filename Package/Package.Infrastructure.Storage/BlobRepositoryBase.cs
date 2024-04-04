@@ -48,7 +48,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     }
 
     /// <summary>
-    /// List constinare blobs
+    /// List container blobs
     /// </summary>
     /// <param name="containerName"></param>
     /// <param name="cancellationToken"></param>

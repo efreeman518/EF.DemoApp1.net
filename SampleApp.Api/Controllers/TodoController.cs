@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;

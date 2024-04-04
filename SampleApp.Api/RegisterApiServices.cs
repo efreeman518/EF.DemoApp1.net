@@ -74,7 +74,7 @@ internal static class IServiceCollectionExtensions
         });
 
         //app clients - Enable JWT Bearer Authentication
-        var configSection = config.GetSection("xAzureAd");
+        var configSection = config.GetSection("AzureAd");
         if (configSection.Exists())
         {
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
