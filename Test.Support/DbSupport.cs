@@ -1,4 +1,7 @@
-﻿using Domain.Model;
+﻿using Azure.Identity;
+using Domain.Model;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -8,6 +11,9 @@ using Package.Infrastructure.Common.Extensions;
 namespace Test.Support;
 public static class DbSupport
 {
+    //can only be registered once
+    private static bool _keyStoreProviderRegistered = false;
+
     public static T ConfigureServicesTestDB<T>(ILogger logger, IServiceCollection services, string? dbConnectionString)
         where T : DbContext
     {
@@ -34,6 +40,21 @@ public static class DbSupport
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorNumbersToAdd: null);
                         });
+
+                    //SQL ALWAYS ENCRYPTED, the connection string must include "Column Encryption Setting=Enabled"
+                    if (!_keyStoreProviderRegistered)
+                    {
+                        //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
+                        var credential = new DefaultAzureCredential();
+                        SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
+                        SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+                        {
+                            {
+                                SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                            }
+                        });
+                        _keyStoreProviderRegistered = true;
+                    }
                 }
             }, ServiceLifetime.Singleton);
         }

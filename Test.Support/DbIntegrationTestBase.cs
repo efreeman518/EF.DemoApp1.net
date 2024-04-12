@@ -22,7 +22,7 @@ namespace Test.Support;
 public abstract class DbIntegrationTestBase
 {
     private static string _testContextName = null!;
-    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<DbIntegrationTestBase>().Build();
+    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
     protected static IServiceProvider Services => _services;
     protected static IServiceScope ServiceScope => _serviceScope;
@@ -107,6 +107,7 @@ public abstract class DbIntegrationTestBase
         _services = services.BuildServiceProvider(validateScopes: true);
         _serviceScope = _services.CreateScope();
         _logger.Log(LogLevel.Information, $"{_testContextName} Initialized.");
+
     }
 
     /// <summary>
@@ -181,7 +182,6 @@ public abstract class DbIntegrationTestBase
     /// <param name="respawn">based on Respawner configuration, clear all data to schema only</param>
     /// <param name="dbSnapshotName">Currently works only with existing database; not TestContainer or InMemoryDatabase; Name of the snapshot file</param>
     /// <param name="seedPaths">Paths to seed script files</param>
-    /// <param name="seedSearchPattern">Pattern for seed script files</param>
     /// <param name="seedFactories">Methods that will run against DbContext to create data</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>

@@ -15,7 +15,7 @@ namespace Package.Infrastructure.Data;
 
 /* 
     //add to migration class - customize for always encrypted (until supported in fluent syntax)
-    string url_AKV_CMK = "<url to keyvault key>";
+    string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL"); //url to key vault CMK key;
     string schema_table = "[todo].[TodoItem]";
     string cmkName = "CMK_WITH_AKV";
 
@@ -25,10 +25,12 @@ namespace Package.Infrastructure.Data;
     string cekName = "CEK_WITH_AKV";
     support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
 
-    string colDef = "[SecureDeterministic] nvarchar(100)";
+    //secure column def; varbinary has no collate
+    string colDef = "[SecureDeterministic] varbinary(200)";
     support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "DETERMINISTIC");
 
-    colDef = "[SecureRandom] nvarchar(100)";
+    //secure column def; varbinary has no collate
+    colDef = "[SecureRandom] varbinary(200)";
     support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "RANDOMIZED");
 */
 

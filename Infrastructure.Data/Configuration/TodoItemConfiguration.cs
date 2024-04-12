@@ -19,13 +19,13 @@ public class TodoItemConfiguration : AuditableBaseConfiguration<TodoItem>
         builder.Property(b => b.Name).HasMaxLength(100);
 
         builder.Property(b => b.SecureDeterministic)
-            .HasMaxLength(100) //encrypted column size needs to be larger than the max string property value 
+            .HasMaxLength(200) //encrypted column size needs to be larger than the max string property value 
             .HasConversion(
                 v => v != null ? Encoding.UTF8.GetBytes(v) : null,
                 v => v != null ? Encoding.UTF8.GetString(v) : null)
             ;
         builder.Property(b => b.SecureRandom)
-            .HasMaxLength(100) //encrypted column size needs to be larger than the max string property value  
+            .HasMaxLength(200) //encrypted column size needs to be larger than the max string property value  
             .HasConversion(
                 v => v != null ? Encoding.UTF8.GetBytes(v) : null,
                 v => v != null ? Encoding.UTF8.GetString(v) : null)

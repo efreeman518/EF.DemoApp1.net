@@ -3,26 +3,43 @@ using Microsoft.AspNetCore.DataProtection;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 
-var SERVICE_NAME = "SampleApi";
+//CreateBuilder defaults:
+//- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
+//- logging gets Console
+var builder = WebApplication.CreateBuilder(args);
+var appName = builder.Configuration.GetValue<string>("AppName");
 
-//logging for initialization
+//logging for startup
 ILogger<Program> loggerStartup;
-using var loggerFactory = LoggerFactory.Create(builder =>
+using var loggerFactory = LoggerFactory.Create(logBuilder =>
 {
-    builder.SetMinimumLevel(LogLevel.Information);
-    builder.AddConsole();
-    builder.AddApplicationInsights();
+    logBuilder.SetMinimumLevel(LogLevel.Information);
+    logBuilder.AddConsole();
+    logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
+            configureApplicationInsightsLoggerOptions: (options) => { });
 });
 loggerStartup = loggerFactory.CreateLogger<Program>();
+loggerStartup.LogInformation("{AppName} - Startup.", appName);
 
 try
 {
-    loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
+    //logging
+    loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
+    builder.Logging
+        .ClearProviders()
+        .AddApplicationInsights(configureTelemetryConfiguration: config =>
+        {
+            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+        },
+        configureApplicationInsightsLoggerOptions: (options) => { }
+    );
 
-    //CreateBuilder defaults:
-    //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
-    //- logging gets Console
-    var builder = WebApplication.CreateBuilder(args);
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Logging.AddConsole();
+        builder.Logging.AddDebug();
+    }
 
     //set up DefaultAzureCredential for subsequent use in configuration providers
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
@@ -45,7 +62,7 @@ try
     if (appConfig != null)
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
-        loggerStartup.LogInformation("{ServiceName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
+        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
         builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
     }
 
@@ -53,7 +70,7 @@ try
     endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
     if (!string.IsNullOrEmpty(endpoint))
     {
-        loggerStartup.LogInformation("{ServiceName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
+        loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", appName, endpoint);
         builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
     }
 
@@ -61,15 +78,7 @@ try
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
     //builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(1, 0, 0));
 
-    //logging
-    loggerStartup.LogInformation("{ServiceName} - Configure logging.", SERVICE_NAME);
-    builder.Logging.ClearProviders();
-    builder.Logging.AddApplicationInsights();
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
-    }
+
 
     //Data Protection - use blobstorage (key file) and keyvault; server farm/instances will all use the same keys
     //register here since credential has been configured
@@ -78,13 +87,13 @@ try
     string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
     {
-        loggerStartup.LogInformation("{ServiceName} - Configure Data Protection.", SERVICE_NAME);
+        loggerStartup.LogInformation("{AppName} - Configure Data Protection.", appName);
         builder.Services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(new Uri(dataProtectionKeysFileUrl), credential)
             .ProtectKeysWithAzureKeyVault(new Uri(dataProtectionEncryptionKeyUrl), credential);
     }
 
-    loggerStartup.LogInformation("{ServiceName} - Register services.", SERVICE_NAME);
+    loggerStartup.LogInformation("{AppName} - Register services.", appName);
     var config = builder.Configuration;
     builder.Services
         //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
@@ -96,19 +105,21 @@ try
         //background services
         .RegisterBackgroundServices(config)
         //api services - controllers, versioning, health checks, swagger, telemetry
-        .RegisterApiServices(config);
+        .RegisterApiServices(config, loggerStartup);
 
     var app = builder.Build().ConfigurePipeline();
+    loggerStartup.LogInformation("{AppName} - Running startup tasks.", appName);
     await app.RunStartupTasks();
+    loggerStartup.LogInformation("{AppName} - Running app.", appName);
     await app.RunAsync();
 }
 catch (Exception ex)
 {
-    loggerStartup.LogCritical(ex, "{ServiceName} - Host terminated unexpectedly.", SERVICE_NAME);
+    loggerStartup.LogCritical(ex, "{AppName} - Host terminated unexpectedly.", appName);
 }
 finally
 {
-    loggerStartup.LogInformation("{ServiceName} - Ending application.", SERVICE_NAME);
+    loggerStartup.LogInformation("{AppName} - Ending application.", appName);
 }
 
 

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(TodoDbContextTrxn))]
-    [Migration("20240328232558_InitialCreate")]
+    [Migration("20240411195536_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -102,12 +102,12 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("rowversion");
 
                     b.Property<byte[]>("SecureDeterministic")
-                        .HasMaxLength(100)
-                        .HasColumnType("varbinary(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("varbinary(200)");
 
                     b.Property<byte[]>("SecureRandom")
-                        .HasMaxLength(100)
-                        .HasColumnType("varbinary(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("varbinary(200)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

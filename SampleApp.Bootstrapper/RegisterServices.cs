@@ -189,6 +189,7 @@ public static class IServiceCollectionExtensions
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 );
 
+            //SQL ALWAYS ENCRYPTED, the connection string must include "Column Encryption Setting=Enabled"
             if (!_keyStoreProviderRegistered)
             {
                 //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"

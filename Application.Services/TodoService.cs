@@ -26,7 +26,9 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
-        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, true, pageSize, pageIndex, includeTotal: true, cancellationToken: cancellationToken);
+        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, true, pageSize, pageIndex,
+            orderBy: t => t.OrderBy(x => x.Name),
+            includeTotal: true, cancellationToken: cancellationToken);
     }
 
     public async Task<TodoItemDto?> GetItemAsync(Guid id, CancellationToken cancellationToken = default)

@@ -130,17 +130,18 @@ public class TodoServiceTests : DbIntegrationTestBase
     }
 
     /// <summary>
-    /// run once at class initialization
+    /// run once at class/assembly initialization
     /// </summary>
     /// <param name="testContext"></param>
     /// <returns></returns>
+    //[AssemblyInitialize]
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
         Console.Write($"Start {testContext.FullyQualifiedTestClassName}");
         await ConfigureTestInstanceAsync(testContext.FullyQualifiedTestClassName!);
 
-        //existing sql db can reset db using snapshot created in ClassInitialize
+        //existing sql db can reset db using snapshot created in ClassInitialize with specific data for this test class/assembly
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
         {
             List<Action> seedFactories = [() => DbContext.SeedEntityData()];
@@ -152,6 +153,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         }
     }
 
+    //[AssemblyCleanup]
     [ClassCleanup]
     public static async Task ClassCleanup()
     {

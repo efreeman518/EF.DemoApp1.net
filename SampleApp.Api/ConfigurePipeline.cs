@@ -50,7 +50,7 @@ public static partial class WebApplicationBuilderExtensions
         //any other middleware
         app.UseSomeMiddleware();
 
-        app.MapControllers();
+        app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
         app.MapHealthChecks("/_health", new HealthCheckOptions()
         {

@@ -54,6 +54,16 @@ try
                         options.Rules.Remove(toRemove);
                     }
                 })
+                //needed for logging to app insights?
+                //.AddLogging(builder =>
+                //{
+                //    builder.AddApplicationInsights(configTelem =>
+                //    {
+                //        configTelem.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
+                //    },
+                //    options => { });
+                //})
+
                 //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
                 .RegisterInfrastructureServices(config)
                 //domain services

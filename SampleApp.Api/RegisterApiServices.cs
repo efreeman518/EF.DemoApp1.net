@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
-using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Swagger;
@@ -23,16 +22,39 @@ internal static class IServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
+    /// <param name="logger"></param>
     /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         //Application Insights telemtry for http services (for logging telemetry directly to AI)
+        //var aiOptions = new ApplicationInsightsServiceOptions
+        //{
+        //    ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString")
+        //};
+
+        //services.AddApplicationInsightsTelemetry(aiOptions)
+        //    .ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
+        //    {
+        //        module.EnableSqlCommandTextInstrumentation = config.GetValue("EnableSqlCommandTextInstrumentation", false);
+        //    });
         services.AddApplicationInsightsTelemetry();
-        //capture full sql
-        services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
-        {
-            module.EnableSqlCommandTextInstrumentation = config.GetValue<bool>("EnableSqlCommandTextInstrumentation", false);
-        });
+
+        ////TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+        ////configuration.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
+
+        //// Add OpenTelemetry Tracing
+        ////services.AddOpenTelemetryTracing((sp, builder) =>
+        ////{
+        ////    builder
+        ////        .AddAspNetCoreInstrumentation()
+        ////        .AddHttpClientInstrumentation()
+        ////        .AddNpgsqlInstrumentation()
+        ////        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Configuration["MicroserviceName"]))
+        ////        .AddAzureMonitorTraceExporter(config =>
+        ////        {
+        ////            config.ConnectionString = Configuration["ApplicationInsights:ConnectionString"];
+        ////        });
+        ////});
 
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
@@ -79,40 +101,63 @@ internal static class IServiceCollectionExtensions
         {
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(configSection)
-                //.AddJwtBearer(options =>
-                //{
-                //    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
-                //    var clientId = configSection.GetValue<string?>("ClientId", null);
-                //    options.Authority = $"{authority}/";
-                //    options.Audience = clientId; 
-                //    options.TokenValidationParameters = new TokenValidationParameters
-                //    {
-                //        ValidateIssuer = true,
-                //        ValidateAudience = true,
-                //        ValidateLifetime = true,
-                //        ValidateIssuerSigningKey = true,
-                //        ValidIssuer = $"{authority}/v2.0",
-                //        ValidAudience = clientId
-                //    };
-                //})
-                ;
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddMicrosoftIdentityWebApi(configSection)
+            //    //.AddJwtBearer(options =>
+            //    //{
+            //    //    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
+            //    //    var clientId = configSection.GetValue<string?>("ClientId", null);
+            //    //    options.Authority = $"{authority}/";
+            //    //    options.Audience = clientId; 
+            //    //    options.TokenValidationParameters = new TokenValidationParameters
+            //    //    {
+            //    //        ValidateIssuer = true,
+            //    //        ValidateAudience = true,
+            //    //        ValidateLifetime = true,
+            //    //        ValidateIssuerSigningKey = true,
+            //    //        ValidIssuer = $"{authority}/v2.0",
+            //    //        ValidAudience = clientId
+            //    //    };
+            //    //})
+            //    ;
+
+            //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddMicrosoftIdentityWebApi(config);
 
             //.AddMicrosoftIdentityWebApi(configSection, JwtBearerDefaults.AuthenticationScheme)
             //.EnableTokenAcquisitionToCallDownstreamApi()
             //.AddInMemoryTokenCaches()
 
             //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
-            //services.AddAuthorizationBuilder()
-            //    .AddPolicy("Admin", policy => policy.RequireRole("Admin"))
-            //    .AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
-            });
+            services.AddAuthorizationBuilder()
+                //require authenticated user globally
+                //.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                //    .RequireAuthenticatedUser()
+                //    .Build())
+                //.SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                //    .RequireAuthenticatedUser()
+                //    .Build())
+                //require specific roles on spcific endpoints
+                .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
+                .AddPolicy("SomeAccess1Policy", policy => policy.RequireRole("SomeAccess1"))
+             ;
+
+            //services.AddAuthorization(options =>
+            //{
+            //    //require auth globally
+            //    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+            //        .RequireAuthenticatedUser()
+            //        .Build();
+            //    //require auth for specific roles
+            //    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+            //    options.AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
+            //});
         }
 
         services.AddControllers();
