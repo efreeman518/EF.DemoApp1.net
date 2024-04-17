@@ -9,7 +9,7 @@ public interface ISampleApiRestClient
     Task<TodoItemDto?> GetItemAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default);
     Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<object?> GetUserAsync(CancellationToken cancellationToken = default);
-    Task<object?> GetUserClaimsAsync(CancellationToken cancellationToken = default);
-    Task<object?> GetAuthHeaderAsync(CancellationToken cancellationToken = default);
+    Task<string?> GetUserAsync(CancellationToken cancellationToken = default);
+    Task<string?> GetUserClaimsAsync(CancellationToken cancellationToken = default);
+    Task<string?> GetAuthHeaderAsync(CancellationToken cancellationToken = default);
 }

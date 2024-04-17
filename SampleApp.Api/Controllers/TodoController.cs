@@ -1,11 +1,15 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Common.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;
@@ -28,6 +32,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [MapToApiVersion("1.0")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
+    [Authorize(Roles = "SomeAccess1")]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
         var items = await _todoService.GetPageAsync(pageSize, pageIndex);
@@ -55,7 +60,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>A TodoItem</returns>
     [HttpGet("{id:Guid}")]
-    //[Authorize]
+    [Authorize(Policy = "SomeAccess1Policy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
@@ -74,6 +79,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The new TodoItem that was saved</returns>
     [HttpPost]
+    [Authorize]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model Binding Error", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
@@ -94,7 +100,11 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The updated TodoItem</returns>
     [HttpPut("{id:Guid}")]
-    //[Authorize(Roles = "SomeAccess1")]
+    [Authorize]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAd:Scopes:AccessScope1",
+        RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:AccessRole1"
+    )]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PutTodoItem(Guid id, TodoItemDto todoItem)
@@ -116,7 +126,12 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>OK</returns>
     [HttpDelete("{id:Guid}")]
-    //[Authorize(Policy = "SomeAccess1Policy")]
+    [Authorize]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAd:Scopes:AccessScope2",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:AccessRole2"
+    //)]
+    [Authorize(Policy = "AdminPolicy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult> DeleteTodoItem(Guid id)
@@ -130,12 +145,12 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>User data in json</returns>
     [HttpGet("getuser")]
-    //[Authorize]
+    [Authorize]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUser()
     {
         var user = HttpContext.User;
-        return new JsonResult(user, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(user.Identity.SerializeToJson(new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles }));
     }
 
     /// <summary>
@@ -143,12 +158,12 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>Claims data in json</returns>
     [HttpGet("getuserclaims")]
-    //[Authorize(Roles = "SomeAccess1")]
+    [Authorize(Roles = "SomeAccess1")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUserClaims()
     {
         var user = HttpContext.User;
-        return new JsonResult(user.Claims, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(user.Claims.SerializeToJson(new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles }));
     }
 
     /// <summary>
@@ -156,12 +171,12 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns></returns>
     [HttpGet("getauthheader")]
-    //[Authorize(Policy = "SomeAccess1Policy")]
+    [Authorize(Policy = "SomeAccess1Policy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetAuthHeader()
     {
         var authHeaders = HttpContext.Request.Headers.Authorization;
-        return new JsonResult(authHeaders, new JsonSerializerOptions { WriteIndented = true });
+        return new JsonResult(authHeaders);
     }
 
 }

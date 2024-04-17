@@ -1,9 +1,11 @@
 ﻿using Asp.Versioning;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Swagger;
+using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Grpc;
 using Sample.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
@@ -27,21 +29,10 @@ internal static class IServiceCollectionExtensions
     public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         //Application Insights telemtry for http services (for logging telemetry directly to AI)
-        //var aiOptions = new ApplicationInsightsServiceOptions
-        //{
-        //    ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString")
-        //};
-
-        //services.AddApplicationInsightsTelemetry(aiOptions)
-        //    .ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
-        //    {
-        //        module.EnableSqlCommandTextInstrumentation = config.GetValue("EnableSqlCommandTextInstrumentation", false);
-        //    });
-        services.AddApplicationInsightsTelemetry();
-
-        ////TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-        ////configuration.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-
+        services.AddOpenTelemetry().UseAzureMonitor(options =>
+        {
+            options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
+        });
         //// Add OpenTelemetry Tracing
         ////services.AddOpenTelemetryTracing((sp, builder) =>
         ////{
@@ -99,6 +90,8 @@ internal static class IServiceCollectionExtensions
         var configSection = config.GetSection("AzureAd");
         if (configSection.Exists())
         {
+            logger.LogInformation($"Configure auth - {configSection.SerializeToJson()}");
+
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -123,6 +116,7 @@ internal static class IServiceCollectionExtensions
 
             //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
 
+            //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -134,6 +128,12 @@ internal static class IServiceCollectionExtensions
             //.AddInMemoryTokenCaches()
 
             //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
+
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+            //    options.AddPolicy("SomeAccess1Policy", policy => policy.RequireRole("SomeAccess1"));
+            //});
 
             services.AddAuthorizationBuilder()
                 //require authenticated user globally

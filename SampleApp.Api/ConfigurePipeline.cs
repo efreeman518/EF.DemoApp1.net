@@ -52,15 +52,15 @@ public static partial class WebApplicationBuilderExtensions
 
         app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
-        app.MapHealthChecks("/_health", new HealthCheckOptions()
+        app.MapHealthChecks("/health", new HealthCheckOptions()
         {
             // Exclude all checks and return a 200 - Ok.
             Predicate = (_) => false,
         });
-        app.MapHealthChecks("/_health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
-        app.MapHealthChecks("/_health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
-        app.MapHealthChecks("/_health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
-        app.MapHealthChecks("/_health/weatherservice", HealthCheckHelper.BuildHealthCheckOptions("weatherservice"));
+        app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
+        app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
+        app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
+        app.MapHealthChecks("/health/weatherservice", HealthCheckHelper.BuildHealthCheckOptions("weatherservice"));
 
         if (config.GetValue("SwaggerSettings:Enable", false))
         {

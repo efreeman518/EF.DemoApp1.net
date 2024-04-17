@@ -40,21 +40,21 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
         (var _, var _) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Delete, $"{urlSegment}/{id}", cancellationToken: cancellationToken);
     }
 
-    public async Task<object?> GetUserAsync(CancellationToken cancellationToken = default)
+    public async Task<string?> GetUserAsync(CancellationToken cancellationToken = default)
     {
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getuser", cancellationToken: cancellationToken);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<string>(HttpMethod.Get, $"{urlSegment}/getuser", cancellationToken: cancellationToken);
         return parsedResponse;
     }
 
-    public async Task<object?> GetUserClaimsAsync(CancellationToken cancellationToken = default)
+    public async Task<string?> GetUserClaimsAsync(CancellationToken cancellationToken = default)
     {
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getuserclaims", cancellationToken: cancellationToken);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<string>(HttpMethod.Get, $"{urlSegment}/getuserclaims", cancellationToken: cancellationToken);
         return parsedResponse;
     }
 
-    public async Task<object?> GetAuthHeaderAsync(CancellationToken cancellationToken = default)
+    public async Task<string?> GetAuthHeaderAsync(CancellationToken cancellationToken = default)
     {
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Get, $"{urlSegment}/getauthheader", cancellationToken: cancellationToken);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<string>(HttpMethod.Get, $"{urlSegment}/getauthheader", cancellationToken: cancellationToken);
         return parsedResponse;
     }
 }
