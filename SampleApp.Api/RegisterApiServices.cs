@@ -10,6 +10,7 @@ using Package.Infrastructure.Grpc;
 using Sample.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Serialization;
 
 namespace SampleApp.Api;
 

@@ -140,6 +140,8 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
         return Ok();
     }
 
+    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles };
+
     /// <summary>
     /// Gets the current user
     /// </summary>
@@ -150,7 +152,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     public IActionResult GetUser()
     {
         var user = HttpContext.User;
-        return new JsonResult(user.Identity.SerializeToJson(new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles }));
+        return new JsonResult(user.Identity, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -163,7 +165,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     public IActionResult GetUserClaims()
     {
         var user = HttpContext.User;
-        return new JsonResult(user.Claims.SerializeToJson(new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles }));
+        return new JsonResult(user.Claims, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -176,7 +178,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     public IActionResult GetAuthHeader()
     {
         var authHeaders = HttpContext.Request.Headers.Authorization;
-        return new JsonResult(authHeaders);
+        return Ok(authHeaders);
     }
 
 }

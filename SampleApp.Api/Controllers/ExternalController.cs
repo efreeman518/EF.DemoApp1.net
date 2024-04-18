@@ -4,6 +4,8 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;
@@ -84,25 +86,27 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         return Ok();
     }
 
+    //private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{  WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles };
+
     [HttpGet("getuser")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetUser()
     {
-        return new JsonResult(await _apiClient.GetUserAsync());
+        return Ok(await _apiClient.GetUserAsync());
     }
 
     [HttpGet("getuserclaims")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetUserClaims()
     {
-        return new JsonResult(await _apiClient.GetUserClaimsAsync());
+        return Ok(await _apiClient.GetUserClaimsAsync());
     }
 
     [HttpGet("getauthheader")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetAuthHeader()
     {
-        return new JsonResult(await _apiClient.GetAuthHeaderAsync());
+        return Ok(await _apiClient.GetAuthHeaderAsync());
     }
 
 }
