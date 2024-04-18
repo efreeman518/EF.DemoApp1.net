@@ -140,7 +140,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
         return Ok();
     }
 
-    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles };
+    private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles };
 
     /// <summary>
     /// Gets the current user
