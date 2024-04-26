@@ -15,13 +15,12 @@ public static class ApiFactoryManager
         where TEntryPoint : class
     {
         WebApplicationFactoryClientOptions options = new()
-        {
+        { 
             AllowAutoRedirect = allowAutoRedirect, //default = true; set to false for testing app's first response being a redirect with Location header
             BaseAddress = new Uri(baseAddress) //default = http://localhost
         };
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        HttpClient client = factory.CreateClient(options); //could reuse the client
-
+        HttpClient client = factory.CreateClient(options);
         return client;
     }
 

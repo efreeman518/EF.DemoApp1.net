@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
@@ -68,6 +69,52 @@ public abstract class BlobRepositoryBase : IBlobRepository
     {
         BlobContainerClient container = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return container.GetBlobsAsync(blobTraits, blobStates, prefix, cancellationToken);
+    }
+
+    /// <summary>
+    /// Enable a distributed lock using a blob lease
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="containerInfo"></param>
+    /// <param name="leaseBlobName"></param>
+    /// <param name="funcLocked"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<T?> DistributedLockExecuteAsync<T>(ContainerInfo containerInfo, string leaseBlobName, Func<Task<T?>> funcLocked, CancellationToken cancellationToken = default)
+    {
+        BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        BlobClient blobClient = containerClient.GetBlobClient(leaseBlobName);
+        var blobLeaseClient  = blobClient.GetBlobLeaseClient();
+        _logger.DebugLogExt("Attempt lease acquisition (distributed lock) {0}", leaseBlobName);
+        BlobLease blobLease = (await blobLeaseClient.AcquireAsync(TimeSpan.FromSeconds(-1), cancellationToken: cancellationToken).ConfigureAwait(false)).Value;
+        try
+        {
+            T? response = default;
+            //lease acquired
+            if (!string.IsNullOrEmpty(blobLease.LeaseId))
+            {
+                _logger.DebugLogExt("Lease acquired (distributed lock acquired) blob:{0} leaseId:{1}, running func.", leaseBlobName, blobLease.LeaseId);
+                response = await funcLocked();
+            }
+            else
+            {
+                _logger.DebugLogExt("Lease not acquired (distributed lock existing from another process) blob:{0}, skipping func.", leaseBlobName);
+            }
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.ErrorLog("DistributedLockExecuteAsync Failed.", ex);
+            return default;
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(blobLease.LeaseId))
+            {
+                await blobLeaseClient.ReleaseAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+                _logger.DebugLogExt("Lease released (distributed lock) blob:{0} leaseId:{1}", leaseBlobName, blobLease.LeaseId);
+            }
+        }
     }
 
     /// <summary>

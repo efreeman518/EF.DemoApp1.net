@@ -61,7 +61,7 @@ services.AddGrpcClient2<SampleAppGrpc.TodoService.TodoServiceClient>(
 
 //LazyCache needed for AzureAdTokenProviderDefaultAzureCred
 services.AddLazyCache();
-services.AddSingleton<IAzureAdTokenRetriever, AzureAdTokenProviderDefaultAzureCred>();
+services.AddSingleton<IAzureDefaultCredTokenProvider, AzureDefaultCredTokenProvider>();
 
 //build IServiceProvider for subsequent use finding / injecting services
 IServiceProvider serviceProvider = services.BuildServiceProvider(validateScopes: true);

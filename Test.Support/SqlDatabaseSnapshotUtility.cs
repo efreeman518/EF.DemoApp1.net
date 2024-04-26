@@ -10,6 +10,8 @@ public class SqlDatabaseSnapshotUtility(string dbConnectionString)
 {
     public async Task CreateSnapshotAsync(string dbName, string snapshotPath, string snapshotName, CancellationToken cancellationToken = default)
     {
+        //get server data folder (works on sql server, not Azure SQL or MI)
+        //select SERVERPROPERTY('InstanceDefaultDataPath')
         if (!Directory.Exists(snapshotPath))
             Directory.CreateDirectory(snapshotPath);
 

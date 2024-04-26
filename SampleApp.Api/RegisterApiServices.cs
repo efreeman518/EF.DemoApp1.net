@@ -3,14 +3,14 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using CorrelationId.DependencyInjection;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Swagger;
-using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
 using Sample.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Text.Json.Serialization;
 
 namespace SampleApp.Api;
 
@@ -34,22 +34,6 @@ internal static class IServiceCollectionExtensions
         {
             options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
         });
-        //// Add OpenTelemetry Tracing
-        ////services.AddOpenTelemetryTracing((sp, builder) =>
-        ////{
-        ////    builder
-        ////        .AddAspNetCoreInstrumentation()
-        ////        .AddHttpClientInstrumentation()
-        ////        .AddNpgsqlInstrumentation()
-        ////        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Configuration["MicroserviceName"]))
-        ////        .AddAzureMonitorTraceExporter(config =>
-        ////        {
-        ////            config.ConnectionString = Configuration["ApplicationInsights:ConnectionString"];
-        ////        });
-        ////});
-
-        //global unhandled exception handler
-        services.AddExceptionHandler<DefaultExceptionHandler>();
 
         //api versioning
         var apiVersioningBulder = services.AddApiVersioning(options =>
@@ -87,79 +71,56 @@ internal static class IServiceCollectionExtensions
             });
         });
 
-        //app clients - Enable JWT Bearer Authentication
-        var configSection = config.GetSection("AzureAd");
+        //Auth
+        string configSectionName = "AzureAd";
+        var configSection = config.GetSection(configSectionName);
         if (configSection.Exists())
         {
-            logger.LogInformation($"Configure auth - {configSection.SerializeToJson()}");
-
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApi(configSection)
-            //    //.AddJwtBearer(options =>
-            //    //{
-            //    //    var authority = $"{configSection.GetValue<string?>("Instance", null)}{configSection.GetValue<string?>("TenantId", null)}/";
-            //    //    var clientId = configSection.GetValue<string?>("ClientId", null);
-            //    //    options.Authority = $"{authority}/";
-            //    //    options.Audience = clientId; 
-            //    //    options.TokenValidationParameters = new TokenValidationParameters
-            //    //    {
-            //    //        ValidateIssuer = true,
-            //    //        ValidateAudience = true,
-            //    //        ValidateLifetime = true,
-            //    //        ValidateIssuerSigningKey = true,
-            //    //        ValidIssuer = $"{authority}/v2.0",
-            //    //        ValidAudience = clientId
-            //    //    };
-            //    //})
-            //    ;
-
-            //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
-
+            //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
+
+            logger.LogInformation($"Configure auth - {configSectionName}");
+
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddMicrosoftIdentityWebApi(config);
-
-            //.AddMicrosoftIdentityWebApi(configSection, JwtBearerDefaults.AuthenticationScheme)
             //.EnableTokenAcquisitionToCallDownstreamApi()
             //.AddInMemoryTokenCaches()
 
-            //services.AddMicrosoftIdentityWebApiAuthentication(config, "AzureAd");
+            services.AddSingleton<IAuthorizationHandler, RolesOrScopesAuthorizationHandler>();
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
-            //    options.AddPolicy("SomeAccess1Policy", policy => policy.RequireRole("SomeAccess1"));
-            //});
+            services.AddAuthorization();
 
             services.AddAuthorizationBuilder()
                 //require authenticated user globally
-                //.SetFallbackPolicy(new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build())
-                //.SetDefaultPolicy(new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build())
-                //require specific roles on spcific endpoints
+                //Fallback Policy for all endpoints that do not have any authorization defined, except explicit [AllowAnonymous] endpoints
+                .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build())
+                //Default Policy for all endpoints that require authorization ([Authorize] authenticated user) already but no other specifics
+                .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build())
+                //require specific roles on specific endpoints
                 .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
-                .AddPolicy("SomeAccess1Policy", policy => policy.RequireRole("SomeAccess1"))
+                .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
+                .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))
+                .AddPolicy("ScopeOrRolePolicy1", policy => policy.AddRequirements(new RolesOrScopesRequirement(["SomeAccess1"], ["SomeScope1"])))
+                .AddPolicy("ScopeOrRolePolicy2", policy =>
+                {
+                    var defaultRoles = configSection.GetSection("AppPermissions:Default").Get<string[]>();
+                    var defaultScopes = configSection.GetSection("Scopes:Default").Get<string[]>();
+                    policy.AddRequirements(new RolesOrScopesRequirement(defaultRoles, defaultScopes));
+                })
              ;
-
-            //services.AddAuthorization(options =>
-            //{
-            //    //require auth globally
-            //    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-            //        .RequireAuthenticatedUser()
-            //        .Build();
-            //    //require auth for specific roles
-            //    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-            //    options.AddPolicy("SomeAccess1", policy => policy.RequireRole("SomeAccess1"));
-            //});
         }
+
+        //global unhandled exception handler
+        services.AddExceptionHandler<DefaultExceptionHandler>();
 
         services.AddControllers();
 

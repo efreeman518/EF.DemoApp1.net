@@ -35,14 +35,14 @@ public class TodoControllerTests : EndpointTestBase
         //existing sql db can reset db using snapshot created in ClassInitialize
         await ResetDatabaseAsync(respawn, DBSnapshotName, seedPaths, seedFactories);
 
-        string urlBase = "api/v1/todoitems";
+        string urlBase = "api/v1.1/todoitems";
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
         //act
 
         //POST create (insert)
-        (var _, var parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
+        (var _, var parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
@@ -50,24 +50,24 @@ public class TodoControllerTests : EndpointTestBase
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve
-        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
         var todo2 = todo with { Name = $"Update {name}" };
-        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
+        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //GET retrieve
-        (_, parsedResponse) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //DELETE
-        (var httpResponse, _) = await ApiHttpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
+        (var httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
         Assert.AreEqual(HttpStatusCode.OK, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await ApiHttpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
+        (httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
     }
 
@@ -76,6 +76,9 @@ public class TodoControllerTests : EndpointTestBase
     {
         Console.Write($"Start {testContext.TestName}");
         await ConfigureTestInstanceAsync(testContext.TestName!);
+
+        //check api auth configuration; "AzureAd" is in the api config settings
+        if (Config.GetSection("AzureAd").Exists()) await ApplyBearerAuthHeaderAsync();
 
         //existing sql db can reset db using snapshot created in ClassInitialize
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))

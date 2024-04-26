@@ -29,12 +29,12 @@ try
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
     var host = Host.CreateDefaultBuilder(args)
-         .ConfigureAppConfiguration((hostContext, config) =>
-         {
-             // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
-             // adds environment variables into configuration enabling overrides by azure configuration settings.
-             config.AddJsonFile("appsettings.json", optional: true);
-         })
+        .ConfigureAppConfiguration((hostContext, config) =>
+        {
+            // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
+            // adds environment variables into configuration enabling overrides by azure configuration settings.
+            config.AddJsonFile("appsettings.json", optional: true);
+        })
         .ConfigureServices((hostContext, services) =>
         {
             var config = hostContext.Configuration;

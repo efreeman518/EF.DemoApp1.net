@@ -4,8 +4,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;

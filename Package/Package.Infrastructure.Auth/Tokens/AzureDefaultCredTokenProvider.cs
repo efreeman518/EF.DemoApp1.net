@@ -1,33 +1,26 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using LazyCache;
-using Microsoft.Extensions.Logging;
 
 namespace Package.Infrastructure.Auth.Tokens;
 
-public interface IAzureAdTokenRetriever
+public interface IAzureDefaultCredTokenProvider
 {
-    Task<string> GetAccessTokenAsync(string resourceId, string scope = "/.default", CancellationToken cancellationToken = default);
+    Task<string> GetAccessTokenAsync(string resourceId, string scope = ".default", int cacheDurationSeconds = 300, CancellationToken cancellationToken = default);
 }
 
-public class AzureAdTokenProviderDefaultAzureCred(ILogger<AzureAdTokenProviderDefaultAzureCred> logger, IAppCache appCache) : IAzureAdTokenRetriever
+public class AzureDefaultCredTokenProvider(IAppCache appCache) : IAzureDefaultCredTokenProvider
 {
-    public async Task<string> GetAccessTokenAsync(string resourceId, string scope = "/.default", CancellationToken cancellationToken = default)
+    public async Task<string> GetAccessTokenAsync(string resourceId, string scope = ".default", int cacheDurationSeconds = 300, CancellationToken cancellationToken = default)
     {
-        _ = logger.GetHashCode();
-
-        var resourceIdentifier = resourceId + scope;
+        var resourceIdentifier = $"{resourceId}/{scope}";
         var key = $"access_token:{resourceIdentifier}";
         var accessToken = await appCache.GetOrAddAsync(key, async entry =>
         {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(cacheDurationSeconds);
             var tokenCredential = new DefaultAzureCredential();
-            //var accessToken = await tokenCredential.GetTokenAsync(
-            //    new TokenRequestContext(new[] { resourceIdentifier }), cancellationToken); //.ConfigureAwait(false);
-
-            //"api://105684a3-a969-4f3e-89f4-3da2ff0b0a16" //.default
             var accessToken = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext([scope]),
+                new TokenRequestContext([resourceIdentifier]),
                 cancellationToken
             );
             return accessToken;

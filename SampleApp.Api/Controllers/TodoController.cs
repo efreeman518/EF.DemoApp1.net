@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;
-using Package.Infrastructure.Common.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,7 +31,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [MapToApiVersion("1.0")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
-    [Authorize(Roles = "SomeAccess1")]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
         var items = await _todoService.GetPageAsync(pageSize, pageIndex);
@@ -60,11 +58,95 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>A TodoItem</returns>
     [HttpGet("{id:Guid}")]
-    [Authorize(Policy = "SomeAccess1Policy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_NoAttribute(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Role_SomeAccess1/{id:Guid}")]
+    [Authorize(Roles = "SomeAccess1")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Role_SomeAccess1(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1/{id:Guid}")]
+    //NOT BLOCKED WITH NO AUTH
+    //[RequiredScopeOrAppPermission(AcceptedScope = ["SomeScope1"], AcceptedAppPermission = ["SomeAccess1"])]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_RequiredScopeOrAppPermission_FromConfig/{id:Guid}")]
+    //NOT BLOCKED WITH NO AUTH
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAd:Scopes:Default",
+        RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:Default"
+    )]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_RequiredScopeOrAppPermission_FromConfig(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
+    [Authorize(Policy = "AdminPolicy")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Policy_SomeRolePolicy1/{id:Guid}")]
+    [Authorize(Policy = "SomeRolePolicy1")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeRolePolicy1(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Policy_SomeScopePolicy1/{id:Guid}")]
+    [Authorize(Policy = "SomeScopePolicy1")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeScopePolicy1(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy1/{id:Guid}")]
+    [Authorize(Policy = "ScopeOrRolePolicy1")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id)
+    {
+        var todoItem = await _todoService.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy2/{id:Guid}")]
+    [Authorize(Policy = "ScopeOrRolePolicy2")]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id)
     {
         var todoItem = await _todoService.GetItemAsync(id);
         return (todoItem != null)
@@ -79,7 +161,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The new TodoItem that was saved</returns>
     [HttpPost]
-    [Authorize]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model Binding Error", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
@@ -90,7 +171,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
             dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
             err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
             );
-
     }
 
     /// <summary>
@@ -100,11 +180,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The updated TodoItem</returns>
     [HttpPut("{id:Guid}")]
-    [Authorize]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAd:Scopes:AccessScope1",
-        RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:AccessRole1"
-    )]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PutTodoItem(Guid id, TodoItemDto todoItem)
@@ -126,12 +201,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>OK</returns>
     [HttpDelete("{id:Guid}")]
-    [Authorize]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAd:Scopes:AccessScope2",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:AccessRole2"
-    //)]
-    [Authorize(Policy = "AdminPolicy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult> DeleteTodoItem(Guid id)
@@ -147,7 +216,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>User data in json</returns>
     [HttpGet("getuser")]
-    [Authorize]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUser()
     {
@@ -160,7 +228,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>Claims data in json</returns>
     [HttpGet("getuserclaims")]
-    [Authorize(Roles = "SomeAccess1")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUserClaims()
     {
@@ -173,7 +240,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns></returns>
     [HttpGet("getauthheader")]
-    [Authorize(Policy = "SomeAccess1Policy")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetAuthHeader()
     {
