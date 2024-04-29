@@ -79,31 +79,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
             : NotFound(id);
     }
 
-    [HttpGet("GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1/{id:Guid}")]
-    //NOT BLOCKED WITH NO AUTH
-    //[RequiredScopeOrAppPermission(AcceptedScope = ["SomeScope1"], AcceptedAppPermission = ["SomeAccess1"])]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
-    [HttpGet("GetTodoItem_RequiredScopeOrAppPermission_FromConfig/{id:Guid}")]
-    //NOT BLOCKED WITH NO AUTH
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAd:Scopes:Default",
-        RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermissions:Default"
-    )]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_RequiredScopeOrAppPermission_FromConfig(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
     [HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
     [Authorize(Policy = "AdminPolicy")]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)

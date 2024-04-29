@@ -80,7 +80,7 @@ public class TodoControllerTests : EndpointTestBase
         //check api auth configuration; "AzureAd" is in the api config settings
         if (Config.GetSection("AzureAd").Exists()) await ApplyBearerAuthHeaderAsync();
 
-        //existing sql db can reset db using snapshot created in ClassInitialize
+        //DBSnapshot Create - existing sql db can reset db using snapshot created in ClassInitialize
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
         {
             List<Action> seedFactories = [() => DbContext.SeedEntityData()];
@@ -95,7 +95,7 @@ public class TodoControllerTests : EndpointTestBase
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
-        //existing sql db can reset db using snapshot created in ClassInitialize
+        //DBSnapshot delete 
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
             await DeleteDbSnapshot(DBSnapshotName);
 

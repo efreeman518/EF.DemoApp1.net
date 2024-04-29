@@ -27,6 +27,51 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
         return parsedResponse;
     }
 
+    public async Task<TodoItemDto?> GetTodoItem_NoAttribute(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_NoAttribute/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Role_SomeAccess1(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Role_SomeAccess1/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Policy_AdminPolicy(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Policy_AdminPolicy/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Policy_SomeRolePolicy1(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Policy_SomeRolePolicy1/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Policy_SomeScopePolicy1(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Policy_SomeScopePolicy1/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Policy_ScopeOrRolePolicy1/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<TodoItemDto?> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id, CancellationToken cancellationToken = default)
+    {
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_Policy_ScopeOrRolePolicy2/{id}", cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+
+
+
     public async Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default)
     {
         HttpMethod httpMethod = todo.Id == null ? HttpMethod.Post : HttpMethod.Put;

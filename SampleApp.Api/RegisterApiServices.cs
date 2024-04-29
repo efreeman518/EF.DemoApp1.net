@@ -96,7 +96,7 @@ internal static class IServiceCollectionExtensions
             services.AddAuthorization();
 
             services.AddAuthorizationBuilder()
-                //require authenticated user globally
+                //require authenticated user globally, except explicit [AllowAnonymous] endpoints  
                 //Fallback Policy for all endpoints that do not have any authorization defined, except explicit [AllowAnonymous] endpoints
                 .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
@@ -105,7 +105,7 @@ internal static class IServiceCollectionExtensions
                 .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build())
-                //require specific roles on specific endpoints
+                //define specific roles/scopes policies
                 .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
                 .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
                 .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))
