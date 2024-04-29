@@ -40,17 +40,17 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         return Ok(items);
     }
 
-    [HttpGet("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
-    [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
-    {
-        var todoItem = await _apiClient.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("{id:Guid}")]
+    //[SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
+    //[SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
+    //[SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
 
 
