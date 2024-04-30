@@ -11,16 +11,21 @@ public static class ApiFactoryManager
 {
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
-    public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost")
+    public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost",
+        params DelegatingHandler[] handlers)
         where TEntryPoint : class
     {
+        var uri = new Uri(baseAddress);
         WebApplicationFactoryClientOptions options = new()
         { 
             AllowAutoRedirect = allowAutoRedirect, //default = true; set to false for testing app's first response being a redirect with Location header
-            BaseAddress = new Uri(baseAddress) //default = http://localhost
+            BaseAddress = uri
         };
+
         var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
-        HttpClient client = factory.CreateClient(options);
+        HttpClient client = (handlers.Length > 0)
+            ? factory.CreateDefaultClient(uri, handlers)
+            : factory.CreateClient(options);
         return client;
     }
 

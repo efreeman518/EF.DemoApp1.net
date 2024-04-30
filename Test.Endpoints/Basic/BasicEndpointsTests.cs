@@ -33,7 +33,7 @@ public class BasicEndpointsTests : EndpointTestBase
         await ConfigureTestInstanceAsync(testContext.TestName!);
 
         //check api auth configuration; "AzureAd" is in the api config settings
-        if (Config.GetSection("AzureAd").Exists()) await ApplyBearerAuthHeaderAsync();
+        //if (Config.GetSection("AzureAd").Exists()) await ApplyBearerAuthHeaderAsync();
     }
 
     [ClassCleanup]

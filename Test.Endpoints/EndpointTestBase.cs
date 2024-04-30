@@ -1,4 +1,5 @@
-﻿using Infrastructure.Data;
+﻿using Docker.DotNet.Models;
+using Infrastructure.Data;
 using LazyCache;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,14 @@ public abstract class EndpointTestBase
     protected static readonly IAppCache _appcache = new CachingService();
 
     //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
-    protected readonly static HttpClient HttpClientApi = ApiFactoryManager.GetClient<Program>(_testContextName);
+    protected readonly static HttpClient HttpClientApi = GetHttpClient(); // ApiFactoryManager.GetClient<Program>(_testContextName);
+
+    protected static HttpClient GetHttpClient()
+    {
+        var scopes = Config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
+        var handler = new SampleRestApiAuthMessageHandler(scopes!);
+        return ApiFactoryManager.GetClient<Program>(_testContextName, handlers: handler);
+    }
 
     /// <summary>
     /// Apply auth if api is secured
