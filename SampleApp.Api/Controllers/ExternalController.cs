@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;

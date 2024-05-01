@@ -117,8 +117,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Architecture", "Test.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Common.Contracts", "Package\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj", "{323122D5-1083-408F-BBB7-FEB7FC932688}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Chaos", "Test.Chaos\Test.Chaos.csproj", "{B754B790-B99D-4046-ACCB-CA812BB1BC86}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -297,10 +295,6 @@ Global
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B754B790-B99D-4046-ACCB-CA812BB1BC86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B754B790-B99D-4046-ACCB-CA812BB1BC86}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B754B790-B99D-4046-ACCB-CA812BB1BC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B754B790-B99D-4046-ACCB-CA812BB1BC86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -350,7 +344,6 @@ Global
 		{E83D17EB-32BA-49E2-9E74-4F43A53445B7} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{4FC0057D-0818-4BD2-8C27-63486324EDA5} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{323122D5-1083-408F-BBB7-FEB7FC932688} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
-		{B754B790-B99D-4046-ACCB-CA812BB1BC86} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

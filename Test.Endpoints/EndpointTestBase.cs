@@ -45,7 +45,7 @@ public abstract class EndpointTestBase
     }
 
     /// <summary>
-    /// Apply auth if api is secured
+    /// Apply auth if api is secured; not needed if httpclient has an auth handler already
     /// </summary>
     /// <returns></returns>
     protected static async Task ApplyBearerAuthHeaderAsync()

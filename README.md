@@ -33,6 +33,8 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 	* RapidApi tests require credentials (key & host headers) - https://rapidapi.com/ (free account)
 	* OpenAI Api tests require credentials (key) - https://platform.openai.com/docs/introduction/overview (paid account)
 
+* Chaos testing can be configured in the the api appsettings.json file for introducing chaos to backend (external) api calls (https://www.pollydocs.org/chaos/)
+
 # Azure Functions App
 * Running the Azure Functions project requires various integrations set up
 * Blob/Queue Functions - run Azurite or a real storage account

@@ -3,7 +3,6 @@ using Application.Contracts.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;

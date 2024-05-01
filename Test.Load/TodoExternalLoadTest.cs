@@ -9,13 +9,13 @@ using Package.Infrastructure.Common.Contracts;
 
 namespace Test.Load;
 
-internal static class TodoLoadTest
+internal static class TodoLoadTestExternal
 {
     public static void Run(string baseUrl)
     {
         using var httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
-        string url = $"{baseUrl}/api/v1.1/TodoItems";
+        string url = $"{baseUrl}/api/v1.1/external?chaos";
 
         var scenario = Scenario.Create("todo-crud", async context =>
             {

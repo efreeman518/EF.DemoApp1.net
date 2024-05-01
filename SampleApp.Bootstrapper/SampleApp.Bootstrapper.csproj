@@ -35,6 +35,7 @@
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
     <ProjectReference Include="..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
     <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />

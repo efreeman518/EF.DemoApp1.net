@@ -77,9 +77,6 @@ public class TodoControllerTests : EndpointTestBase
         Console.Write($"Start {testContext.TestName}");
         await ConfigureTestInstanceAsync(testContext.TestName!);
 
-        //check api auth configuration; "AzureAd" is in the api config settings
-        //if (Config.GetSection("AzureAd").Exists()) await ApplyBearerAuthHeaderAsync();
-
         //DBSnapshot Create - existing sql db can reset db using snapshot created in ClassInitialize
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
         {

@@ -6,4 +6,5 @@ Console.WriteLine("Load Tester");
 
 var config = Test.Support.Utility.BuildConfiguration().Build();
 string baseUrl = config.GetValue<string>("SampleApi:BaseUrl")!;
-TodoLoadTest.Run(baseUrl);
+//TodoLoadTest.Run(baseUrl);
+TodoLoadTestExternal.Run(baseUrl);

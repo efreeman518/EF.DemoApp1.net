@@ -20,10 +20,18 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http.Resilience;
+using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
+using Polly;
+using Polly.Simmy;
+using Polly.Simmy.Fault;
+using Polly.Simmy.Latency;
+using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
@@ -229,6 +237,15 @@ public static class IServiceCollectionExtensions
             }
         });
 
+        //Chaos - https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
+        var configSectionChaos = config.GetSection(ChaosManagerSettings.ConfigSectionName);
+        if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+        {
+            services.AddHttpContextAccessor(); //injected to ChaosManager to check query string for chaos
+            services.TryAddSingleton<IChaosManager, ChaosManager>();
+            services.Configure<ChaosManagerSettings>(configSectionChaos);
+        }
+
         //external SampleAppApi
         configSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
         if (configSection.Exists())
@@ -254,11 +271,72 @@ public static class IServiceCollectionExtensions
                 provider.BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!); //HttpClient will get injected
             })
             .AddHttpMessageHandler<SampleRestApiAuthMessageHandler>(); //SendAysnc pipeline gets/caches access token
+
             //resiliency
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
             //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
-            httpClientBuilder.AddStandardResilienceHandler();
+            // ttpClientBuilder.AddStandardResilienceHandler();
+
+            //adding standard resilience to handle the chaos
+            //Polly.Core alongside Microsoft.Extensions.Http.Resilience to ensure access to the latest Polly version featuring chaos strategies.
+            //Once Microsoft.Extensions.Http.Resilience incorporates the latest Polly.Core, remove Polly.Core
+            httpClientBuilder.AddStandardResilienceHandler().Configure(options =>
+            {
+                if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+                {
+                    // Update attempt timeout to 1 second
+                    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(5);
+
+                    // Update circuit breaker to handle transient errors and InvalidOperationException
+                    options.CircuitBreaker.ShouldHandle = args => args.Outcome switch
+                    {
+                        { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
+                        { Exception: InvalidOperationException } => PredicateResult.True(),
+                        _ => PredicateResult.False()
+                    };
+
+                    // Update retry strategy to handle transient errors and InvalidOperationException
+                    options.Retry.ShouldHandle = args => args.Outcome switch
+                    {
+                        { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
+                        { Exception: InvalidOperationException } => PredicateResult.True(),
+                        _ => PredicateResult.False()
+                    };
+                }
+            });
+
+            //chaos - after standard resilience handler
+            if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+            {
+                httpClientBuilder.AddResilienceHandler("chaos", (builder, context) =>
+                {
+                 // Get IChaosManager from dependency injection
+                 var chaosManager = context.ServiceProvider.GetRequiredService<IChaosManager>();
+
+                 builder
+                    .AddChaosLatency(new ChaosLatencyStrategyOptions
+                    {
+                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                        Latency = TimeSpan.FromSeconds(30)
+                    })
+                    .AddChaosFault(new ChaosFaultStrategyOptions
+                    {
+                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                        FaultGenerator = new FaultGenerator().AddException(() => new InvalidOperationException("Chaos strategy injection!"))
+                    })
+                    .AddChaosOutcome(new ChaosOutcomeStrategyOptions<HttpResponseMessage>
+                    {
+                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                        OutcomeGenerator = new OutcomeGenerator<HttpResponseMessage>().AddResult(() => new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError))
+                    });
+                });
+            }
+            
+            
             //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
             if (hasHttpContext)
             {
