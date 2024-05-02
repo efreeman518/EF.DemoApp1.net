@@ -27,9 +27,9 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
         return parsedResponse;
     }
 
-    public async Task<TodoItemDto?> GetTodoItem_NoAttribute(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TodoItemDto?> GetTodoItem_NoAttribute(Guid id, CancellationToken cancellationToken = default) //GetTodoItem_NoAttribute/
     {
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/GetTodoItem_NoAttribute/{id}", cancellationToken: cancellationToken);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlSegment}/{id}", cancellationToken: cancellationToken);
         return parsedResponse;
     }
 

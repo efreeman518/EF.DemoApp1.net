@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Polly;
+using System.Net;
 
 namespace Package.Infrastructure.AspNetCore.Chaos;
 
 /// <summary>
 /// https://www.pollydocs.org/chaos/
-/// https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
+/// https://devblogs.microsoft.com/dotnet/resilience-and-chaos-engineering/
+/// https://www.pollydocs.org/chaos/
 /// </summary>
 /// <param name="contextAccessor"></param>
 /// <param name="settings"></param>
@@ -27,4 +29,8 @@ public class ChaosManager(IHttpContextAccessor contextAccessor, IOptions<ChaosMa
     {
         return ValueTask.FromResult(settings.Value.InjectionRate);
     }
+
+    public int LatencySeconds() => settings.Value.LatencySeconds;
+    public Exception FaultException() => settings.Value.FaultException;
+    public HttpStatusCode OutcomHttpStatusCode() => settings.Value.OutcomHttpStatusCode;
 }

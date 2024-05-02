@@ -241,7 +241,7 @@ public static class IServiceCollectionExtensions
         var configSectionChaos = config.GetSection(ChaosManagerSettings.ConfigSectionName);
         if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
         {
-            services.AddHttpContextAccessor(); //injected to ChaosManager to check query string for chaos
+            services.AddHttpContextAccessor(); //only needed to inject ChaosManager to check query string for chaos
             services.TryAddSingleton<IChaosManager, ChaosManager>();
             services.Configure<ChaosManagerSettings>(configSectionChaos);
         }
@@ -276,63 +276,62 @@ public static class IServiceCollectionExtensions
             //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
             //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
-            // ttpClientBuilder.AddStandardResilienceHandler();
 
-            //adding standard resilience to handle the chaos
-            //Polly.Core alongside Microsoft.Extensions.Http.Resilience to ensure access to the latest Polly version featuring chaos strategies.
+            //https://devblogs.microsoft.com/dotnet/resilience-and-chaos-engineering/
+            //Polly.Core referenced alongside Microsoft.Extensions.Http.Resilience to ensure access to the latest Polly version featuring chaos strategies.
             //Once Microsoft.Extensions.Http.Resilience incorporates the latest Polly.Core, remove Polly.Core
+            //Adding standard resilience to handle the chaos, optinally configure details
             httpClientBuilder.AddStandardResilienceHandler().Configure(options =>
             {
-                if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+                // Update attempt timeout to 1 second
+                //options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(1);
+
+                // Update circuit breaker to handle transient errors and InvalidOperationException
+                options.CircuitBreaker.ShouldHandle = args => args.Outcome switch
                 {
-                    // Update attempt timeout to 1 second
-                    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(5);
+                    { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
+                    { Exception: InvalidOperationException } => PredicateResult.True(),
+                    _ => PredicateResult.False()
+                };
 
-                    // Update circuit breaker to handle transient errors and InvalidOperationException
-                    options.CircuitBreaker.ShouldHandle = args => args.Outcome switch
-                    {
-                        { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
-                        { Exception: InvalidOperationException } => PredicateResult.True(),
-                        _ => PredicateResult.False()
-                    };
-
-                    // Update retry strategy to handle transient errors and InvalidOperationException
-                    options.Retry.ShouldHandle = args => args.Outcome switch
-                    {
-                        { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
-                        { Exception: InvalidOperationException } => PredicateResult.True(),
-                        _ => PredicateResult.False()
-                    };
-                }
+                // Update retry strategy to handle transient errors and InvalidOperationException
+                options.Retry.ShouldHandle = args => args.Outcome switch
+                {
+                    { } outcome when HttpClientResiliencePredicates.IsTransient(outcome) => PredicateResult.True(),
+                    { Exception: InvalidOperationException } => PredicateResult.True(),
+                    _ => PredicateResult.False()
+                };
             });
 
-            //chaos - after standard resilience handler
+            //chaos - always after standard resilience handler
             if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
             {
                 httpClientBuilder.AddResilienceHandler("chaos", (builder, context) =>
                 {
-                 // Get IChaosManager from dependency injection
-                 var chaosManager = context.ServiceProvider.GetRequiredService<IChaosManager>();
+                    var chaosManager = context.ServiceProvider.GetRequiredService<IChaosManager>();
 
-                 builder
-                    .AddChaosLatency(new ChaosLatencyStrategyOptions
-                    {
-                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
-                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
-                        Latency = TimeSpan.FromSeconds(30)
-                    })
-                    .AddChaosFault(new ChaosFaultStrategyOptions
-                    {
-                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
-                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
-                        FaultGenerator = new FaultGenerator().AddException(() => new InvalidOperationException("Chaos strategy injection!"))
-                    })
-                    .AddChaosOutcome(new ChaosOutcomeStrategyOptions<HttpResponseMessage>
-                    {
-                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
-                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
-                        OutcomeGenerator = new OutcomeGenerator<HttpResponseMessage>().AddResult(() => new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError))
-                    });
+                    builder
+                       .AddChaosLatency(new ChaosLatencyStrategyOptions
+                       {  
+                           EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                           InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                           Latency = TimeSpan.FromSeconds(chaosManager.LatencySeconds())
+                       })
+                       .AddChaosFault(new ChaosFaultStrategyOptions
+                       {
+                           EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                           InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                           FaultGenerator = new FaultGenerator().AddException(() => chaosManager.FaultException())
+                       })
+                       .AddChaosOutcome(new ChaosOutcomeStrategyOptions<HttpResponseMessage>
+                       {
+                           EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
+                           InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
+                           OutcomeGenerator = new OutcomeGenerator<HttpResponseMessage>().AddResult(() => new HttpResponseMessage(chaosManager.OutcomHttpStatusCode()))
+                       })
+                       //introduce a specific behavior as chaos
+                       //.AddChaosBehavior(0.001, cancellationToken => RestartRedisAsync(cancellationToken)) // Introduce a specific behavior as chaos
+                       ;                                                                                  
                 });
             }
             
