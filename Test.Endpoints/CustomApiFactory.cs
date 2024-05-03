@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.Auth.Tokens;
 using Test.Support;
 
 namespace Test.Endpoints;
@@ -27,7 +26,7 @@ public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : Web
 
         IConfiguration config = null!;
 
-        string env = builder.GetSetting("ASPNETCORE_ENVIRONMENT") ?? "Development"; 
+        string env = builder.GetSetting("ASPNETCORE_ENVIRONMENT") ?? "Development";
         builder
             .UseEnvironment(env)
             .ConfigureAppConfiguration((hostingContext, configuration) =>

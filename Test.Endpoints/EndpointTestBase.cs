@@ -1,5 +1,4 @@
-﻿using Docker.DotNet.Models;
-using Infrastructure.Data;
+﻿using Infrastructure.Data;
 using LazyCache;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +50,7 @@ public abstract class EndpointTestBase
     protected static async Task ApplyBearerAuthHeaderAsync()
     {
         var tokenProvider = new AzureDefaultCredTokenProvider(_appcache);
-        var token = await tokenProvider.GetAccessTokenAsync(Config.GetValue<string>("SampleApiRestClientSettings:ResourceId")!); 
+        var token = await tokenProvider.GetAccessTokenAsync(Config.GetValue<string>("SampleApiRestClientSettings:ResourceId")!);
         HttpClientApi.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
 

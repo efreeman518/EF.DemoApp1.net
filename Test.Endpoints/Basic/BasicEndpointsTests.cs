@@ -1,5 +1,4 @@
 ﻿using AngleSharp.Html.Dom;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using System.Net;
@@ -30,7 +29,7 @@ public class BasicEndpointsTests : EndpointTestBase
     {
         Console.Write($"Start {testContext.TestName}");
 
-        await ConfigureTestInstanceAsync(testContext.TestName!);;
+        await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 
     [ClassCleanup]

@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.1.2" />
-    <PackageReference Include="Azure.Core" Version="1.38.0" />
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Azure.Core" Version="1.39.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
     <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
     <PackageReference Include="LazyCache" Version="2.4.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="8.0.4" />

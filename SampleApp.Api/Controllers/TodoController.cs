@@ -224,14 +224,15 @@ public class TodoItemsController(ITodoService todoService, IAppCache appCache) :
     }
 
     /// <summary>
-    /// Retrieve an access token for the given resource Id (Entra app reg client Id used to protect the target resource api).
+    /// Retrieve an access token for the given resource Id (Entra app reg client Id used to protect the target api).
     /// DefaultAzureCredential is used to get the credentials (Azure managed identity, env vars, VS loggged in user, etc.) to request the access token
     /// </summary>
-    /// <param name="resourceId">8bffeaa6-2d18-4059-9335-ce805e2c1595</param>
+    /// <param name="resourceId">Entra app reg client id that is protecting the target api</param>
+    /// <param name="scope"></param>
     /// <returns></returns>
     [HttpGet("generatetoken")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    public async Task<IActionResult> GenerateToken(string resourceId= "8bffeaa6-2d18-4059-9335-ce805e2c1595" , string scope = ".default")
+    public async Task<IActionResult> GenerateToken(string resourceId = "8bffeaa6-2d18-4059-9335-ce805e2c1595", string scope = ".default")
     {
         var tokenProvider = new AzureDefaultCredTokenProvider(appCache);
         var token = await tokenProvider.GetAccessTokenAsync(resourceId, scope);

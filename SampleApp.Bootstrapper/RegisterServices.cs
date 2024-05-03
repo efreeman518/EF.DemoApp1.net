@@ -312,7 +312,7 @@ public static class IServiceCollectionExtensions
 
                     builder
                        .AddChaosLatency(new ChaosLatencyStrategyOptions
-                       {  
+                       {
                            EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
                            InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
                            Latency = TimeSpan.FromSeconds(chaosManager.LatencySeconds())
@@ -331,11 +331,11 @@ public static class IServiceCollectionExtensions
                        })
                        //introduce a specific behavior as chaos
                        //.AddChaosBehavior(0.001, cancellationToken => RestartRedisAsync(cancellationToken)) // Introduce a specific behavior as chaos
-                       ;                                                                                  
+                       ;
                 });
             }
-            
-            
+
+
             //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
             if (hasHttpContext)
             {

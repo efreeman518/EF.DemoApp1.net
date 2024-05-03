@@ -10,7 +10,7 @@ public class RolesOrScopesAuthorizationHandler : AuthorizationHandler<RolesOrSco
     {
         if (context.User.Claims.Any(c =>
             //https://learn.microsoft.com/en-us/dotnet/api/microsoft.identity.web.claimconstants?view=msal-model-dotnet-latest
-            (c.Type == ClaimTypes.Role && (requirement.Roles.Contains(c.Value))) 
+            (c.Type == ClaimTypes.Role && (requirement.Roles.Contains(c.Value)))
             ||
             (c.Type == ClaimConstants.Scope || c.Type == ClaimConstants.Scp) && (requirement.Scopes.Contains(c.Value))))
         {

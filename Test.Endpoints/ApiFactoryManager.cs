@@ -17,7 +17,7 @@ public static class ApiFactoryManager
     {
         var uri = new Uri(baseAddress);
         WebApplicationFactoryClientOptions options = new()
-        { 
+        {
             AllowAutoRedirect = allowAutoRedirect, //default = true; set to false for testing app's first response being a redirect with Location header
             BaseAddress = uri
         };

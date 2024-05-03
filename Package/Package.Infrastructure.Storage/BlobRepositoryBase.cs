@@ -84,7 +84,7 @@ public abstract class BlobRepositoryBase : IBlobRepository
     {
         BlobContainerClient containerClient = await GetBlobContainerClientAsync(containerInfo, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         BlobClient blobClient = containerClient.GetBlobClient(leaseBlobName);
-        var blobLeaseClient  = blobClient.GetBlobLeaseClient();
+        var blobLeaseClient = blobClient.GetBlobLeaseClient();
         _logger.DebugLogExt("Attempt lease acquisition (distributed lock) {0}", leaseBlobName);
         BlobLease blobLease = (await blobLeaseClient.AcquireAsync(TimeSpan.FromSeconds(-1), cancellationToken: cancellationToken).ConfigureAwait(false)).Value;
         try

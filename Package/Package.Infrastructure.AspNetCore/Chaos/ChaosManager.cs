@@ -16,7 +16,7 @@ public class ChaosManager(IHttpContextAccessor contextAccessor, IOptions<ChaosMa
 {
     public ValueTask<bool> IsChaosEnabledAsync(ResilienceContext context)
     {
-        if(contextAccessor.HttpContext is { } httpContext &&
+        if (contextAccessor.HttpContext is { } httpContext &&
             httpContext.Request.Query.TryGetValue(settings.Value.EnableFromQueryStringKey, out var value))
         {
             return ValueTask.FromResult(true);
