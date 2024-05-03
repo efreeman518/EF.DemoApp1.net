@@ -117,6 +117,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Architecture", "Test.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Package.Infrastructure.Common.Contracts", "Package\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj", "{323122D5-1083-408F-BBB7-FEB7FC932688}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "postman", "postman", "{205DC396-D018-4E03-9F32-7FFEA7AF419B}"
+	ProjectSection(SolutionItems) = preProject
+		postman_collection.json = postman_collection.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -344,6 +349,7 @@ Global
 		{E83D17EB-32BA-49E2-9E74-4F43A53445B7} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{4FC0057D-0818-4BD2-8C27-63486324EDA5} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{323122D5-1083-408F-BBB7-FEB7FC932688} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
+		{205DC396-D018-4E03-9F32-7FFEA7AF419B} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

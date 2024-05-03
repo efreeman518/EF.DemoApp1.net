@@ -1,9 +1,11 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Asp.Versioning;
+using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
@@ -17,7 +19,7 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class TodoItemsController(ITodoService todoService) : ControllerBase()
+public class TodoItemsController(ITodoService todoService, IAppCache appCache) : ControllerBase()
 {
     private readonly ITodoService _todoService = todoService;
 
@@ -219,6 +221,21 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     {
         var authHeaders = HttpContext.Request.Headers.Authorization;
         return Ok(authHeaders);
+    }
+
+    /// <summary>
+    /// Retrieve an access token for the given resource Id (Entra app reg client Id used to protect the target resource api).
+    /// DefaultAzureCredential is used to get the credentials (Azure managed identity, env vars, VS loggged in user, etc.) to request the access token
+    /// </summary>
+    /// <param name="resourceId">8bffeaa6-2d18-4059-9335-ce805e2c1595</param>
+    /// <returns></returns>
+    [HttpGet("generatetoken")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
+    public async Task<IActionResult> GenerateToken(string resourceId= "8bffeaa6-2d18-4059-9335-ce805e2c1595" , string scope = ".default")
+    {
+        var tokenProvider = new AzureDefaultCredTokenProvider(appCache);
+        var token = await tokenProvider.GetAccessTokenAsync(resourceId, scope);
+        return Ok(token);
     }
 
 }

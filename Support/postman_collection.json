@@ -1,0 +1,470 @@
+{
+	"info": {
+		"_postman_id": "0c7e1f55-b387-4a81-8123-c6df49afd0fb",
+		"name": "SampleApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3137627"
+	},
+	"item": [
+		{
+			"name": "authtests",
+			"item": [
+				{
+					"name": "gettodoitem_noattribute",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/gettodoitem_noattribute/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"gettodoitem_noattribute",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Role_SomeAccess1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Role_SomeAccess1/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Role_SomeAccess1",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_RequiredScopeOrAppPermission_SomeAccess1_SomeScope1",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_RequiredScopeOrAppPermission_FromConfig",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_RequiredScopeOrAppPermission_FromConfig/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_RequiredScopeOrAppPermission_FromConfig",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Policy_AdminPolicy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Policy_AdminPolicy/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Policy_AdminPolicy",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Policy_SomeRolePolicy1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Policy_SomeRolePolicy1/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Policy_SomeRolePolicy1",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Policy_SomeScopePolicy1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Policy_SomeScopePolicy1/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Policy_SomeScopePolicy1",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Policy_ScopeOrRolePolicy1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Policy_ScopeOrRolePolicy1/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Policy_ScopeOrRolePolicy1",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTodoItem_Policy_ScopeOrRolePolicy2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/{{version}}/todoitems/GetTodoItem_Policy_ScopeOrRolePolicy2/f5a57ef0-063c-46f1-a77c-c70fbe3b8812",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"{{version}}",
+								"todoitems",
+								"GetTodoItem_Policy_ScopeOrRolePolicy2",
+								"f5a57ef0-063c-46f1-a77c-c70fbe3b8812"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TodoItems",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{baseUrl}}/api/{{version}}/TodoItems",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"TodoItems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)\r",
+							"if(jsonData.id != null )\r",
+							"{\r",
+							"   postman.setEnvironmentVariable(\"item_id\", jsonData.id)\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6InEtMjNmYWxldlpoaEQzaG05Q1Fia1A1TVF5VSJ9.eyJhdWQiOiI4YmZmZWFhNi0yZDE4LTQwNTktOTMzNS1jZTgwNWUyYzE1OTUiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vZWZkMWRiNzAtOWJlZC00ODRhLTg5MDAtNWI3N2ZiNDUxZjQ4L3YyLjAiLCJpYXQiOjE3MTM4OTY5NDMsIm5iZiI6MTcxMzg5Njk0MywiZXhwIjoxNzEzOTAxMTgyLCJhaW8iOiJBWVFBZS84V0FBQUFSQVlUeWFtQTZHQlc5RVFKUm00OHVKZ0R1V1pGdVZxcDZOdE90YjBWejlJV3NldFVUajlGdG15OTRhOTJSNjJ3ZXZGY3RWTlltN3BmNllCZHpLTnNzbDZKNjlKeXljNTd5d3ZOMlJXaDNTaXZvUGhLZVFTYTFGMFREb1ZNUnRKQmRHek1wNE5wOUM5cWc3bHRUU0FnVmZodmRrbTFGVTIwUXRpWTgzZnF3Tzg9IiwiYXpwIjoiMDRmMGMxMjQtZjJiYy00ZjU5LTgyNDEtYmY2ZGY5ODY2YmJkIiwiYXpwYWNyIjoiMCIsIm5hbWUiOiJFYmVuIEZyZWVtYW4iLCJvaWQiOiI1ODQ2NDNkNC0xNjdmLTQ4OWYtYjkzNi01OGZmOTkxNGU4MzciLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJlYmVuLmZyZWVtYW5AZWJlbmZyZWVtYW5hZGludHVpdGl2ZS5vbm1pY3Jvc29mdC5jb20iLCJyaCI6IjAuQVJJQWNOdlI3LTJiU2tpSkFGdDMtMFVmU0ticV80c1lMVmxBa3pYT2dGNHNGWlhXQUp3LiIsInNjcCI6IlNvbWVTY29wZTEiLCJzdWIiOiJ1UC1ndDduX0pPaDhyVkdlUW1weUlVX1ZHcjZKTDBtWU5HekJKcXhRSngwIiwidGlkIjoiZWZkMWRiNzAtOWJlZC00ODRhLTg5MDAtNWI3N2ZiNDUxZjQ4IiwidXRpIjoiMzFnVGJndE1hRUdZV2FQWXZQdWFBQSIsInZlciI6IjIuMCJ9.TxYVEhUZxw24HCV6XYkXLDch8BqziZp080DQrTnD0MRImQ1ukNyWupI-jjybAzUEUE4ZSxLUEb5FCQ-ckpBH6-MBC7ZgOsq79knyv401EZVSUt4hb1wSL4iEx9hQWcaGKSrj0FzjQWfeYV6PvzNLD6rDmB5tArRhxZFm0pDh3sh8q3qesCYUix7eUcRdCEcCFmbRAbjyEE_qs3C_siQQCoYFYO04zulihgsEvus_MbRR6q0k0oDhzQ4Jdl3J_UYratCyRDfO_HfFsJdI_1B_PXl5kXqSr2F-DkR_nkjT7vb7JcjiIIWF5k39kXWFhY0ExOrm72enOKzHbXlVyjBJIQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenmeaxyz\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/{{version}}/TodoItems",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"TodoItems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/{{version}}/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenamexyz345\",\r\n  \"isComplete\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/{{version}}/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TodoItems/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"somenamexyz345\",\r\n  \"isComplete\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{baseUrl}}/api/v1/TodoItems/{{item_id}}",
+					"protocol": "https",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"TodoItems",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
