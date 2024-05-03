@@ -31,6 +31,38 @@ public class SwaggerGenConfigurationOptions(IApiVersionDescriptionProvider provi
         {
             options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
         }
+
+        //// Define an operation for the endpoint defined using app.Map
+        //options.CustomOperationIds(apiDesc =>
+        //{
+        //    if (apiDesc.RelativePath == "/getauthtoken")
+        //    {
+        //        return "YourOperation";
+        //    }
+        //    return null;
+        //});
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Description = "Authorization header using the Bearer scheme",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer"
+        });
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     }
 
     private OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)

@@ -231,10 +231,11 @@ public class TodoItemsController(ITodoService todoService, IAppCache appCache) :
     /// <param name="scope"></param>
     /// <returns></returns>
     [HttpGet("generatetoken")]
+    [AllowAnonymous]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<IActionResult> GenerateToken(string resourceId = "8bffeaa6-2d18-4059-9335-ce805e2c1595", string scope = ".default")
     {
-        var tokenProvider = new AzureDefaultCredTokenProvider(appCache);
+        var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
         var token = await tokenProvider.GetAccessTokenAsync(resourceId, scope);
         return Ok(token);
     }

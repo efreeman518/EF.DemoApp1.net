@@ -1,7 +1,10 @@
 ﻿using CorrelationId;
+using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.Auth.Tokens;
+using Polly;
 using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
 
@@ -42,28 +45,25 @@ public static partial class WebApplicationBuilderExtensions
 
         app.UseRouting();
         app.UseCors("AllowSpecific");
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
-        app.UseHeaderPropagation();
 
-        //any other middleware
-        app.UseSomeMiddleware();
-
-        app.MapControllers(); //.RequireAuthorization();
-        app.MapGrpcService<TodoGrpcService>();
-        app.MapHealthChecks("/health", new HealthCheckOptions()
-        {
-            // Exclude all checks and return a 200 - Ok.
-            Predicate = (_) => false,
-        });
-        app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
-        app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
-        app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
-        app.MapHealthChecks("/health/weatherservice", HealthCheckHelper.BuildHealthCheckOptions("weatherservice"));
-
+        //swagger before auth so it will render without auth
         if (config.GetValue("SwaggerSettings:Enable", false))
         {
+            //for swagger - map gettoken endpoint 
+            var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
+            app.MapGet("/getauthtoken", async(HttpContext context, string resourceId, string scope) =>
+            {
+                var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
+                return await tokenProvider.GetAccessTokenAsync(resourceId, scope);
+            }).AllowAnonymous().WithName("GetAuthToken").WithOpenApi(generatedOperation =>
+            {
+                var parameter = generatedOperation.Parameters[0];
+                parameter.Description = $"External service resourceId {resourceId}";
+                parameter = generatedOperation.Parameters[1];
+                parameter.Description = $"External service scope .default";
+                return generatedOperation;
+            }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredetnial (Managed identity, env vars, VS logged in user, etc.");
+
             app.UseSwagger(o =>
             {
                 //Microsoft Power Apps and Microsoft Flow do not support OpenAPI 3.0
@@ -90,6 +90,27 @@ public static partial class WebApplicationBuilderExtensions
                 }
             });
         }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
+        app.UseHeaderPropagation();
+
+        //any other middleware
+        app.UseSomeMiddleware();
+
+        app.MapControllers(); //.RequireAuthorization();
+        app.MapGrpcService<TodoGrpcService>();
+        app.MapHealthChecks("/health", new HealthCheckOptions()
+        {
+            // Exclude all checks and return a 200 - Ok.
+            Predicate = (_) => false,
+        });
+        app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
+        app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
+        app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
+        app.MapHealthChecks("/health/weatherservice", HealthCheckHelper.BuildHealthCheckOptions("weatherservice"));
+
 
         return app;
     }
