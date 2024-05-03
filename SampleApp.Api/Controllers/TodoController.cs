@@ -19,7 +19,7 @@ namespace SampleApp.Api.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("1.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class TodoItemsController(ITodoService todoService, IAppCache appCache) : ControllerBase()
+public class TodoItemsController(ITodoService todoService) : ControllerBase()
 {
     private readonly ITodoService _todoService = todoService;
 

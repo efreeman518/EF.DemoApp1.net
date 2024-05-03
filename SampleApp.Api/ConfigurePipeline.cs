@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
-using Polly;
 using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
 
@@ -51,7 +50,7 @@ public static partial class WebApplicationBuilderExtensions
         {
             //for swagger - map gettoken endpoint 
             var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
-            app.MapGet("/getauthtoken", async(HttpContext context, string resourceId, string scope) =>
+            app.MapGet("/getauthtoken", async (HttpContext context, string resourceId, string scope) =>
             {
                 var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
                 return await tokenProvider.GetAccessTokenAsync(resourceId, scope);
