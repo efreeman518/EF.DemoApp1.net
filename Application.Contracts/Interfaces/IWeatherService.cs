@@ -1,9 +1,10 @@
 ﻿using Application.Contracts.Model;
+using LanguageExt.Common;
 
 namespace Application.Contracts.Interfaces;
 
 public interface IWeatherService
 {
-    Task<WeatherRoot?> GetCurrentAsync(string location);
-    Task<WeatherRoot?> GetForecastAsync(string location, int? days = null, DateTime? date = null);
+    Task<Result<WeatherRoot?>> GetCurrentAsync(string location);
+    Task<Result<WeatherRoot?>> GetForecastAsync(string location, int? days = null, DateTime? date = null);
 }

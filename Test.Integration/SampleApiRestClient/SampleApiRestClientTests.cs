@@ -1,6 +1,8 @@
 ﻿using Application.Contracts.Model;
 using Domain.Shared.Enums;
 using Infrastructure.SampleApi;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -68,7 +70,13 @@ public class SampleApiRestClientTests
         //act
 
         //POST create (insert)
-        var todoResponse = await _svc.SaveItemAsync(todo);
+        //var todoResponse = await _svc.SaveItemAsync(todo);
+
+        var result = await _svc.SaveItemAsync(todo);
+        var todoResponse = result.Match(
+            Succ: dto => dto,
+            Fail: err => throw err 
+            );
         Assert.IsNotNull(todoResponse);
 
         if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
@@ -81,7 +89,11 @@ public class SampleApiRestClientTests
         //PUT update
         todo = todoResponse;
         var todo2 = todo with { Name = $"Update {name}" };
-        todoResponse = await _svc.SaveItemAsync(todo2)!;
+        //todoResponse = await _svc.SaveItemAsync(todo2)!;
+        todoResponse = result.Match(
+            Succ: dto => dto,
+            Fail: err => throw err
+            );
         Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //GET retrieve

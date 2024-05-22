@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
+using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
@@ -11,26 +12,24 @@ namespace Infrastructure.RapidApi.WeatherApi;
 /// </summary>
 public class WeatherService(ILogger<WeatherService> logger, IOptions<WeatherServiceSettings> settings, HttpClient httpClient) : IWeatherService
 {
-    public async Task<WeatherRoot?> GetCurrentAsync(string location)
+    public async Task<Result<WeatherRoot?>> GetCurrentAsync(string location)
     {
         _ = settings.GetHashCode();
         string url = $"/current.json?q={location}";
         return await GetWeatherAsync(url);
     }
 
-    public async Task<WeatherRoot?> GetForecastAsync(string location, int? days = null, DateTime? date = null)
+    public async Task<Result<WeatherRoot?>> GetForecastAsync(string location, int? days = null, DateTime? date = null)
     {
         string url = $"/forecast.json?q={location}&days={days}&dt={date?.ToString("yyyy-MM-dd")}";
         return await GetWeatherAsync(url);
     }
 
-    public async Task<WeatherRoot?> GetWeatherAsync(string url)
+    public async Task<Result<WeatherRoot?>> GetWeatherAsync(string url)
     {
-        logger.LogInformation("GetWeatherAsync start: {Url}", url);
+        logger.LogInformation("GetWeatherAsync: {Url}", url);
 
-        (HttpResponseMessage _, WeatherRoot? data) = await httpClient.HttpRequestAndResponseAsync<WeatherRoot?>(HttpMethod.Get, url, null);
-
-        logger.LogInformation("GetWeatherAsync complete: {Url}", data?.SerializeToJson());
-        return data;
+        (HttpResponseMessage _, Result<WeatherRoot?> result) = await httpClient.HttpRequestAndResponseResultAsync<WeatherRoot?>(HttpMethod.Get, url, null);
+        return result;
     }
 }

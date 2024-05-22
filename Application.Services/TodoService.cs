@@ -1,6 +1,8 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Services.Logging;
 using LanguageExt.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;
@@ -15,8 +17,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
-    //private readonly ILogger<TodoService> _logger = logger;
-
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         //avoid compiler warning
@@ -49,23 +49,21 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
-        //dto - FluentValidation
-        var valResultDto = await validationHelper.ValidateAsync(dto, cancellationToken);
-        if (!valResultDto.IsValid)
+        //dto - FluentValidation.ValidationResult
+        var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
+        if (!valResult.IsValid)
         {
-            var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
-            return new Result<TodoItemDto?>(error);
+            var ex = new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList());
+            return new Result<TodoItemDto?>(ex);
         }
 
         //map app -> domain
         var todo = mapper.Map<TodoItemDto, TodoItem>(dto)!;
 
-        //domain entity - entity validation method
-        var valResultDomain = todo.Validate();
-        if (!valResultDomain.IsValid)
+        //domain entity validation 
+        if (todo.Validate() is List<string> errors)
         {
-            var error = new ValidationException(string.Join(",", valResultDomain.Messages));
-            return new Result<TodoItemDto?>(error);
+            return new Result<TodoItemDto?>(new ValidationException(errors));
         }
 
         repoTrxn.Create(ref todo);
@@ -97,12 +95,12 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
-        //FluentValidation
-        var valResultDto = await validationHelper.ValidateAsync(dto, cancellationToken);
-        if (!valResultDto.IsValid)
+        //dto - FluentValidation.ValidationResult
+        var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
+        if (!valResult.IsValid)
         {
-            var error = new ValidationException(string.Join(",", valResultDto.Errors.Select(e => e.ErrorMessage)));
-            return new Result<TodoItemDto?>(error);
+            var ex = new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList());
+            return new Result<TodoItemDto?>(ex);
         }
 
         //retrieve existing
@@ -114,6 +112,12 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         dbTodo.SetStatus(dto.Status);
         dbTodo.SecureDeterministic = dto.SecureDeterministic;
         dbTodo.SecureRandom = dto.SecureRandom;
+
+        //domain entity validation 
+        if (dbTodo.Validate() is List<string> errors)
+        {
+            return new Result<TodoItemDto?>(new ValidationException(errors));
+        }
 
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
@@ -140,7 +144,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return await repoQuery.SearchTodoItemAsync(request, cancellationToken);
     }
 
-    public async Task<PagedResponse<TodoItemDto>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
+    public async Task<Result<PagedResponse<TodoItemDto>?>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
         return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex, cancellationToken);

@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
-    <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
     <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />

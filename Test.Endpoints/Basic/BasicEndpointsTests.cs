@@ -11,7 +11,7 @@ public class BasicEndpointsTests : EndpointTestBase
 {
     //html endpoints return success and correct content type
     [DataTestMethod]
-    [DataRow("swagger", HttpStatusCode.OK, "text/html; charset=utf-8")]
+    [DataRow("swagger/index.html", HttpStatusCode.OK, "text/html; charset=utf-8")]
     [DataRow("index.html", HttpStatusCode.OK, "text/html")]
     public async Task Get_BasicEndpoints_pass(string url, HttpStatusCode expectedStatusCode, string contentType)
     {

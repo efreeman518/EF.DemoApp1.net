@@ -282,17 +282,4 @@ public class TodoServiceTests : UnitTestBase
         Assert.IsTrue(response.Data.Count <= response.Total);
     }
 
-    [TestMethod]
-    public async Task Todo_GetPageExternalAsync_pass()
-    {
-        //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
-
-        //act
-        var response = await svc.GetPageExternalAsync();
-
-        //act & assert
-        Assert.IsNotNull(response);
-        Assert.IsTrue(response.Data.Count <= response.Total);
-    }
 }

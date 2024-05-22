@@ -1,8 +1,10 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.AspNetCore;
 using Swashbuckle.AspNetCore.Annotations;
 using AppConstants = Application.Contracts.Constants.Constants;
 
@@ -16,6 +18,50 @@ namespace SampleApp.Api.Controllers;
 public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
 {
     private readonly ISampleApiRestClient _apiClient = apiClient;
+
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("encodefinished")]
+    public async Task<ActionResult> WebhookEncodeJobFinished()
+    {
+        try
+        {
+            //Request.Body.Position = 0;
+            var rawRequestBody = await (new StreamReader(Request.Body)).ReadToEndAsync();
+
+            //await _svcHttpProxy.HttpAsync<string, bool>(HttpMethod.Post, "content/media/encodefinished", payload, GetUrlSubdomainPartnerCode().Item4);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            //return InternalServerError(ex);
+        }
+        return Ok();
+
+    }
+
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("encodetransfererror")]
+    public async Task<ActionResult> WebhookEncodeTransferError()
+    {
+        try
+        {
+            //Request.Body.Position = 0;
+            var rawRequestBody = await (new StreamReader(Request.Body)).ReadToEndAsync();
+            //await _svcHttpProxy.HttpAsync<string, bool>(HttpMethod.Post, "content/media/encodetransfererror", payload, GetUrlSubdomainPartnerCode().Item4);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            //return InternalServerError(ex);
+        }
+        return Ok();
+
+    }
+
 
     /// <summary>
     /// Gets a paged list of TodoItems
@@ -127,25 +173,37 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
-    public async Task<ActionResult<TodoItemDto>> SaveTodoItem(TodoItemDto todoItem)
+    public async Task<ActionResult<TodoItemDto>> SaveTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
-        todoItem = (await _apiClient.SaveItemAsync(todoItem))!;
-        return CreatedAtAction(nameof(SaveTodoItem), new { id = todoItem.Id }, todoItem);
+        //todoItem = (await _apiClient.SaveItemAsync(todoItem))!;
+        //return CreatedAtAction(nameof(SaveTodoItem), new { id = todoItem.Id }, todoItem);
+
+        var result = await _apiClient.SaveItemAsync(todoItem);
+        return result.Match<ActionResult<TodoItemDto>>(
+            dto => CreatedAtAction(nameof(TodoItemDto), new { id = dto!.Id }, dto),
+            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
+            );
+        
     }
 
     [HttpPut("{id:Guid}")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
-    public async Task<ActionResult<TodoItemDto>> PutTodoItem(Guid id, TodoItemDto todoItem)
+    public async Task<ActionResult<TodoItemDto>> PutTodoItem([FromServices] IHostEnvironment hostEnv, Guid id, TodoItemDto todoItem)
     {
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
         {
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
         }
 
-        TodoItemDto? todoUpdated = await _apiClient.SaveItemAsync(todoItem);
+        //TodoItemDto? todoUpdated = await _apiClient.SaveItemAsync(todoItem);
+        //return Ok(todoUpdated);
 
-        return Ok(todoUpdated);
+        var result = await _apiClient.SaveItemAsync(todoItem);
+        return result.Match<ActionResult<TodoItemDto>>(
+            dto => Ok(dto),
+            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
+            );
     }
 
     [HttpDelete("{id:Guid}")]

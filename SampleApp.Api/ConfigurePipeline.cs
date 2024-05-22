@@ -46,6 +46,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseCors("AllowSpecific");
 
         //swagger before auth so it will render without auth
+        //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/openapi?view=aspnetcore-8.0
         if (config.GetValue("SwaggerSettings:Enable", false))
         {
             //for swagger - map gettoken endpoint 

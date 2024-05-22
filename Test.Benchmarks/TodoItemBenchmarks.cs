@@ -21,7 +21,7 @@ public class TodoItemBenchmarks
     }
 
     [Benchmark]
-    public bool TodoItemValidation()
+    public List<string>? TodoItemValidation()
     {
         return _todoItemDto.Validate();
     }

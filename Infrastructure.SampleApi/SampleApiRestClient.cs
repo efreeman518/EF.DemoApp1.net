@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
+using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Contracts;
@@ -10,15 +11,16 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
 {
     private const string urlSegment = "todoitems";
 
-    public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
+    public async Task<Result<PagedResponse<TodoItemDto>?>> GetPageAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
     {
         _ = settings.GetHashCode();
 
         string path = $"{urlSegment}?pagesize={pageSize}&pageindex={pageIndex}";
 
         logger.LogInformation("SampleApiRestClient.GetPageAsync - {Url}", $"{httpClient.BaseAddress}{path}");
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<PagedResponse<TodoItemDto>>(HttpMethod.Get, path, cancellationToken: cancellationToken);
-        return parsedResponse!;
+
+        (var _, Result<PagedResponse<TodoItemDto>?> result) = await httpClient.HttpRequestAndResponseResultAsync<PagedResponse<TodoItemDto>>(HttpMethod.Get, path, cancellationToken: cancellationToken);
+        return result;
     }
 
     public async Task<TodoItemDto?> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
@@ -71,12 +73,11 @@ public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<S
 
 
 
-
-    public async Task<TodoItemDto?> SaveItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default)
+    public async Task<Result<TodoItemDto?>> SaveItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default)
     {
         HttpMethod httpMethod = todo.Id == null ? HttpMethod.Post : HttpMethod.Put;
         string idSegment = httpMethod == HttpMethod.Put ? $"/{todo.Id}" : ""; //PUT requires Id in the url
-        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(httpMethod, $"{urlSegment}{idSegment}", todo, cancellationToken: cancellationToken);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<TodoItemDto>(httpMethod, $"{urlSegment}{idSegment}", todo, cancellationToken: cancellationToken);
         return parsedResponse;
     }
 

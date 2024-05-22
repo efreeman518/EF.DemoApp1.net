@@ -1,6 +1,10 @@
-﻿using Infrastructure.RapidApi.WeatherApi;
+﻿using Application.Contracts.Interfaces;
+using Docker.DotNet.Models;
+using Grpc.Core;
+using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +53,9 @@ public class WeatherServiceTests
         _logger.InfoLog("GetCurrentAsync_pass - Start");
 
         //act
-        var weather = await _svc.GetCurrentAsync("San Diego, CA");
+        var weather = (await _svc.GetCurrentAsync("San Diego, CA")).Match(
+            Succ: response => response,
+            Fail: err => throw err);
 
         //assert 
         Assert.IsNotNull(weather);
@@ -63,12 +69,17 @@ public class WeatherServiceTests
         _logger.InfoLog("GetForecastAsync_pass - Start");
 
         //act
-        var weather = await _svc.GetForecastAsync("San Diego, CA", 3);
-        var weather2 = await _svc.GetCurrentAsync("Paris, France");
+        var weather = (await _svc.GetForecastAsync("San Diego, CA", 3)).Match(
+            Succ: response => response,
+            Fail: err => throw err);
+        Assert.IsNotNull(weather);
+
+        var forecast = (await _svc.GetCurrentAsync("Paris, France")).Match(
+            Succ: response => response,
+            Fail: err => throw err);
 
         //assert 
-        Assert.IsNotNull(weather);
-        Assert.IsNotNull(weather2);
+        Assert.IsNotNull(forecast);
 
         _logger.InfoLog($"GetForecastAsync_pass - Complete: {weather.SerializeToJson()}");
     }

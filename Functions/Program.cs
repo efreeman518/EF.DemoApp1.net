@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Functions;
 using Functions.Infrastructure;
 using Microsoft.Azure.Functions.Worker;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.AspNetCore;
 using SampleApp.Bootstrapper;
 
 /// <summary>
@@ -29,11 +31,43 @@ try
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
     var host = Host.CreateDefaultBuilder(args)
-        .ConfigureAppConfiguration((hostContext, config) =>
+        .ConfigureAppConfiguration((hostContext, builder) =>
         {
             // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
             // adds environment variables into configuration enabling overrides by azure configuration settings.
-            config.AddJsonFile("appsettings.json", optional: true);
+            builder.AddJsonFile("appsettings.json", optional: true);
+            var config = builder.Build();
+
+            //set up DefaultAzureCredential for subsequent use in configuration providers
+            //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
+            var credentialOptions = new DefaultAzureCredentialOptions();
+            //Specifies the client id of a user assigned ManagedIdentity. 
+            string? credOptionsManagedIdentity = config.GetValue<string?>("ManagedIdentityClientId", null);
+            if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
+            //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
+            string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
+            if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
+            var credential = new DefaultAzureCredential(credentialOptions);
+
+            var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            string? endpoint;
+
+            //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string
+            var appConfig = config.GetSection("AzureAppConfig");
+            if (appConfig != null)
+            {
+                endpoint = appConfig.GetConnectionString("AzureAppConfig");
+                loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env); 
+                builder.AddAzureAppConfiguration(endpoint);
+            }
+
+            //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
+            endpoint = config.GetValue<string>("KeyVaultEndpoint");
+            if (!string.IsNullOrEmpty(endpoint))
+            {
+                loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
+                builder.AddAzureKeyVault(new Uri(endpoint), credential);
+            }
         })
         .ConfigureServices((hostContext, services) =>
         {

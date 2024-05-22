@@ -14,7 +14,7 @@ public class TodoItemTests
     {
         var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
         var response = item.Validate();
-        Assert.IsTrue(response.IsValid);
+        Assert.IsNull(response);
     }
 
     [DataTestMethod]
@@ -26,6 +26,7 @@ public class TodoItemTests
     [ExpectedException(typeof(ValidationException))]
     public void Validate_Throws(string name)
     {
-        _ = new TodoItem(name) { CreatedBy = "Test.Unit" };
+        var t = new TodoItem(name) { CreatedBy = "Test.Unit" };
+        t.Validate(true);
     }
 }

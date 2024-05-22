@@ -2,6 +2,7 @@ using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
+using Package.Infrastructure.AspNetCore;
 
 //CreateBuilder defaults:
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
@@ -77,8 +78,6 @@ try
     //Custom configuration provider - from DB
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
     //builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(1, 0, 0));
-
-
 
     //Data Protection - use blobstorage (key file) and keyvault; server farm/instances will all use the same keys
     //register here since credential has been configured

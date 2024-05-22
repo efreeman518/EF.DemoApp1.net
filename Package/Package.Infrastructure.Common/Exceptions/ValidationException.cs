@@ -16,6 +16,11 @@ public class ValidationException : Exception
     {
     }
 
+    public ValidationException(List<string> errors)
+        : base(string.Join<string>("; ", [.. errors]))
+    {
+    }
+
     public ValidationException(string message, Exception innerException) : base(message, innerException)
     {
     }

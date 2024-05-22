@@ -131,7 +131,7 @@ public static class HttpClientExtensions
         }
         else
         {
-            string? val = null;
+            string? val = null; //possible ProblemDetails
             if (s.Length > 0)
             {
                 StreamReader reader = new(s);
