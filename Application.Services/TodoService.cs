@@ -1,8 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Services.Logging;
 using LanguageExt.Common;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;

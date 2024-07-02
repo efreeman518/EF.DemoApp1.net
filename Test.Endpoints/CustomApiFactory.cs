@@ -43,6 +43,7 @@ public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : Web
                 var sp = services.BuildServiceProvider();
                 var logger = sp.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
 
+                //swap the database in Services collection
                 DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(logger, services, dbConnectionString);
 
             });
