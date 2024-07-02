@@ -1,8 +1,8 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
+using Package.Infrastructure.AspNetCore;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
-using Package.Infrastructure.AspNetCore;
 
 //CreateBuilder defaults:
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets

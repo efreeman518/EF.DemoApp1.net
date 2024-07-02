@@ -1,8 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Domain.Shared.Enums;
 using Infrastructure.SampleApi;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -75,7 +73,7 @@ public class SampleApiRestClientTests
         var result = await _svc.SaveItemAsync(todo);
         var todoResponse = result.Match(
             Succ: dto => dto,
-            Fail: err => throw err 
+            Fail: err => throw err
             );
         Assert.IsNotNull(todoResponse);
 

@@ -1,10 +1,9 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.Common.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
 using AppConstants = Application.Contracts.Constants.Constants;
 
@@ -18,50 +17,6 @@ namespace SampleApp.Api.Controllers;
 public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
 {
     private readonly ISampleApiRestClient _apiClient = apiClient;
-
-
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("encodefinished")]
-    public async Task<ActionResult> WebhookEncodeJobFinished()
-    {
-        try
-        {
-            //Request.Body.Position = 0;
-            var rawRequestBody = await (new StreamReader(Request.Body)).ReadToEndAsync();
-
-            //await _svcHttpProxy.HttpAsync<string, bool>(HttpMethod.Post, "content/media/encodefinished", payload, GetUrlSubdomainPartnerCode().Item4);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            //return InternalServerError(ex);
-        }
-        return Ok();
-
-    }
-
-
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("encodetransfererror")]
-    public async Task<ActionResult> WebhookEncodeTransferError()
-    {
-        try
-        {
-            //Request.Body.Position = 0;
-            var rawRequestBody = await (new StreamReader(Request.Body)).ReadToEndAsync();
-            //await _svcHttpProxy.HttpAsync<string, bool>(HttpMethod.Post, "content/media/encodetransfererror", payload, GetUrlSubdomainPartnerCode().Item4);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            //return InternalServerError(ex);
-        }
-        return Ok();
-
-    }
-
 
     /// <summary>
     /// Gets a paged list of TodoItems
@@ -183,7 +138,7 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
             dto => CreatedAtAction(nameof(TodoItemDto), new { id = dto!.Id }, dto),
             err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
             );
-        
+
     }
 
     [HttpPut("{id:Guid}")]

@@ -1,10 +1,6 @@
-﻿using Application.Contracts.Interfaces;
-using Docker.DotNet.Models;
-using Grpc.Core;
-using Infrastructure.RapidApi.WeatherApi;
+﻿using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
