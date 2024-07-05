@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Services.Logging;
+using Application.Services.Mappers;
 using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
@@ -39,7 +40,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         if (todo == null) return null;
 
         //return mapped domain -> app
-        return mapper.Map<TodoItem, TodoItemDto>(todo);
+        return TodoItemMapper.ToDto(todo);
     }
 
     public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
@@ -48,20 +49,20 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
         //dto - FluentValidation.ValidationResult
-        var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
-        if (!valResult.IsValid)
+        var fvResult = await validationHelper.ValidateAsync(dto, cancellationToken);
+        if (!fvResult.IsValid)
         {
-            var ex = new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList());
-            return new Result<TodoItemDto?>(ex);
+            return new Result<TodoItemDto?>(new ValidationException(fvResult.ToDictionary()));
         }
 
         //map app -> domain
-        var todo = mapper.Map<TodoItemDto, TodoItem>(dto)!;
+        var todo = TodoItemMapper.ToEntity(dto); // mapper.Map<TodoItemDto, TodoItem>(dto)!;
 
         //domain entity validation 
-        if (todo.Validate() is List<string> errors)
+        var validationResult = todo.Validate();
+        if (!validationResult)
         {
-            return new Result<TodoItemDto?>(new ValidationException(errors));
+            return new Result<TodoItemDto?>(new ValidationException(validationResult.Messages));
         }
 
         repoTrxn.Create(ref todo);
@@ -86,7 +87,8 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
         //return mapped domain -> app
-        return mapper.Map<TodoItem, TodoItemDto>(todo)!;
+        //return mapper.Map<TodoItem, TodoItemDto>(todo)!;
+        return TodoItemMapper.ToDto(todo);
     }
 
     public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
@@ -97,8 +99,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
         if (!valResult.IsValid)
         {
-            var ex = new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList());
-            return new Result<TodoItemDto?>(ex);
+            return new Result<TodoItemDto?>(new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList()));
         }
 
         //retrieve existing
@@ -112,9 +113,10 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         dbTodo.SecureRandom = dto.SecureRandom;
 
         //domain entity validation 
-        if (dbTodo.Validate() is List<string> errors)
+        var validationResult = dbTodo.Validate();
+        if (!validationResult)
         {
-            return new Result<TodoItemDto?>(new ValidationException(errors));
+            return new Result<TodoItemDto?>(new ValidationException(validationResult.Messages));
         }
 
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
@@ -123,7 +125,8 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
 
         //return mapped domain -> app 
-        return mapper.Map<TodoItemDto>(dbTodo);
+        //return mapper.Map<TodoItemDto>(dbTodo);
+        return TodoItemMapper.ToDto(dbTodo);
     }
 
     public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)

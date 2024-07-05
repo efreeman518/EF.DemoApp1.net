@@ -1,33 +1,26 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Attributes;
-using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Data.Contracts;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model;
 
-public partial class TodoItem : AuditableBase<string>
+public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null) 
+    : AuditableBase<string>
 {
-    public string Name { get; private set; }
+    public string Name { get; private set; } = name;
     public bool IsComplete => Status == TodoItemStatus.Completed;
-    public TodoItemStatus Status { get; private set; }
+    public TodoItemStatus Status { get; private set; } = status;
 
     [Mask("***")]
-    public string? SecureRandom { get; set; }
+    public string? SecureRandom { get; set; } = secureRandom;
     [Mask("***")]
-    public string? SecureDeterministic { get; set; }
+    public string? SecureDeterministic { get; set; } = secureDeterministic;
 
     //enable soft deletes
     public bool IsDeleted { get; set; }
-
-    public TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)
-    {
-        Name = name;
-        Status = status;
-        SecureRandom = secureRandom;
-        SecureDeterministic = secureDeterministic;
-    }
 
     public void SetName(string name)
     {
@@ -39,23 +32,13 @@ public partial class TodoItem : AuditableBase<string>
         Status = status;
     }
 
-    /// <summary>
-    /// Validate the entity
-    /// </summary>
-    /// <param name="throwOnInvalid"></param>
-    /// <returns>Returns null for valid; List of errors otherwise</returns>
-    public List<string>? Validate(bool throwOnInvalid = false)
+    public ValidationResult Validate()
     {
-        var errors = new List<string>();
-        if (Name == null || Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
-        if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) errors.Add("Name regex violation");
-        if (errors.Count > 0)
-        {
-            var ex = new ValidationException(errors);
-            if (throwOnInvalid) throw ex;
-            return errors;
-        }
-        return null;
+        var result = new ValidationResult(true);
+        if (Name == null || Name?.Length < Constants.RULE_NAME_LENGTH_MIN) result.Messages.Add("Name length violation");
+        if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) result.Messages.Add("Name regex violation");
+        result.IsValid = result.Messages.Count == 0;
+        return result;
     }
 
     /// <summary>

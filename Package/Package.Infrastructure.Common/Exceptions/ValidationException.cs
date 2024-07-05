@@ -2,6 +2,7 @@
 
 public class ValidationException : Exception
 {
+    public readonly ValidationResult? ValidationResult = null;
 
     public ValidationException() : base()
     {
@@ -14,10 +15,16 @@ public class ValidationException : Exception
     public ValidationException(ValidationResult validationResult)
         : base(string.Join<string>("; ", [.. validationResult.Messages]))
     {
+        ValidationResult = validationResult;
     }
 
     public ValidationException(List<string> errors)
         : base(string.Join<string>("; ", [.. errors]))
+    {
+    }
+
+    public ValidationException(IDictionary<string, string[]> errors)
+        : base(string.Join<string>("; ", errors.Select(e => $"{e.Key}: {string.Join<string>(", ",e.Value)}")))
     {
     }
 

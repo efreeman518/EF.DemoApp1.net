@@ -40,105 +40,94 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         return Ok(items);
     }
 
+    [HttpGet("{id:Guid}")]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
+    [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
+    {
+        var todoItem = await _apiClient.GetItemAsync(id);
+        return (todoItem != null)
+            ? Ok(todoItem)
+            : NotFound(id);
+    }
+
+    #region External Api calls with different security config
     //[HttpGet("{id:Guid}")]
-    //[SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    //[SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
-    //[SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
-    //public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_NoAttribute(Guid id)
     //{
-    //    var todoItem = await _apiClient.GetItemAsync(id);
+    //    var todoItem = await _apiClient.GetTodoItem_NoAttribute(id);
     //    return (todoItem != null)
     //        ? Ok(todoItem)
     //        : NotFound(id);
     //}
 
+    //[HttpGet("GetTodoItem_Role_SomeAccess1/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Role_SomeAccess1(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Role_SomeAccess1(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
+    //[HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Policy_AdminPolicy(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
+    //[HttpGet("GetTodoItem_Policy_SomeRolePolicy1/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeRolePolicy1(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Policy_SomeRolePolicy1(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
-    [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_NoAttribute(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_NoAttribute(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_SomeScopePolicy1/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeScopePolicy1(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Policy_SomeScopePolicy1(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Role_SomeAccess1/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Role_SomeAccess1(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Role_SomeAccess1(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy1/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Policy_ScopeOrRolePolicy1(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Policy_AdminPolicy(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy2/{id:Guid}")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id)
+    //{
+    //    var todoItem = await _apiClient.GetTodoItem_Policy_ScopeOrRolePolicy2(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_SomeRolePolicy1/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeRolePolicy1(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Policy_SomeRolePolicy1(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
-    [HttpGet("GetTodoItem_Policy_SomeScopePolicy1/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeScopePolicy1(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Policy_SomeScopePolicy1(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
-    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy1/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Policy_ScopeOrRolePolicy1(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
-    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy2/{id:Guid}")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id)
-    {
-        var todoItem = await _apiClient.GetTodoItem_Policy_ScopeOrRolePolicy2(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
-
-
-
-
+    #endregion
 
     [HttpPost]
     [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> SaveTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
-        //todoItem = (await _apiClient.SaveItemAsync(todoItem))!;
-        //return CreatedAtAction(nameof(SaveTodoItem), new { id = todoItem.Id }, todoItem);
-
         var result = await _apiClient.SaveItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => CreatedAtAction(nameof(TodoItemDto), new { id = dto!.Id }, dto),
             err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
             );
-
     }
 
     [HttpPut("{id:Guid}")]
@@ -150,9 +139,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         {
             return BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
         }
-
-        //TodoItemDto? todoUpdated = await _apiClient.SaveItemAsync(todoItem);
-        //return Ok(todoUpdated);
 
         var result = await _apiClient.SaveItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
@@ -169,8 +155,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         await _apiClient.DeleteItemAsync(id);
         return Ok();
     }
-
-    //private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{  WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles };
 
     [HttpGet("getuser")]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
@@ -192,5 +176,4 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     {
         return Ok(await _apiClient.GetAuthHeaderAsync());
     }
-
 }

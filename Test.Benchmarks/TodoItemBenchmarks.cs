@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Domain.Model;
+using Package.Infrastructure.Common;
 
 namespace Test.Benchmarks;
 
@@ -21,7 +22,7 @@ public class TodoItemBenchmarks
     }
 
     [Benchmark]
-    public List<string>? TodoItemValidation()
+    public ValidationResult TodoItemValidation()
     {
         return _todoItemDto.Validate();
     }
