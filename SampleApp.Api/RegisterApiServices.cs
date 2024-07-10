@@ -81,7 +81,7 @@ internal static class IServiceCollectionExtensions
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
 
-            logger.LogInformation($"Configure auth - {configSectionName}");
+            logger.LogInformation("Configure auth - {ConfigSectionName}", configSectionName);
 
             services.AddAuthentication(options =>
             {

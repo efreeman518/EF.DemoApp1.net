@@ -122,6 +122,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "postman", "postman", "{205D
 		postman_collection.json = postman_collection.json
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.PlaywrightUI", "Test.PlaywrightUI\Test.PlaywrightUI.csproj", "{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -300,6 +302,10 @@ Global
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{323122D5-1083-408F-BBB7-FEB7FC932688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -350,6 +356,7 @@ Global
 		{4FC0057D-0818-4BD2-8C27-63486324EDA5} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{323122D5-1083-408F-BBB7-FEB7FC932688} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{205DC396-D018-4E03-9F32-7FFEA7AF419B} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
+		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}
