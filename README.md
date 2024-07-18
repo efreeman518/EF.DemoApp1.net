@@ -1,5 +1,5 @@
 # Introduction 
-C# Sample App - A modern domain-centric service api template
+C# Sample App - A modern domain-centric service api reference template
 - main branch - .net8 latest release
 
 # Prerequisites
@@ -13,9 +13,10 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 * Test projects (MSTest) include:
 	* Test.Unit - unit tests using in-memory DBContext, [CleanMoq](https://github.com/hassanhabib/CleanMoq), mutation testing using [Stryker.Net](https://stryker-mutator.io/) see stryker-config.json
 	* Test.Integration - integration tests, optional SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
-	* Test.UI - browser UI tests using [Selenium](https://selenium.dev/)
-	* Test.SpecFlow.Specs - BDD tests using [SpecFlow](https://specflow.org/) and [Selenium](https://selenium.dev/)
 	* Test.Endpoints - api endpoint testing using MS [WebApplicationFactory](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests) and optional SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
+	* Test.PlaywrightUI - browser UI tests using [SpecFlow](https://specflow.org/) and [Playwright](https://playwright.dev/dotnet/docs/intro)
+	* Test.SeleniumUI - browser UI tests using [Selenium](https://selenium.dev/)
+	* Test.SpecFlow - BDD tests using [SpecFlow](https://specflow.org/) and [Selenium](https://selenium.dev/)
 	* Test.Load - load testing using [NBomber](https://nbomber.com/)
 	* Test.Benchmarks - benchmark testing using [BenchmarkDotNet](https://benchmarkdotnet.org/) and optional SQL DB [TestContainers](https://testcontainers.com/guides/testing-an-aspnet-core-web-app/)
 	* Test.Architecture - architecture tests using [NetArchTest.Rules](https://www.ben-morris.com/writing-archunit-style-tests-for-net-and-c-for-self-testing-architectures/)
@@ -24,8 +25,9 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 * Test.Integration, Test.Endpoints, Test.Benchmarks can be configured to spin up a DB container which requires a local container environment [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 * Some tests are ignored by default because they require further setup/integration
-	* Test.UI, Test.SpecFlow.Specs (UI feature) tests use Selenium which requires the appropriate versions of Chrome and Edge. 
-	* Test.Load, Test.UI, Test.SpecFlow.Specs (UI feature) require the app to be running in order to run the Load & Selenium UI tests. Load and run the solution in one VS, load into another VS to run the UI dependent tests.
+    * Test.PlaywrightUI uses [Playwright](https://playwright.dev/dotnet/docs/intro) which requires browser binaries to be installed (pwsh bin/Debug/net8.0/playwright.ps1 install).
+	* Test.SeleniumUI, Test.SpecFlow (UI feature) tests use Selenium which requires the appropriate versions of Chrome and Edge. 
+	* Test.Load, Test.PlaywrightUI, Test.SeleniumUI, Test.SpecFlow (UI feature) require the app to be running in order to run the Load, Playwright, & Selenium UI tests. Open and run the solution in one VS, open into another VS instance to run the UI dependent tests.
 	* AzureBlobStorageTests needs either Azurite (https://www.npmjs.com/package/azurite) or an Azure storage account
 	* CosmosDbTests needs either the CosmosDb emulator (https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21) or an Azure CosmosDb Account
 	* AzureTableRepositoryTests needs Azurite or Storage or Cosmos Table Api
