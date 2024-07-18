@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.UI;
+namespace Test.SeleniumUI;
 
 [Ignore("api needs to be running somewhere")]
 

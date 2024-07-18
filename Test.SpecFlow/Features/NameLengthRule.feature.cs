@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Test.SpecFlow.Specs.Features
+namespace Test.SpecFlow.Features
 {
     using TechTalk.SpecFlow;
     using System;
@@ -65,7 +65,7 @@ namespace Test.SpecFlow.Specs.Features
             if (((testRunner.FeatureContext != null) 
                         && (testRunner.FeatureContext.FeatureInfo.Title != "NameLengthRule")))
             {
-                global::Test.SpecFlow.Specs.Features.NameLengthRuleFeature.FeatureSetup(null);
+                global::Test.SpecFlow.Features.NameLengthRuleFeature.FeatureSetup(null);
             }
         }
         

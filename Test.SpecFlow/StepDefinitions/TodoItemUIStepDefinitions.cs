@@ -1,7 +1,7 @@
 using OpenQA.Selenium;
 using SeleniumExtras.WaitHelpers;
 
-namespace Test.SpecFlow.Specs.StepDefinitions;
+namespace Test.SpecFlow.StepDefinitions;
 
 /// <summary>
 /// https://www.selenium.dev/documentation/webdriver/elements/finders/

@@ -11,6 +11,11 @@ namespace Test.PlaywrightUI.Hooks;
 [Binding]
 public static class TestHooks
 {
+    //private readonly ScenarioContext _scenarioContext;
+    //private static IPlaywright _playwright;
+    //private static IBrowser _browser;
+    //private static IPage _page;
+
     /// <summary>
     /// Each scenario will have a new browser instance
     /// </summary>
@@ -20,7 +25,7 @@ public static class TestHooks
     public static async Task BeforeTodoItemCrud(IObjectContainer container)
     {
         var playwright = await Playwright.CreateAsync(); 
-        var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false, SlowMo = 100 });
+        var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false }); //SlowMo = 100 
         var pageObject = new MainPageObject(browser);
 
         container.RegisterInstanceAs(playwright);

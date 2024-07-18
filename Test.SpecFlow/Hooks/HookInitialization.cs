@@ -1,4 +1,4 @@
-﻿namespace Test.SpecFlow.Specs.Hooks;
+﻿namespace Test.SpecFlow.Hooks;
 [Binding]
 public sealed class HookInitialization(ScenarioContext scenarioContext)
 {

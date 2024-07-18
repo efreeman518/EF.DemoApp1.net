@@ -3,7 +3,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Support.UI;
 
-namespace Test.SpecFlow.Specs;
+namespace Test.SpecFlow;
 
 public class SeleniumTestBase(ScenarioContext scenarioContext) : IDisposable
 {

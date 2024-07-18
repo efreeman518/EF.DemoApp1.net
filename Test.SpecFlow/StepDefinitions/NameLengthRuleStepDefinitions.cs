@@ -4,7 +4,7 @@ using Domain.Rules;
 //https://docs.specflow.org/projects/specflow/en/latest/Execution/Parallel-Execution.html
 [assembly: DoNotParallelize]
 
-namespace Test.SpecFlow.Specs.StepDefinitions;
+namespace Test.SpecFlow.StepDefinitions;
 
 [Binding]
 public class NameLengthRuleStepDefinitions

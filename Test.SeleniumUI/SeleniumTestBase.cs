@@ -4,7 +4,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 
-namespace Test.UI;
+namespace Test.SeleniumUI;
 
 /// <summary>
 /// Testing http endpoints (MVC controllers, razor pages)
