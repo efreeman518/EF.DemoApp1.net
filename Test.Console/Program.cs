@@ -206,7 +206,7 @@ async Task AttemptRestAsync<T>(Func<Task<T>> method)
     }
 }
 
-async Task AttemptGrpcAsync<T>(Func<Task<T>> method)
+async Task AttemptGrpcAsync<T>(Func<Task<T>> method) where T : class
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------GRPC Client initiate request -----------");

@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace Package.Infrastructure.Http.Tokens;
+namespace Package.Infrastructure.Auth.Tokens;
 public class Auth0TokenProvider(IOptions<Auth0Options> auth0Options, IAppCache appCache) : IOAuth2TokenProvider
 {
     private readonly Auth0Options _auth0Options = auth0Options.Value;

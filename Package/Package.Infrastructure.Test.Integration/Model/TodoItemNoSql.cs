@@ -36,7 +36,7 @@ public partial class TodoItemNoSql : CosmosDbEntity
     public ValidationResult Validate(bool throwOnInvalid = false)
     {
         var errors = new List<string>();
-        if (Name == null || Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
+        if (Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
         if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) errors.Add("Name regex violation");
         var result = new ValidationResult(errors.Count == 0, errors);
         if (errors.Count > 0 && throwOnInvalid) throw new ValidationException(result);

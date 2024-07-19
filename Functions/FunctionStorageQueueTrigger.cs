@@ -20,11 +20,11 @@ public class FunctionStorageQueueTrigger(ILogger<FunctionStorageQueueTrigger> lo
         _ = configuration.GetHashCode();
         _ = settings.GetHashCode();
 
-        logger.Log(LogLevel.Information, "StorageQueueTrigger - Start message: {queueItem}", queueItem);
+        logger.Log(LogLevel.Information, "StorageQueueTrigger - Start message: {QueueItem}", queueItem);
 
         //await some service call
         await Task.CompletedTask;
 
-        logger.Log(LogLevel.Information, "StorageQueueTrigger - Finish message: {queueItem}", queueItem);
+        logger.Log(LogLevel.Information, "StorageQueueTrigger - Finish message: {QueueItem}", queueItem);
     }
 }

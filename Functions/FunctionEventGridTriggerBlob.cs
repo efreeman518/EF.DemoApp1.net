@@ -39,13 +39,13 @@ public class FunctionEventGridTriggerBlob(ILogger<FunctionEventGridTriggerBlob> 
 
         string? fileName = Path.GetFileName(inputEvent.Subject);
 
-        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Start {fileName} {inputEvent}", fileName, JsonSerializer.Serialize(inputEvent));
+        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Start {FileName} {InputEvent}", fileName, JsonSerializer.Serialize(inputEvent));
 
         _ = inputEvent.Data?.ToString(); //extract from inputEvent
 
         //await some service call
         await Task.CompletedTask;
 
-        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Finish {fileName}", fileName);
+        logger.Log(LogLevel.Information, "EventGridTriggerBlob - Finish {FileName}", fileName);
     }
 }

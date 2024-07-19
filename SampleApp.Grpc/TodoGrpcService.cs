@@ -8,7 +8,7 @@ using Package.Infrastructure.Common.Extensions;
 using SampleAppGrpc = SampleApp.Grpc.Proto;
 using SampleAppModel = Application.Contracts.Model;
 
-namespace SampleApp.Api.Grpc;
+namespace SampleApp.Grpc;
 
 //client cert auth only for this service class 
 //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
@@ -80,7 +80,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
             Data = mapper.Map<SampleAppModel.TodoItemDto?, SampleAppGrpc.TodoItemDto?>(todo)
         };
 
-        logger.Log(LogLevel.Information, "Save {TodoItemDto} - Finish", response.Data.SerializeToJson());
+        logger.Log(LogLevel.Information, "Save {TodoItemDto} - Finish", response.Data?.SerializeToJson());
         return response;
     }
 

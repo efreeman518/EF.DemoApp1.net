@@ -41,7 +41,7 @@ public class GlobalExceptionHandler : IFunctionsWorkerMiddleware
         if (context.Items.TryGetValue("functionitem", out object? value) && value is string message)
         {
             ILogger logger = context.GetLogger<GlobalExceptionHandler>();
-            logger.LogInformation("From function: {message}", message);
+            logger.LogInformation("From function: {Message}", message);
         }
     }
 }

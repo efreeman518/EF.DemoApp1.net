@@ -12,13 +12,21 @@ public class EventGridController(ILogger<EventGridController> logger) : Controll
 {
     private readonly ILogger<EventGridController> _logger = logger;
 
+    // Add properties for model binding
+    [FromHeader(Name = "aeg-event-type")]
+    public string? AegEventType { get; set; }
+
+    // Use the model-bound property instead of directly accessing the request headers
+    private bool EventTypeSubscriptionValidation => AegEventType == "SubscriptionValidation";
+    private bool EventTypeSubscriptionNotification => AegEventType == "Notification";
+
     //initial one-time EventGrid validation of the target
-    private bool EventTypeSubscriptionValidation =>
-        HttpContext.Request.Headers["aeg-event-type"].FirstOrDefault() == "SubscriptionValidation";
+    //private bool EventTypeSubscriptionValidation =>
+    //    HttpContext.Request.Headers["aeg-event-type"].FirstOrDefault() == "SubscriptionValidation";
 
     //subsequent EventGrid event notifications
-    private bool EventTypeSubscriptionNotification =>
-        HttpContext.Request.Headers["aeg-event-type"].FirstOrDefault() == "Notification";
+    //private bool EventTypeSubscriptionNotification =>
+    //    HttpContext.Request.Headers["aeg-event-type"].FirstOrDefault() == "Notification";
 
     private static readonly JsonSerializerOptions jsonOptions = new() { PropertyNameCaseInsensitive = true };
 

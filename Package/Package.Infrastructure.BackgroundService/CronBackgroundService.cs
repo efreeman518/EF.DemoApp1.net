@@ -88,7 +88,7 @@ public abstract class CronBackgroundService<T>(ILogger<CronBackgroundService<T>>
         catch (Exception ex)
         {
             logger.Log(LogLevel.Critical, ex, "{CronJob} fatal error. Lifetime {LifetimeId}", cronJob.JobName, _lifeTimeId);
-            throw;
+            throw new InvalidOperationException("Fatal CronJob Error", ex);
         }
     }
 }

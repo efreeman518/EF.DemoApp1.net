@@ -113,7 +113,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
         catch (NoSuchElementException)
         {
             //expected
-            Assert.IsTrue(1==1);
+            Assert.IsTrue(1 == 1);
         }
     }
 

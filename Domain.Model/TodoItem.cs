@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Domain.Model;
 
-public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null) 
+public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)
     : AuditableBase<string>
 {
     public string Name { get; private set; } = name;
@@ -35,7 +35,7 @@ public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatu
     public ValidationResult Validate()
     {
         var result = new ValidationResult(true);
-        if (Name == null || Name?.Length < Constants.RULE_NAME_LENGTH_MIN) result.Messages.Add("Name length violation");
+        if (Name?.Length < Constants.RULE_NAME_LENGTH_MIN) result.Messages.Add("Name length violation");
         if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) result.Messages.Add("Name regex violation");
         result.IsValid = result.Messages.Count == 0;
         return result;

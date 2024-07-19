@@ -13,6 +13,6 @@
     "is_user_authenticated": false
   },
   "logo_url": "http://localhost:44318/wwwroot/.well-known/logo.png",
-  "contact_email": "eben.freeman@gmail.com",
+  "contact_email": "",
   "legal_info_url": "http://www.example.com/legal"
 }

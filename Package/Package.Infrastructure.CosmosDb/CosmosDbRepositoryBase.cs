@@ -33,12 +33,12 @@ public abstract class CosmosDbRepositoryBase : ICosmosDbRepository
     {
         _ = _settings.GetHashCode(); //remove compiler warning
 
-        _logger.LogInformation("GetItemAsync - Start {id} {partitionKey}", id, partitionKey);
+        _logger.LogInformation("GetItemAsync - Start {Id} {PartitionKey}", id, partitionKey);
         try
         {
             ItemResponse<T> response = await _dbClient3.GetContainer(_dbId, typeof(T).Name).ReadItemAsync<T>(id, new PartitionKey(partitionKey));
 
-            _logger.LogInformation("GetItemAsync - Finish {id} {partitionKey}", id, partitionKey);
+            _logger.LogInformation("GetItemAsync - Finish {Id} {PartitionKey}", id, partitionKey);
             return response.Resource;
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

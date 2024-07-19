@@ -183,7 +183,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(true);
+        Assert.IsTrue(total > 0);
     }
 
     [TestMethod]
@@ -220,7 +220,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(true);
+        Assert.IsTrue(total > 0);
     }
 
     [TestMethod]
@@ -258,7 +258,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(true);
+        Assert.IsTrue(total > 0);
     }
 
     [TestMethod]
@@ -299,7 +299,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} Elapsed MS:{elapsed_time}");
-        Assert.IsTrue(true);
+        Assert.IsTrue(total > 0);
     }
 
     [TestMethod]

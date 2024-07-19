@@ -23,15 +23,13 @@ public class MainPageObject(IBrowser browser) : BasePageObject
     public async Task<bool> GridItemExists(string? v) => (await Page.WaitForSelectorAsync($"//tbody[@id='todos']/tr/td[contains(text(),\"{v}\")]")) != null;
     public async Task<bool> GridItemDoesNotExist(string? v)
     {
-        //give the xhr call 2 seconds to complete; expect exception since the item should not exist 
         try
         {
-            await Page.WaitForTimeoutAsync(3000);
+            //this sequence seems to be reliable
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Page.WaitForTimeoutAsync(1000);
             var selector = $"//tbody[@id='todos']/tr/td[contains(text(),\"{v}\")]";
-            //
-            //since page is re-creating the DOM, need a selector?
-            _ = Page.Locator(selector);
-            await Page.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = 3000 });
+            await Page.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = 1000 });
             return false; //item exists
         }
         catch
@@ -45,13 +43,9 @@ public class MainPageObject(IBrowser browser) : BasePageObject
         var selector = $"//tbody[@id='todos']/tr[td[contains(text(),\"{v}\")]]/td/input[@type='checkbox']";
 
         //ajax so need to wait; these 2 lines seem to make the test run reliably
-        await Page.WaitForTimeoutAsync(1000); 
-        
-
-        _ = Page.Locator(selector);
-        //return await locator.IsCheckedAsync();
-        var elh = await Page.WaitForSelectorAsync(selector);
-        return await elh!.IsCheckedAsync();
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        var el = await Page.WaitForSelectorAsync(selector);
+        return await el!.IsCheckedAsync();
     }
 
     //public async Task<bool> GridItemExists(string? v) => (await Page.Locator($"//tbody[@id='todos']/tr/td[contains(text(),\"{v}\")]").CountAsync()) > 0;

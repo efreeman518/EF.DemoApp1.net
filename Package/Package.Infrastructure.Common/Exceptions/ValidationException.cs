@@ -24,7 +24,7 @@ public class ValidationException : Exception
     }
 
     public ValidationException(IDictionary<string, string[]> errors)
-        : base(string.Join<string>("; ", errors.Select(e => $"{e.Key}: {string.Join<string>(", ",e.Value)}")))
+        : base(string.Join<string>("; ", errors.Select(e => $"{e.Key}: {string.Join<string>(", ", e.Value)}")))
     {
     }
 

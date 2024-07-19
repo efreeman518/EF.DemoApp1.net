@@ -24,7 +24,7 @@ public static class TestHooks
     [BeforeScenario]
     public static async Task BeforeTodoItemCrud(IObjectContainer container)
     {
-        var playwright = await Playwright.CreateAsync(); 
+        var playwright = await Playwright.CreateAsync();
         var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false }); //SlowMo = 100 
         var pageObject = new MainPageObject(browser);
 

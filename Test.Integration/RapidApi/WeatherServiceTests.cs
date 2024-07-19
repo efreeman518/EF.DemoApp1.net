@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 
-namespace Test.Integration.Application;
+namespace Test.Integration.RapidApi;
 
 [Ignore("RapidApi (external weather service) credentials required in config settings.")]
 

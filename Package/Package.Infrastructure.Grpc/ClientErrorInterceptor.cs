@@ -52,13 +52,13 @@ public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOpt
                 });
             }
 
-            logger.Log(LogLevel.Error, 0, $"{text}; {logData}", ex);
+            logger.LogError(ex, "{Text}; {LogData}", text, logData);
         }
-        catch (Exception exception)
+        catch (Exception ex2)
         {
             try
             {
-                logger.Log(LogLevel.Error, 0, $"ClientErrorInterceptor internal exception when attempting to log an application exception. {logData}", exception);
+                logger.LogError(ex2, "ClientErrorInterceptor internal exception when attempting to log an application exception. {LogData}", logData);
             }
             catch
             {

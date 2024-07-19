@@ -15,7 +15,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public async Task<T?> GetOrAddAsync<T>(string key, Func<Task<T>> factory, int cacheMinutes = 60,
-        bool forceRefresh = false, CancellationToken cancellationToken = default)
+        bool forceRefresh = false, CancellationToken cancellationToken = default) where T : class
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(factory);
@@ -57,7 +57,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
                 logger.DebugLog($"GetOrAddAsync {key} semaphore released.");
             }
         }
-        if (cacheItem == null)
+        if (cacheItem == default(T))
         {
             logger.InfoLog($"GetOrAddAsync {key} not found and factory returned null; returning default<T>.");
             return default;

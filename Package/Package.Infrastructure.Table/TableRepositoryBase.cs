@@ -36,13 +36,13 @@ public abstract class TableRepositoryBase : ITableRepository
 
         try
         {
-            _logger.LogInformation($"GetItemAsync<{typeof(T).Name}> {0} {1})", partitionKey, rowkey);
+            _logger.LogInformation("GetItemAsync<{Type}> {PartitionKey} {Rowkey})", typeof(T).Name, partitionKey, rowkey);
             var response = await table.GetEntityAsync<T>(partitionKey, rowkey, selectProps, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None); //throws if no value (not found)
             return response.Value;
         }
         catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
         {
-            _logger.LogInformation($"GetItemAsync<{typeof(T).Name}> - NotFound {0} {1})", partitionKey, rowkey);
+            _logger.LogInformation(ex, "GetItemAsync<{Type}> - NotFound {PartitionKey} {RowKey})", typeof(T).Name, partitionKey, rowkey);
             return null;
         }
     }

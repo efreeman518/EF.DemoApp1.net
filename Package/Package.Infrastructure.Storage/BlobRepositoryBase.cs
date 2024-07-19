@@ -269,9 +269,9 @@ public abstract class BlobRepositoryBase : IBlobRepository
         {
             if (containerInfo.CreateContainerIfNotExist)
             {
-                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' does not exist; attempting to create.");
+                _logger.Log(LogLevel.Information, "GetBlobContainerClientAsync - Storage Account Container '{ContainerName}' does not exist; attempting to create.", containerInfo.ContainerName);
                 await container.CreateIfNotExistsAsync((PublicAccessType)containerInfo.ContainerPublicAccessType, cancellationToken: cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
-                _logger.Log(LogLevel.Information, $"GetBlobContainerClientAsync - Storage Account Container '{containerInfo.ContainerName}' created.");
+                _logger.Log(LogLevel.Information, "GetBlobContainerClientAsync - Storage Account Container '{ContainerName}' created.", containerInfo.ContainerName);
             }
             else
                 throw new InvalidOperationException($"Azure Storage Container does not exist and createifNotexist = false.");

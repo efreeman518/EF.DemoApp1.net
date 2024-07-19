@@ -31,4 +31,4 @@ Scenario: TodoItem add edit delete
 Examples:
 	| todoItemName | appendsName |
 	| item1a       | 123         |
-#	| item2a       | 321         |
+	| item2a       | 321         |

@@ -27,12 +27,12 @@ public class FunctionHttpTrigger(ILogger<FunctionHttpTrigger> logger, IConfigura
         _ = settings.GetHashCode();
 
         string url = req.Url.ToString();
-        logger.Log(LogLevel.Information, "HttpTrigger - Start url: {url}", url);
+        logger.Log(LogLevel.Information, "HttpTrigger - Start url: {Url}", url);
         _ = await new StreamReader(req.Body).ReadToEndAsync();
 
         //await some service call with retry
 
-        logger.Log(LogLevel.Information, "HttpTrigger - Finish url: {url}", url);
+        logger.Log(LogLevel.Information, "HttpTrigger - Finish url: {Url}", url);
 
         var responseMessage = $"HttpTrigger completed {DateTime.UtcNow}";
         var response = new OkObjectResult(responseMessage);

@@ -41,11 +41,11 @@ public class KeyVaultManagerTests : IntegrationTestBase
 
         try
         {
-            response = await _vault.GetSecretAsync(secretName);
+            _ = await _vault.GetSecretAsync(secretName);
         }
         catch (RequestFailedException ex) when (ex.ErrorCode == "SecretNotFound")
         {
-            Assert.IsTrue(true);
+            Assert.IsTrue(ex.ErrorCode == "SecretNotFound");
         }
     }
 
@@ -64,11 +64,11 @@ public class KeyVaultManagerTests : IntegrationTestBase
         Assert.IsNotNull(jwk);
         try
         {
-            jwk = await _vault.GetKeyAsync(keyName);
+            _ = await _vault.GetKeyAsync(keyName);
         }
         catch (RequestFailedException ex) when (ex.ErrorCode == "KeyNotFound")
         {
-            Assert.IsTrue(true);
+            Assert.IsTrue(ex.ErrorCode == "KeyNotFound");
         }
     }
 

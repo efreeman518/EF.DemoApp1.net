@@ -49,24 +49,17 @@ public abstract class EventHubProducerBase : IEventHubProducer
         //producer can only send a batch
         IEnumerable<EventData> batch = [eventData];
 
-        try
+        _logger.LogDebug("SendAsync Start - {EventHubProducerClientName} {Message}", _settings.EventHubProducerClientName, _settings.LogMessageData ? eventData.Body : "LogMessageData = false");
+        if (sendEventOptions == null)
         {
-            _logger.LogDebug("SendAsync Start - {EventHubProducerClientName} {Message}", _settings.EventHubProducerClientName, _settings.LogMessageData ? eventData.Body : "LogMessageData = false");
-            if (sendEventOptions == null)
-            {
-                await _ehProducerClient.SendAsync(batch, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
-            }
-            else
-            {
-                await _ehProducerClient.SendAsync(batch, sendEventOptions, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
-            }
-            _logger.LogDebug("SendAsync Finish - {EventHubProducerClientName}", _settings.EventHubProducerClientName);
+            await _ehProducerClient.SendAsync(batch, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "SendAsync Fail - {EventHubProducerClientName} {Message}", _settings.EventHubProducerClientName, _settings.LogMessageData ? eventData.Body : "LogMessageData = false");
-            throw;
+            await _ehProducerClient.SendAsync(batch, sendEventOptions, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         }
+        _logger.LogDebug("SendAsync Finish - {EventHubProducerClientName}", _settings.EventHubProducerClientName);
+
     }
 
     public async Task SendBatchAsync<T>(ICollection<T> batch, string? partitionId = null, string? partitionKey = null, string? correlationId = null, IDictionary<string, object>? metadata = null, CancellationToken cancellationToken = default)

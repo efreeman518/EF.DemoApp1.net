@@ -39,11 +39,11 @@ public class SqlDatabaseSnapshotUtility(string dbConnectionString)
     private async Task ExecuteSqlAgainstMasterAsync(string sql, SqlParameter[]? parameters = null, CancellationToken cancellationToken = default)
     {
         using var conn = new SqlConnection(dbConnectionString);
-        conn.Open();
+        await conn.OpenAsync(cancellationToken);
         var cmd = new SqlCommand(sql, conn) { CommandType = CommandType.Text };
         if (parameters != null) cmd.Parameters.AddRange(parameters);
         await cmd.ExecuteNonQueryAsync(cancellationToken);
-        conn.Close();
+        await conn.CloseAsync();
     }
 }
 

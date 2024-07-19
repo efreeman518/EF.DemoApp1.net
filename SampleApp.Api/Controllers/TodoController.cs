@@ -4,6 +4,7 @@ using Asp.Versioning;
 using LazyCache;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Contracts;
@@ -62,7 +63,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
     [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_NoAttribute(Guid id)
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
         var todoItem = await _todoService.GetItemAsync(id);
         return (todoItem != null)
@@ -70,65 +71,69 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
             : NotFound(id);
     }
 
-    [HttpGet("GetTodoItem_Role_SomeAccess1/{id:Guid}")]
-    [Authorize(Roles = "SomeAccess1")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Role_SomeAccess1(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    #region auth policy endpoints
 
-    [HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
-    [Authorize(Policy = "AdminPolicy")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Role_SomeAccess1/{id:Guid}")]
+    //[Authorize(Roles = "SomeAccess1")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Role_SomeAccess1(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_SomeRolePolicy1/{id:Guid}")]
-    [Authorize(Policy = "SomeRolePolicy1")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeRolePolicy1(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_AdminPolicy/{id:Guid}")]
+    //[Authorize(Policy = "AdminPolicy")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_AdminPolicy(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_SomeScopePolicy1/{id:Guid}")]
-    [Authorize(Policy = "SomeScopePolicy1")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeScopePolicy1(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_SomeRolePolicy1/{id:Guid}")]
+    //[Authorize(Policy = "SomeRolePolicy1")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeRolePolicy1(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy1/{id:Guid}")]
-    [Authorize(Policy = "ScopeOrRolePolicy1")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_SomeScopePolicy1/{id:Guid}")]
+    //[Authorize(Policy = "SomeScopePolicy1")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_SomeScopePolicy1(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
 
-    [HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy2/{id:Guid}")]
-    [Authorize(Policy = "ScopeOrRolePolicy2")]
-    public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id)
-    {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
-    }
+    //[HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy1/{id:Guid}")]
+    //[Authorize(Policy = "ScopeOrRolePolicy1")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
+
+    //[HttpGet("GetTodoItem_Policy_ScopeOrRolePolicy2/{id:Guid}")]
+    //[Authorize(Policy = "ScopeOrRolePolicy2")]
+    //public async Task<ActionResult<TodoItemDto>> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id)
+    //{
+    //    var todoItem = await _todoService.GetItemAsync(id);
+    //    return (todoItem != null)
+    //        ? Ok(todoItem)
+    //        : NotFound(id);
+    //}
+
+    #endregion
 
     /// <summary>
     /// Saves a new TodoItem
@@ -216,6 +221,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns></returns>
     [HttpGet("getauthheader")]
+    [ProducesResponseType(typeof(StringValues), (int)HttpStatusCode.OK)]
     [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetAuthHeader()
     {

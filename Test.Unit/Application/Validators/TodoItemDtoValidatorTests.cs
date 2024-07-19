@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Contracts;
 using Test.Support;
 
-namespace Test.Unit.Application.Rules;
+namespace Test.Unit.Application.Validators;
 
 [TestClass]
 public class TodoItemDtoValidatorTests : UnitTestBase

@@ -26,7 +26,8 @@ internal static class Utility
                 //convention to preserve the response so the following step can use it to build it's url and/or payload
                 context.Data[stepName] = response;
 
-                int size = response != null ? GetByteSize(response) : 0;
+                int size = !object.Equals(response, default(TResponse)) ? GetByteSize(response!) : 0;
+
                 return responseMsg.IsSuccessStatusCode
                     ? Response.Ok(sizeBytes: size, statusCode: responseMsg.StatusCode.ToString())
                     : Response.Fail(message: responseMsg.ReasonPhrase, statusCode: responseMsg.StatusCode.ToString(), sizeBytes: size);

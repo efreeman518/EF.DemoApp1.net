@@ -52,7 +52,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
                 foreach (var entry in ex.Entries)
                 {
                     var proposedValues = entry.CurrentValues;
-                    var dbValues = entry.GetDatabaseValues();
+                    var dbValues = await entry.GetDatabaseValuesAsync(cancellationToken);
                     _ = dbValues ?? throw new InvalidOperationException("DbUpdateConcurrencyException retry attempted to retieve DB values that returned null.");
 
                     foreach (var property in proposedValues.Properties)

@@ -20,7 +20,6 @@ namespace Test.PlaywrightUI.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
     public partial class TodoItemAddEditDeleteFeature
     {
         
@@ -29,7 +28,6 @@ namespace Test.PlaywrightUI.Features
         private Microsoft.VisualStudio.TestTools.UnitTesting.TestContext _testContext;
         
         private static string[] featureTags = new string[] {
-                "ignore",
                 "TodoItemCRUD",
                 "mstest:donotparallelize"};
         
@@ -168,6 +166,22 @@ this.ScenarioInitialize(scenarioInfo);
         {
 #line 12
 this.TodoItemAddEditDelete("item1a", "123", ((string[])(null)));
+#line hidden
+        }
+        
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DoNotParallelizeAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("TodoItem add edit delete: item2a")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "TodoItem Add, edit, delete")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("TodoItemCRUD")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("mstest:donotparallelize")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "item2a")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:todoItemName", "item2a")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:appendsName", "321")]
+        public void TodoItemAddEditDelete_Item2A()
+        {
+#line 12
+this.TodoItemAddEditDelete("item2a", "321", ((string[])(null)));
 #line hidden
         }
     }

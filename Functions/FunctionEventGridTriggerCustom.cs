@@ -35,13 +35,13 @@ public class FunctionEventGridTriggerCustom(ILogger<FunctionEventGridTriggerCust
         _ = configuration.GetHashCode();
         _ = settings.GetHashCode();
 
-        logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {inputEvent}", JsonSerializer.Serialize(egEvent));
+        logger.Log(LogLevel.Information, "EventGridTriggerCustom - Start {InputEvent}", JsonSerializer.Serialize(egEvent));
 
         _ = egEvent.Data?.ToString(); //extract from inputEvent  Encoding.UTF8.GetString(egEvent.Data);
 
         //await some service call
         await Task.CompletedTask;
 
-        logger.Log(LogLevel.Information, "EventGridTriggerCustom - Finish {inputEvent}", JsonSerializer.Serialize(egEvent));
+        logger.Log(LogLevel.Information, "EventGridTriggerCustom - Finish {InputEvent}", JsonSerializer.Serialize(egEvent));
     }
 }

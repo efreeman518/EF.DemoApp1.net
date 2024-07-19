@@ -83,7 +83,7 @@ public static class DbContextExtensions
         try
         {
             logger.InfoLog($"Seeding test database from file: {filePath}");
-            var sql = File.ReadAllText(filePath);
+            var sql = await File.ReadAllTextAsync(filePath, cancellationToken);
             await db.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
         catch (Exception ex)

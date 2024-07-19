@@ -3,7 +3,7 @@ using Azure.Identity;
 using LazyCache;
 using Microsoft.Identity.Client;
 
-namespace Package.Infrastructure.Http.Tokens;
+namespace Package.Infrastructure.Auth.Tokens;
 
 public class AzureAdTokenProviderConfidentialClientApp(AzureADOptions azureAdOptions, IAppCache appCache) //: IOAuth2TokenProvider
 {

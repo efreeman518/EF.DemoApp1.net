@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 
-namespace Test.Integration.Application;
+namespace Test.Integration.SampleApiRestClient;
 
 [Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
@@ -16,7 +16,7 @@ namespace Test.Integration.Application;
 public class SampleApiRestClientTests
 {
     private readonly ILogger<SampleApiRestClientTests> _logger;
-    private readonly SampleApiRestClient _svc;
+    private readonly Infrastructure.SampleApi.SampleApiRestClient _svc;
     private readonly HttpClient _httpClient;
 
     public SampleApiRestClientTests()
@@ -53,7 +53,7 @@ public class SampleApiRestClientTests
             BaseAddress = new Uri(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!)
         };
 
-        _svc = new SampleApiRestClient(loggerFactory.CreateLogger<SampleApiRestClient>(), oSettings, _httpClient);
+        _svc = new Infrastructure.SampleApi.SampleApiRestClient(loggerFactory.CreateLogger<Infrastructure.SampleApi.SampleApiRestClient>(), oSettings, _httpClient);
 
         _logger.InfoLog("SampleApiRestClientTests - constructor finished.");
     }

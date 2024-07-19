@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
-using SampleApp.Api.Grpc;
 using SampleApp.Api.Middleware;
+using SampleApp.Grpc;
 
 namespace SampleApp.Api;
 
