@@ -29,7 +29,7 @@ internal static class IServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
-        //Application Insights telemtry for http services (for logging telemetry directly to AI)
+        //Application Insights telemetry for http services (for logging telemetry directly to AI)
         services.AddOpenTelemetry().UseAzureMonitor(options =>
         {
             options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");

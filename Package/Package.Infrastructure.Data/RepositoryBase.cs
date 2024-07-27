@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
@@ -12,16 +11,6 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
 {
     protected TDbContext DB => dbContext;
     private TAuditIdType AuditId => requestContext.AuditId;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dbContext"></param>
-    /// <param name="requestContext"></param>
-    //protected RepositoryBase(TDbContext dbContext, IRequestContext requestContext)
-    //{
-    //    _auditId = requestContext.AuditId;
-    //}
 
     public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
@@ -201,7 +190,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TProject"></typeparam>
-    /// <param name="mapperConfigProvider"></param>
+    /// <param name="projector">Projector Func</param>
     /// <param name="readNoLock">Sets DB Isolation level to read uncommitted to prevent locks</param>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex"></param>
@@ -212,10 +201,8 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(
-        IConfigurationProvider mapperConfigProvider,
-        bool readNoLock = true,
-        int? pageSize = null, int? pageIndex = null,
+    public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Func<T, TProject> projector,
+        bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
@@ -223,7 +210,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
         where T : class
     {
         if (readNoLock) await SetNoLock().ConfigureAwait(ConfigureAwaitOptions.None);
-        (IReadOnlyList<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(mapperConfigProvider,
+        (IReadOnlyList<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(projector,
             pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
         if (readNoLock) await SetLock().ConfigureAwait(ConfigureAwaitOptions.None);
         return new PagedResponse<TProject>
@@ -257,19 +244,19 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TProject"></typeparam>
-    /// <param name="mapperConfigProvider"></param>
+    /// <param name="projector">Projector Func</param>
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(IConfigurationProvider mapperConfigProvider,
+    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return dbContext.Set<T>().GetStreamProjection<T, TProject>(mapperConfigProvider, tracking, filter, orderBy, splitQuery, includes);
+        return dbContext.Set<T>().GetStreamProjection<T, TProject>(projector, tracking, filter, orderBy, splitQuery, includes);
     }
 
     /// <summary>

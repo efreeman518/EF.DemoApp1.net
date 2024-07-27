@@ -78,7 +78,7 @@ public class TodoServiceTests : UnitTestBase
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         _repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
-        _repoQuery = new TodoRepositoryQuery(dbQuery, src, _mapper); //not used in this test
+        _repoQuery = new TodoRepositoryQuery(dbQuery, src); //not used in this test
 
         _services.AddTransient<IValidationHelper, ValidationHelper>();
         _services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
@@ -107,8 +107,7 @@ public class TodoServiceTests : UnitTestBase
             .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
 
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper,
-            RepositoryTrxnMock.Object, RepositoryQueryMock.Object, SampleApiRestClientMock.Object,
-            _mapper, BackgroundTaskQueueMock.Object);
+            RepositoryTrxnMock.Object, RepositoryQueryMock.Object, SampleApiRestClientMock.Object, BackgroundTaskQueueMock.Object);
 
         //act & assert
 
@@ -161,7 +160,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_CRUD_memory_pass()
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var todo = new TodoItemDto(null, "wash car", TodoItemStatus.Created);
 
         //act & assert
@@ -212,7 +211,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_AddItemAsync_fail(string name)
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
         //act & assert
@@ -224,7 +223,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_UpdateAsync_notfound()
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         //random Id to 'update'
         var todo = new TodoItemDto(Guid.NewGuid(), "asdsa", TodoItemStatus.Created);
 
@@ -239,7 +238,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_UpdateAsync_fail()
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         //random Id to 'update'
         var todo = new TodoItemDto(Guid.NewGuid(), "sdsa", TodoItemStatus.Created);
 
@@ -254,7 +253,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_GetPageAsync_pass()
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
 
         //act
         var response = await svc.GetPageAsync();
@@ -268,7 +267,7 @@ public class TodoServiceTests : UnitTestBase
     public async Task Todo_SearchPageAsync_pass()
     {
         //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, _mapper, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
+        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _validationHelper, _repoTrxn, _repoQuery, SampleApiRestClientMock.Object, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
         var search = new SearchRequest<TodoItemSearchFilter>()
         {
             Filter = new TodoItemSearchFilter(Statuses: [TodoItemStatus.Created, TodoItemStatus.Completed])

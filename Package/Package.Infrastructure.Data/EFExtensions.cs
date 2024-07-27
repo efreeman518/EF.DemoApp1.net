@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
@@ -314,7 +312,7 @@ public static class EFExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
-    /// <param name="tracking"></param>
+    /// <param name="projector">Projection Func</param>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex">1-based</param>
     /// <param name="filter"></param>
@@ -325,7 +323,7 @@ public static class EFExtensions
     /// <param name="includes"></param>
     /// <returns>List<TProject> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(IReadOnlyList<TProject>, int)> QueryPageProjectionAsync<T, TProject>(this IQueryable<T> query,
-        IConfigurationProvider mapperConfigProvider,
+        Func<T, TProject> projector,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
@@ -335,7 +333,7 @@ public static class EFExtensions
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
         query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
-        var results = await query.ProjectTo<TProject>(mapperConfigProvider).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        var results = await query.Select(e => projector(e)).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (results.AsReadOnly(), total);
     }
 

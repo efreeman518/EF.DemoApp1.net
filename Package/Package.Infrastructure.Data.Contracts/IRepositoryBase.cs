@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using System.Linq.Expressions;
 
@@ -40,10 +39,8 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(
-        IConfigurationProvider mapperConfigProvider,
-        bool readNoLock = true,
-        int? pageSize = null, int? pageIndex = null,
+    Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Func<T, TProject> projector,
+        bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
@@ -55,7 +52,7 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(IConfigurationProvider mapperConfigProvider,
+    public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)

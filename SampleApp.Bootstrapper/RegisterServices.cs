@@ -33,9 +33,7 @@ using Polly.Simmy.Fault;
 using Polly.Simmy.Latency;
 using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
-using SampleApp.Bootstrapper.Automapper;
 using SampleApp.Bootstrapper.StartupTasks;
-using SampleApp.Grpc;
 using System.Security.Claims;
 
 namespace SampleApp.Bootstrapper;
@@ -96,13 +94,6 @@ public static class IServiceCollectionExtensions
         {
             services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
         }
-
-        //AutoMapper Configuration
-        ConfigureAutomapper.Configure(services,
-            [
-                new MappingProfile(),  //map domain <-> app 
-                new GrpcMappingProfile() // map grpc <-> app 
-            ]);
 
         //IRequestContext - injected into repositories, cache managers, etc
         services.AddScoped<IRequestContext<string>>(provider =>

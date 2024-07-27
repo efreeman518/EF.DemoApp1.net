@@ -14,8 +14,10 @@ service TodoService {
 
 message TodoItemDto {
 	NullableString id = 1;
-	NullableString name = 2;
+	string name = 2;
 	TodoItemStatus status = 3;
+	NullableString securedeterministic = 4;
+	NullableString securerandom = 5;
 }
 
 message ServiceRequestId {

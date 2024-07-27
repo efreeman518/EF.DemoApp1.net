@@ -145,7 +145,7 @@ while (true)
                     {
                         //setting NullableString - set only one property (Data or Isnull); setting both - the first is removed from the structure
                         Id = id == Guid.Empty ? new SampleAppGrpc.NullableString { Isnull = true } : new SampleAppGrpc.NullableString { Data = id.ToString() },
-                        Name = new SampleAppGrpc.NullableString { Data = input2 }
+                        Name = input2
                     }
                 }));
             }

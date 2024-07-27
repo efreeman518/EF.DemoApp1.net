@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Mappers;
 using Application.Contracts.Model;
-using AutoMapper;
 using Domain.Shared.Enums;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data;
@@ -8,7 +8,7 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.Repositories;
 
-public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<string> rc, IMapper mapper) : RepositoryBase<TodoDbContextQuery, string>(dbContext, rc), ITodoRepositoryQuery
+public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<string> rc) : RepositoryBase<TodoDbContextQuery, string>(dbContext, rc), ITodoRepositoryQuery
 {
     //compile frequently used query
     //https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#compiled-queries
@@ -24,8 +24,7 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
     /// <summary>
     /// Return a cref="PagedResponse" projected to Dto
     /// </summary>
-    /// <param name="pageSize"></param>
-    /// <param name="pageIndex"></param>
+    /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public async Task<PagedResponse<TodoItemDto>> SearchTodoItemAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
@@ -63,15 +62,15 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
 
         //sort and filter have already been applied
         await SetNoLock();
-        (var data, var total) = await q.QueryPageProjectionAsync<TodoItem, TodoItemDto>(
-            mapper.ConfigurationProvider, pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken)
+        (var data, var total) = await q.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector,
+            pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken)
             .ConfigureAwait(ConfigureAwaitOptions.None);
         await SetLock();
         return new PagedResponse<TodoItemDto>
         {
             PageIndex = request.PageIndex,
             PageSize = request.PageSize,
-            Data = data, //_mapper.Map<List<TodoItemDto>>(data),
+            Data = data,
             Total = total
         };
     }

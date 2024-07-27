@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
+using Application.Contracts.Mappers;
 using Application.Services.Logging;
-using Application.Services.Mappers;
 using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
@@ -13,7 +13,7 @@ using AppConstants = Application.Contracts.Constants.Constants;
 namespace Application.Services;
 
 public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServiceSettings> settings, IValidationHelper validationHelper,
-    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IMapper mapper, IBackgroundTaskQueue taskQueue)
+    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
@@ -25,7 +25,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.InfoLog($"GetItemsAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
 
         //return mapped domain -> app
-        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(mapper.ConfigurationProvider, true, pageSize, pageIndex,
+        return await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, true, pageSize, pageIndex,
             orderBy: t => t.OrderBy(x => x.Name),
             includeTotal: true, cancellationToken: cancellationToken);
     }
@@ -40,7 +40,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         if (todo == null) return null;
 
         //return mapped domain -> app
-        return TodoItemMapper.ToDto(todo);
+        return todo.ToDto();
     }
 
     public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
@@ -56,7 +56,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
 
         //map app -> domain
-        var todo = TodoItemMapper.ToEntity(dto); // mapper.Map<TodoItemDto, TodoItem>(dto)!;
+        var todo = dto.ToEntity();
 
         //domain entity validation 
         var validationResult = todo.Validate();
@@ -87,8 +87,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
         //return mapped domain -> app
-        //return mapper.Map<TodoItem, TodoItemDto>(todo)!;
-        return TodoItemMapper.ToDto(todo);
+        return todo.ToDto();
     }
 
     public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
@@ -125,8 +124,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
 
         //return mapped domain -> app 
-        //return mapper.Map<TodoItemDto>(dbTodo);
-        return TodoItemMapper.ToDto(dbTodo);
+        return dbTodo.ToDto();
     }
 
     public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)

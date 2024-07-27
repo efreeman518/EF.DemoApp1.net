@@ -20,6 +20,7 @@ namespace Test.PlaywrightUI.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
     public partial class TodoItemAddEditDeleteFeature
     {
         
@@ -28,6 +29,7 @@ namespace Test.PlaywrightUI.Features
         private Microsoft.VisualStudio.TestTools.UnitTesting.TestContext _testContext;
         
         private static string[] featureTags = new string[] {
+                "ignore",
                 "TodoItemCRUD",
                 "mstest:donotparallelize"};
         

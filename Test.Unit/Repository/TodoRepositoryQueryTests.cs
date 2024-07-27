@@ -1,3 +1,4 @@
+using Application.Contracts.Mappers;
 using Application.Contracts.Model;
 using Domain.Model;
 using Domain.Shared.Enums;
@@ -31,7 +32,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, rc, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, rc);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -65,7 +66,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildSQLite<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -99,7 +100,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         var response = await repoQuery.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
@@ -130,20 +131,20 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
-        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 10, pageIndex: 1, includeTotal: true);
+        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
 
-        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 2, pageIndex: 1, includeTotal: true);
+        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 2, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(2, response.Data.Count);
 
-        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 3, pageIndex: 2, includeTotal: true);
+        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 3, pageIndex: 2, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
@@ -161,7 +162,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -198,7 +199,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -235,7 +236,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -273,7 +274,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -324,7 +325,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //search criteria
         var search = new SearchRequest<TodoItemSearchFilter>
@@ -355,10 +356,10 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        var repoQuery = new TodoRepositoryQuery(db, src, _mapper);
+        var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
-        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(_mapper.ConfigurationProvider, pageSize: 10, pageIndex: 1, includeTotal: true);
+        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);

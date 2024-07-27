@@ -24,7 +24,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
             .BuildInMemory<TodoDbContextQuery>();
 
         var rc = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
-        _todoRepositoryQuery = new TodoRepositoryQuery(db, rc, _mapper);
+        _todoRepositoryQuery = new TodoRepositoryQuery(db, rc);
     }
 
     [DataTestMethod]

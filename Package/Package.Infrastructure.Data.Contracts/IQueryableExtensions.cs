@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using System.Collections.Concurrent;
@@ -90,20 +88,20 @@ public static class IQueryableExtensions
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TProject"></typeparam>
     /// <param name="query"></param>
-    /// <param name="mapperConfigProvider"></param>
+    /// <param name="projector"></param>
     /// <param name="tracking"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="splitQuery">Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries</param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, IConfigurationProvider mapperConfigProvider,
+    public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).ProjectTo<TProject>(mapperConfigProvider).AsAsyncEnumerable();
+        return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).Select(e => projector(e)).AsAsyncEnumerable();
     }
 
     public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<Sort> sorts)

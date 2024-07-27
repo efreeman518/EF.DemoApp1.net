@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using Google.Protobuf.WellKnownTypes;
+﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
+using SampleApp.Grpc.Mappers;
 using SampleAppGrpc = SampleApp.Grpc.Proto;
 using SampleAppModel = Application.Contracts.Model;
 
@@ -13,7 +13,7 @@ namespace SampleApp.Grpc;
 //client cert auth only for this service class 
 //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
 //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contracts.Services.ITodoService todoService, IMapper mapper) : SampleAppGrpc.TodoService.TodoServiceBase
+public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contracts.Services.ITodoService todoService) : SampleAppGrpc.TodoService.TodoServiceBase
 {
     public override async Task<SampleAppGrpc.ServiceResponsePageTodoItems> Page(SampleAppGrpc.ServiceRequestPage request, ServerCallContext context)
     {
@@ -32,7 +32,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         //grps repeated is 'readonly' so the collection can't be assigned, only added to
         foreach (var todo in page.Data)
         {
-            response.Data.Data.Add(mapper.Map<SampleAppModel.TodoItemDto, SampleAppGrpc.TodoItemDto>(todo));
+            response.Data.Data.Add(TodoItemMapper.ToGrpcDto(todo));
         }
         return response;
     }
@@ -45,7 +45,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         return new SampleAppGrpc.ServiceResponseTodoItem
         {
             ResponseCode = SampleAppGrpc.ResponseCode.Success,
-            Data = mapper.Map<SampleAppModel.TodoItemDto, SampleAppGrpc.TodoItemDto>(todo)
+            Data = TodoItemMapper.ToGrpcDto(todo)
         };
     }
 
@@ -53,7 +53,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
     {
         logger.Log(LogLevel.Information, "Save {TodoItemDto} - Start", request.Data.SerializeToJson());
 
-        SampleAppModel.TodoItemDto? todo = mapper.Map<SampleAppGrpc.TodoItemDto, SampleAppModel.TodoItemDto>(request.Data);
+        SampleAppModel.TodoItemDto? todo = request.Data.ToAppDto();
 
         //Save = update/insert
         Result<SampleAppModel.TodoItemDto?> result;
@@ -77,7 +77,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         var response = new SampleAppGrpc.ServiceResponseTodoItem
         {
             ResponseCode = result.IsSuccess ? SampleAppGrpc.ResponseCode.Success : SampleAppGrpc.ResponseCode.Failure,
-            Data = mapper.Map<SampleAppModel.TodoItemDto?, SampleAppGrpc.TodoItemDto?>(todo)
+            Data = todo?.ToGrpcDto()
         };
 
         logger.Log(LogLevel.Information, "Save {TodoItemDto} - Finish", response.Data?.SerializeToJson());
