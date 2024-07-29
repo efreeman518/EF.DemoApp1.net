@@ -201,7 +201,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbCont
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Func<T, TProject> projector,
+    public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
         bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,

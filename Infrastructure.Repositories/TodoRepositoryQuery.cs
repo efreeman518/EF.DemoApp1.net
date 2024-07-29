@@ -62,7 +62,7 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
 
         //sort and filter have already been applied
         await SetNoLock();
-        (var data, var total) = await q.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector,
+        (var data, var total) = await q.QueryPageProjectionAsync(TodoItemMapper.Projector,
             pageSize: request.PageSize, pageIndex: request.PageIndex, includeTotal: true, cancellationToken: cancellationToken)
             .ConfigureAwait(ConfigureAwaitOptions.None);
         await SetLock();

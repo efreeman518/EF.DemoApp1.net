@@ -323,17 +323,18 @@ public static class EFExtensions
     /// <param name="includes"></param>
     /// <returns>List<TProject> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(IReadOnlyList<TProject>, int)> QueryPageProjectionAsync<T, TProject>(this IQueryable<T> query,
-        Func<T, TProject> projector,
+        Expression<Func<T, TProject>> projector,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        bool includeTotal = false, bool splitQuery = false,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
         query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
-        var results = await query.Select(e => projector(e)).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        var results = await query.Select(projector).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (results.AsReadOnly(), total);
     }
 

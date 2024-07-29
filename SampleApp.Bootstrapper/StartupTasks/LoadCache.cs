@@ -1,7 +1,5 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Mappers;
-using Application.Contracts.Model;
-using Domain.Model;
 using Domain.Shared.Enums;
 using LazyCache;
 using Microsoft.Extensions.Caching.Distributed;
@@ -18,7 +16,7 @@ public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCac
         _ = config.GetHashCode();
 
         //memory cache
-        var cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(SystemSettingMapper.Projector,
+        var cacheSettings = await repoQuery.QueryPageProjectionAsync(SystemSettingMapper.Projector,
             filter: s => (s.Flags & SystemSettings.MemoryCache) == SystemSettings.MemoryCache);
         //cacheSettings.Data.ForEach(s => appCache.Add(s.Key, s.Value));
         foreach (var item in cacheSettings.Data)
@@ -26,7 +24,7 @@ public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IAppCac
             appCache.Add(item.Key, item.Value);
         }
         //distributed cache
-        cacheSettings = await repoQuery.QueryPageProjectionAsync<SystemSetting, SystemSettingDto>(SystemSettingMapper.Projector,
+        cacheSettings = await repoQuery.QueryPageProjectionAsync(SystemSettingMapper.Projector,
                            filter: s => (s.Flags & SystemSettings.DistributedCache) == SystemSettings.DistributedCache);
         foreach (var s in cacheSettings.Data)
         {

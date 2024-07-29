@@ -134,17 +134,17 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
-        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
+        var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);
 
-        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 2, pageIndex: 1, includeTotal: true);
+        response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 2, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(2, response.Data.Count);
 
-        response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 3, pageIndex: 2, includeTotal: true);
+        response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 3, pageIndex: 2, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(1, response.Data.Count);
@@ -359,7 +359,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var repoQuery = new TodoRepositoryQuery(db, src);
 
         //act & assert
-        var response = await repoQuery.QueryPageProjectionAsync<TodoItem, TodoItemDto>(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
+        var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
         Assert.AreEqual(4, response.Data.Count);

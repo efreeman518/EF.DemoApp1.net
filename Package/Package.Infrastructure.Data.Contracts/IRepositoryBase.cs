@@ -39,7 +39,7 @@ public interface IRepositoryBase
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Func<T, TProject> projector,
+    Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
         bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
