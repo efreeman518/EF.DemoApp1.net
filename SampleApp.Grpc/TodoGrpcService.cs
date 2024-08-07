@@ -1,5 +1,7 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using Azure;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Common.Exceptions;
@@ -39,8 +41,11 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
 
     public override async Task<SampleAppGrpc.ServiceResponseTodoItem> Get(SampleAppGrpc.ServiceRequestId request, ServerCallContext context)
     {
-        SampleAppModel.TodoItemDto? todo = await todoService.GetItemAsync(new Guid(request.Id));
-        _ = todo ?? throw new NotFoundException($"TodoItem.Id:{request.Id} not found.");
+        var oTodo = await todoService.GetItemAsync(new Guid(request.Id));
+
+        SampleAppModel.TodoItemDto? todo = oTodo.Match(
+            Some: dto => dto,
+            None: () => throw new NotFoundException($"TodoItem.Id:{request.Id} not found."));
 
         return new SampleAppGrpc.ServiceResponseTodoItem
         {
@@ -56,11 +61,13 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         SampleAppModel.TodoItemDto? todo = request.Data.ToAppDto();
 
         //Save = update/insert
-        Result<SampleAppModel.TodoItemDto?> result;
+        Result<SampleAppModel.TodoItemDto> result;
+
+        var errors = new List<ResponseError>();
 
         if (todo == null)
         {
-            result = new Result<SampleAppModel.TodoItemDto?>(new ArgumentNullException(nameof(request), "Request does not map to TodoItemDto"));
+            result = new Result<SampleAppModel.TodoItemDto>(new InvalidDataException("Request does not map to TodoItemDto"));
         }
         else
         {
@@ -69,16 +76,24 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
             else
                 result = await todoService.UpdateItemAsync(todo);
 
-            todo = result.Match(
-                dto => dto,
-                err => null);
+            _ = result.Match(
+                dto => { todo = dto; return Unit.Default; },
+                err => { errors.Add(new ResponseError("Error", err.Message)); return Unit.Default; }
+);
+            //_ = result.Match(
+            //    dto => todo = dto,
+            //    err => { errors.Add(new ResponseError("Error", err.Message)); return Unit.Default; });
+
         }
 
         var response = new SampleAppGrpc.ServiceResponseTodoItem
         {
             ResponseCode = result.IsSuccess ? SampleAppGrpc.ResponseCode.Success : SampleAppGrpc.ResponseCode.Failure,
-            Data = todo?.ToGrpcDto()
+            Data = todo?.ToGrpcDto(),
+            Errors = { errors.Select(e => new SampleAppGrpc.ResponseError { Message = e.Message }) },
+            Message = result.IsSuccess ? "Success" : "Failure"
         };
+
 
         logger.Log(LogLevel.Information, "Save {TodoItemDto} - Finish", response.Data?.SerializeToJson());
         return response;

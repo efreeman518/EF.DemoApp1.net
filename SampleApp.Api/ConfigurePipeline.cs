@@ -1,4 +1,5 @@
 ﻿using CorrelationId;
+using FastEndpoints;
 using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
@@ -22,10 +23,6 @@ public static partial class WebApplicationBuilderExtensions
             app.UseAzureAppConfiguration();
         }
 
-        //serve sample html/js UI
-        app.UseDefaultFiles();
-        app.UseStaticFiles(); //Serve files from wwwroot
-
         if (config.GetValue("ChatGPT_Plugin:Enable", false))
         {
             app.UseCors("ChatGPT");
@@ -39,10 +36,13 @@ public static partial class WebApplicationBuilderExtensions
         //ChatGPT https not supported
         app.UseHttpsRedirection();
 
+        //serve sample html/js UI
+        app.UseDefaultFiles(); //default serve files from wwwroot
+        app.UseStaticFiles(); //Serve files from wwwroot
+
         //global error handler
         app.UseExceptionHandler();
 
-        app.UseRouting();
         app.UseCors("AllowSpecific");
 
         //swagger before auth so it will render without auth
@@ -91,6 +91,7 @@ public static partial class WebApplicationBuilderExtensions
             });
         }
 
+        app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
@@ -99,8 +100,17 @@ public static partial class WebApplicationBuilderExtensions
         //any other middleware
         app.UseSomeMiddleware();
 
+        //https://fast-endpoints.com/docs/configuration-settings#customizing-error-responses
+        app.UseFastEndpoints(x => x.Errors.UseProblemDetails());
         app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
+        app.MapHealthChecks();
+
+        return app;
+    }
+
+    private static WebApplication MapHealthChecks(this WebApplication app)
+    {
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
             // Exclude all checks and return a 200 - Ok.
@@ -110,7 +120,6 @@ public static partial class WebApplicationBuilderExtensions
         app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
         app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));
         app.MapHealthChecks("/health/weatherservice", HealthCheckHelper.BuildHealthCheckOptions("weatherservice"));
-
 
         return app;
     }

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.Common.Extensions;
 
-namespace Sample.Api.ExceptionHandlers;
+namespace SampleApp.Api.ExceptionHandlers;
 
 /// <summary>
 /// Singleton

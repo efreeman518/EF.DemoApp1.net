@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using CorrelationId.DependencyInjection;
+using FastEndpoints;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,7 @@ using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
-using Sample.Api.ExceptionHandlers;
+using SampleApp.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -76,7 +77,6 @@ internal static class IServiceCollectionExtensions
         var configSection = config.GetSection(configSectionName);
         if (configSection.Exists())
         {
-            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-app-configuration?tabs=aspnetcore
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
@@ -88,7 +88,9 @@ internal static class IServiceCollectionExtensions
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddMicrosoftIdentityWebApi(config);
-            //.EnableTokenAcquisitionToCallDownstreamApi()
+
+            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-web-api-call-api-app-configuration?tabs=aspnetcore
+            //.EnableTokenAcquisitionToCallDownstreamApi() 
             //.AddInMemoryTokenCaches()
 
             services.AddSingleton<IAuthorizationHandler, RolesOrScopesAuthorizationHandler>();
@@ -122,6 +124,7 @@ internal static class IServiceCollectionExtensions
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
 
+        services.AddFastEndpoints();
         services.AddControllers();
 
         //convenient for model validation

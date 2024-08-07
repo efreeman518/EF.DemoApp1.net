@@ -2,5 +2,7 @@
 
 public static class LoggerEventConstants
 {
-    public const int TodoItemCRUD = 1100;
+    public const int TodoItemGetById = 1100;
+    public const int TodoItemCRUD = 1101;
+
 }

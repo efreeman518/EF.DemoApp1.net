@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Mappers;
 using Application.Services.Logging;
+using LanguageExt;
 using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common;
@@ -30,20 +31,19 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             includeTotal: true, cancellationToken: cancellationToken);
     }
 
-    public async Task<TodoItemDto?> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Option<TodoItemDto>> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         //performant logging
-        logger.InfoLog($"GetItemAsync - {id}");
+        logger.TodoItemGetById(id);
 
         var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id, cancellationToken: cancellationToken);
 
-        if (todo == null) return null;
-
-        //return mapped domain -> app
-        return todo.ToDto();
+        return (todo == null)
+            ? Option<TodoItemDto>.None
+            : todo.ToDto();
     }
 
-    public async Task<Result<TodoItemDto?>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
+    public async Task<Result<TodoItemDto>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
@@ -52,7 +52,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var fvResult = await validationHelper.ValidateAsync(dto, cancellationToken);
         if (!fvResult.IsValid)
         {
-            return new Result<TodoItemDto?>(new ValidationException(fvResult.ToDictionary()));
+            return new Result<TodoItemDto>(new ValidationException(fvResult.ToDictionary()));
         }
 
         //map app -> domain
@@ -62,7 +62,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = todo.Validate();
         if (!validationResult)
         {
-            return new Result<TodoItemDto?>(new ValidationException(validationResult.Messages));
+            return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
 
         repoTrxn.Create(ref todo);
@@ -90,7 +90,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return todo.ToDto();
     }
 
-    public async Task<Result<TodoItemDto?>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
+    public async Task<Result<TodoItemDto>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
@@ -98,12 +98,12 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
         if (!valResult.IsValid)
         {
-            return new Result<TodoItemDto?>(new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList()));
+            return new Result<TodoItemDto>(new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList()));
         }
 
         //retrieve existing
         var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id, cancellationToken: cancellationToken);
-        if (dbTodo == null) return new Result<TodoItemDto?>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
+        if (dbTodo == null) return new Result<TodoItemDto>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
 
         //update
         dbTodo.SetName(dto.Name);
@@ -115,7 +115,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = dbTodo.Validate();
         if (!validationResult)
         {
-            return new Result<TodoItemDto?>(new ValidationException(validationResult.Messages));
+            return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
 
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
@@ -143,6 +143,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         return await repoQuery.SearchTodoItemAsync(request, cancellationToken);
     }
 
+    //external API call
     public async Task<Result<PagedResponse<TodoItemDto>?>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");

@@ -65,10 +65,10 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
-        var todoItem = await _todoService.GetItemAsync(id);
-        return (todoItem != null)
-            ? Ok(todoItem)
-            : NotFound(id);
+        var option = await _todoService.GetItemAsync(id);
+        return option.Match<ActionResult<TodoItemDto>>(
+            Some: dto => Ok(dto),
+            None: () => NotFound(id));
     }
 
     #region auth policy endpoints

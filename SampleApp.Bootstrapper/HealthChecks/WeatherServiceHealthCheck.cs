@@ -13,7 +13,7 @@ public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger
     {
         _logger.LogInformation("WeatherServiceHealthCheck - Start");
 
-        var status = HealthStatus.Healthy;
+        HealthStatus status;
         Exception? exHealth = null;
         try
         {

@@ -15,6 +15,7 @@ public static class SerializeExtensions
     /// <param name="applyMasks"></param>
     /// <returns></returns>
     public static string? SerializeToJson<T>(this T toSerialize, JsonSerializerOptions? options = null, bool applyMasks = true)
+        where T : class?
     {
         if (toSerialize == null) return null;
         if (!applyMasks) return JsonSerializer.Serialize(toSerialize, options);
@@ -39,7 +40,7 @@ public static class SerializeExtensions
         {
             string propMask;
             string? propVal;
-            var newT = DeserializeJson<T>(JsonSerializer.Serialize(toSerialize, options)); //Clone
+            var newT = DeserializeJson<T?>(JsonSerializer.Serialize(toSerialize, options)); //Clone
             foreach (var prop in maskedProps)
             {
                 propVal = prop.GetValue(newT)?.ToString();
@@ -67,8 +68,9 @@ public static class SerializeExtensions
     /// <param name="toDeserialize"></param>
     /// <returns></returns>
     public static T? DeserializeJson<T>(this string toDeserialize, JsonSerializerOptions? options = null, bool throwOnNull = false)
+        where T : class?
     {
-        T? val = JsonSerializer.Deserialize<T>(toDeserialize, options);
+        T? val = JsonSerializer.Deserialize<T?>(toDeserialize, options);
         if (val == null && throwOnNull) throw new InvalidOperationException($"JsonSerializer.Deserialize<T> returned null.");
         return val;
     }

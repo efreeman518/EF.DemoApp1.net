@@ -12,8 +12,11 @@
 //    }
 //}
 
-public static partial class LoggerMessageDefinitionSG
+public static partial class LoggerMessageDefinitionSrcGen
 {
+    [LoggerMessage(LoggerEventConstants.TodoItemGetById, LogLevel.Information, "{id}")]
+    public static partial void TodoItemGetById(this ILogger logger, Guid id);
+
     [LoggerMessage(LoggerEventConstants.TodoItemCRUD, LogLevel.Information, "{message} {item}")]
     public static partial void TodoItemCRUD(this ILogger logger, string message, string? item = null);
 }

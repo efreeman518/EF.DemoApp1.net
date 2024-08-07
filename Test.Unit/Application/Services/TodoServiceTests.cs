@@ -126,7 +126,11 @@ public class TodoServiceTests : UnitTestBase
         var id = (Guid)todoSaved.Id!;
 
         //retrieve
-        var todoGet = await svc.GetItemAsync(id);
+        var oTodo = await svc.GetItemAsync(id);
+        var todoGet = oTodo.Match(
+            dto => dto,
+            () => throw new AssertFailedException("TodoItem not found")
+        );
         Assert.AreEqual(todoSaved.Id, todoGet!.Id);
         Assert.AreEqual(todoSaved.Name, todoGet!.Name);
 
@@ -135,7 +139,7 @@ public class TodoServiceTests : UnitTestBase
         result = await svc.UpdateItemAsync(todoGet!); //mock set to return a specific todoItem
         _ = result.Match(
             dto => todoUpdated = dto,
-            err => null
+            err => throw err
         );
         Assert.IsTrue(todoUpdated != null);
 
@@ -169,13 +173,17 @@ public class TodoServiceTests : UnitTestBase
         var result = await svc.AddItemAsync(todo);
         _ = result.Match(
             dto => todo = dto,
-            err => null
+            err => throw err
         );
         Assert.IsTrue(todo.Id != Guid.Empty);
         var id = (Guid)todo.Id!;
 
         //retrieve
-        todo = await svc.GetItemAsync(id);
+        var oTodo = await svc.GetItemAsync(id);
+        todo = oTodo.Match(
+            dto => dto,
+            () => throw new AssertFailedException("TodoItem not found")
+        );
         Assert.AreEqual(id, todo!.Id);
 
         //update
@@ -186,22 +194,25 @@ public class TodoServiceTests : UnitTestBase
         result = await svc.UpdateItemAsync(todo2);
         _ = result.Match(
             dto => updated = dto,
-            err => null
+            err => throw err
         );
         Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         //retrieve and make sure the update persisted
-        todo = await svc.GetItemAsync(id);
+        oTodo = await svc.GetItemAsync(id);
+        todo = oTodo.Match(
+            dto => dto,
+            () => throw new AssertFailedException("TodoItem not found")
+        );
         Assert.AreEqual(updated!.Status, todo?.Status);
 
         //delete
         await svc.DeleteItemAsync(id);
 
         //ensure not found after delete
-        todo = await svc.GetItemAsync(id);
-        Assert.IsNull(todo);
-
+        oTodo = await svc.GetItemAsync(id);
+        Assert.IsTrue(oTodo.IsNone);
     }
 
     [DataTestMethod]
