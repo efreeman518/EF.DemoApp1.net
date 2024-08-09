@@ -147,10 +147,10 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PostTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
-        var result = await _todoService.AddItemAsync(todoItem);
+        var result = await _todoService.CreateItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
-            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
+            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment()))
             );
     }
 

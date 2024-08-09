@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using CorrelationId.DependencyInjection;
-using FastEndpoints;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -124,16 +123,10 @@ internal static class IServiceCollectionExtensions
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
 
-        services.AddFastEndpoints();
         services.AddControllers();
 
-        //convenient for model validation
-        services.AddProblemDetails(options =>
-            options.CustomizeProblemDetails = ctx =>
-            {
-                ctx.ProblemDetails.Extensions.Add("machineName", Environment.MachineName);
-            }
-        );
+        //convenient for model validation; built in IHostEnvironmentExtensions.BuildProblemDetailsResponse
+        services.AddProblemDetails();
 
         //Add gRPC framework services
         services.AddGrpc(options =>

@@ -126,7 +126,7 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         var result = await _apiClient.SaveItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => CreatedAtAction(nameof(TodoItemDto), new { id = dto!.Id }, dto),
-            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
+            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment())) 
             );
     }
 
@@ -143,7 +143,7 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         var result = await _apiClient.SaveItemAsync(todoItem);
         return result.Match<ActionResult<TodoItemDto>>(
             dto => Ok(dto),
-            err => hostEnv.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier) //throw err // BadRequest(err.Message)
+            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment()))
             );
     }
 

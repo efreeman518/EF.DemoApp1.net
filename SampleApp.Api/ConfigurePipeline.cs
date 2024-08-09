@@ -1,10 +1,10 @@
 ﻿using CorrelationId;
-using FastEndpoints;
 using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
+using SampleApp.Api.Endpoints;
 using SampleApp.Api.Middleware;
 using SampleApp.Grpc;
 
@@ -100,11 +100,11 @@ public static partial class WebApplicationBuilderExtensions
         //any other middleware
         app.UseSomeMiddleware();
 
-        //https://fast-endpoints.com/docs/configuration-settings#customizing-error-responses
-        app.UseFastEndpoints(x => x.Errors.UseProblemDetails());
+        //endpoints
+        app.MapHealthChecks();
         app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
-        app.MapHealthChecks();
+        app.MapTodoItemEndpoints();
 
         return app;
     }

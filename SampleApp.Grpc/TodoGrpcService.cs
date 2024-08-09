@@ -72,7 +72,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         else
         {
             if (todo.Id == Guid.Empty)
-                result = await todoService.AddItemAsync(todo);
+                result = await todoService.CreateItemAsync(todo);
             else
                 result = await todoService.UpdateItemAsync(todo);
 

@@ -55,7 +55,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         //act & assert
 
         //create
-        var result = await svc.AddItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo);
         _ = result.Match(
             dto => todo = dto,
             err => throw err
@@ -134,7 +134,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         //act & assert
 
         //create
-        var result = await svc.AddItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo);
         Assert.IsTrue(result.IsFaulted);
     }
 

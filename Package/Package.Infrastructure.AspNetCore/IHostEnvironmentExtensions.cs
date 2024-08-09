@@ -1,26 +1,24 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 
 namespace Package.Infrastructure.AspNetCore;
 
 /// <summary>
 /// Add functionality to the host
 /// </summary>
-public static class IHostEnvironmentExtensions
+public static class ProblemDetailsHelper
 {
     /// <summary>
     /// Build a ProblemDetails response; unhandled exceptions will be handled by the DefaultExceptionHandler, 
     /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method can be used to build a ProblemDetails response
+    /// this method can be used to build a TypedResult with ProblemDetails response
     /// </summary>
     /// <param name="title"></param>
     /// <param name="message"></param>
     /// <param name="exception"></param>
     /// <param name="traceId"></param>
     /// <returns></returns>
-    public static ObjectResult BuildProblemDetailsResponse(this IHostEnvironment env, string? title = "Error", string? message = null, Exception? exception = null, string? traceId = null)
+    public static IResult BuildProblemDetailsResponse(string? title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false)
     {
         //map exception to status code
         var statusCode = exception?.GetType().Name switch
@@ -40,15 +38,12 @@ public static class IHostEnvironmentExtensions
         if (traceId != null) problemDetails.Extensions.Add("traceId", traceId);
         problemDetails.Extensions.Add("machineName", Environment.MachineName);
 
-        if (env.IsDevelopment())
+        if (includeStackTrace && exception?.StackTrace != null)
         {
-            problemDetails.Extensions.Add("stacktrace", exception?.StackTrace);
+            problemDetails.Extensions.Add("stacktrace", exception.StackTrace);
         }
 
-        ObjectResult result = new(problemDetails)
-        {
-            StatusCode = statusCode
-        };
+        var result = TypedResults.Problem(problemDetails);
 
         return result;
     }

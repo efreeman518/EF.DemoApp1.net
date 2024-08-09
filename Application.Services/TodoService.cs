@@ -43,7 +43,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             : todo.ToDto();
     }
 
-    public async Task<Result<TodoItemDto>> AddItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
+    public async Task<Result<TodoItemDto>> CreateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());

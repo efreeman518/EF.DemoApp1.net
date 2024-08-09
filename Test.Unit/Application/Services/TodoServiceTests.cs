@@ -114,7 +114,7 @@ public class TodoServiceTests : UnitTestBase
         //create
         var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created);
         TodoItemDto? todoSaved = null;
-        var result = await svc.AddItemAsync(todoNew); //new Id has been assigned
+        var result = await svc.CreateItemAsync(todoNew); //new Id has been assigned
         _ = result.Match<TodoItemDto?>(
             dto => todoSaved = dto,
             err => null
@@ -170,7 +170,7 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
 
         //create
-        var result = await svc.AddItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo);
         _ = result.Match(
             dto => todo = dto,
             err => throw err
@@ -226,7 +226,7 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
         //act & assert
-        var result = await svc.AddItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo);
         Assert.IsTrue(result.IsFaulted);
     }
 
