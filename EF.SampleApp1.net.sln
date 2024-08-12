@@ -124,6 +124,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.SeleniumUI", "Test.Sel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.SpecFlow", "Test.SpecFlow\Test.SpecFlow.csproj", "{5254E370-ACD2-4DAF-8A04-29E88A52A04E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Support", "SampleApp.Support\SampleApp.Support.csproj", "{323EC702-089A-4188-B6DC-89129073103D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -306,6 +308,10 @@ Global
 		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{323EC702-089A-4188-B6DC-89129073103D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{323EC702-089A-4188-B6DC-89129073103D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{323EC702-089A-4188-B6DC-89129073103D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{323EC702-089A-4188-B6DC-89129073103D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -357,6 +363,7 @@ Global
 		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{3E83C4DD-7CDC-41FE-A012-33218BCEDF18} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{5254E370-ACD2-4DAF-8A04-29E88A52A04E} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
+		{323EC702-089A-4188-B6DC-89129073103D} = {E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

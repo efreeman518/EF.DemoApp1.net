@@ -5,6 +5,11 @@ namespace Package.Infrastructure.Common;
 
 public static class EncryptionUtility
 {
+    /// <summary>
+    /// Use for hashing, not for encryption
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static string CreateMD5Hash(string input)
     {
         // Step 1, calculate MD5 hash from input

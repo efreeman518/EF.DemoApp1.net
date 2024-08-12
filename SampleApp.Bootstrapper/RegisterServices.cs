@@ -1,8 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
-using Application.Contracts.Model;
 using Application.Contracts.Services;
 using Application.Services;
-using Application.Services.Validators;
 using Azure;
 using Azure.Identity;
 using CorrelationId.Abstractions;
@@ -22,9 +20,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
-using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Polly;
@@ -60,9 +58,6 @@ public static class IServiceCollectionExtensions
     {
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
-
-        services.AddScoped<IValidationHelper, ValidationHelper>();
-        services.AddScoped<IValidator<TodoItemDto>, TodoItemDtoValidator>();
 
         return services;
     }

@@ -4,19 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace Package.Infrastructure.AspNetCore;
 
 /// <summary>
-/// Add functionality to the host
+/// Build a ProblemDetails response
 /// </summary>
 public static class ProblemDetailsHelper
 {
     /// <summary>
     /// Build a ProblemDetails response; unhandled exceptions will be handled by the DefaultExceptionHandler, 
     /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method can be used to build a TypedResult with ProblemDetails response
+    /// this method returns a TypedResult with ProblemDetails response
     /// </summary>
     /// <param name="title"></param>
     /// <param name="message"></param>
     /// <param name="exception"></param>
     /// <param name="traceId"></param>
+    /// <param name="includeStackTrace"></param>
     /// <returns></returns>
     public static IResult BuildProblemDetailsResponse(string? title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false)
     {

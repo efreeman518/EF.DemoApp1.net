@@ -4,7 +4,7 @@ using BenchmarkDotNet.Order;
 using Domain.Shared.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.Common;
+using Package.Infrastructure.AspNetCore;
 using Test.Support;
 
 namespace Test.Benchmarks;
@@ -14,10 +14,25 @@ namespace Test.Benchmarks;
 [RankColumn]
 public class ValidatorBenchmarks : DbIntegrationTestBase
 {
-    private IValidationHelper _validationHelper = null!;
+    private IValidatorDiscovery _validationHelper = null!;
 
     //[Params(5, 10)]
     //public int NameLength { get; set; }
+
+    [Benchmark]
+    public FluentValidation.Results.ValidationResult? TodoItemValidate()
+    {
+        var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
+        try
+        {
+            return _validationHelper.Validate(todoItemDto);
+        }
+        catch (Exception)
+        {
+            //ignore for benchmark test
+            return null;
+        }
+    }
 
     [Benchmark]
     public async Task<FluentValidation.Results.ValidationResult?> TodoItemValidateAsync()
@@ -66,7 +81,7 @@ public class ValidatorBenchmarks : DbIntegrationTestBase
     public void GlobalSetup()
     {
         ConfigureTestInstanceAsync(nameof(ValidatorBenchmarks)).GetAwaiter().GetResult();
-        _validationHelper = ServiceScope.ServiceProvider.GetRequiredService<IValidationHelper>();
+        _validationHelper = ServiceScope.ServiceProvider.GetRequiredService<IValidatorDiscovery>();
     }
 
     [GlobalCleanup]

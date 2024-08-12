@@ -1,6 +1,8 @@
-﻿using Asp.Versioning;
+﻿using Application.Contracts.Model;
+using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using CorrelationId.DependencyInjection;
+using FluentValidation;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +12,7 @@ using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
 using SampleApp.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
+using SampleApp.Support.Validators;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SampleApp.Api;
@@ -122,6 +125,10 @@ internal static class IServiceCollectionExtensions
 
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
+
+        //if needed
+        //services.AddScoped<IValidatorDiscovery, ValidatorDiscovery>();
+        services.AddScoped<IValidator<TodoItemDto>, TodoItemDtoValidator>();
 
         services.AddControllers();
 

@@ -48,6 +48,7 @@
     <ProjectReference Include="..\Package\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
     <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />
+    <ProjectReference Include="..\SampleApp.Support\SampleApp.Support.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +58,10 @@
     <Using Include="System.Net" />
     <Using Include="System.Text" />
     <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Filters\" />
   </ItemGroup>
 
 </Project>

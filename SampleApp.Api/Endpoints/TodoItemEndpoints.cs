@@ -2,6 +2,7 @@
 using Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.AspNetCore.Filters;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Endpoints;
@@ -16,13 +17,15 @@ public static class TodoItemEndpoints
         _env = app.Environment;
 
         //auth
-        //openapidocs
-        //version
+        //openapidocs replace swagger
+        //api versioning
+        //hybridcache
+        //validation https://www.youtube.com/watch?v=Kt9TiXrwIp4
 
         var group = app.MapGroup(_apiRoute); //.RequireAuthorization("policy1", "policy2");
         group.MapGet("/", GetPage);
         group.MapGet("/{id:guid}", GetById);
-        group.MapPost("/", Create);
+        group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TodoItemDto>>();
         group.MapPut("/{id:guid}", Update);
         group.MapDelete("/{id:guid}", Delete);
     }
@@ -52,7 +55,7 @@ public static class TodoItemEndpoints
 
     private static async Task<IResult> Update(ITodoService todoService, Guid id, [FromBody] TodoItemDto todoItem)
     {
-        if (todoItem.Id != Guid.Empty && todoItem.Id != id)
+        if (todoItem.Id != null && todoItem.Id != id)
         {
             return TypedResults.BadRequest($"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
         }
@@ -63,7 +66,7 @@ public static class TodoItemEndpoints
             err => TypedResults.BadRequest(err.Message));
     }
 
-    private static async Task<IResult> Delete(ITodoService todoService, Guid id) 
+    private static async Task<IResult> Delete(ITodoService todoService, Guid id)
     {
         await todoService.DeleteItemAsync(id);
         return Results.NoContent();

@@ -4,7 +4,6 @@ using Application.Services.Logging;
 using LanguageExt;
 using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
-using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
@@ -13,7 +12,7 @@ using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace Application.Services;
 
-public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServiceSettings> settings, IValidationHelper validationHelper,
+public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServiceSettings> settings,
     ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
@@ -48,11 +47,10 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
-        //dto - FluentValidation.ValidationResult
-        var fvResult = await validationHelper.ValidateAsync(dto, cancellationToken);
-        if (!fvResult.IsValid)
+        //check for name existing
+        if (await repoQuery.ExistsAsync<TodoItem>(x => x.Name == dto.Name))
         {
-            return new Result<TodoItemDto>(new ValidationException(fvResult.ToDictionary()));
+            return new Result<TodoItemDto>(new ValidationException($"{AppConstants.ERROR_NAME_EXISTS}: {dto.Name}"));
         }
 
         //map app -> domain
@@ -65,6 +63,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
 
+        //create
         repoTrxn.Create(ref todo);
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
 
@@ -94,11 +93,10 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
-        //dto - FluentValidation.ValidationResult
-        var valResult = await validationHelper.ValidateAsync(dto, cancellationToken);
-        if (!valResult.IsValid)
+        //check for name change to existing
+        if (await repoQuery.ExistsAsync<TodoItem>(x => x.Name == dto.Name && x.Id != dto.Id))
         {
-            return new Result<TodoItemDto>(new ValidationException(valResult.Errors.Select(e => e.ErrorMessage).ToList()));
+            return new Result<TodoItemDto>(new ValidationException($"{AppConstants.ERROR_NAME_EXISTS}: {dto.Name}"));
         }
 
         //retrieve existing
