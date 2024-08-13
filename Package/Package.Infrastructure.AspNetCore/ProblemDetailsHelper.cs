@@ -18,13 +18,15 @@ public static class ProblemDetailsHelper
     /// <param name="exception"></param>
     /// <param name="traceId"></param>
     /// <param name="includeStackTrace"></param>
+    /// <param name="statusCodeOverride"></param>
     /// <returns></returns>
-    public static IResult BuildProblemDetailsResponse(string? title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false)
+    public static IResult BuildProblemDetailsResponse(string title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
     {
         //map exception to status code
-        var statusCode = exception?.GetType().Name switch
+        var statusCode = statusCodeOverride ?? exception?.GetType().Name switch
         {
             "ValidationException" => StatusCodes.Status400BadRequest,
+            "InvalidOperationException" => StatusCodes.Status400BadRequest,
             "NotFoundException" => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };
@@ -32,7 +34,7 @@ public static class ProblemDetailsHelper
         var problemDetails = new ProblemDetails
         {
             Type = exception?.GetType().Name ?? "Error",
-            Title = title ?? "Error occurred",
+            Title = title,
             Detail = message ?? exception?.Message,
             Status = statusCode
         };

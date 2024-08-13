@@ -50,7 +50,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //check for name existing
         if (await repoQuery.ExistsAsync<TodoItem>(x => x.Name == dto.Name))
         {
-            return new Result<TodoItemDto>(new ValidationException($"{AppConstants.ERROR_NAME_EXISTS}: {dto.Name}"));
+            return new Result<TodoItemDto>(new InvalidOperationException(string.Format(AppConstants.ERROR_NAME_EXISTS, dto.Name)));
         }
 
         //map app -> domain
