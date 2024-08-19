@@ -1,4 +1,5 @@
-﻿using CorrelationId;
+﻿using Asp.Versioning.Builder;
+using CorrelationId;
 using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
@@ -47,7 +48,7 @@ public static partial class WebApplicationBuilderExtensions
 
         //swagger before auth so it will render without auth
         //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/openapi?view=aspnetcore-8.0
-        if (config.GetValue("SwaggerSettings:Enable", false))
+        if (config.GetValue("OpenApiSettings:Enable", false))
         {
             //for swagger - map gettoken endpoint 
             var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
@@ -104,7 +105,19 @@ public static partial class WebApplicationBuilderExtensions
         app.MapHealthChecks();
         app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
-        app.MapTodoItemEndpoints();
+
+        //api versioning
+        var apiVersionSet = app.NewApiVersionSet()
+            .HasApiVersion(new Asp.Versioning.ApiVersion(1, 0))
+            .HasApiVersion(new Asp.Versioning.ApiVersion(1, 1))
+            .ReportApiVersions()
+            .Build();
+
+        //endpoints - todoitems
+        var group = app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
+            .WithApiVersionSet(apiVersionSet);
+            //.RequireAuthorization("policy1", "policy2");
+        group.MapTodoItemEndpoints(!app.Environment.IsProduction());
 
         return app;
     }

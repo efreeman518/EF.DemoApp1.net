@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
+    <ProjectReference Include="..\SampleApp.Support\SampleApp.Support.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
 

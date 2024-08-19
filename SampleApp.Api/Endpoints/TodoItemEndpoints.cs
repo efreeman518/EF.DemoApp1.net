@@ -8,28 +8,38 @@ namespace SampleApp.Api.Endpoints;
 
 public static class TodoItemEndpoints
 {
-    private const string _apiRoute = "api/todoitems";
-    private static IWebHostEnvironment? _env;
+    private static bool _problemDetailsIncludeStackTrace;
 
-    public static void MapTodoItemEndpoints(this WebApplication app)
+    public static void MapTodoItemEndpoints(this IEndpointRouteBuilder group, bool problemDetailsIncludeStackTrace)
     {
-        _env = app.Environment;
+        _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
         //auth
         //openapidocs replace swagger
         //api versioning
         //hybridcache
-        //validation https://www.youtube.com/watch?v=Kt9TiXrwIp4
 
-        var group = app.MapGroup(_apiRoute); //.RequireAuthorization("policy1", "policy2");
-        group.MapGet("/", GetPage);
-        group.MapGet("/{id:guid}", GetById);
-        group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TodoItemDto>>();
-        group.MapPut("/{id:guid}", Update).AddEndpointFilter<ValidationFilter<TodoItemDto>>();
-        group.MapDelete("/{id:guid}", Delete);
+        group.MapGet("/", GetPage1).MapToApiVersion(1.0)
+            .Produces<List<TodoItemDto>>().ProducesProblem(500);
+        group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)
+            .Produces<List<TodoItemDto>>().ProducesProblem(500);
+        group.MapGet("/{id:guid}", GetById)
+            .Produces<TodoItemDto>().ProducesProblem(404).ProducesProblem(500);
+        group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
+            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(500);
+        group.MapPut("/{id:guid}", Update).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
+            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(500);
+        group.MapDelete("/{id:guid}", Delete)
+            .Produces(204).ProducesValidationProblem().ProducesProblem(500); 
     }
 
-    private static async Task<IResult> GetPage(ITodoService todoService, int pageSize = 10, int pageIndex = 1)
+    private static async Task<IResult> GetPage1(ITodoService todoService, int pageSize = 10, int pageIndex = 1)
+    {
+        var items = await todoService.GetPageAsync(pageSize, pageIndex);
+        return TypedResults.Ok(items);
+    }
+
+    private static async Task<IResult> GetPage1_1(ITodoService todoService, int pageSize = 20, int pageIndex = 1)
     {
         var items = await todoService.GetPageAsync(pageSize, pageIndex);
         return TypedResults.Ok(items);
@@ -48,7 +58,7 @@ public static class TodoItemEndpoints
         var result = await todoService.CreateItemAsync(todoItemDto);
         return result.Match(
             dto => TypedResults.Created(httpContext.Request.Path, dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _env?.IsDevelopment() ?? false)
+            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace)
             );
     }
 
@@ -63,7 +73,7 @@ public static class TodoItemEndpoints
         var result = await todoService.UpdateItemAsync(todoItem);
         return result.Match(
             dto => dto is null ? Results.NotFound(id) : TypedResults.Ok(dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _env?.IsDevelopment() ?? false));
+            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace));
     }
 
     private static async Task<IResult> Delete(ITodoService todoService, Guid id)

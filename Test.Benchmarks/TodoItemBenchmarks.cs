@@ -22,7 +22,7 @@ public class TodoItemBenchmarks
     }
 
     [Benchmark]
-    public ValidationResult TodoItemValidation()
+    public ValidationResult MethodTodoItemValidation()
     {
         return _todoItemDto.Validate();
     }

@@ -24,19 +24,19 @@ public class RulesBenchmarks
     }
 
     [Benchmark]
-    public bool TodoNameLengthRule()
+    public bool RuleTodoNameLengthRule()
     {
         return new TodoNameLengthRule(NameLength).IsSatisfiedBy(_todoItemDto);
     }
 
     [Benchmark]
-    public bool TodoNameRegexRule()
+    public bool RuleTodoNameRegexRule()
     {
         return new TodoNameRegexRule(_regexMatch).IsSatisfiedBy(_todoItemDto);
     }
 
     [Benchmark]
-    public bool CompositeRule()
+    public bool RuleCompositeRule()
     {
         return new TodoCompositeRule(NameLength, _regexMatch).IsSatisfiedBy(_todoItemDto);
     }

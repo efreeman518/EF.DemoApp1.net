@@ -41,10 +41,10 @@ internal static class IServiceCollectionExtensions
         //api versioning
         var apiVersioningBulder = services.AddApiVersioning(options =>
         {
-            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.DefaultApiVersion = new ApiVersion(1, 1);
             options.AssumeDefaultVersionWhenUnspecified = true;
-            options.ReportApiVersions = true;
-            options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method
+            options.ReportApiVersions = true; //response header with supported versions
+            options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         });
 
         //header propagation - implement here since integration testing breaks when there is no existing http request, so no headers to propagate
@@ -146,9 +146,9 @@ internal static class IServiceCollectionExtensions
 
         services.AddRouting(options => options.LowercaseUrls = true);
 
-        if (config.GetValue("SwaggerSettings:Enable", false))
+        if (config.GetValue("OpenApiSettings:Enable", false))
         {
-            services.AddEndpointsApiExplorer();
+            //services.AddEndpointsApiExplorer(); 
 
             apiVersioningBulder.AddApiExplorer(o =>
             {
@@ -166,7 +166,7 @@ internal static class IServiceCollectionExtensions
             services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
             //services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
-            var xmlCommentsFileName = config.GetValue<string>("SwaggerSettings:XmlCommentsFileName");
+            var xmlCommentsFileName = config.GetValue<string>("OpenApiSettings:XmlCommentsFileName");
             if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
 
