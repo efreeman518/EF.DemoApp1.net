@@ -99,7 +99,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseHeaderPropagation();
 
         //any other middleware
-        app.UseSomeMiddleware();
+        //app.UseSomeMiddleware();
 
         //endpoints
         app.MapHealthChecks();

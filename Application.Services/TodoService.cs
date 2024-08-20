@@ -71,7 +71,8 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         taskQueue.QueueBackgroundWorkItem(async cancellationToken =>
         {
             //await some work
-            await Task.Delay(200, cancellationToken);
+            //await Task.Delay(200, cancellationToken);
+            await Task.CompletedTask;
             logger.InfoLog($"Some non-scoped work done");
         });
 
@@ -79,7 +80,8 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         taskQueue.QueueScopedBackgroundWorkItem<ITodoRepositoryTrxn>(async (scopedRepositoryTrxn, cancellationToken) =>
         {
             //await some work
-            await Task.Delay(200, cancellationToken);
+            //await Task.Delay(200, cancellationToken);
+            await Task.CompletedTask;
             logger.InfoLog("Some scoped work done");
         }, cancellationToken: cancellationToken);
 

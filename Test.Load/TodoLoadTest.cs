@@ -15,7 +15,7 @@ internal static class TodoLoadTest
     {
         using var httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
-        string url = $"{baseUrl}/api/v1.1/TodoItems";
+        string url = $"{baseUrl}/api1/v1.1/TodoItems";
 
         var scenario = Scenario.Create("todo-crud", async context =>
             {
@@ -60,14 +60,18 @@ internal static class TodoLoadTest
             //.WithLoadSimulations(Simulation.KeepConstant(copies: 1, during: TimeSpan.FromSeconds(10)));
 
             //normal load
-            .WithWarmUpDuration(TimeSpan.FromSeconds(20))
+            .WithWarmUpDuration(TimeSpan.FromSeconds(30))
             .WithLoadSimulations(
-                Simulation.RampingInject(rate: 5,
+
+                //first 30 seconds - ramp up from 0 to 20 VUs
+                Simulation.RampingInject(rate: 20,
                              interval: TimeSpan.FromSeconds(1),
                              during: TimeSpan.FromSeconds(30)),
-                Simulation.Inject(rate: 10,
+
+                //next 60 seconds - 20 VUs are injected every 1 second, for 60 seconds
+                Simulation.Inject(rate: 20,
                       interval: TimeSpan.FromSeconds(1),
-                      during: TimeSpan.FromSeconds(30))
+                      during: TimeSpan.FromSeconds(60))
             );
 
 
