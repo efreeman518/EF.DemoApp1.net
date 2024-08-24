@@ -7,8 +7,6 @@ namespace Functions;
 
 public class FunctionTimerTrigger(ILogger<FunctionTimerTrigger> logger, IConfiguration configuration, IOptions<Settings1> settings)
 {
-    //private readonly ILogger<FunctionTimerTrigger> _logger = loggerFactory.CreateLogger<FunctionTimerTrigger>();
-
     [Function(nameof(FunctionTimerTrigger))]
     [ExponentialBackoffRetry(5, "00:00:05", "00:15:00")]
     public async Task Run([TimerTrigger("%TimerCron%")] TimerInfo timerInfo)

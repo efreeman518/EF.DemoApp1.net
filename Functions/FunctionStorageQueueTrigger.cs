@@ -12,8 +12,6 @@ namespace Functions;
 public class FunctionStorageQueueTrigger(ILogger<FunctionStorageQueueTrigger> logger, IConfiguration configuration,
     IOptions<Settings1> settings)
 {
-    //private readonly ILogger<FunctionStorageQueueTrigger> _logger = loggerFactory.CreateLogger<FunctionStorageQueueTrigger>();
-
     [Function(nameof(FunctionStorageQueueTrigger))]
     public async Task Run([QueueTrigger("%StorageQueueName%", Connection = "StorageQueue1")] string queueItem)
     {

@@ -4,7 +4,7 @@ using Package.Infrastructure.Test.Integration.Messaging;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("Event Grid Topic setup required.")]
+//[Ignore("Event Grid Topic setup required.")]
 
 [TestClass]
 public class EventGridPublisherTests : IntegrationTestBase

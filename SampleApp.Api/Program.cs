@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.Common;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;
 
@@ -10,9 +11,9 @@ using SampleApp.Bootstrapper;
 var builder = WebApplication.CreateBuilder(args);
 var appName = builder.Configuration.GetValue<string>("AppName");
 
-//logging for startup
+//startup logger
 ILogger<Program> loggerStartup;
-using var loggerFactory = LoggerFactory.Create(logBuilder =>
+var loggerFactory = LoggerFactory.Create(logBuilder =>
 {
     logBuilder.SetMinimumLevel(LogLevel.Information);
     logBuilder.AddConsole();
@@ -22,10 +23,11 @@ using var loggerFactory = LoggerFactory.Create(logBuilder =>
 });
 loggerStartup = loggerFactory.CreateLogger<Program>();
 loggerStartup.LogInformation("{AppName} - Startup.", appName);
+StaticLogger.SetLoggerFactory(loggerFactory); //logging in static classes
 
 try
 {
-    //logging
+    //app logging
     loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
     builder.Logging
         .ClearProviders()

@@ -1,12 +1,10 @@
-﻿using Asp.Versioning.Builder;
-using CorrelationId;
+﻿using CorrelationId;
 using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
 using SampleApp.Api.Endpoints;
-using SampleApp.Api.Middleware;
 using SampleApp.Grpc;
 
 namespace SampleApp.Api;
@@ -115,9 +113,18 @@ public static partial class WebApplicationBuilderExtensions
 
         //endpoints - todoitems
         var group = app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
-            .WithApiVersionSet(apiVersionSet);
-            //.RequireAuthorization("policy1", "policy2");
+            .WithApiVersionSet(apiVersionSet); //.RequireAuthorization("policy1", "policy2");
         group.MapTodoItemEndpoints(!app.Environment.IsProduction());
+
+        //endpoints - event grid
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/eventgrid")
+            .WithApiVersionSet(apiVersionSet); //.RequireAuthorization("policy1", "policy2");
+        group.MapEventGridEndpoints();
+
+        //endpoints - external
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/external")
+            .WithApiVersionSet(apiVersionSet);  //.RequireAuthorization("policy1", "policy2");
+        group.MapExternalEndpoints(!app.Environment.IsProduction());
 
         return app;
     }

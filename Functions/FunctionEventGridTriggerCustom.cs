@@ -27,8 +27,6 @@ namespace Functions;
 public class FunctionEventGridTriggerCustom(ILogger<FunctionEventGridTriggerCustom> logger, IConfiguration configuration,
     IOptions<Settings1> settings)
 {
-    //private readonly ILogger<FunctionEventGridTriggerCustom> _logger = loggerFactory.CreateLogger<FunctionEventGridTriggerCustom>();
-
     [Function(nameof(FunctionEventGridTriggerCustom))]
     public async Task Run([EventGridTrigger] EventGridEvent egEvent)
     {

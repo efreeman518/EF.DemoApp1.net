@@ -124,6 +124,9 @@ public static partial class LoggerMessageDefinitionSG
     [LoggerMessage(LoggerEventConstants.InfoDefault + 1, LogLevel.Information, "{message} {param1} {param2} {param3}")]
     public static partial void InfoLogExt(this ILogger logger, string message, string? param1 = null, string? param2 = null, string? param3 = null);
 
+    [LoggerMessage(LoggerEventConstants.EventDefault, LogLevel.Information, "{eventType} {eventDetail}")]
+    public static partial void LogEvent(this ILogger logger, string? eventType, string? eventDetail);
+
     [LoggerMessage(LoggerEventConstants.ErrorDefault, LogLevel.Error, "{message}", SkipEnabledCheck = true)]
     public static partial void ErrorLog(this ILogger logger, string message, Exception exception);
 
