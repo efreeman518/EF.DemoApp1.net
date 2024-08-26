@@ -63,13 +63,13 @@ internal static class TodoLoadTest
             .WithWarmUpDuration(TimeSpan.FromSeconds(30))
             .WithLoadSimulations(
 
-                //first 30 seconds - ramp up from 0 to 20 VUs
-                Simulation.RampingInject(rate: 20,
+                //first 30 seconds - ramp up from 0 to 10 VUs
+                Simulation.RampingInject(rate: 10,
                              interval: TimeSpan.FromSeconds(1),
                              during: TimeSpan.FromSeconds(30)),
 
-                //next 60 seconds - 20 VUs are injected every 1 second, for 60 seconds
-                Simulation.Inject(rate: 20,
+                //next 60 seconds - 10 VUs are injected every 1 second, for 60 seconds
+                Simulation.Inject(rate: 10,
                       interval: TimeSpan.FromSeconds(1),
                       during: TimeSpan.FromSeconds(60))
             );

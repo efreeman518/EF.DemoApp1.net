@@ -60,7 +60,7 @@ internal static class TodoLoadTestExternal
             //.WithLoadSimulations(Simulation.KeepConstant(copies: 1, during: TimeSpan.FromSeconds(10)));
 
             //normal load
-            .WithWarmUpDuration(TimeSpan.FromSeconds(20))
+            .WithWarmUpDuration(TimeSpan.FromSeconds(30))
             .WithLoadSimulations(
                 Simulation.RampingInject(rate: 5,
                              interval: TimeSpan.FromSeconds(1),
