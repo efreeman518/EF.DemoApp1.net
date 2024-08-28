@@ -35,16 +35,13 @@ public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : Web
                 configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings-test.json"));
                 config = configuration.Build();//get config for use here
             })
-            .ConfigureTestServices(services =>
+            .ConfigureServices(services =>
             {
                 //remove unneeded services
                 services.RemoveAll<IHostedService>();
 
-                var sp = services.BuildServiceProvider();
-                var logger = sp.GetRequiredService<ILogger<CustomApiFactory<TProgram>>>();
-
                 //swap the database in Services collection
-                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn>(logger, services, dbConnectionString);
+                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, dbConnectionString);
 
             });
     }

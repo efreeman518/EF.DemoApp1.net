@@ -14,7 +14,7 @@ using Test.Support;
 namespace Test.Endpoints.Controller;
 
 [TestClass]
-public class TodoControllerTests : EndpointTestBase
+public class TodoEndpointsTests : EndpointTestBase
 {
     private static readonly string? DBSnapshotName = TestConfigSection.GetValue<string?>("DBSnapshotName", null);
 
@@ -35,7 +35,7 @@ public class TodoControllerTests : EndpointTestBase
         //existing sql db can reset db using snapshot created in ClassInitialize
         await ResetDatabaseAsync(respawn, DBSnapshotName, seedPaths, seedFactories);
 
-        string urlBase = "api/v1.1/todoitems";
+        string urlBase = "api1/v1.1/todoitems"; //api1 for min api endpoints; api for controllers
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
@@ -64,7 +64,7 @@ public class TodoControllerTests : EndpointTestBase
 
         //DELETE
         (var httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
-        Assert.AreEqual(HttpStatusCode.OK, httpResponse.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NoContent, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
         (httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);

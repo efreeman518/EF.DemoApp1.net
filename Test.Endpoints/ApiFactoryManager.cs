@@ -11,8 +11,8 @@ public static class ApiFactoryManager
 {
     private static readonly ConcurrentDictionary<string, IDisposable> _factories = new();
 
-    public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "http://localhost",
-        params DelegatingHandler[] handlers)
+    public static HttpClient GetClient<TEntryPoint>(string? factoryKey = null, bool allowAutoRedirect = true, string baseAddress = "https://localhost:443",
+        string? dbConnectionString = null, params DelegatingHandler[] handlers)
         where TEntryPoint : class
     {
         var uri = new Uri(baseAddress);
@@ -22,7 +22,7 @@ public static class ApiFactoryManager
             BaseAddress = uri
         };
 
-        var factory = GetFactory<TEntryPoint>(factoryKey); //must live for duration of the client
+        var factory = GetFactory<TEntryPoint>(factoryKey, dbConnectionString); //must live for duration of the client
         HttpClient client = (handlers.Length > 0)
             ? factory.CreateDefaultClient(uri, handlers)
             : factory.CreateClient(options);

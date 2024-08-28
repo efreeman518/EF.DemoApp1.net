@@ -34,13 +34,13 @@ public abstract class EndpointTestBase
     protected static readonly IAppCache _appcache = new CachingService();
 
     //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
-    protected readonly static HttpClient HttpClientApi = GetHttpClient(); // ApiFactoryManager.GetClient<Program>(_testContextName);
+    protected static HttpClient HttpClientApi = null!;
 
-    protected static HttpClient GetHttpClient()
+    protected static HttpClient GetHttpClient(string dbConnectionString)
     {
         var scopes = Config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
         var handler = new SampleRestApiAuthMessageHandler(scopes!);
-        return ApiFactoryManager.GetClient<Program>(_testContextName, handlers: handler);
+        return ApiFactoryManager.GetClient<Program>(_testContextName, dbConnectionString: dbConnectionString, handlers: handler);
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public abstract class EndpointTestBase
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
         //db.Database.Migrate(); //needs AKVCMKURL env var set
         //cannot run parallel tests - this throws
-        _dbContext.Database.EnsureCreated(); //does not use migrations; uses DbContext to create tables
+        await _dbContext.Database.EnsureCreatedAsync(cancellationToken); //does not use migrations; uses DbContext to create tables
 
         if (!_dbContext.Database.IsInMemory())
         {
@@ -78,6 +78,9 @@ public abstract class EndpointTestBase
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }
+
+        //create the http client for the test to hit endpoints; this creates the WAF, in memory api, replaces services, so need the db connection string
+        HttpClientApi = GetHttpClient(_dbConnectionString);
     }
 
     /// <summary>
