@@ -88,10 +88,18 @@ public abstract class DbIntegrationTestBase
 
         //database - swap registered for test db
         DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, _dbConnectionString);
+
+        //scoped DbContext
+        //var scope = services.BuildServiceProvider().CreateScope();
+        //_dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContextTrxn>();
+
+        //singleton DbContext
         _dbContext = services.BuildServiceProvider().GetRequiredService<TodoDbContextTrxn>();
+
+
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
         //db.Database.Migrate(); //needs AKVCMKURL env var set
-        await _dbContext.Database.EnsureCreatedAsync(); //does not use migrations; uses DbContext to create tables
+        await _dbContext.Database.EnsureCreatedAsync(cancellationToken); //does not use migrations; uses DbContext to create tables
 
         if (!_dbContext.Database.IsInMemory())
         {

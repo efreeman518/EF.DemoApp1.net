@@ -11,7 +11,7 @@ using Test.Support;
 //all will try to create the DB if it doesn't exist
 //[assembly: DoNotParallelize]
 
-namespace Test.Endpoints.Controller;
+namespace Test.Endpoints.Endpoints;
 
 [TestClass]
 public class TodoEndpointsTests : EndpointTestBase
@@ -35,6 +35,8 @@ public class TodoEndpointsTests : EndpointTestBase
         //existing sql db can reset db using snapshot created in ClassInitialize
         await ResetDatabaseAsync(respawn, DBSnapshotName, seedPaths, seedFactories);
 
+        var httpClient = await GetHttpClient();
+
         string urlBase = "api1/v1.1/todoitems"; //api1 for min api endpoints; api for controllers
         string name = $"Todo-a-{Guid.NewGuid()}";
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
@@ -42,7 +44,7 @@ public class TodoEndpointsTests : EndpointTestBase
         //act
 
         //POST create (insert)
-        (var _, var parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo);
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Post, urlBase, todo, ensureSuccessStatusCode: false);
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
@@ -50,24 +52,24 @@ public class TodoEndpointsTests : EndpointTestBase
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve
-        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(id, parsedResponse?.Id);
 
         //PUT update
         var todo2 = todo with { Name = $"Update {name}" };
-        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
+        (_, parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Put, $"{urlBase}/{id}", todo2);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //GET retrieve
-        (_, parsedResponse) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
+        (_, parsedResponse) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null);
         Assert.AreEqual(todo2.Name, parsedResponse?.Name);
 
         //DELETE
-        (var httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
+        (var httpResponse, _) = await httpClient.HttpRequestAndResponseAsync<object>(HttpMethod.Delete, $"{urlBase}/{id}", null);
         Assert.AreEqual(HttpStatusCode.NoContent, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
+        (httpResponse, _) = await httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
     }
 

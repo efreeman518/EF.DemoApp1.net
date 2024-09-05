@@ -15,8 +15,10 @@ public class BasicEndpointsTests : EndpointTestBase
     [DataRow("index.html", HttpStatusCode.OK, "text/html")]
     public async Task Get_BasicEndpoints_pass(string url, HttpStatusCode expectedStatusCode, string contentType)
     {
+        var httpClient = await GetHttpClient();
+
         // Act
-        (HttpResponseMessage httpResponse, _) = await HttpClientApi.HttpRequestAndResponseAsync<IHtmlDocument>(HttpMethod.Get, url, null);
+        (HttpResponseMessage httpResponse, _) = await httpClient.HttpRequestAndResponseAsync<IHtmlDocument>(HttpMethod.Get, url, null);
 
         // Assert
         httpResponse.EnsureSuccessStatusCode(); // Status Code 200-299

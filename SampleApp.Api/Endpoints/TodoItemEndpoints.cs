@@ -50,7 +50,7 @@ public static class TodoItemEndpoints
         var option = await todoService.GetItemAsync(id);
         return option.Match(
             Some: dto => TypedResults.Ok(dto),
-            None: () => ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id.ToString()}' not found.", statusCodeOverride: StatusCodes.Status404NotFound));
+            None: () => ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound));
     }
 
     private static async Task<IResult> Create(HttpContext httpContext, ITodoService todoService, TodoItemDto todoItemDto)

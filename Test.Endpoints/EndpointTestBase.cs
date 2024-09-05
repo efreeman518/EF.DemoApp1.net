@@ -9,6 +9,7 @@ using Package.Infrastructure.Data.Contracts;
 using Respawn;
 using Respawn.Graph;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using Test.Support;
 using Testcontainers.MsSql;
 
@@ -34,24 +35,17 @@ public abstract class EndpointTestBase
     protected static readonly IAppCache _appcache = new CachingService();
 
     //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
-    protected static HttpClient HttpClientApi = null!;
+    //protected static HttpClient HttpClientApi = null!;
 
-    protected static HttpClient GetHttpClient(string dbConnectionString)
+    protected static async Task<HttpClient> GetHttpClient(bool applyBearerAuthHeader = false)
     {
         var scopes = Config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
-        var handler = new SampleRestApiAuthMessageHandler(scopes!);
-        return ApiFactoryManager.GetClient<Program>(_testContextName, dbConnectionString: dbConnectionString, handlers: handler);
-    }
 
-    /// <summary>
-    /// Apply auth if api is secured; not needed if httpclient has an auth handler already
-    /// </summary>
-    /// <returns></returns>
-    protected static async Task ApplyBearerAuthHeaderAsync()
-    {
-        var tokenProvider = new AzureDefaultCredTokenProvider(_appcache);
-        var token = await tokenProvider.GetAccessTokenAsync(Config.GetValue<string>("SampleApiRestClientSettings:ResourceId")!);
-        HttpClientApi.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        //handler takes care of auth
+        var handler = new SampleRestApiAuthMessageHandler(scopes!);
+        //var tokenResourceId = Config.GetValue<string?>("SampleApiRestClientSettings:ResourceId");
+        var httpClient = await ApiFactoryManager.GetClientAsync<Program>(_testContextName, dbConnectionString: _dbConnectionString, handlers: handler);
+        return httpClient;
     }
 
     public static async Task ConfigureTestInstanceAsync(string testContextName, CancellationToken cancellationToken = default)
@@ -80,7 +74,7 @@ public abstract class EndpointTestBase
         }
 
         //create the http client for the test to hit endpoints; this creates the WAF, in memory api, replaces services, so need the db connection string
-        HttpClientApi = GetHttpClient(_dbConnectionString);
+        //HttpClientApi = GetHttpClient(_dbConnectionString);
     }
 
     /// <summary>
