@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Mappers;
 using Application.Services.Logging;
+using EntityFramework.Exceptions.Common;
 using LanguageExt;
 using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
@@ -47,12 +48,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         //structured logging
         logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
 
-        //check for name existing
-        if (await repoQuery.ExistsAsync<TodoItem>(x => x.Name == dto.Name))
-        {
-            return new Result<TodoItemDto>(new InvalidOperationException(string.Format(AppConstants.ERROR_NAME_EXISTS, dto.Name)));
-        }
-
         //map app -> domain
         var todo = dto.ToEntity();
 
@@ -63,9 +58,16 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
 
-        //create
+        //create; catch unique constraint exception
         repoTrxn.Create(ref todo);
-        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
+        try
+        {
+            await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
+        }
+        catch (UniqueConstraintException ex)
+        {
+            return new Result<TodoItemDto>(ex); //name exists
+        }
 
         //queue some non-scoped work - fire and forget (notification)
         taskQueue.QueueBackgroundWorkItem(async cancellationToken =>
@@ -95,12 +97,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     {
         logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
 
-        //check for name change to existing
-        if (await repoQuery.ExistsAsync<TodoItem>(x => x.Name == dto.Name && x.Id != dto.Id))
-        {
-            return new Result<TodoItemDto>(new ValidationException($"{AppConstants.ERROR_NAME_EXISTS}: {dto.Name}"));
-        }
-
         //retrieve existing
         var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id, cancellationToken: cancellationToken);
         if (dbTodo == null) return new Result<TodoItemDto>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
@@ -119,7 +115,14 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
 
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
-        await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
+        try
+        {
+            await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
+        }
+        catch (UniqueConstraintException ex)
+        {
+            return new Result<TodoItemDto>(ex); //name exists on another record
+        }
 
         logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
 

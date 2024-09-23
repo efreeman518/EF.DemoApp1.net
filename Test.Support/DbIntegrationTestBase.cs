@@ -87,7 +87,8 @@ public abstract class DbIntegrationTestBase
         _logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
 
         //database - swap registered for test db
-        DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, _dbConnectionString);
+        string dbName = TestConfigSection.GetValue<string>("TestSettings:DBName") ?? "Test.Integration.TestDB";
+        DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, _dbConnectionString, dbName);
 
         //scoped DbContext
         //var scope = services.BuildServiceProvider().CreateScope();
@@ -95,7 +96,6 @@ public abstract class DbIntegrationTestBase
 
         //singleton DbContext
         _dbContext = services.BuildServiceProvider().GetRequiredService<TodoDbContextTrxn>();
-
 
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
         //db.Database.Migrate(); //needs AKVCMKURL env var set

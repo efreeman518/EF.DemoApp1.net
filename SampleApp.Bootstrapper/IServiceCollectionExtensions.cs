@@ -5,6 +5,7 @@ using Azure;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using CorrelationId.HttpClient;
+using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.RapidApi.WeatherApi;
@@ -38,7 +39,7 @@ namespace SampleApp.Bootstrapper;
 
 public static class IServiceCollectionExtensions
 {
-    //can only be registered once
+    //can only be registered once; web application factory can determine if it needs to register, otherwise it will throw an exception
     private static bool _keyStoreProviderRegistered = false;
 
     /// <summary>
@@ -144,11 +145,13 @@ public static class IServiceCollectionExtensions
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
             var inMemoryDatabaseRoot = new InMemoryDatabaseRoot();
 
-            services.AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<TodoDbContextTrxn>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
+            services//.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<TodoDbContextTrxn>((sp, opt) =>
+                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
 
-            services.AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<TodoDbContextQuery>((sp, opt) => opt.UseInternalServiceProvider(sp).UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
+            services//.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<TodoDbContextQuery>((sp, opt) =>
+                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
         }
         else
         {
@@ -164,6 +167,7 @@ public static class IServiceCollectionExtensions
                         //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
                         //sqlOptions.UseRelationalNulls(true);
                     })
+                    .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
                 );
 
             connectionString = config.GetConnectionString("TodoDbContextQuery");

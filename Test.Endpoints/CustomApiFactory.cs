@@ -46,9 +46,9 @@ public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : Web
                 //remove unneeded services
                 services.RemoveAll<IHostedService>();
 
-                //swap the database in Services collection
-                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, dbConnectionString);
-
+                //swap the api database to the test database in Services collection
+                string dbName = config.GetValue<string>("TestSettings:DBName") ?? "Test.Endpoints.TestDB";
+                DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, dbConnectionString, dbName);
             });
     }
 }

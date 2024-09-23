@@ -31,7 +31,7 @@ public class BasicEndpointsTests : EndpointTestBase
     {
         Console.Write($"Start {testContext.TestName}");
 
-        await ConfigureTestInstanceAsync(testContext.TestName!);        
+        await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 
     [ClassCleanup]

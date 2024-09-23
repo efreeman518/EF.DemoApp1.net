@@ -13,7 +13,7 @@ public abstract class ServiceBusSenderBase : IServiceBusSender
     private readonly ServiceBusSenderSettingsBase _settings;
     private readonly ServiceBusClient _sbClient;
     private readonly ConcurrentDictionary<string, ServiceBusSender> _sbSenders = new();
-    private static readonly object _lock = new();
+    private static readonly Lock _lock = new();
 
     protected ServiceBusSenderBase(ILogger<ServiceBusSenderBase> logger,
         IOptions<ServiceBusSenderSettingsBase> settings, IAzureClientFactory<ServiceBusClient> clientFactory)

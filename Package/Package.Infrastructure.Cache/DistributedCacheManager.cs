@@ -9,7 +9,7 @@ namespace Package.Infrastructure.Cache;
 /// </summary>
 /// <param name="requestContext">holds TenantId for cache key</param>
 /// <param name="distCache"></param>
-public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, DistributedCacheManagerOptions mOptions, IDistributedCache distCache)
+public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IDistributedCache distCache)
     : IDistributedCacheManager
 {
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -19,7 +19,6 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(factory);
-        key = CacheUtility.BuildCacheKey<T>(key, mOptions.TenantId);
         if (forceRefresh) await distCache.RemoveAsync(key, cancellationToken);
         logger.DebugLog($"GetOrAddAsync - Cache key: {key}, forceRefresh:{forceRefresh}.");
 
@@ -68,9 +67,7 @@ public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, Di
 
     public async Task RemoveAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        key = CacheUtility.BuildCacheKey<T>(key, mOptions.TenantId);
         logger.InfoLog($"RemoveAsync - Cache key: {key}.");
         await distCache.RemoveAsync(key, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
-
 }

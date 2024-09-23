@@ -11,7 +11,7 @@ public abstract class ServiceBusProcessorBase : IServiceBusReceiver
     private readonly ServiceBusProcessorSettingsBase _settings;
     private readonly ServiceBusClient _sbClient;
     private readonly ConcurrentDictionary<string, ServiceBusProcessor> _sbProcessors = new();
-    private static readonly object _lock = new();
+    private static readonly Lock _lock = new();
 
     protected ServiceBusProcessorBase(ILogger<ServiceBusProcessorBase> logger, IOptions<ServiceBusProcessorSettingsBase> settings,
         IAzureClientFactory<ServiceBusClient> clientFactory)

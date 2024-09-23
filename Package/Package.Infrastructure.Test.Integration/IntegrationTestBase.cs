@@ -168,13 +168,6 @@ public abstract class IntegrationTestBase
         }
 
         //distributed cache manager
-        services.AddScoped(provider =>
-        {
-            return new DistributedCacheManagerOptions
-            {
-                TenantId = "SomeTenantId"
-            };
-        });
         services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
 
         //IRequestContext - injected into repositories, cache managers, etc

@@ -1,5 +1,4 @@
-﻿using Docker.DotNet.Models;
-using LazyCache;
+﻿using LazyCache;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Package.Infrastructure.Auth.Tokens;
 using System.Collections.Concurrent;
@@ -31,7 +30,7 @@ public static class ApiFactoryManager
             ? factory.CreateDefaultClient(uri, handlers)
             : factory.CreateClient(options);
 
-        if(tokenResourceId != null)
+        if (tokenResourceId != null)
         {
             await httpClient.ApplyBearerAuthHeaderAsync(tokenResourceId);
         }

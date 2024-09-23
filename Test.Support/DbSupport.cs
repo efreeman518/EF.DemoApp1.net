@@ -3,17 +3,17 @@ using Domain.Model;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Extensions;
-using System.Data.Common;
 
 namespace Test.Support;
 
 public static class DbSupport
 {
-    //can only be registered once
+    //can only be registered once; web application factory may have already registered
     private static bool _keyStoreProviderRegistered = false;
 
     /// <summary>
@@ -25,7 +25,8 @@ public static class DbSupport
     /// <typeparam name="TQuery"></typeparam>
     /// <param name="services"></param>
     /// <param name="dbConnectionString"></param>
-    public static void ConfigureServicesTestDB<TTrxn, TQuery>(IServiceCollection services, string? dbConnectionString)
+    /// <param name="dbName">Used to name in-memory dbContext</param>
+    public static void ConfigureServicesTestDB<TTrxn, TQuery>(IServiceCollection services, string? dbConnectionString, string dbName = "TestDB")
         where TTrxn : DbContext
         where TQuery : DbContext
     {
@@ -35,36 +36,24 @@ public static class DbSupport
         {
             logger.InfoLog($"Swapping services DbContext to use test database source: {dbConnectionString}");
 
-            //NET9 - DOES NOT WORK; Service collection still returns InMemoryDbContext even after removal and adding with connection string
+            //seems DI is lazily creating services at the time of injection, so removing here is not effective,
+            //removing IDbContextOptionsConfiguration seems to help for in memory - otherwise both sql server and in-memory will be registered, which causes problems in the api
             services.RemoveAll<DbContextOptions<TTrxn>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<TTrxn>>();
             services.RemoveAll<TTrxn>();
             services.RemoveAll<DbContextOptions<TQuery>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<TQuery>>();
             services.RemoveAll<TQuery>();
 
-            //services.RemoveAll(typeof(DbContextOptions<TTrxn>));
-            //services.RemoveAll(typeof(TTrxn));
-            //services.RemoveAll(typeof(DbContextOptions<TQuery>));
-            //services.RemoveAll(typeof(TQuery));
-
-            //var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<TTrxn>));
-            //services.Remove(dbContextDescriptor!);
-            //var dbConnectionDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(TTrxn));
-            //services.Remove(dbConnectionDescriptor!);
-
-            //dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<TQuery>));
-            //services.Remove(dbContextDescriptor!);
-            //dbConnectionDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(TQuery));
-            //services.Remove(dbConnectionDescriptor!);
-
-            services.AddDbContext<TTrxn>(options =>
+            services.AddDbContext<TTrxn>((sp, opt) =>
             {
                 if (dbConnectionString == "UseInMemoryDatabase")
                 {
-                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
+                    opt.UseInMemoryDatabase(dbName);
                 }
                 else
                 {
-                    options.UseSqlServer(dbConnectionString,
+                    opt.UseSqlServer(dbConnectionString,
                         //retry strategy does not support user initiated transactions 
                         sqlServerOptionsAction: sqlOptions =>
                         {
@@ -72,34 +61,42 @@ public static class DbSupport
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorNumbersToAdd: null);
                         });
-                    //mitigate error- A call was made to 'ConfigureWarnings' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. 
-                    //options.UseInternalServiceProvider(services.BuildServiceProvider());
 
                     if (!_keyStoreProviderRegistered)
                     {
                         //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
                         var credential = new DefaultAzureCredential();
                         SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
-                        SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+
+                        try
                         {
+                            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
                             {
-                                SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
-                            }
-                        });
+                                {
+                                    SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                                }
+                            });
+                        }
+                        catch
+                        {
+                            //ignore; already registered.  T
+                            //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
+                            //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
+                        }
                         _keyStoreProviderRegistered = true;
                     }
                 }
-            }, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
-            services.AddDbContext<TQuery>(options =>
+            services.AddDbContext<TQuery>((sp, opt) =>
             {
                 if (dbConnectionString == "UseInMemoryDatabase")
                 {
-                    options.UseInMemoryDatabase($"Test.Endpoints-{Guid.NewGuid()}");
+                    opt.UseInMemoryDatabase(dbName);
                 }
                 else
                 {
-                    options.UseSqlServer(dbConnectionString,
+                    opt.UseSqlServer(dbConnectionString,
                         //retry strategy does not support user initiated transactions 
                         sqlServerOptionsAction: sqlOptions =>
                         {
@@ -107,24 +104,32 @@ public static class DbSupport
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorNumbersToAdd: null);
                         });
-                    //mitigate error- A call was made to 'ConfigureWarnings' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. 
-                    //options.UseInternalServiceProvider(services.BuildServiceProvider());
 
                     if (!_keyStoreProviderRegistered)
                     {
                         //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
                         var credential = new DefaultAzureCredential();
                         SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
-                        SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+
+                        try
                         {
+                            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
                             {
-                                SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
-                            }
-                        });
+                                {
+                                    SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                                }
+                            });
+                        }
+                        catch
+                        {
+                            //ignore; already registered.  T
+                            //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
+                            //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
+                        }
                         _keyStoreProviderRegistered = true;
                     }
                 }
-            }, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
         }
     }
 
