@@ -38,6 +38,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
 * Chaos testing can be configured in the the api appsettings.json file for introducing chaos to backend (external) api calls (https://www.pollydocs.org/chaos/)
 
 # Azure Functions App
+* Ensure latest Azure Functions tooling is installed (VS-Tools-Options-Projects & Solutions-Azure Functions-Check For Updates)
 * Running the Azure Functions project requires various integrations set up
 * Blob/Queue Functions - run Azurite or a real storage account
 * EventGrid Functions - tunnel back to local using VS Dev Tunnels (public) or ngrok url (auto-validate) EventGrid-Topic-Subscription url/runtime/webhooks/EventGrid?functionName=EventGridTriggerCustom
