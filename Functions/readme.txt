@@ -24,6 +24,7 @@ Run Test/Debug
    * npm install -g azurite
    * (if needed for Powershell) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    * azurite -s -l c:\azurite -d c:\temp\azurite\debug.log
+   * if there is an error around Azurite not supporting the latest version of the Azure Storage SDK, use the --skipApiVersionCheck flag
 - https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio#run-azurite
 - Visual Studio Professional 2022	C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\Extensions\Microsoft\Azure Storage Emulator
 - Azure Storage Explorer to manage Azurite/Azure Storage blobs and queues

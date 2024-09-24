@@ -52,6 +52,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger pag
    * npm install -g azurite
    * (if needed for Powershell) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    * azurite -s -l c:\azurite -d c:\temp\azurite\debug.log
+   * if there is an error around Azurite not supporting the latest version of the Azure Storage SDK, use the --skipApiVersionCheck flag
 6. Package.Infrastructure.CosmosDb - install and run latest CosmosDB emulator
    * https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=ssl-netstd21
 7. Azure Storage Explorer is usefull for blobs/queues/tables

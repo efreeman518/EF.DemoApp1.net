@@ -1,6 +1,6 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
-using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.Host;
 using Package.Infrastructure.Common;
 using SampleApp.Api;
 using SampleApp.Bootstrapper;

@@ -1,3 +1,9 @@
+using Azure.Messaging.ServiceBus;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 namespace Functions;
 
 public class FunctionServiceBusQueue(ILogger<FunctionServiceBusQueue> logger, IConfiguration configuration, IOptions<Settings1> settings)

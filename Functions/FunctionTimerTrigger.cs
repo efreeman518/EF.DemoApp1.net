@@ -1,3 +1,8 @@
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 namespace Functions;
 
 public class FunctionTimerTrigger(ILogger<FunctionTimerTrigger> logger, IConfiguration configuration, IOptions<Settings1> settings)

@@ -1,10 +1,9 @@
 ﻿using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-using Microsoft.Extensions.Hosting;
 
-namespace Package.Infrastructure.AspNetCore;
-public static class IHostApplicationBuilderExtensions
+namespace Package.Infrastructure.Host;
+public static class IConfigurationBuilderExtensions
 {
     /// <summary>
     /// Load configuration from Azure App Config
@@ -15,10 +14,10 @@ public static class IHostApplicationBuilderExtensions
     /// <param name="env"></param>
     /// <param name="sentinelSetting">Observe for refreshing config cache</param>
     /// <param name="cacheExpire">used with sentinelSetting, Timespan to expire cache, default 5 minutes when null</param>
-    public static void AddAzureAppConfiguration(this IHostApplicationBuilder builder, string endpoint,
+    public static void AddAzureAppConfiguration(this IConfigurationBuilder builder, string endpoint,
         DefaultAzureCredential credential, string env, string? sentinelSetting = null, TimeSpan? cacheExpire = null)
     {
-        builder.Configuration.AddAzureAppConfiguration(options =>
+        builder.AddAzureAppConfiguration(options =>
         {
             options.Connect(new Uri(endpoint), credential)
             .Select(KeyFilter.Any, LabelFilter.Null) // Load configuration values with no label
@@ -32,7 +31,7 @@ public static class IHostApplicationBuilderExtensions
             {
                 options.ConfigureRefresh(refresh =>
                 {
-                    refresh.Register(sentinelSetting, refreshAll: true).SetCacheExpiration(cacheExpire ?? new TimeSpan(1, 0, 0));
+                    refresh.Register(sentinelSetting, refreshAll: true).SetRefreshInterval(cacheExpire ?? new TimeSpan(1, 0, 0));
                 });
             }
         });

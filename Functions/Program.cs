@@ -1,5 +1,14 @@
+using Azure.Identity;
 using Functions;
 using Functions.Infrastructure;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SampleApp.Bootstrapper;
+using Package.Infrastructure.Host;
+using Microsoft.Extensions.Azure;
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
@@ -44,13 +53,13 @@ try
             var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
             string? endpoint;
 
-            //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string
+            //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string (? - doesn't work with managed identity & endpoint)
             var appConfig = config.GetSection("AzureAppConfig");
             if (appConfig != null)
             {
-                endpoint = appConfig.GetConnectionString("AzureAppConfig");
+                endpoint = appConfig.GetValue<string>("Endpoint");
                 loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-                builder.AddAzureAppConfiguration(endpoint);
+                builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
             }
 
             //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
@@ -102,6 +111,24 @@ try
                 .AddTransient<IDatabaseService, DatabaseService>()
                 //Configuration, enables injecting IOptions<>
                 .Configure<Settings1>(config.GetSection("Settings1"));
+
+            //services.AddAzureClients(builder =>
+            //{
+            //    // Set up any default settings
+            //    builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
+            //    // Use DefaultAzureCredential by default
+            //    builder.UseCredential(new DefaultAzureCredential());
+
+            //    //Azure storage generating SAS tokens require a StorageSharedKeyCredential or the managed identity to have permissions to create SAS tokens.
+            //    //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
+            //    //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
+            //    var configSection = config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
+            //    if (configSection.Exists())
+            //    {
+            //        //Ideally use ServiceUri (w/DefaultAzureCredential)
+            //        builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
+            //    }
+            //});
         })
         .ConfigureFunctionsWorkerDefaults(builder =>
         {

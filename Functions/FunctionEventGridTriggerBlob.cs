@@ -2,6 +2,11 @@
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
 
 using Functions.Model;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Functions;
 
