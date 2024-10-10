@@ -6,7 +6,7 @@ namespace Package.Infrastructure.Cache;
 public static class AppCacheExtensions
 {
     /// <summary>
-    /// LazyCache/IAppCache extension method considering TenantId and forceRefresh
+    /// LazyCache/IAppCache extension method considering forceRefresh
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="cache"></param>
@@ -24,7 +24,7 @@ public static class AppCacheExtensions
     }
 
     /// <summary>
-    /// LazyCache/IAppCache extension method considering TenantId
+    /// LazyCache/IAppCache extension method
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="cache"></param>

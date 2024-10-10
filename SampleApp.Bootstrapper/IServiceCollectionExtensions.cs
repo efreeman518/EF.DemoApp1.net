@@ -21,7 +21,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
-using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Contracts;
@@ -43,7 +42,7 @@ public static class IServiceCollectionExtensions
     private static bool _keyStoreProviderRegistered = false;
 
     /// <summary>
-    /// Register/configure domain services in the container
+    /// Register/configure domain services for DI
     /// </summary>
     public static IServiceCollection RegisterDomainServices(this IServiceCollection services, IConfiguration config)
     {
@@ -53,7 +52,7 @@ public static class IServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Register/configure services in the container
+    /// Register/configure app services for DI
     /// </summary>
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services, IConfiguration config)
     {
@@ -63,6 +62,9 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Register/configure infrastructure services for DI
+    /// </summary>
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
         //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
@@ -76,8 +78,11 @@ public static class IServiceCollectionExtensions
         //https://github.com/alastairtree/LazyCache
         services.AddLazyCache();
 
+        //FusionCache - https://www.nuget.org/packages/ZiggyCreatures.FusionCache
+        //services.AddFusionCache();
+
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
-        string? connectionString = config.GetConnectionString("Redis");
+        string? connectionString = config.GetConnectionString("Redis1");
         if (!string.IsNullOrEmpty(connectionString))
         {
             services.AddStackExchangeRedisCache(options =>

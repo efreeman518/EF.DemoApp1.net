@@ -7,7 +7,7 @@ namespace Package.Infrastructure.Cache;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="requestContext">holds TenantId for cache key</param>
+/// <param name="logger"></param>
 /// <param name="distCache"></param>
 public class DistributedCacheManager(ILogger<DistributedCacheManager> logger, IDistributedCache distCache)
     : IDistributedCacheManager

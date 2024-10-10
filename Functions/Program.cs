@@ -111,24 +111,6 @@ try
                 .AddTransient<IDatabaseService, DatabaseService>()
                 //Configuration, enables injecting IOptions<>
                 .Configure<Settings1>(config.GetSection("Settings1"));
-
-            //services.AddAzureClients(builder =>
-            //{
-            //    // Set up any default settings
-            //    builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
-            //    // Use DefaultAzureCredential by default
-            //    builder.UseCredential(new DefaultAzureCredential());
-
-            //    //Azure storage generating SAS tokens require a StorageSharedKeyCredential or the managed identity to have permissions to create SAS tokens.
-            //    //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
-            //    //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
-            //    var configSection = config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
-            //    if (configSection.Exists())
-            //    {
-            //        //Ideally use ServiceUri (w/DefaultAzureCredential)
-            //        builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
-            //    }
-            //});
         })
         .ConfigureFunctionsWorkerDefaults(builder =>
         {

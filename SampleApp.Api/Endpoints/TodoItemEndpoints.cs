@@ -14,11 +14,9 @@ public static class TodoItemEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth
         //openapidocs replace swagger
-        //api versioning
-        //hybridcache
 
+        //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
             .Produces<List<TodoItemDto>>().ProducesProblem(500);
         group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)
