@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Testing.Platform.Builder;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
@@ -174,7 +173,7 @@ public abstract class IntegrationTestBase
         //distributed cache manager
         //services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
         //settings
-        List<CacheSettings> cacheSettings = new();
+        List<CacheSettings> cacheSettings = [];
         Config.GetSection("CacheSettings").Bind(cacheSettings);
 
         //FusionCache supports multiple named instances with different default settings

@@ -50,14 +50,14 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
             {
                 q = q.Where(e => filter.Statuses.Contains(e.Status));
             }
-            if (filter.DateStart != null)
-            {
-                q = q.Where(e => e.CreatedDate >= filter.DateStart);
-            }
-            if (filter.DateEnd != null)
-            {
-                q = q.Where(e => e.CreatedDate <= filter.DateEnd);
-            }
+            //if (filter.DateStart != null)
+            //{
+            //    q = q.Where(e => e.CreatedDate >= filter.DateStart);
+            //}
+            //if (filter.DateEnd != null)
+            //{
+            //    q = q.Where(e => e.CreatedDate <= filter.DateEnd);
+            //}
         }
 
         //sort and filter have already been applied

@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Services;
+using Application.MessageHandlers;
 using Application.Services;
 using Azure;
 using Azure.Identity;
@@ -8,6 +9,7 @@ using CorrelationId.HttpClient;
 using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
+using Infrastructure.Data.Interceptors;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
@@ -23,6 +25,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
 using Polly;
@@ -134,6 +137,8 @@ public static class IServiceCollectionExtensions
         });
 
         //Infrastructure Services
+        services.AddSingleton<IInternalBroker, InternalBroker>();
+        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
 
         //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/change-tokens?view=aspnetcore-8.0
         //services.AddSingleton<IDatabaseConfigurationChangeToken, DatabaseChangeToken>();
@@ -152,7 +157,10 @@ public static class IServiceCollectionExtensions
 
             services//.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<TodoDbContextTrxn>((sp, opt) =>
-                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
+                {
+                    var auditInterceptor = new AuditInterceptor(sp.GetRequiredService<IRequestContext<string>>(), sp.GetRequiredService<IInternalBroker>());
+                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot).AddInterceptors(auditInterceptor);
+                });
 
             services//.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<TodoDbContextQuery>((sp, opt) =>
@@ -162,7 +170,9 @@ public static class IServiceCollectionExtensions
         {
             //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
 
-            services.AddDbContextPool<TodoDbContextTrxn>(options =>
+            services.AddDbContextPool<TodoDbContextTrxn>((sp, options) =>
+            {
+                var auditInterceptor = new AuditInterceptor(sp.GetRequiredService<IRequestContext<string>>(), sp.GetRequiredService<IInternalBroker>());
                 options.UseSqlServer(connectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
@@ -173,7 +183,8 @@ public static class IServiceCollectionExtensions
                         //sqlOptions.UseRelationalNulls(true);
                     })
                     .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
-                );
+                    .AddInterceptors(auditInterceptor);
+            });
 
             connectionString = config.GetConnectionString("TodoDbContextQuery");
             services.AddDbContextPool<TodoDbContextQuery>(options =>
@@ -206,6 +217,9 @@ public static class IServiceCollectionExtensions
                  });
                 _keyStoreProviderRegistered = true;
             }
+
+            //used in AuditInterceptor to hold the audit entries for the current transaction
+            //services.AddKeyedScoped<List<AuditEntry>>("Audit", (_, _) => []);
         }
 
         IConfigurationSection configSection;
@@ -216,21 +230,21 @@ public static class IServiceCollectionExtensions
         //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.azure.azureclientfactorybuilder?view=azure-dotnet
         //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Microsoft.Extensions.Azure/1.0.0/index.html
         services.AddAzureClients(builder =>
-        {
-            // Set up any default settings
-            builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
-            // Use DefaultAzureCredential by default
-            builder.UseCredential(new DefaultAzureCredential());
-
-            configSection = config.GetSection("EventGridPublisher1");
-            if (configSection.Exists())
             {
-                //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
-                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
-                    new AzureKeyCredential(configSection.GetValue<string>("Key")!))
-                .WithName("EventGridPublisher1");
-            }
-        });
+                // Set up any default settings
+                builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
+                // Use DefaultAzureCredential by default
+                builder.UseCredential(new DefaultAzureCredential());
+
+                configSection = config.GetSection("EventGridPublisher1");
+                if (configSection.Exists())
+                {
+                    //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
+                    builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
+                        new AzureKeyCredential(configSection.GetValue<string>("Key")!))
+                    .WithName("EventGridPublisher1");
+                }
+            });
 
         //Chaos - https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
         var configSectionChaos = config.GetSection(ChaosManagerSettings.ConfigSectionName);

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
   </ItemGroup>
 
   <ItemGroup>

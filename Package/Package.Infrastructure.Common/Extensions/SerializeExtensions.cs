@@ -12,7 +12,7 @@ public static class SerializeExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="toSerialize"></param>
     /// <param name="options"></param>
-    /// <param name="applyMasks"></param>
+    /// <param name="applyMasks">Slower but helps hide sensitive data</param>
     /// <returns></returns>
     public static string? SerializeToJson<T>(this T toSerialize, JsonSerializerOptions? options = null, bool applyMasks = true)
         where T : class?
@@ -20,6 +20,7 @@ public static class SerializeExtensions
         if (toSerialize == null) return null;
         if (!applyMasks) return JsonSerializer.Serialize(toSerialize, options);
 
+        //handling masks is slower
         MaskAttribute maskAttr;
 
         //check class for mask

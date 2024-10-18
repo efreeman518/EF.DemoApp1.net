@@ -54,7 +54,7 @@ public class CacheTests : IntegrationTestBase
             FactoryHardTimeout = TimeSpan.FromSeconds(30),
             EagerRefreshThreshold = 0.9f
         };
-        cacheItem = await _cache.GetOrSetAsync(key, _ => GetSomeItemAsync(), cacheOptions); 
+        cacheItem = await _cache.GetOrSetAsync(key, _ => GetSomeItemAsync(), cacheOptions);
         Assert.AreEqual(_someDto1.Id, cacheItem?.Id);
 
         //remove from cache

@@ -13,4 +13,8 @@
     <PackageReference Include="NCrontab.Signed" Version="3.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

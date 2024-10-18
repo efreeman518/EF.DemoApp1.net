@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Infrastructure.Data.Configuration;
 
-public class TodoItemConfiguration : AuditableBaseConfiguration<TodoItem>
+public class TodoItemConfiguration : EntityBaseConfiguration<TodoItem>
 {
     public override void Configure(EntityTypeBuilder<TodoItem> builder)
     {

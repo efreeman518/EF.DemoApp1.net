@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace Domain.Model;
 
 public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatus.Created, string? secureRandom = null, string? secureDeterministic = null)
-    : AuditableBase<string>
+    : EntityBase
 {
     public string Name { get; private set; } = name;
     public bool IsComplete => Status == TodoItemStatus.Completed;

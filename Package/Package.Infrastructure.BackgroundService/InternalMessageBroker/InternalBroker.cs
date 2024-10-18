@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Contracts;
 using System.Text.Json;
 
 namespace Package.Infrastructure.BackgroundServices.InternalMessageBroker;
@@ -38,13 +39,13 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
     }
 
     /// <summary>
-    /// Raise event to internal (in-process) registered handlers;
+    /// Raise event to internal (in-process) previously registered handlers;
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="mode"></param>
     /// <param name="messages"></param>
     /// <returns></returns>
-    public void ProcessRegistered<T>(ProcessInternalMode mode, ICollection<T> messages) where T : IMessage
+    public void RaiseRegistered<T>(InternalBrokerProcessMode mode, ICollection<T> messages) where T : IMessage
     {
         var handlers = (List<IMessageHandler<T>>?)_handlers[typeof(T)];
         if (handlers == null) return;
@@ -55,13 +56,13 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
 
 
     /// <summary>
-    /// Raise event to internal (in-process) handlers (retrieve from Service Collection); 
+    /// Raise event to internal (in-process) handlers (find and retrieve from Service Collection); 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="mode"></param>
     /// <param name="messages"></param>
     /// <returns></returns>
-    public void Process<T>(ProcessInternalMode mode, ICollection<T> messages) where T : IMessage
+    public void Raise<T>(InternalBrokerProcessMode mode, ICollection<T> messages) where T : IMessage
     {
         var handlers = services.GetServices<IMessageHandler<T>>().ToList();
         if (handlers.Count > 0)
@@ -81,14 +82,14 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
     /// <param name="mode"></param>
     /// <param name="handlers"></param>
     /// <param name="messages"></param>
-    private void ProcessMessages<T>(ProcessInternalMode mode, List<IMessageHandler<T>>? handlers, ICollection<T> messages) where T : IMessage
+    private void ProcessMessages<T>(InternalBrokerProcessMode mode, List<IMessageHandler<T>>? handlers, ICollection<T> messages) where T : IMessage
     {
         logger.LogDebug("ProcessMessages Start");
 
         if (handlers != null && handlers.Count > 0)
         {
             //message only needs to be process by a single handler, not all handlers
-            if (mode == ProcessInternalMode.Queue) handlers = [handlers[0]];
+            if (mode == InternalBrokerProcessMode.Queue) handlers = [handlers[0]];
 
             backgroundTaskQueue.QueueBackgroundWorkItem(async (token) =>
             {

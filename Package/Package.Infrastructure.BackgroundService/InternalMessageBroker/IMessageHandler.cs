@@ -1,6 +1,8 @@
-﻿namespace Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+﻿using Package.Infrastructure.Common.Contracts;
+
+namespace Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 
 public interface IMessageHandler<in T> where T : IMessage
 {
-    Task HandleAsync(T event1);
+    Task HandleAsync(T message);
 }

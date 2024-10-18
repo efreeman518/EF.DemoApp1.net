@@ -6,9 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SampleApp.Bootstrapper;
 using Package.Infrastructure.Host;
-using Microsoft.Extensions.Azure;
+using SampleApp.Bootstrapper;
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide

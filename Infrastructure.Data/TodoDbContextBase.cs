@@ -75,7 +75,14 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextBase).Assembly);
     }
 
+    override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    }
+
     //DbSets
     public DbSet<TodoItem> TodoItems { get; set; } = null!;
     public DbSet<SystemSetting> SystemSettings { get; set; } = null!;
+    //public DbSet<AuditEntry> AuditEntries { get; set; } = null!;
 }
