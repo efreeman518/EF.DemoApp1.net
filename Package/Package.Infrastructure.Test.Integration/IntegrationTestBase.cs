@@ -12,6 +12,8 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
+
+//using Package.Infrastructure.OpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.KeyVault;
@@ -172,7 +174,9 @@ public abstract class IntegrationTestBase
 
         //distributed cache manager
         //services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
-        //settings
+
+
+        //FusionCache settings
         List<CacheSettings> cacheSettings = [];
         Config.GetSection("CacheSettings").Bind(cacheSettings);
 

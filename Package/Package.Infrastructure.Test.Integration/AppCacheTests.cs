@@ -7,6 +7,8 @@ using Package.Infrastructure.Test.Integration.Model;
 
 namespace Package.Infrastructure.Test.Integration;
 
+[Ignore("Tests for LazyCache")]
+
 [TestClass]
 public class AppCacheTests : IntegrationTestBase
 {

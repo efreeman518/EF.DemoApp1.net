@@ -83,7 +83,7 @@ public class TodoServiceTests : UnitTestBase
     {
         //arrange return from repo
         string name = "wash car";
-        var dbTodo = new TodoItem(name, TodoItemStatus.Created) { CreatedBy = "Test.Unit" };
+        var dbTodo = new TodoItem(name, TodoItemStatus.Created);
 
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),

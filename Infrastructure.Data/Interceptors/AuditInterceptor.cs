@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Data.Contracts;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -29,6 +30,13 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             .Select(x => new AuditEntry
             {
                 AuditId = requestContext.AuditId,
+                EntityType = x.Entity.GetType().Name,
+                EntityId = x.Entity switch
+                {
+                    IEntityBase<int> entity => entity.Id.ToString(),
+                    IEntityBase<Guid> entity => entity.Id.ToString(),
+                    _ => "N/A"
+                },
                 Action = x.State.ToString(),
                 Status = AuditStatus.Success,
                 StartUtc = startTime,
@@ -57,7 +65,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
                 auditEntry.EndUtc = endTime;
             }
 
-            //save audit entries to database table - not ideal
+            //save audit entries to database table - not ideal. Maybe outbox pattern?
             //eventData.Context.AddRange(_auditEntries);
             //_auditEntries.Clear();
             //await eventData.Context.SaveChangesAsync(cancellationToken);

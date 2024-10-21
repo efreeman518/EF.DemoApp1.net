@@ -96,7 +96,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
             }
         }
 
-        //basic entity row audit
+        //basic entity row audit;  Maybe outbox pattern as a better audit solution.
         foreach (var auditableEntity in ChangeTracker.Entries<IAuditable<TAuditIdType>>())
         {
             if (auditableEntity.State == EntityState.Added ||

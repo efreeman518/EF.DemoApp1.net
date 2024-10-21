@@ -27,7 +27,7 @@ public class TodoRepositoryTrxnTests : UnitTestBase
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
         var repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
-        var todo = new TodoItem("wash car") { CreatedBy = "Test.Unit" };
+        var todo = new TodoItem("wash car");
 
         //act & assert
 

@@ -28,6 +28,6 @@ public static class TodoDbContextSupport
 
     public static TodoItem TodoItemFactory(string name, TodoItemStatus? status = null, DateTime? createdDate = null)
     {
-        return new TodoItem(name, status ?? DbSupport.RandomEnumValue<TodoItemStatus>()) { CreatedBy = "Test.Unit", CreatedDate = createdDate ?? DateTime.UtcNow };
+        return new TodoItem(name, status ?? DbSupport.RandomEnumValue<TodoItemStatus>());
     }
 }

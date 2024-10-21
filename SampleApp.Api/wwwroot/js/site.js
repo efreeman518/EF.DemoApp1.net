@@ -1,7 +1,7 @@
 ﻿import Utility from './utility.js';
 
 const _utility = new Utility(document.querySelector(".spinner"), document.querySelector("#message"), true);
-const urlTodo = 'api/v1.1/TodoItems';
+const urlTodo = 'api1/v1.1/TodoItems';
 
 const TodoItemStatus = {
     None: 0,

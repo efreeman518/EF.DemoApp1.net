@@ -16,7 +16,7 @@ public class TodoItemTests
     [DataRow("aafg", false)]
     public void Validate_IsValid(string name, bool isValid)
     {
-        var item = new TodoItem(name) { CreatedBy = "Test.Unit" };
+        var item = new TodoItem(name);
         var response = item.Validate();
         Assert.AreEqual(isValid, response);
     }

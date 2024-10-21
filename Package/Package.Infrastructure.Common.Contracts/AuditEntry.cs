@@ -8,6 +8,8 @@ public class AuditEntry() : IMessage
     /// User/system/process Id responsible for the activity that caused the audit
     /// </summary>
     public required string AuditId { get; set; }
+    public required string EntityType { get; set; }
+    public required string EntityId { get; set; }
     public AuditStatus Status { get; set; }
     public required string Action { get; set; }
     public DateTime StartUtc { get; set; }

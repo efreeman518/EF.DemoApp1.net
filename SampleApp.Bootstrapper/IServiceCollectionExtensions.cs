@@ -27,7 +27,7 @@ using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.Common.Contracts;
-using Package.Infrastructure.OpenAI.ChatApi;
+//using Package.Infrastructure.OpenAI.ChatApi;
 using Polly;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
@@ -354,12 +354,12 @@ public static class IServiceCollectionExtensions
         }
 
         //OpenAI chat service
-        configSection = config.GetSection(ChatServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddScoped<IChatService, ChatService>();
-            services.Configure<ChatServiceSettings>(config.GetSection(ChatServiceSettings.ConfigSectionName));
-        }
+        //configSection = config.GetSection(ChatServiceSettings.ConfigSectionName);
+        //if (configSection.Exists())
+        //{
+        //    services.AddScoped<IChatService, ChatService>();
+        //    services.Configure<ChatServiceSettings>(config.GetSection(ChatServiceSettings.ConfigSectionName));
+        //}
 
         //external weather service
         configSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
