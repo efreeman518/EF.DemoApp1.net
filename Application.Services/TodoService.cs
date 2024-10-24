@@ -45,9 +45,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
 
     public async Task<Result<TodoItemDto>> CreateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
-        //structured logging
-        logger.TodoItemCRUD("AddItemAsync Start", dto.SerializeToJson());
-
         //map app -> domain
         var todo = dto.ToEntity();
 
@@ -57,6 +54,9 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         {
             return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
+
+        //structured logging
+        logger.TodoItemCRUD("AddItemAsync Start", todo.SerializeToJson());
 
         //create; catch unique constraint exception
         repoTrxn.Create(ref todo);
@@ -95,8 +95,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
 
     public async Task<Result<TodoItemDto>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
-        logger.TodoItemCRUD("UpdateItemAsync Start", dto.SerializeToJson());
-
         //retrieve existing
         var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id, cancellationToken: cancellationToken);
         if (dbTodo == null) return new Result<TodoItemDto>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
@@ -114,6 +112,8 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
         }
 
+        logger.TodoItemCRUD("UpdateItemAsync Start", dbTodo.SerializeToJson());
+
         //_repoTrxn.UpdateFull(ref dbTodo); //update full record - only needed if not already tracked
         try
         {
@@ -124,7 +124,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             return new Result<TodoItemDto>(ex); //name exists on another record
         }
 
-        logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.SerializeToJson());
+        logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.Id.ToString());
 
         //return mapped domain -> app 
         return dbTodo.ToDto();

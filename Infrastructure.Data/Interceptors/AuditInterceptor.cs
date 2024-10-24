@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Contracts;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Data;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,7 +17,7 @@ namespace Infrastructure.Data.Interceptors;
 public class AuditInterceptor(IRequestContext<string> requestContext, IInternalBroker msgBroker) : SaveChangesInterceptor
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
-    private List<AuditEntry> _auditEntries = null!;
+    private List<AuditEntry> _auditEntries = new();
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
@@ -25,25 +28,41 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
         }
 
         var startTime = DateTime.UtcNow;
-        _auditEntries = eventData.Context.ChangeTracker.Entries()
-            .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Select(x => new AuditEntry
+        
+        var changedEntries = eventData.Context.ChangeTracker.Entries()
+            .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
+
+        foreach(var entry in changedEntries)
+        {
+            //check props for mask
+            PropertyInfo[] propInfo = entry.Entity.GetType().GetProperties();
+            var maskedProps = propInfo.Where(pi => Attribute.GetCustomAttribute(pi, typeof(MaskAttribute)) != null).Select(pi => pi.Name).ToList();
+            _auditEntries.Add(new AuditEntry
             {
                 AuditId = requestContext.AuditId,
-                EntityType = x.Entity.GetType().Name,
-                EntityId = x.Entity switch
-                {
-                    IEntityBase<int> entity => entity.Id.ToString(),
-                    IEntityBase<Guid> entity => entity.Id.ToString(),
-                    _ => "N/A"
-                },
-                Action = x.State.ToString(),
+                EntityType = entry.Entity.GetType().Name,
+                EntityKey = entry.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
+                Action = entry.State.ToString(),
                 Status = AuditStatus.Success,
                 StartUtc = startTime,
                 EndUtc = DateTime.UtcNow,
-                Metadata = JsonSerializer.Serialize(x.Entity, jsonSerializerOptions)
-            })
-            .ToList();
+                Metadata = entry.State == EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
+                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) : null
+            });
+        }
+            //.Select(x => new AuditEntry
+            //{
+            //    AuditId = requestContext.AuditId,
+            //    EntityType = x.Entity.GetType().Name,
+            //    EntityKey = x.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
+            //    Action = x.State.ToString(),
+            //    Status = AuditStatus.Success,
+            //    StartUtc = startTime,
+            //    EndUtc = DateTime.UtcNow,
+            //    Metadata = x.State == EntityState.Modified ? x.GetEntityChanges().SerializeToJson(jsonSerializerOptions) :
+            //        x.State == EntityState.Added ? x.Entity.SerializeToJson(jsonSerializerOptions) : null
+            //})
+            //.ToList();
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }

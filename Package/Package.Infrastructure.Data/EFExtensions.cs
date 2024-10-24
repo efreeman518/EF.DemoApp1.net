@@ -180,6 +180,97 @@ public static class EFExtensions
         return attach;
     }
 
+    /// <summary>
+    /// Audit helper method - Get all the changes for all the Modified entities in the context
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static List<EntityChangeInfo> GetAllEntityChanges(this DbContext context)
+    {
+        var changes = new List<EntityChangeInfo>();
+
+        // Loop through all the tracked entities
+        foreach (var entry in context.ChangeTracker.Entries())
+        {
+            // Only process modified entities
+            if (entry.State == EntityState.Modified)
+            {
+                var entityChangeInfo = GetEntityChanges(entry);
+
+                if (entityChangeInfo.PropertyChanges.Count != 0)
+                {
+                    changes.Add(entityChangeInfo);
+                }
+            }
+        }
+
+        return changes;
+    }
+
+    //EntityEntry extensions
+
+    /// <summary>
+    /// Audit helper method - Get the changes for a specific entity
+    /// </summary>
+    /// <param name="entry"></param>
+    /// <returns></returns>
+    public static EntityChangeInfo GetEntityChanges(this EntityEntry entry, List<string>? maskedPropertyNames = null)
+    {
+        var entityChangeInfo = new EntityChangeInfo
+        {
+            EntityType = entry.Entity.GetType().Name,
+            KeyValues = entry.GetPrimaryKeyValues(),
+            PropertyChanges = []
+        };
+
+        // Loop through all the properties of the entity
+        foreach (var property in entry.OriginalValues.Properties)
+        {
+            var masked = maskedPropertyNames?.Contains(property.Name) ?? false;
+            var originalValue = entry.OriginalValues[property];
+            var currentValue = entry.CurrentValues[property];
+            // Check if the property has changed
+            if (!Equals(originalValue, currentValue))
+            {
+                entityChangeInfo.PropertyChanges.Add(new PropertyChangeInfo
+                {
+                    PropertyName = property.Name,
+                    OriginalValue = masked ? "***" : originalValue,
+                    CurrentValue = masked ? "***" : currentValue
+                });
+            }
+        }
+        return entityChangeInfo;
+    }
+
+    /// <summary>
+    /// Audit helper method - get the primary key values of an entity
+    /// </summary>
+    /// <param name="entry"></param>
+    /// <param name="whenNull">specify an optional default when key value is null</param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static Dictionary<string, object> GetPrimaryKeyValues(this EntityEntry entry, string? whenNull = null)
+    {
+        var keyValues = new Dictionary<string, object>();
+        var keyNames = entry.Metadata.FindPrimaryKey()?.Properties.Select(p => p.Name);
+
+        if (keyNames != null)
+        {
+            foreach (var keyName in keyNames)
+            {
+                var propertyEntry = entry.Property(keyName);
+                if (propertyEntry != null)
+                {
+                    keyValues[keyName] = propertyEntry.CurrentValue ?? whenNull ?? throw new InvalidOperationException($"Primary key value for '{keyName}' is null.");
+                }
+            }
+        }
+
+        return keyValues;
+    }
+
+
     //DbSet Extensions
 
     /// <summary>

@@ -9,7 +9,7 @@ public class AuditEntry() : IMessage
     /// </summary>
     public required string AuditId { get; set; }
     public required string EntityType { get; set; }
-    public required string EntityId { get; set; }
+    public required string EntityKey { get; set; }
     public AuditStatus Status { get; set; }
     public required string Action { get; set; }
     public DateTime StartUtc { get; set; }
