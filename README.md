@@ -7,7 +7,7 @@ C# Sample App - A modern domain-centric service api reference template
 2. [.net8 sdk](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) 
 
 # Getting Started
-Clone, set the startup project to SampleApp/SampleApp.Api, and run - swagger page opens, using the same port and root path shows a basic js UI
+Clone, set the startup project to SampleApp/SampleApp.Api, and run - app page opens, using the same port and root path shows a basic js UI
 
 # Run tests
 * Test projects (MSTest) include:

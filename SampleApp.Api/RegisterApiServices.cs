@@ -7,13 +7,13 @@ using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using Package.Infrastructure.AspNetCore.Swagger;
+//using Package.Infrastructure.AspNetCore.Swagger;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
 using SampleApp.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
 using SampleApp.Support.Validators;
-using Swashbuckle.AspNetCore.SwaggerGen;
+//using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SampleApp.Api;
 
@@ -163,11 +163,10 @@ internal static class IServiceCollectionExtensions
             // this enables binding ApiVersion as a endpoint callback parameter. if you don't use it, then remove this configuration.
             //.EnableApiVersionBinding();
 
-            services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
-            //services.AddTransient<IConfigureOptions<SwaggerUIOptions>, SwaggerUIConfigurationOptions>();
-            var xmlCommentsFileName = config.GetValue<string>("OpenApiSettings:XmlCommentsFileName");
-            if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
+            //services.Configure<SwaggerSettings>(config.GetSection(SwaggerSettings.ConfigSectionName));
+            //services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenConfigurationOptions>();
+            //var xmlCommentsFileName = config.GetValue<string>("OpenApiSettings:XmlCommentsFileName");
+            //if (xmlCommentsFileName != null) services.AddSwaggerGen(o => SwaggerGenConfigurationOptions.AddSwaggerXmlComments(o, xmlCommentsFileName));
         }
 
         //ChatGPT plugin

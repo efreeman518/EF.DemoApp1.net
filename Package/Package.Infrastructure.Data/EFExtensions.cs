@@ -223,23 +223,17 @@ public static class EFExtensions
             PropertyChanges = []
         };
 
-        // Loop through all the properties of the entity
-        foreach (var property in entry.OriginalValues.Properties)
+        foreach (var property in entry.Properties.Where(p => p.IsModified))
         {
-            var masked = maskedPropertyNames?.Contains(property.Name) ?? false;
-            var originalValue = entry.OriginalValues[property];
-            var currentValue = entry.CurrentValues[property];
-            // Check if the property has changed
-            if (!Equals(originalValue, currentValue))
+            var masked = maskedPropertyNames?.Contains(property.Metadata.Name) ?? false;
+            entityChangeInfo.PropertyChanges.Add(new PropertyChangeInfo
             {
-                entityChangeInfo.PropertyChanges.Add(new PropertyChangeInfo
-                {
-                    PropertyName = property.Name,
-                    OriginalValue = masked ? "***" : originalValue,
-                    CurrentValue = masked ? "***" : currentValue
-                });
-            }
+                PropertyName = property.Metadata.Name,
+                OriginalValue = masked ? "***" : property.OriginalValue,
+                CurrentValue = masked ? "***" : property.CurrentValue
+            });
         }
+
         return entityChangeInfo;
     }
 
@@ -253,19 +247,14 @@ public static class EFExtensions
     public static Dictionary<string, object> GetPrimaryKeyValues(this EntityEntry entry, string? whenNull = null)
     {
         var keyValues = new Dictionary<string, object>();
-        var keyNames = entry.Metadata.FindPrimaryKey()?.Properties.Select(p => p.Name);
 
-        if (keyNames != null)
+        entry.Metadata.FindPrimaryKey()?.Properties.ToList().ForEach(kName =>
         {
-            foreach (var keyName in keyNames)
+            if (kName != null)
             {
-                var propertyEntry = entry.Property(keyName);
-                if (propertyEntry != null)
-                {
-                    keyValues[keyName] = propertyEntry.CurrentValue ?? whenNull ?? throw new InvalidOperationException($"Primary key value for '{keyName}' is null.");
-                }
+                keyValues.Add(kName.Name, entry.Property(kName.Name).CurrentValue ?? whenNull ?? throw new InvalidOperationException($"Primary key value for '{kName}' is null."));
             }
-        }
+        });
 
         return keyValues;
     }

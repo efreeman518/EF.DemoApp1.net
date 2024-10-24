@@ -87,8 +87,8 @@ public abstract class IntegrationTestBase
             configSection = Config.GetSection("EventGridPublisherTopic1");
             if (configSection.Exists())
             {
-                //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
-                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
+                //Ideally use TopicEndpoint Uri only (DefaultAzureCredential defined above for all azure clients)
+                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!), 
                     new AzureKeyCredential(configSection.GetValue<string>("Key")!))
                 .WithName("EventGridPublisherTopic1");
             }

@@ -100,7 +100,7 @@ try
         .RegisterApplicationServices(config)
         //background services
         .RegisterBackgroundServices(config)
-        //api services - controllers, versioning, health checks, swagger, telemetry
+        //api services - controllers, versioning, health checks, openapidoc, telemetry
         .RegisterApiServices(config, loggerStartup);
 
     var app = builder.Build().ConfigurePipeline();

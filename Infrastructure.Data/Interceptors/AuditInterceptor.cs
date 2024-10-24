@@ -17,7 +17,7 @@ namespace Infrastructure.Data.Interceptors;
 public class AuditInterceptor(IRequestContext<string> requestContext, IInternalBroker msgBroker) : SaveChangesInterceptor
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
-    private List<AuditEntry> _auditEntries = new();
+    private readonly List<AuditEntry> _auditEntries = [];
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
@@ -40,14 +40,16 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             _auditEntries.Add(new AuditEntry
             {
                 AuditId = requestContext.AuditId,
-                EntityType = entry.Entity.GetType().Name,
+                EntityType = entry.Metadata.DisplayName(), // .Entity.GetType().Name,
                 EntityKey = entry.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
                 Action = entry.State.ToString(),
                 Status = AuditStatus.Success,
                 StartUtc = startTime,
                 EndUtc = DateTime.UtcNow,
-                Metadata = entry.State == EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
-                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) : null
+                Metadata = entry.State == 
+                    EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
+                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) : 
+                    null
             });
         }
             //.Select(x => new AuditEntry

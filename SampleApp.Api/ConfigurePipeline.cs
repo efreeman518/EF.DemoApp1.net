@@ -63,31 +63,33 @@ public static partial class WebApplicationBuilderExtensions
                 return generatedOperation;
             }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredetnial (Managed identity, env vars, VS logged in user, etc.");
 
-            app.UseSwagger(o =>
-            {
-                //Microsoft Power Apps and Microsoft Flow do not support OpenAPI 3.0
-                //enable temporarily to produce a Swagger 2.0 file;
-                //o.SerializeAsV2 = true;
+            app.MapOpenApi();
 
-                //ChatGPT plugin
-                if (config.GetValue("ChatGPT_Plugin:Enable", false))
-                {
-                    o.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-                    {
-                        swaggerDoc.Servers = [new() { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" }];
-                    });
-                }
-            });
-            app.UseSwaggerUI(o =>
-            {
-                // build a swagger endpoint for each discovered API version
-                foreach (var description in app.DescribeApiVersions().Select(description => description.GroupName))
-                {
-                    var url = $"/swagger/{description}/swagger.json";
-                    var name = description.ToUpperInvariant();
-                    o.SwaggerEndpoint(url, name);
-                }
-            });
+            //app.UseSwagger(o =>
+            //{
+            //    //Microsoft Power Apps and Microsoft Flow do not support OpenAPI 3.0
+            //    //enable temporarily to produce a Swagger 2.0 file;
+            //    //o.SerializeAsV2 = true;
+
+            //    //ChatGPT plugin
+            //    if (config.GetValue("ChatGPT_Plugin:Enable", false))
+            //    {
+            //        o.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+            //        {
+            //            swaggerDoc.Servers = [new() { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" }];
+            //        });
+            //    }
+            //});
+            //app.UseSwaggerUI(o =>
+            //{
+            //    // build a swagger endpoint for each discovered API version
+            //    foreach (var description in app.DescribeApiVersions().Select(description => description.GroupName))
+            //    {
+            //        var url = $"/swagger/{description}/swagger.json";
+            //        var name = description.ToUpperInvariant();
+            //        o.SwaggerEndpoint(url, name);
+            //    }
+            //});
         }
 
         app.UseRouting();

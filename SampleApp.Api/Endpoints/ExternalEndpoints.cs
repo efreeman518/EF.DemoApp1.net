@@ -14,10 +14,7 @@ public static class ExternalEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth
         //openapidocs replace swagger
-        //api versioning
-        //hybridcache
 
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
             .Produces<List<TodoItemDto>>().ProducesProblem(500);
