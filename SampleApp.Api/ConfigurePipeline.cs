@@ -63,6 +63,7 @@ public static partial class WebApplicationBuilderExtensions
                 return generatedOperation;
             }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredetnial (Managed identity, env vars, VS logged in user, etc.");
 
+            //.net9 //openapi/v1.json
             app.MapOpenApi();
 
             //app.UseSwagger(o =>

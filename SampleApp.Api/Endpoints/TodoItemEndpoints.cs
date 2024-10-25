@@ -18,17 +18,23 @@ public static class TodoItemEndpoints
 
         //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
-            .Produces<List<TodoItemDto>>().ProducesProblem(500);
+            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Get a list of TodoItems");
         group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)
-            .Produces<List<TodoItemDto>>().ProducesProblem(500);
+            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Get a list of TodoItems");
         group.MapGet("/{id:guid}", GetById)
-            .Produces<TodoItemDto>().ProducesProblem(404).ProducesProblem(500);
+            .Produces<TodoItemDto>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Get a TodoItem");
         group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
-            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(500);
+            .Produces<TodoItemDto>(StatusCodes.Status201Created).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Create a TodoItem");
         group.MapPut("/{id:guid}", Update).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
-            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(500);
+            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Update a TodoItem");
         group.MapDelete("/{id:guid}", Delete)
-            .Produces(204).ProducesValidationProblem().ProducesProblem(500);
+            .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Delete a TodoItem");
     }
 
     private static async Task<IResult> GetPage1(ITodoService todoService, int pageSize = 10, int pageIndex = 1)

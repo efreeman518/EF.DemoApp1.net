@@ -148,6 +148,15 @@ internal static class IServiceCollectionExtensions
 
         if (config.GetValue("OpenApiSettings:Enable", false))
         {
+            //.net9
+            //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-9.0&tabs=visual-studio%2Cminimal-apis
+            services
+                .AddOpenApi("v1")
+                .AddOpenApi("v1.1");
+
+
+
+
             //services.AddEndpointsApiExplorer(); 
 
             apiVersioningBulder.AddApiExplorer(o =>

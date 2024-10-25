@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Interfaces;
 using Azure;
 using Azure.Identity;
+using Azure.Messaging.EventGrid;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;

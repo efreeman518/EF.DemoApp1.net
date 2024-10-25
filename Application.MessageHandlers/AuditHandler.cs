@@ -8,6 +8,6 @@ public class AuditHandler : IMessageHandler<AuditEntry>
     public async Task HandleAsync(AuditEntry message)
     {
         //await some work
-        await Task.Delay(1000);
+        await Task.Delay(2000);
     }
 }
