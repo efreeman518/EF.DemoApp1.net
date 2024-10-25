@@ -230,7 +230,7 @@ public static class EFExtensions
             {
                 PropertyName = property.Metadata.Name,
                 OriginalValue = masked ? "***" : property.OriginalValue,
-                CurrentValue = masked ? "***" : property.CurrentValue
+                NewValue = masked ? "***" : property.CurrentValue
             });
         }
 

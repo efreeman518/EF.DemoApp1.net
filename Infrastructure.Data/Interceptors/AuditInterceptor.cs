@@ -71,12 +71,6 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
 
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
-        //handle nullable
-        if (eventData.Context is null)
-        {
-            return await base.SavedChangesAsync(eventData, result, cancellationToken);
-        }
-
         if (_auditEntries.Count > 0)
         {
             var endTime = DateTime.UtcNow;
@@ -103,12 +97,6 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
 
     public override async Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
-        //handle nullable
-        if (eventData.Context is null)
-        {
-            await base.SaveChangesFailedAsync(eventData, cancellationToken);
-        }
-
         if (_auditEntries.Count > 0)
         {
             var endTime = DateTime.UtcNow;
@@ -121,13 +109,13 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             }
 
             //save audit entries to database table - not ideal
-            eventData.Context!.AddRange(_auditEntries);
-            _auditEntries.Clear();
-            await eventData.Context.SaveChangesAsync(cancellationToken);
+            //eventData.Context!.AddRange(_auditEntries);
+            //_auditEntries.Clear();
+            //await eventData.Context.SaveChangesAsync(cancellationToken);
 
             //publish the audit entries to the internal message broker and let a handler handle them
             //await publish the messages to the internal message broker
-
+            msgBroker.Raise(InternalBrokerProcessMode.Queue, _auditEntries);
         }
 
         await base.SaveChangesFailedAsync(eventData, cancellationToken);

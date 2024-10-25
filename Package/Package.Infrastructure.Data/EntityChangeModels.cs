@@ -12,5 +12,5 @@ public class PropertyChangeInfo
 {
     public string PropertyName { get; set; } = null!;
     public object? OriginalValue { get; set; }
-    public object? CurrentValue { get; set; }
+    public object? NewValue { get; set; }
 }

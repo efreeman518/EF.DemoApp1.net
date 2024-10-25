@@ -5,9 +5,9 @@ namespace Application.MessageHandlers;
 
 public class AuditHandler : IMessageHandler<AuditEntry>
 {
-    public Task HandleAsync(AuditEntry message)
+    public async Task HandleAsync(AuditEntry message)
     {
         //await some work
-        return Task.CompletedTask;
+        await Task.Delay(1000);
     }
 }

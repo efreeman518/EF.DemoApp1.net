@@ -47,9 +47,11 @@ public class InternalBroker(ILogger<InternalBroker> logger, IServiceProvider ser
     /// <returns></returns>
     public void RaiseRegistered<T>(InternalBrokerProcessMode mode, ICollection<T> messages) where T : IMessage
     {
-        var handlers = (List<IMessageHandler<T>>?)_handlers[typeof(T)];
-        if (handlers == null) return;
-        ProcessMessages(mode, handlers, messages);
+        var handlers = (List<IMessageHandler<T>>)_handlers[typeof(T)];
+        if (handlers.Count > 0)
+        {
+            ProcessMessages(mode, handlers, messages);
+        }
     }
 
     //public bool UnregisterHandler(object hashCode)
