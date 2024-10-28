@@ -28,11 +28,11 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
         }
 
         var startTime = DateTime.UtcNow;
-        
+
         var changedEntries = eventData.Context.ChangeTracker.Entries()
             .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
 
-        foreach(var entry in changedEntries)
+        foreach (var entry in changedEntries)
         {
             //check props for mask
             PropertyInfo[] propInfo = entry.Entity.GetType().GetProperties();
@@ -46,25 +46,25 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
                 Status = AuditStatus.Success,
                 StartUtc = startTime,
                 EndUtc = DateTime.UtcNow,
-                Metadata = entry.State == 
+                Metadata = entry.State ==
                     EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
-                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) : 
+                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) :
                     null
             });
         }
-            //.Select(x => new AuditEntry
-            //{
-            //    AuditId = requestContext.AuditId,
-            //    EntityType = x.Entity.GetType().Name,
-            //    EntityKey = x.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
-            //    Action = x.State.ToString(),
-            //    Status = AuditStatus.Success,
-            //    StartUtc = startTime,
-            //    EndUtc = DateTime.UtcNow,
-            //    Metadata = x.State == EntityState.Modified ? x.GetEntityChanges().SerializeToJson(jsonSerializerOptions) :
-            //        x.State == EntityState.Added ? x.Entity.SerializeToJson(jsonSerializerOptions) : null
-            //})
-            //.ToList();
+        //.Select(x => new AuditEntry
+        //{
+        //    AuditId = requestContext.AuditId,
+        //    EntityType = x.Entity.GetType().Name,
+        //    EntityKey = x.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
+        //    Action = x.State.ToString(),
+        //    Status = AuditStatus.Success,
+        //    StartUtc = startTime,
+        //    EndUtc = DateTime.UtcNow,
+        //    Metadata = x.State == EntityState.Modified ? x.GetEntityChanges().SerializeToJson(jsonSerializerOptions) :
+        //        x.State == EntityState.Added ? x.Entity.SerializeToJson(jsonSerializerOptions) : null
+        //})
+        //.ToList();
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }

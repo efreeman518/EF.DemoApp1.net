@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Azure;
 using Azure.Identity;
-using Azure.Messaging.EventGrid;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
@@ -89,7 +88,7 @@ public abstract class IntegrationTestBase
             if (configSection.Exists())
             {
                 //Ideally use TopicEndpoint Uri only (DefaultAzureCredential defined above for all azure clients)
-                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!), 
+                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
                     new AzureKeyCredential(configSection.GetValue<string>("Key")!))
                 .WithName("EventGridPublisherTopic1");
             }
