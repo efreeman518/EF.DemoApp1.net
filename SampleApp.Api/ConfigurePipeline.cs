@@ -6,6 +6,7 @@ using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
 using SampleApp.Api.Endpoints;
 using SampleApp.Grpc;
+using Scalar.AspNetCore;
 
 namespace SampleApp.Api;
 
@@ -65,32 +66,12 @@ public static partial class WebApplicationBuilderExtensions
 
             //.net9 //openapi/v1.json
             app.MapOpenApi();
-
-            //app.UseSwagger(o =>
-            //{
-            //    //Microsoft Power Apps and Microsoft Flow do not support OpenAPI 3.0
-            //    //enable temporarily to produce a Swagger 2.0 file;
-            //    //o.SerializeAsV2 = true;
-
-            //    //ChatGPT plugin
-            //    if (config.GetValue("ChatGPT_Plugin:Enable", false))
-            //    {
-            //        o.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-            //        {
-            //            swaggerDoc.Servers = [new() { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}" }];
-            //        });
-            //    }
-            //});
-            //app.UseSwaggerUI(o =>
-            //{
-            //    // build a swagger endpoint for each discovered API version
-            //    foreach (var description in app.DescribeApiVersions().Select(description => description.GroupName))
-            //    {
-            //        var url = $"/swagger/{description}/swagger.json";
-            //        var name = description.ToUpperInvariant();
-            //        o.SwaggerEndpoint(url, name);
-            //    }
-            //});
+            app.MapScalarApiReference(options =>
+            {
+                options
+                    .WithTitle("SampleApp API")
+                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.AsyncHttp);
+            });
         }
 
         app.UseRouting();

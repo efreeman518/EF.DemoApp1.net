@@ -8,7 +8,6 @@ using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Contracts;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AppConstants = Application.Contracts.Constants.Constants;
@@ -31,7 +30,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="pageIndex"></param>
     /// <returns>A paged list of TodoItems</returns>
     [MapToApiVersion("1.0")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage(int pageSize = 10, int pageIndex = 1)
     {
@@ -46,7 +44,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="pageIndex"></param>
     /// <returns>A paged list of TodoItems</returns>
     [MapToApiVersion("1.1")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(PagedResponse<TodoItemDto>))]
     [HttpGet]
     public async Task<ActionResult<PagedResponse<TodoItemDto>>> GetPage_1_1(int pageSize = 20, int pageIndex = 1)
     {
@@ -60,9 +57,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>A TodoItem</returns>
     [HttpGet("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
-    [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
         var option = await _todoService.GetItemAsync(id);
@@ -142,9 +136,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The new TodoItem that was saved</returns>
     [HttpPost]
-    [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model Binding Error", typeof(ValidationProblemDetails))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PostTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
         var result = await _todoService.CreateItemAsync(todoItem);
@@ -161,8 +152,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="todoItem"></param>
     /// <returns>The updated TodoItem</returns>
     [HttpPut("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PutTodoItem(Guid id, TodoItemDto todoItem)
     {
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
@@ -182,8 +171,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <param name="id"></param>
     /// <returns>OK</returns>
     [HttpDelete("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult> DeleteTodoItem(Guid id)
     {
         await _todoService.DeleteItemAsync(id);
@@ -197,7 +184,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>User data in json</returns>
     [HttpGet("getuser")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUser()
     {
         var user = HttpContext.User;
@@ -209,7 +195,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// </summary>
     /// <returns>Claims data in json</returns>
     [HttpGet("getuserclaims")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetUserClaims()
     {
         var user = HttpContext.User;
@@ -222,7 +207,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <returns></returns>
     [HttpGet("getauthheader")]
     [ProducesResponseType(typeof(StringValues), (int)HttpStatusCode.OK)]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public IActionResult GetAuthHeader()
     {
         var authHeaders = HttpContext.Request.Headers.Authorization;
@@ -238,7 +222,6 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <returns></returns>
     [HttpGet("generatetoken")]
     [AllowAnonymous]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<IActionResult> GenerateToken(string resourceId = "8bffeaa6-2d18-4059-9335-ce805e2c1595", string scope = ".default")
     {
         var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());

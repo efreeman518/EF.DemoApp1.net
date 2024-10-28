@@ -4,7 +4,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Contracts;
-using Swashbuckle.AspNetCore.Annotations;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Controllers;
@@ -41,9 +40,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     }
 
     [HttpGet("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "BadRequest - Guid not valid", typeof(ValidationProblemDetails))]
-    [SwaggerResponse((int)HttpStatusCode.NotFound, "Not Found", typeof(Guid))]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
         var todoItem = await _apiClient.GetItemAsync(id);
@@ -119,8 +115,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     #endregion
 
     [HttpPost]
-    [SwaggerResponse((int)HttpStatusCode.Created, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> SaveTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
         var result = await _apiClient.SaveItemAsync(todoItem);
@@ -131,8 +125,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     }
 
     [HttpPut("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success", typeof(TodoItemDto))]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Validation Error", typeof(ProblemDetails))]
     public async Task<ActionResult<TodoItemDto>> PutTodoItem([FromServices] IHostEnvironment hostEnv, Guid id, TodoItemDto todoItem)
     {
         if (todoItem.Id != Guid.Empty && todoItem.Id != id)
@@ -148,8 +140,6 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     }
 
     [HttpDelete("{id:Guid}")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "Model is invalid.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult> DeleteTodoItem(Guid id)
     {
         await _apiClient.DeleteItemAsync(id);
@@ -157,21 +147,18 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     }
 
     [HttpGet("getuser")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetUser()
     {
         return Ok(await _apiClient.GetUserAsync());
     }
 
     [HttpGet("getuserclaims")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetUserClaims()
     {
         return Ok(await _apiClient.GetUserClaimsAsync());
     }
 
     [HttpGet("getauthheader")]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Success")]
     public async Task<ActionResult> GetAuthHeader()
     {
         return Ok(await _apiClient.GetAuthHeaderAsync());
