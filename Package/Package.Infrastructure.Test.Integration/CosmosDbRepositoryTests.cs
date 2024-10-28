@@ -30,7 +30,7 @@ public class CosmosDbRepositoryTests : IntegrationTestBase
         await _repo.GetOrAddContainerAsync(typeof(TodoItemNoSql).Name, "/PartitionKey");
 
         //randomize status
-        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
+        Array statuses = Enum.GetValues<TodoItemStatus>();
         Random random = new();
 
         //populate cosmosDb container with docs (random Status)

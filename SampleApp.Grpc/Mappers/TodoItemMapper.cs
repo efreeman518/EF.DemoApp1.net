@@ -11,7 +11,7 @@ public static class TodoItemMapper
         {
             Id = new Proto.NullableString { Isnull = item.Id == null, Data = (item.Id ?? Guid.Empty).ToString() },
             Name = item.Name, //?? default
-            Status = (Proto.TodoItemStatus)Enum.Parse(typeof(Proto.TodoItemStatus), item.Status.ToString()),
+            Status = Enum.Parse<Proto.TodoItemStatus>(item.Status.ToString()),
             Securerandom = new Proto.NullableString { Isnull = item.SecureRandom == null, Data = item.SecureRandom },
             Securedeterministic = new Proto.NullableString { Isnull = item.SecureDeterministic == null, Data = item.SecureDeterministic }
         };

@@ -366,7 +366,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
     private async Task PopulateTableData(int numRows = 100)
     {
         //populate table with docs (random Status)
-        Array statuses = Enum.GetValues(typeof(TodoItemStatus));
+        Array statuses = Enum.GetValues<TodoItemStatus>();
         Random random = new();
         for (var i = 0; i < numRows; i++)
         {

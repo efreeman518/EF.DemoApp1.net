@@ -7,7 +7,7 @@ using Test.Benchmarks;
 Console.WriteLine("Benchmarks");
 
 //BenchmarkRunner.Run(new[] { typeof(RepositoryBenchmarks), typeof(RulesBenchmarks), typeof(ValidatorBenchmarks), typeof(TodoItemBenchmarks) });
-BenchmarkRunner.Run(new[] { typeof(RulesBenchmarks), typeof(ValidatorBenchmarks), typeof(TodoItemBenchmarks) });
+BenchmarkRunner.Run([typeof(RulesBenchmarks), typeof(ValidatorBenchmarks), typeof(TodoItemBenchmarks)]);
 
 //set up infrastructure for benchmark classes not using DbIntegrationTestBase/TestContainer
 //[GlobalSetup]

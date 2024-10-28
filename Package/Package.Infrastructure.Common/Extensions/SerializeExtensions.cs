@@ -43,11 +43,7 @@ public static class SerializeExtensions
             string propMask;
             string? propVal;
 
-            T? cloneT = DeepCopier.Copy(toSerialize); // https://github.com/ReubenBond/DeepCopy
-            if (cloneT == null) // || cloneT.GetType() != typeof(T))
-            {
-                throw new InvalidOperationException("Deserialization failed or returned incorrect type.");
-            }
+            T? cloneT = DeepCopier.Copy(toSerialize) ?? throw new InvalidOperationException("Deserialization failed or returned incorrect type."); // https://github.com/ReubenBond/DeepCopy
             foreach (var prop in maskedProps)
             {
                 propVal = prop.GetValue(cloneT)?.ToString();

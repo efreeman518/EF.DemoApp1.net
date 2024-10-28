@@ -26,7 +26,7 @@ public static class TodoDbContextSupport
         return list;
     }
 
-    public static TodoItem TodoItemFactory(string name, TodoItemStatus? status = null, DateTime? createdDate = null)
+    public static TodoItem TodoItemFactory(string name, TodoItemStatus? status = null)
     {
         return new TodoItem(name, status ?? DbSupport.RandomEnumValue<TodoItemStatus>());
     }

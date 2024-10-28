@@ -22,6 +22,6 @@ internal static class Utility
         {
             byteList.Add(Convert.ToByte(data.Substring(i, 8), 2));
         }
-        return encoding.GetString(byteList.ToArray());
+        return encoding.GetString([.. byteList]);
     }
 }

@@ -62,7 +62,7 @@ public class MigrationSupport(MigrationBuilder migrationBuilder, DefaultAzureCre
         string KeyStoreProviderName = SqlColumnEncryptionAzureKeyVaultProvider.ProviderName;
 
         byte[] cmkSign = _akvProvider.SignColumnMasterKeyMetadata(urlAKVMasterKeyUrl, true);
-        string cmkSignStr = string.Concat("0x", BitConverter.ToString(cmkSign).Replace("-", string.Empty));
+        string cmkSignStr = string.Concat("0x", Convert.ToHexString(cmkSign));
 
         string sql = $@"
 IF NOT EXISTS (SELECT * FROM sys.column_master_keys WHERE name = '{cmkName}')
@@ -116,7 +116,7 @@ END";
         byte[] plainTextColumnEncryptionKey = new byte[32];
         RandomNumberGenerator.Create().GetBytes(plainTextColumnEncryptionKey);
         byte[] encryptedColumnEncryptionKey = _akvProvider.EncryptColumnEncryptionKey(urlAKVMasterKeyUrl, s_algorithm, plainTextColumnEncryptionKey);
-        string EncryptedValue = string.Concat("0x", BitConverter.ToString(encryptedColumnEncryptionKey).Replace("-", string.Empty));
+        string EncryptedValue = string.Concat("0x", Convert.ToHexString(encryptedColumnEncryptionKey));
         return EncryptedValue;
     }
 

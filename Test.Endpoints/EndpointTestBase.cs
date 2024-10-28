@@ -35,7 +35,7 @@ public abstract class EndpointTestBase
     //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
     //protected static HttpClient HttpClientApi = null!;
 
-    protected static async Task<HttpClient> GetHttpClient(bool applyBearerAuthHeader = false)
+    protected static async Task<HttpClient> GetHttpClient()
     {
         var scopes = Config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
 

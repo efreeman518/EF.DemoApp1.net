@@ -53,7 +53,7 @@ public static class ExternalEndpoints
         var todoItem = await apiClient.GetItemAsync(id);
         return (todoItem != null)
            ? TypedResults.Ok(todoItem)
-           : ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id.ToString()}' not found.", statusCodeOverride: StatusCodes.Status404NotFound);
+           : ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound);
     }
 
     private static async Task<IResult> Create(HttpContext httpContext, ISampleApiRestClient apiClient, TodoItemDto todoItemDto)

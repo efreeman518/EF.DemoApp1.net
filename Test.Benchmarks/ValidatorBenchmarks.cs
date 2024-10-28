@@ -16,7 +16,7 @@ public class ValidatorBenchmarks
     //public int NameLength { get; set; }
 
     [Benchmark]
-    public FluentValidation.Results.ValidationResult? ValidatorTodoItemValidate()
+    public static FluentValidation.Results.ValidationResult? ValidatorTodoItemValidate()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -30,7 +30,7 @@ public class ValidatorBenchmarks
         }
     }
 
-    public void ValidatorTodoItemValidateAndThrow()
+    public static void ValidatorTodoItemValidateAndThrow()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -44,7 +44,7 @@ public class ValidatorBenchmarks
     }
 
     [Benchmark]
-    public async Task<FluentValidation.Results.ValidationResult?> ValidatorTodoItemValidateAsync()
+    public static async Task<FluentValidation.Results.ValidationResult?> ValidatorTodoItemValidateAsync()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -59,7 +59,7 @@ public class ValidatorBenchmarks
     }
 
     [Benchmark]
-    public async Task ValidatorTodoItemValidateAndThrowAsyncAsync()
+    public static async Task ValidatorTodoItemValidateAndThrowAsyncAsync()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
