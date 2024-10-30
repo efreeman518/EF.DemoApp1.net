@@ -3,7 +3,7 @@ using Package.Infrastructure.OpenAI.ChatApi;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("OpenAI Api Key required - https://platform.openai.com/settings/organization/api-keys")]
+//[Ignore("OpenAI Api Key required - https://platform.openai.com/settings/organization/api-keys")]
 
 [TestClass]
 public class ChatServiceTests : IntegrationTestBase
@@ -23,6 +23,14 @@ public class ChatServiceTests : IntegrationTestBase
         Assert.IsNotNull(responseList);
 
         var response = await _chatService.ChatCompletion(request);
+        Assert.IsNotNull(response);
+    }
+
+    [TestMethod]
+    public async Task ConversationWithTools_pass()
+    {
+        var request = new Request("Whats the weather like today?");
+        var response = await _chatService.ChatCompletionWithTools(request);
         Assert.IsNotNull(response);
     }
 }
