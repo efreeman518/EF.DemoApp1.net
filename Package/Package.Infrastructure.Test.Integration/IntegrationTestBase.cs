@@ -248,7 +248,7 @@ public abstract class IntegrationTestBase
             .AddStandardResilienceHandler();
         }
 
-        //OpenAI chat service
+        //chat (OpenAI) service
         configSection = Config.GetSection(ChatServiceSettings.ConfigSectionName);
         if (configSection.Exists())
         {

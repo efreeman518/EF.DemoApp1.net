@@ -5,6 +5,7 @@ using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,6 +19,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
     private readonly List<AuditEntry> _auditEntries = [];
+    private long _startTime;
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
@@ -27,7 +29,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        var startTime = DateTime.UtcNow;
+        _startTime = Stopwatch.GetTimestamp();
 
         var changedEntries = eventData.Context.ChangeTracker.Entries()
             .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
@@ -44,27 +46,13 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
                 EntityKey = entry.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
                 Action = entry.State.ToString(),
                 Status = AuditStatus.Success,
-                StartUtc = startTime,
-                EndUtc = DateTime.UtcNow,
+                StartTime = TimeSpan.FromTicks(_startTime),
                 Metadata = entry.State ==
                     EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
                     entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) :
                     null
             });
         }
-        //.Select(x => new AuditEntry
-        //{
-        //    AuditId = requestContext.AuditId,
-        //    EntityType = x.Entity.GetType().Name,
-        //    EntityKey = x.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
-        //    Action = x.State.ToString(),
-        //    Status = AuditStatus.Success,
-        //    StartUtc = startTime,
-        //    EndUtc = DateTime.UtcNow,
-        //    Metadata = x.State == EntityState.Modified ? x.GetEntityChanges().SerializeToJson(jsonSerializerOptions) :
-        //        x.State == EntityState.Added ? x.Entity.SerializeToJson(jsonSerializerOptions) : null
-        //})
-        //.ToList();
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
@@ -73,20 +61,14 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
     {
         if (_auditEntries.Count > 0)
         {
-            var endTime = DateTime.UtcNow;
+            var elapsed = Stopwatch.GetElapsedTime(_startTime);
 
             foreach (var auditEntry in _auditEntries)
             {
-                auditEntry.EndUtc = endTime;
+                auditEntry.ElapsedTime = elapsed;
             }
 
-            //save audit entries to database table - not ideal. Maybe outbox pattern?
-            //eventData.Context.AddRange(_auditEntries);
-            //_auditEntries.Clear();
-            //await eventData.Context.SaveChangesAsync(cancellationToken);
-
             //publish the audit entries to the internal message broker and let a handler handle them
-            //await publish the messages to the internal message broker
             msgBroker.Raise(InternalBrokerProcessMode.Queue, _auditEntries);
 
         }
@@ -99,22 +81,16 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
     {
         if (_auditEntries.Count > 0)
         {
-            var endTime = DateTime.UtcNow;
+            var elapsed = Stopwatch.GetElapsedTime(_startTime);
 
             foreach (var auditEntry in _auditEntries)
             {
-                auditEntry.EndUtc = endTime;
+                auditEntry.ElapsedTime = elapsed;
                 auditEntry.Status = AuditStatus.Failure;
                 auditEntry.Error = eventData.Exception?.GetBaseException().Message;
             }
 
-            //save audit entries to database table - not ideal
-            //eventData.Context!.AddRange(_auditEntries);
-            //_auditEntries.Clear();
-            //await eventData.Context.SaveChangesAsync(cancellationToken);
-
             //publish the audit entries to the internal message broker and let a handler handle them
-            //await publish the messages to the internal message broker
             msgBroker.Raise(InternalBrokerProcessMode.Queue, _auditEntries);
         }
 

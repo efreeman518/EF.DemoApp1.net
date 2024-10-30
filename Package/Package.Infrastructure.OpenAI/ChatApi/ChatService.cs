@@ -1,44 +1,45 @@
 ﻿using Microsoft.Extensions.Options;
-using OpenAI_API;
-using OpenAI_API.Chat;
-using OpenAI_API.Models;
+using OpenAI;
+using OpenAI.Chat;
+using System.ClientModel;
 
 namespace Package.Infrastructure.OpenAI.ChatApi;
 
-//https://github.com/OkGoDoIt/OpenAI-API-dotnet
+//https://github.com/openai/openai-dotnet?tab=readme-ov-file
+//https://platform.openai.com/settings/organization/usage
+//https://platform.openai.com/docs/models
 
-public class ChatService(IOptions<ChatServiceSettings> settings) : IChatService
+public class ChatService : IChatService
 {
-    private readonly OpenAIAPI _openApi = new(settings.Value.Key);
+    private readonly ChatClient chatClient;
+
+    public ChatService(IOptions<ChatServiceSettings> settings)
+    {
+        var openAIclient = new OpenAIClient(settings.Value.Key);
+        chatClient = openAIclient.GetChatClient(settings.Value.Model);
+    }
 
     public async Task<List<string>> ChatStream(Request request)
     {
-        var chat = _openApi.Chat.CreateConversation(new ChatRequest { Model = "gpt-3.5-turbo" });
-        chat.AppendUserInput(request.Prompt);
+        List<string> response = [];
 
-#pragma warning disable IDE0028 // Simplify collection initialization - does not work with IAsynEnumerable
-        List<string> response = new();
-#pragma warning restore IDE0028 // Simplify collection initialization
-        await foreach (var res in chat.StreamResponseEnumerableFromChatbotAsync())
+        AsyncCollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreamingAsync(request.Prompt);
+
+        await foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
         {
-            response.Add(res);
+            if (completionUpdate.ContentUpdate.Count > 0)
+            {
+                response.Add(completionUpdate.ContentUpdate[0].Text);
+            }
         }
+
         return response;
     }
 
     public async Task<string> ChatCompletion(Request request)
     {
-        var result = await _openApi.Chat.CreateChatCompletionAsync(new ChatRequest()
-        {
-            Model = Model.ChatGPTTurbo,
-            Temperature = 0.5,
-            MaxTokens = 50,
-            Messages = [new(ChatMessageRole.User, request.Prompt)]
-        });
-        // or
-        //var result = api.Chat.CreateChatCompletionAsync("Hello!");
-
-        return result.ToString();
+        ChatCompletion completion = await chatClient.CompleteChatAsync(request.Prompt);
+        return completion.Content[0].Text;
     }
 }
 

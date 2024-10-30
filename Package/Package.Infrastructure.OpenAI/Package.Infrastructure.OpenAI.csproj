@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Include="OpenAI" Version="1.11.0" />
+    <PackageReference Include="OpenAI" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
