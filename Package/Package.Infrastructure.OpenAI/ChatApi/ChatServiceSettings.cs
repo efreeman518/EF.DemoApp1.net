@@ -2,7 +2,7 @@
 
 public class ChatServiceSettings
 {
-    public const string ConfigSectionName = "ChatServiceSettings";
+    public const string ConfigSectionName = "OpenAIChatServiceSettings";
     public string Key { get; set; } = null!;
     public string Model { get; set; } = null!;
 }

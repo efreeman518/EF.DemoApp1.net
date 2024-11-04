@@ -12,8 +12,7 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.OpenAI.ChatApi;
-
-//using Package.Infrastructure.OpenAI.ChatApi;
+using Package.Infrastructure.AzureOpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.KeyVault;
@@ -22,6 +21,7 @@ using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using Azure.AI.OpenAI;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -106,6 +106,15 @@ public abstract class IntegrationTestBase
                 //wrapper for key vault sdks
                 services.Configure<KeyVaultManager1Settings>(configSection);
                 services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
+            }
+
+            //Azure OpenAI
+            configSection = Config.GetSection(AzureOpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
+            if (configSection.Exists())
+            {
+                // Register a custom client factory since this client does not currently have a service registration method
+                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) => 
+                    new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
             }
         });
 
@@ -248,12 +257,20 @@ public abstract class IntegrationTestBase
             .AddStandardResilienceHandler();
         }
 
-        //chat (OpenAI) service
-        configSection = Config.GetSection(ChatServiceSettings.ConfigSectionName);
+        //OpenAI chat service
+        configSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.AddTransient<IChatService, ChatService>();
-            services.Configure<ChatServiceSettings>(configSection);
+            services.AddTransient<OpenAI.ChatApi.IChatService, OpenAI.ChatApi.ChatService>();
+            services.Configure<OpenAI.ChatApi.ChatServiceSettings>(configSection);
+        }
+
+        //AzureOpenAI chat service
+        configSection = Config.GetSection(AzureOpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.AddTransient<AzureOpenAI.ChatApi.IChatService, AzureOpenAI.ChatApi.ChatService>();
+            services.Configure<AzureOpenAI.ChatApi.ChatServiceSettings>(configSection);
         }
 
         //Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem

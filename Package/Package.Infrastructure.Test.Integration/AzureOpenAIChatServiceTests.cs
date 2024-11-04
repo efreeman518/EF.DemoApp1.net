@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.OpenAI.ChatApi;
+using Package.Infrastructure.AzureOpenAI.ChatApi;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("OpenAI Api Key required - https://platform.openai.com/settings/organization/api-keys")]
+[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
-public class ChatServiceTests : IntegrationTestBase
+public class AzureOpenAIChatServiceTests : IntegrationTestBase
 {
     readonly IChatService _chatService;
 
-    public ChatServiceTests()
+    public AzureOpenAIChatServiceTests()
     {
         _chatService = Services.GetRequiredService<IChatService>();
     }

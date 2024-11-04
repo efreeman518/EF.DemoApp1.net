@@ -1,25 +1,34 @@
-﻿using Microsoft.Extensions.Options;
-using OpenAI;
+﻿using Azure.AI.OpenAI;
+using Azure.Identity;
+using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 using System.ClientModel;
 using System.Text.Json;
 
-namespace Package.Infrastructure.OpenAI.ChatApi;
+namespace Package.Infrastructure.AzureOpenAI.ChatApi;
 
 //https://github.com/openai/openai-dotnet?tab=readme-ov-file
 //https://platform.openai.com/settings/organization/usage
 //https://platform.openai.com/docs/models
-/// <summary>
-/// Identity calling the chat client needs premissions - role 'Azure AI Developer' works
-/// </summary>
+
+/*
+ * AzureOpenAI - when you access the model via the API, you need to refer to the deployment name rather than the underlying model name in API calls, 
+ * which is one of the key differences between OpenAI and Azure OpenAI. OpenAI only requires the model name. 
+ * Azure OpenAI always requires deployment name, even when using the model parameter. 
+ * In our docs, we often have examples where deployment names are represented as identical to model names 
+ * to help indicate which model works with a particular API endpoint. Ultimately your deployment names can 
+ * follow whatever naming convention is best for your use case.
+*/
+
 public class ChatService : IChatService
 {
     private readonly ChatClient chatClient;
 
     public ChatService(IOptions<ChatServiceSettings> settings)
     {
-        var openAIclient = new OpenAIClient(settings.Value.Key);
-        chatClient = openAIclient.GetChatClient(settings.Value.Model);
+        //AzureOpenAIClient should be injected 
+        var openAIclient = new AzureOpenAIClient(new Uri(settings.Value.Url), new DefaultAzureCredential());
+        chatClient = openAIclient.GetChatClient(settings.Value.DeploymentName);
     }
 
     public async Task<List<string>> ChatStream(Request request)
