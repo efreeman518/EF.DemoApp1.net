@@ -1,8 +1,10 @@
 ﻿using Azure.AI.OpenAI;
+using Azure.AI.OpenAI.Chat;
 using Azure.Identity;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 using System.ClientModel;
+using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.AzureOpenAI.ChatApi;
@@ -106,12 +108,13 @@ public class ChatService : IChatService
                 "unit": {
                     "type": "string",
                     "enum": [ "celsius", "fahrenheit" ],
-                    "description": "The temperature unit to use. Infer this from the specified location."
+                    "description": "The temperature unit to use. Infer this from the specified location unless the user requests a specific unit."
                 }
             },
             "required": [ "location" ]
         }
-        """u8.ToArray())
+        """u8.ToArray()),
+        functionSchemaIsStrict: true
     );
 
     public async Task<string> ChatCompletionWithTools(Request request)
@@ -155,6 +158,7 @@ public class ChatService : IChatService
                         messages.Add(new AssistantChatMessage(completion));
 
                         // Then, add a new tool message for each tool call that is resolved.
+                        // Should be processed in parallel if possible.
                         foreach (ChatToolCall toolCall in completion.ToolCalls)
                         {
                             switch (toolCall.FunctionName)
@@ -217,6 +221,44 @@ public class ChatService : IChatService
         } while (requiresAction);
 
         return response;
+    }
+
+    public async Task<string> ChatCompletionWithDataSource(Request request)
+    {
+        ChatCompletionOptions options = new();
+
+#pragma warning disable AOAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        options.AddDataSource(new AzureSearchChatDataSource()
+        {
+            Endpoint = new Uri("https://your-search-resource.search.windows.net"),
+            IndexName = "contoso-products-index",
+            Authentication = DataSourceAuthentication.FromApiKey(
+                Environment.GetEnvironmentVariable("OYD_SEARCH_KEY")),
+        });
+
+        //running list of messages to be sent to the model with each request
+        List<ChatMessage> messages =
+        [
+            new UserChatMessage(request.Prompt) //("What's the details of some static data?"),
+        ];
+
+        StringBuilder response = new();
+
+        ChatCompletion completion = await chatClient.CompleteChatAsync(messages, options);
+        ChatMessageContext dataContext = completion.GetMessageContext();
+
+        if (dataContext?.Intent is not null)
+        {
+            response.Append($"Intent: {dataContext.Intent}");
+        }
+        foreach (ChatCitation citation in dataContext?.Citations ?? [])
+        {
+            response.Append($"{Environment.NewLine}Citation: {citation.Content}");
+        }
+
+        return response.ToString();
+
+#pragma warning restore AOAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 }
 

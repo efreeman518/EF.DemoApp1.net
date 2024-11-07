@@ -3,7 +3,7 @@ using Package.Infrastructure.AzureOpenAI.ChatApi;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
 public class AzureOpenAIChatServiceTests : IntegrationTestBase
@@ -27,9 +27,11 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task ConversationWithTools_pass()
+    [DataRow("Whats the weather like today in Omaha, celsius?")]
+    [DataRow("What is the weather like today?")]
+    public async Task ConversationWithTools_pass(string prompt)
     {
-        var request = new Request("Whats the weather like today?");
+        var request = new Request(prompt);
         var response = await _chatService.ChatCompletionWithTools(request);
         Assert.IsNotNull(response);
     }
