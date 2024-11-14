@@ -50,32 +50,32 @@ public static class TodoItemEndpoints
     private static async Task<IResult> GetById(ITodoService todoService, Guid id)
     {
         var option = await todoService.GetItemAsync(id);
-        return option.Match(
+        return option.Match<IResult>(
             Some: dto => TypedResults.Ok(dto),
-            None: () => ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound));
+            None: () => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse("Not Found", message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound)));
     }
 
     private static async Task<IResult> Create(HttpContext httpContext, ITodoService todoService, TodoItemDto todoItemDto)
     {
         var result = await todoService.CreateItemAsync(todoItemDto);
-        return result.Match(
+        return result.Match<IResult>(
             dto => TypedResults.Created(httpContext.Request.Path, dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace)
-            );
+            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
+        );
     }
 
     private static async Task<IResult> Update(HttpContext httpContext, ITodoService todoService, Guid id, TodoItemDto todoItem)
     {
-        //validator?
         if (todoItem.Id != null && todoItem.Id != id)
         {
-            return ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}"));
         }
 
         var result = await todoService.UpdateItemAsync(todoItem);
-        return result.Match(
+        return result.Match<IResult>(
             dto => dto is null ? Results.NotFound(id) : TypedResults.Ok(dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace));
+            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
+        );
     }
 
     private static async Task<IResult> Delete(ITodoService todoService, Guid id)

@@ -18,7 +18,7 @@ public class WeatherServiceTests
 
     public WeatherServiceTests()
     {
-        IConfigurationRoot config = Support.Utility.BuildConfiguration().AddUserSecrets<WeatherServiceTests>().Build();
+        IConfigurationRoot config = Support.Utility.BuildConfiguration().Build();
 
         //logger
         var loggerFactory = LoggerFactory.Create(builder =>

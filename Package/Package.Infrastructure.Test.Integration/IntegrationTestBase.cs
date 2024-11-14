@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Azure;
+using Azure.AI.OpenAI;
 using Azure.Identity;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
@@ -8,11 +9,10 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.AzureOpenAI;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
-using Package.Infrastructure.OpenAI.ChatApi;
-using Package.Infrastructure.AzureOpenAI.ChatApi;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.KeyVault;
@@ -21,7 +21,6 @@ using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
-using Azure.AI.OpenAI;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -109,12 +108,16 @@ public abstract class IntegrationTestBase
             }
 
             //Azure OpenAI
-            configSection = Config.GetSection(AzureOpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
+            configSection = Config.GetSection(AzureOpenAI.ChatServiceSettings.ConfigSectionName);
             if (configSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
                 builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) => 
                     new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+
+                //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+                services.AddTransient<IChatService, ChatService>();
+                services.Configure<ChatServiceSettings>(configSection);
             }
         });
 
@@ -215,6 +218,7 @@ public abstract class IntegrationTestBase
                 EagerRefreshThreshold = 0.9f
             });
             //using redis for L2 distributed cache
+            //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
             if (!string.IsNullOrEmpty(cacheInstance.RedisName))
             {
                 connectionString = Config.GetConnectionString(cacheInstance.RedisName);
@@ -257,20 +261,12 @@ public abstract class IntegrationTestBase
             .AddStandardResilienceHandler();
         }
 
-        //OpenAI chat service
+        //OpenAI chat service wrapper
         configSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
         if (configSection.Exists())
         {
             services.AddTransient<OpenAI.ChatApi.IChatService, OpenAI.ChatApi.ChatService>();
             services.Configure<OpenAI.ChatApi.ChatServiceSettings>(configSection);
-        }
-
-        //AzureOpenAI chat service
-        configSection = Config.GetSection(AzureOpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
-        {
-            services.AddTransient<AzureOpenAI.ChatApi.IChatService, AzureOpenAI.ChatApi.ChatService>();
-            services.Configure<AzureOpenAI.ChatApi.ChatServiceSettings>(configSection);
         }
 
         //Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem

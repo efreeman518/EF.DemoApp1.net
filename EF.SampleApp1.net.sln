@@ -132,6 +132,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package.Infrastructure.Open
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package.Infrastructure.AzureOpenAI", "Package\Package.Infrastructure.AzureOpenAI\Package.Infrastructure.AzureOpenAI.csproj", "{9332A446-5B35-44B1-9876-A3377C56B540}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.JobsApi", "Infrastructure.JobsApi\Infrastructure.JobsApi.csproj", "{D51981C7-616A-4A33-8386-D64AAED84567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -330,6 +332,10 @@ Global
 		{9332A446-5B35-44B1-9876-A3377C56B540}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9332A446-5B35-44B1-9876-A3377C56B540}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9332A446-5B35-44B1-9876-A3377C56B540}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D51981C7-616A-4A33-8386-D64AAED84567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D51981C7-616A-4A33-8386-D64AAED84567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D51981C7-616A-4A33-8386-D64AAED84567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D51981C7-616A-4A33-8386-D64AAED84567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -385,6 +391,7 @@ Global
 		{001E5B64-C052-4179-88D9-296686FC9DD4} = {582A744C-28BF-4AD2-9485-597390A53596}
 		{8B21B62E-C67A-4D2C-AF49-6CF09835AB38} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
 		{9332A446-5B35-44B1-9876-A3377C56B540} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}
+		{D51981C7-616A-4A33-8386-D64AAED84567} = {C90D2F43-238F-4264-AFC4-FED54F80E073}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

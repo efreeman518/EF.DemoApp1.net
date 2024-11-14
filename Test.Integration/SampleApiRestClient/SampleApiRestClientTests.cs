@@ -21,7 +21,7 @@ public class SampleApiRestClientTests
 
     public SampleApiRestClientTests()
     {
-        IConfigurationRoot config = Support.Utility.BuildConfiguration().AddUserSecrets<SampleApiRestClientTests>().Build();
+        IConfigurationRoot config = Support.Utility.BuildConfiguration().Build();
 
         //logger
         var loggerFactory = LoggerFactory.Create(builder =>

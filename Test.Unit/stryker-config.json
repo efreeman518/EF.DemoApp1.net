@@ -6,12 +6,15 @@
   Note that Stryker can not use transitive projects, 
   so each project tested must be directly reference in the test project
 
-  Install Stryker globally: dotnet tool install -g dotnet-stryker
+  Install/Update Stryker globally: dotnet tool install -g dotnet-stryker
   Install Stryker locally: dotnet tool restore (uses /.config/dotnet-tools.json)
+  Update to latest version local:  dotnet tool update dotnet-stryker
 
-  Auth errors - temporarily uncheck provate nuget package sources
-
+  Open terminal in the test project folder
   Run Stryker from the test project folder> dotnet stryker
+
+  Auth errors - temporarily uncheck private nuget package sources
+
 */
 {
   "stryker-config": {

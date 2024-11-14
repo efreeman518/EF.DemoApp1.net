@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.AzureOpenAI.ChatApi;
+using Package.Infrastructure.AzureOpenAI;
 
 namespace Package.Infrastructure.Test.Integration;
 

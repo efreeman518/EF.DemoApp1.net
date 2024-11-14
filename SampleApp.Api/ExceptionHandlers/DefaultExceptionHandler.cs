@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Extensions;
 
 namespace SampleApp.Api.ExceptionHandlers;
@@ -11,7 +12,7 @@ namespace SampleApp.Api.ExceptionHandlers;
 /// </summary>
 /// <param name="logger"></param>
 /// <param name="hostEnvironment"></param>
-public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> logger, IHostEnvironment hostEnvironment)
+public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> logger, IHostEnvironment hostEnvironment, IProblemDetailsService problemDetailsService)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
@@ -40,22 +41,31 @@ public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> log
             _ => StatusCodes.Status500InternalServerError
         };
 
-        var problemDetails = new ProblemDetails
-        {
-            Type = exception.GetType().Name,
-            Title = "Error occurred",
-            Detail = exception.Message,
-            Status = httpContext.Response.StatusCode
-        };
-        problemDetails.Extensions.Add("traceidentifier", httpContext.TraceIdentifier);
-        if (hostEnvironment.IsDevelopment())
-        {
-            problemDetails.Extensions.Add("stacktrace", exception.StackTrace);
-        }
+        //var problemDetails = new ProblemDetails
+        //{
+        //    Type = exception.GetType().Name,
+        //    Title = "Error",
+        //    Detail = exception.Message,
+        //    Status = httpContext.Response.StatusCode
+        //};
+        //problemDetails.Extensions.Add("traceidentifier", httpContext.TraceIdentifier);
+        //if (hostEnvironment.IsDevelopment())
+        //{
+        //    problemDetails.Extensions.Add("stacktrace", exception.StackTrace);
+        //}
 
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        var problemDetails = ProblemDetailsHelper.BuildProblemDetailsResponse(message: exception.Message, exception: exception, traceId: httpContext.TraceIdentifier, includeStackTrace: hostEnvironment.IsDevelopment());
 
-        return true;
+        //await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        //return true;
+
+        return await problemDetailsService.TryWriteAsync(
+            new ProblemDetailsContext
+            { 
+                HttpContext = httpContext, 
+                ProblemDetails = problemDetails, 
+                Exception = exception }
+            );
     }
 }
 

@@ -1,6 +1,5 @@
 # Introduction 
 C# Sample App - A modern domain-centric service api reference template
-- net9 branch - .net9 latest preview
 
 # Prerequisites
 1. [Visual Studio 2022 Latest](https://visualstudio.microsoft.com/vs/)
@@ -47,7 +46,7 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - openapi pag
 1. Started from Microsoft's Todo sample api (<a href="https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api" target="_blank">https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api</a>)
 2. This sample uses Entity Framework Core in-memory DbContext by default, so restarting the app clears the DB
 3. This solution provides a possible starting template for building service apis and is not production-ready (in-memory database, no authentication, etc)
-4. Package.Infrastructure projects are meant to reside in a nuget package feed, but for simplicity and portability of this sample, the source projects are included and referenced
+4. Package.Infrastructure projects are meant to reside in a nuget package feed, but for simplicity and portability of this sample, the source projects are included and referenced directly
 5. Package.Infrastructure.Storage & Functions.FunctionBlobTrigger - install and run latest azurite storage emulator (https://www.npmjs.com/package/azurite)
    * npm install -g azurite
    * (if needed for Powershell) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass

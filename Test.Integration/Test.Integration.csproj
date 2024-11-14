@@ -56,6 +56,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.AzureOpenAI\Package.Infrastructure.AzureOpenAI.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />

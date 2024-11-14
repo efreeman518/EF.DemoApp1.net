@@ -21,11 +21,14 @@
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0" />
     <PackageReference Include="Respawn" Version="6.2.1" />
     <PackageReference Include="Testcontainers.MsSql" Version="3.10.0" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.AzureOpenAI\Package.Infrastructure.AzureOpenAI.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Data\Package.Infrastructure.Data.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />

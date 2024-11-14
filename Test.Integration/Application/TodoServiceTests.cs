@@ -13,7 +13,7 @@ using Test.Support;
 
 namespace Test.Integration.Application;
 
-//for all tests in this class are using the same database [DoNotParallelize]
+//all tests in this class are using the same database so [DoNotParallelize]
 
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase

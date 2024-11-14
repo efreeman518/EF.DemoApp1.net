@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.Text;
 using System.Text.Json;
 
-namespace Package.Infrastructure.AzureOpenAI.ChatApi;
+namespace Package.Infrastructure.AzureOpenAI;
 
 //https://github.com/openai/openai-dotnet?tab=readme-ov-file
 //https://platform.openai.com/settings/organization/usage
@@ -221,6 +221,56 @@ public class ChatService : IChatService
         } while (requiresAction);
 
         return response;
+    }
+
+    public async Task ChatCompletionWithTools(List<ChatMessage> messages, ChatCompletionOptions? options = null,
+        Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null)
+    {
+        bool requiresAction;
+
+        do
+        {
+            requiresAction = false;
+            ChatCompletion completion = await chatClient.CompleteChatAsync(messages, options);
+
+            switch (completion.FinishReason)
+            {
+                //model has determined the conversation is complete
+                case ChatFinishReason.Stop:
+                    {
+                        // Add the assistant message to the conversation history.
+                        messages.Add(new AssistantChatMessage(completion));
+                        break;
+                    }
+                //model has requested additional information
+                case ChatFinishReason.ToolCalls:
+                    {
+                        ArgumentNullException.ThrowIfNull(toolCallFunc);
+                        // First, add the assistant message with tool calls to the conversation history.
+                        messages.Add(new AssistantChatMessage(completion));
+
+                        //process the tool calls; adds tool response messages to the chat 
+                        await toolCallFunc(messages, completion.ToolCalls);
+
+                        //tools have been called and responses added to messages; more work is required to complete the conversation
+                        requiresAction = true;
+
+                        break;
+                    }
+
+                case ChatFinishReason.Length:
+                    throw new NotImplementedException("Incomplete model output due to MaxTokens parameter or token limit exceeded.");
+
+                case ChatFinishReason.ContentFilter:
+                    throw new NotImplementedException("Omitted content due to a content filter flag.");
+
+                case ChatFinishReason.FunctionCall:
+                    throw new NotImplementedException("Deprecated in favor of tool calls.");
+
+                default:
+                    throw new NotImplementedException(completion.FinishReason.ToString());
+            }
+        } while (requiresAction);
     }
 
     public async Task<string> ChatCompletionWithDataSource(Request request)

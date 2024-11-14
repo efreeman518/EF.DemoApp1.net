@@ -9,9 +9,9 @@ namespace Package.Infrastructure.AspNetCore;
 public static class ProblemDetailsHelper
 {
     /// <summary>
-    /// Build a ProblemDetails response; unhandled exceptions will be handled by the DefaultExceptionHandler, 
+    /// Build a ProblemDetails; unhandled exceptions will be handled by the DefaultExceptionHandler, 
     /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method returns a TypedResult with ProblemDetails response
+    /// this method returns ProblemDetails for use like: response
     /// </summary>
     /// <param name="title"></param>
     /// <param name="message"></param>
@@ -20,7 +20,7 @@ public static class ProblemDetailsHelper
     /// <param name="includeStackTrace"></param>
     /// <param name="statusCodeOverride"></param>
     /// <returns></returns>
-    public static IResult BuildProblemDetailsResponse(string title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
+    public static ProblemDetails BuildProblemDetailsResponse(string title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
     {
         //map exception to status code
         var statusCode = statusCodeOverride ?? exception?.GetType().Name switch
@@ -38,16 +38,16 @@ public static class ProblemDetailsHelper
             Detail = message ?? exception?.Message,
             Status = statusCode
         };
-        if (traceId != null) problemDetails.Extensions.Add("traceId", traceId);
-        problemDetails.Extensions.Add("machineName", Environment.MachineName);
+        problemDetails.Extensions.TryAdd("traceId", traceId);
+        problemDetails.Extensions.TryAdd("machineName", Environment.MachineName);
 
         if (includeStackTrace && exception?.StackTrace != null)
         {
-            problemDetails.Extensions.Add("stacktrace", exception.StackTrace);
+            problemDetails.Extensions.TryAdd("stacktrace", exception.StackTrace);
         }
 
-        var result = TypedResults.Problem(problemDetails);
-
-        return result;
+        return problemDetails;
+        //var result = TypedResults.Problem(problemDetails);
+        //return result;
     }
 }

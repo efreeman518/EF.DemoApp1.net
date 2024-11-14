@@ -4,11 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using Respawn;
 using Respawn.Graph;
-using SampleApp.Bootstrapper;
 using System.Data;
 using System.Data.Common;
 using Testcontainers.MsSql;
@@ -19,19 +17,19 @@ namespace Test.Support;
 /// Testing Domain, Application, and Infrastructure services/logic; not http endpoints
 /// MSTest Constructor (if defined) runs before each test
 /// </summary>
-public abstract class DbIntegrationTestBase
+public abstract class DbIntegrationTestBase : IntegrationTestBase
 {
     private static string _testContextName = null!;
-    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().Build();
-    protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
-    protected static IServiceProvider Services => _services;
-    protected static IServiceScope ServiceScope => _serviceScope;
-    protected static ILogger Logger => _logger;
+    //protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().Build();
+    //protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
+    //protected static IServiceProvider Services => _services;
+    //protected static IServiceScope ServiceScope => _serviceScope;
+    //protected static ILogger Logger => _logger;
     protected static TodoDbContextBase DbContext => _dbContext;
 
-    private static IServiceProvider _services = null!;
-    private static IServiceScope _serviceScope = null!;
-    private static ILogger<DbIntegrationTestBase> _logger = null!;
+    //private static IServiceProvider _services = null!;
+    //private static IServiceScope _serviceScope = null!;
+    //private static ILogger<DbIntegrationTestBase> _logger = null!;
     private static TodoDbContextBase _dbContext = null!;
 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
@@ -68,34 +66,36 @@ public abstract class DbIntegrationTestBase
         }
 
         //Services for DI
-        ServiceCollection services = [];
+        ConfigureServices(_testContextName);
+        //ServiceCollection services = [];
 
-        var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.ClearProviders().AddConsole().AddDebug().AddApplicationInsights();
-        });
-        services.AddSingleton(loggerFactory);
+        //var loggerFactory = LoggerFactory.Create(builder =>
+        //{
+        //    builder.ClearProviders().AddConsole().AddDebug().AddApplicationInsights();
+        //});
+        //services.AddSingleton(loggerFactory);
 
-        //bootstrapper service registrations - infrastructure, domain, application 
-        services
-            .RegisterInfrastructureServices(Config)
-            .RegisterBackgroundServices(Config)
-            .RegisterDomainServices(Config)
-            .RegisterApplicationServices(Config);
+        ////bootstrapper service registrations - infrastructure, domain, application 
+        //services
+        //    .RegisterInfrastructureServices(Config)
+        //    .RegisterBackgroundServices(Config)
+        //    .RegisterDomainServices(Config)
+        //    .RegisterApplicationServices(Config);
 
-        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
-        _logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
+        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
+        //_logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
 
-        //database - swap registered for test db
+        //modify the services collection - swap registered for test db
         string dbName = TestConfigSection.GetValue<string>("TestSettings:DBName") ?? "Test.Integration.TestDB";
-        DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, _dbConnectionString, dbName);
+        DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(ServicesCollection, _dbConnectionString, dbName);
 
         //scoped DbContext
         //var scope = services.BuildServiceProvider().CreateScope();
         //_dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContextTrxn>();
 
-        //singleton DbContext
-        _dbContext = services.BuildServiceProvider().GetRequiredService<TodoDbContextTrxn>();
+        //rebuild service collection and grab the DbContext
+        Services = ServicesCollection.BuildServiceProvider();
+        _dbContext = Services.GetRequiredService<TodoDbContextTrxn>();
 
         //Environment.SetEnvironmentVariable("AKVCMKURL", "");
         //db.Database.Migrate(); //needs AKVCMKURL env var set
@@ -110,16 +110,16 @@ public abstract class DbIntegrationTestBase
         }
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
-        services.AddTransient<IRequestContext<string>>(provider =>
-        {
-            var correlationId = Guid.NewGuid().ToString();
-            return new RequestContext<string>(correlationId, $"Test.Support.IntegrationTestBase-{correlationId}");
-        });
+        //services.AddTransient<IRequestContext<string>>(provider =>
+        //{
+        //    var correlationId = Guid.NewGuid().ToString();
+        //    return new RequestContext<string>(correlationId, $"Test.Support.IntegrationTestBase-{correlationId}");
+        //});
 
         //build IServiceProvider for subsequent use finding/injecting services
-        _services = services.BuildServiceProvider(validateScopes: true);
-        _serviceScope = _services.CreateScope();
-        _logger.Log(LogLevel.Information, "{TestContextName} Initialized.", testContextName);
+        //Services = ServicesCollection.BuildServiceProvider(validateScopes: true);
+        ServiceScope = Services.CreateScope();
+        Logger.Log(LogLevel.Information, "{TestContextName} ConfigureTestInstanceAsync (DB swap) complete.", testContextName);
     }
 
     /// <summary>

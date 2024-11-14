@@ -53,4 +53,56 @@ public static class StringExtensions
 
         return result;
     }
+
+
+    public static string? FindClosestMatch(string target, List<string> list)
+    {
+        string? closestMatch = null;
+        int smallestDistance = int.MaxValue;
+
+        foreach (var item in list)
+        {
+            int distance = LevenshteinDistance(target, item);
+            if (distance < smallestDistance)
+            {
+                smallestDistance = distance;
+                closestMatch = item;
+            }
+        }
+
+        return closestMatch;
+    }
+
+    private static int LevenshteinDistance(string source, string target)
+    {
+        // If either string is null, return the length of the other string
+        if (string.IsNullOrEmpty(source)) return target?.Length ?? 0;
+        if (string.IsNullOrEmpty(target)) return source.Length;
+
+        int sourceLength = source.Length;
+        int targetLength = target.Length;
+
+        // Initialize a matrix
+        int[,] distance = new int[sourceLength + 1, targetLength + 1];
+
+        // Initialize the matrix edges
+        for (int i = 0; i <= sourceLength; i++) distance[i, 0] = i;
+        for (int j = 0; j <= targetLength; j++) distance[0, j] = j;
+
+        // Populate the matrix
+        for (int i = 1; i <= sourceLength; i++)
+        {
+            for (int j = 1; j <= targetLength; j++)
+            {
+                int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
+
+                distance[i, j] = Math.Min(
+                    Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1),
+                    distance[i - 1, j - 1] + cost);
+            }
+        }
+
+        // The Levenshtein distance is in the bottom-right cell of the matrix
+        return distance[sourceLength, targetLength];
+    }
 }

@@ -10,6 +10,7 @@ using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Data.Interceptors;
+using Infrastructure.JobsApi;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
@@ -27,7 +28,6 @@ using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.Common.Contracts;
-//using Package.Infrastructure.OpenAI.ChatApi;
 using Polly;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
@@ -380,6 +380,24 @@ public static class IServiceCollectionExtensions
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             .AddStandardResilienceHandler();
         }
+
+        #region Jobs
+
+        //jobs api service
+        configSection = config.GetSection(JobsServiceSettings.ConfigSectionName);
+        if (configSection.Exists())
+        {
+            services.Configure<JobsServiceSettings>(configSection);
+            services.AddScoped<IJobsService, JobsService>();
+            services.AddHttpClient<IJobsService, JobsService>(client =>
+            {
+                client.BaseAddress = new Uri(configSection.GetValue<string>("BaseUrl")!);
+            })
+            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
+            .AddStandardResilienceHandler();
+        }
+
+        #endregion
 
         //StartupTasks - executes once at startup
         services.AddTransient<IStartupTask, LoadCache>();
