@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenAI.Chat;
 using Package.Infrastructure.AzureOpenAI;
-using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 using Test.Support;
 
@@ -39,14 +38,19 @@ public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jo
     //private IFusionCache _cache = cacheProvider.GetCache("IntegrationTest.DefaultCache");
 
     //Tools
-    private async Task<string?> GetValidExpertises()
+    //private async Task<string?> GetValidExpertises()
+    //{
+    //    return (await jobsService.GetAllExpertises()).Select(e => e.Name).SerializeToJson();
+    //}
+
+    private async Task<IReadOnlyList<string>> FindMatchingValidExpertises(string input)
     {
-        return (await jobsService.GetExpertiseList()).SerializeToJson();
+        return await jobsService.FindTopExpertiseMatches(input, 5);
     }
 
-    private async Task<IReadOnlyList<Job>> SearchJobs(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
+    private async Task<IEnumerable<Job>> SearchJobs(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles)
     {
-        return await jobsService.SearchJobsAsync(expertiseCodes, latitude, longitude, radiusMiles);
+        return await jobsService.SearchJobsAsync(expertises, latitude, longitude, radiusMiles);
     }
 
     /// <summary>
@@ -54,14 +58,32 @@ public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jo
     /// Description only since the function does not take any parameters since the target GetCurrentLocation in theory uses the device's loaction
     /// </summary>
     /// arrays - https://community.openai.com/t/function-call-is-invalid-please-help/266803/6
-    private readonly ChatTool getValidExpertises = ChatTool.CreateFunctionTool(
-        functionName: nameof(GetValidExpertises),
-        functionDescription: "Get the list of valid expertises (code and name)"
+    //private readonly ChatTool getValidExpertises = ChatTool.CreateFunctionTool(
+    //    functionName: nameof(GetValidExpertises),
+    //    functionDescription: "Get the list of valid expertises."
+    //);
+    private readonly ChatTool findMatchingValidExpertises = ChatTool.CreateFunctionTool(
+        functionName: nameof(FindMatchingValidExpertises),
+        functionDescription: "Find closest matching valid expertises.",
+        functionParameters: BinaryData.FromBytes("""
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "description": "The expertise entered by the user."
+                }
+            },
+            "required":["input"]
+        }
+        """u8.ToArray()),
+        functionSchemaIsStrict: true
     );
 
     private readonly ChatTool searchJobs = ChatTool.CreateFunctionTool(
         functionName: nameof(SearchJobs),
-        functionDescription: "Search for jobs based on the expertise codes and location (using latitude, longitude, and radius) entered by the user.",
+        functionDescription: "Search for jobs based on valid expertises and location (using latitude, longitude, and radius).",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -69,9 +91,9 @@ public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jo
             "properties": {
                 "expertises": {
                     "type": "array",
-                    "description": "The list of expertise codes found by the expertise names entered by the user.",
+                    "description": "The list of valid expertises.",
                     "items": {
-                      "type": "number"
+                      "type": "string"
                     }
                 },
                 "latitude": {
@@ -93,22 +115,22 @@ public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jo
         functionSchemaIsStrict: true
     );
 
+    //Once the location, distance, and expertises are defined, you will give a concise summarization, and ask the user to confirm or change any details.
+    // based on only valid expertise names, latitude, longitude, and radius.
+    //You will validate the user input against a valid list of expertise names before searching jobs. 
     public async Task ChatCompletionWithToolsAsync()
     {
-        var systemPrompt = @"You are an AI assistant that helps people find the job they are looking for. 
-You ask for specific information if not provided. You are professional, positive, and complimentary 
-and mention an interesting  one-sentence fact about the location, but only after the location is determined. 
-You first need to collect a location and distance from that location (or willingness to travel anywhere), 
-as well as expertises they are qualified in. You will validate expertises against a known list of valid expertises. 
-Once the location, distance, 
-and expertises are defined, you will give a concise summarization, and ask the user to confirm or change any details. 
-After confirmation, determine the location latitude and longitude for use in calling tools, then use the tools 
-to search for matching jobs based on expertises, latitude, longitude, and radius
-and present the user with the jobs and information provided by the tool only, 
-in a concise, detailed, easily readable format that includes relevant details such as required certifications 
-and shift hours if applicable, and compensation range, with an 'Apply Here' link to the specific job application on the job website.";
+        var systemPrompt = @"You are a professional assistant that helps people find the job they are looking for. 
+You ask for specific information if not provided.  
+You assist the user in determining up to 5 valid expertises, taking the user input, do not ask for any additional information.
+You collect a location, calculate the latitude and longitude, and search radius distance from that location in miles, 
+or willingness to travel anywhere. 
+Search for jobs and present the user with the search result jobs and information provided by the tool only, 
+in a concise, detailed, easily readable html table format that includes relevant details such as required certifications 
+and shift hours if applicable, and compensation range, with an 'More details and Apply' link to the specific job application on the job website
+using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.";
 
-        var userMessage = "memphis, 20 miles, er, icu";
+        var userMessage = "memphis, 20 miles, er";
         var messages = new List<ChatMessage>
         {
             new SystemChatMessage(systemPrompt),
@@ -118,14 +140,14 @@ and shift hours if applicable, and compensation range, with an 'Apply Here' link
         //options for the chat - identify the tools available to the model
         ChatCompletionOptions options = new()
         {
-            Tools = { getValidExpertises, searchJobs }
+            Tools = { findMatchingValidExpertises, searchJobs }
         };
 
         await chatService.ChatCompletionWithTools(messages, options, ToolsCallback);
 
         //should have enough info to request confirmation & continue to search jobs
-        messages.Add(new UserChatMessage("yes"));
-        await chatService.ChatCompletionWithTools(messages, options, ToolsCallback);
+        //messages.Add(new UserChatMessage("yes"));
+        //await chatService.ChatCompletionWithTools(messages, options, ToolsCallback);
 
         //should have job search results
         _ = true;
@@ -140,9 +162,11 @@ and shift hours if applicable, and compensation range, with an 'Apply Here' link
         {
             switch (toolCall.FunctionName)
             {
-                case nameof(GetValidExpertises):
+                case nameof(FindMatchingValidExpertises):
                     {
-                        var toolResult = await GetValidExpertises();
+                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
+                        bool hasParamInput = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
+                        var toolResult = await FindMatchingValidExpertises(elInput.GetString()!);
                         var toolResultMessage = string.Join(", ", toolResult);
                         messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));
                         break;
@@ -152,13 +176,13 @@ and shift hours if applicable, and compensation range, with an 'Apply Here' link
                     {
                         using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
                         bool hasParamExpertises = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
-                        var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetInt32()!).ToList();
+                        var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetString()!).ToList();
                         bool hasParamLatitude = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
-                        var paramLatitude = elExpertises.GetDecimal()!;
+                        var paramLatitude = elLatitude.GetDecimal()!;
                         bool hasParamLongitude = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
-                        var paramLongitude = elExpertises.GetDecimal()!;
+                        var paramLongitude = elLongitude.GetDecimal()!;
                         bool hasParamRadius = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
-                        var paramRadius = elExpertises.GetInt32()!;
+                        var paramRadius = elRadius.GetInt32()!;
                         var toolResult = await SearchJobs(paramExpertises, paramLatitude, paramLongitude, paramRadius);
                         var toolResultMessage = string.Join(", ", toolResult);
                         messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));

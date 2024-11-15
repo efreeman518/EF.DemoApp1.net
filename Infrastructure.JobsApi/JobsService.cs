@@ -1,4 +1,5 @@
-﻿using LanguageExt.Common;
+﻿using LanguageExt;
+using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
@@ -6,7 +7,8 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Infrastructure.JobsApi;
 
-public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettings> settings, IFusionCacheProvider cacheProvider, HttpClient httpClient) : IJobsService
+public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettings> settings, 
+    IFusionCacheProvider cacheProvider, HttpClient httpClient) : IJobsService
 {
     private const string CACHEKEY_LOOKUPS = "Lookups";
 
@@ -29,9 +31,10 @@ public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettin
         return lookups;
     }
 
-    public async Task<IReadOnlyList<Expertise>> GetExpertiseList(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<string>> FindTopExpertiseMatches(string target, int maxCount, CancellationToken cancellationToken = default)
     {
-        return (await GetLookupsAsync(cancellationToken)).Expertises;
+        var fullList = (await GetLookupsAsync(cancellationToken)).Expertises.Select(e => e.Name).ToList();
+        return target.FindTopMatches(fullList, maxCount, 10, false);
     }
 
     //lookups - professions with types
@@ -45,11 +48,17 @@ public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettin
     //    return result;
     //}
 
+    private async Task<IReadOnlyList<Expertise>> GetAllExpertiseList(CancellationToken cancellationToken = default)
+    {
+        return (await GetLookupsAsync(cancellationToken)).Expertises;
+    }
+
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
-    public async Task<IReadOnlyList<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
+    public async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 3)
     {
+        var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
         var joinExpertises = string.Join("&expertiseCodes=", expertiseCodes);
         var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}";
         logger.LogInformation("job/GetJobSearchResultAsync: {Url}", url);
@@ -58,7 +67,7 @@ public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettin
         var jobResult = result.Match(
                Succ: response => response ?? throw new InvalidDataException($"Endpoint returned null: {url}"),
                Fail: err => throw err);
-        return jobResult.Items;
+        return jobResult.Items.Take(pageSize);
     }
 
     //get job details

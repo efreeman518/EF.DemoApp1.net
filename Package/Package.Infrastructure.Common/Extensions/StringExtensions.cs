@@ -55,14 +55,44 @@ public static class StringExtensions
     }
 
 
-    public static string? FindClosestMatch(string target, List<string> list)
+    public static List<string> FindTopMatches(this string target, List<string> list,
+        int maxMatches = 4, int distanceThreshold = 10, bool returnExactOnlyIfMatch = true, 
+        bool prirotizeStartMatch = true, bool ignoreCase = true)
+    {
+        if (returnExactOnlyIfMatch) 
+        {
+            var match = list.Find(str => string.Equals(str, target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+            if (match != null) return [match];
+        }
+
+        List<string> matches = [];
+        if (prirotizeStartMatch)
+        {
+            matches = list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList();
+        }
+
+        if (matches.Count < maxMatches)
+        {
+            matches.AddRange(list
+                .Select(str => new { Str = str, Distance = LevenshteinDistance(target, str, ignoreCase) })
+                .Where(result => result.Distance <= distanceThreshold)
+                .OrderBy(result => result.Distance)
+                .Take(maxMatches - matches.Count)
+                .Select(result => result.Str)
+                .ToList());
+        }
+
+        return matches;
+    }
+
+    public static string? FindClosestMatch(string target, List<string> list, bool ignoreCase = true)
     {
         string? closestMatch = null;
         int smallestDistance = int.MaxValue;
 
         foreach (var item in list)
         {
-            int distance = LevenshteinDistance(target, item);
+            int distance = LevenshteinDistance(target, item, ignoreCase);
             if (distance < smallestDistance)
             {
                 smallestDistance = distance;
@@ -73,11 +103,18 @@ public static class StringExtensions
         return closestMatch;
     }
 
-    private static int LevenshteinDistance(string source, string target)
+    private static int LevenshteinDistance(string source, string target, bool ignoreCase = true)
     {
         // If either string is null, return the length of the other string
         if (string.IsNullOrEmpty(source)) return target?.Length ?? 0;
         if (string.IsNullOrEmpty(target)) return source.Length;
+
+        //case ignore
+        if (ignoreCase)
+        {
+            source = source.ToLower();
+            target = target.ToLower();
+        }
 
         int sourceLength = source.Length;
         int targetLength = target.Length;
