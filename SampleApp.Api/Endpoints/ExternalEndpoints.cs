@@ -53,15 +53,15 @@ public static class ExternalEndpoints
         var todoItem = await apiClient.GetItemAsync(id);
         return (todoItem != null)
            ? TypedResults.Ok(todoItem)
-           : ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound);
+           : TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound));
     }
 
     private static async Task<IResult> Create(HttpContext httpContext, ISampleApiRestClient apiClient, TodoItemDto todoItemDto)
     {
         var result = await apiClient.SaveItemAsync(todoItemDto);
-        return result.Match(
+        return result.Match<IResult>(
             dto => TypedResults.Created(httpContext.Request.Path, dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace)
+            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
             );
     }
 
@@ -70,13 +70,13 @@ public static class ExternalEndpoints
         //validator?
         if (todoItem.Id != null && todoItem.Id != id)
         {
-            return ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}");
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}"));
         }
 
         var result = await apiClient.SaveItemAsync(todoItem);
         return result.Match(
             dto => dto is null ? Results.NotFound(id) : TypedResults.Ok(dto),
-            err => ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace));
+            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace)));
     }
 
     private static async Task<IResult> Delete(ISampleApiRestClient apiClient, Guid id)

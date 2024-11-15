@@ -137,7 +137,7 @@ internal static class IServiceCollectionExtensions
             options.CustomizeProblemDetails = (context) =>
             {
                 context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-                context.ProblemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+                context.ProblemDetails.Extensions.TryAdd("traceId", context.HttpContext.TraceIdentifier);
                 var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
                 context.ProblemDetails.Extensions.TryAdd("activityId", activity?.Id);
             };

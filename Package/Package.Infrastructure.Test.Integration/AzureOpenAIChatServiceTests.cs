@@ -3,7 +3,7 @@ using Package.Infrastructure.AzureOpenAI;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
 public class AzureOpenAIChatServiceTests : IntegrationTestBase
