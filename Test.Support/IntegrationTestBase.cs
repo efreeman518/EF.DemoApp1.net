@@ -1,17 +1,8 @@
-﻿using Azure.AI.OpenAI;
-using Azure.Identity;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using SampleApp.Bootstrapper;
-using ZiggyCreatures.Caching.Fusion;
-using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
-using Package.Infrastructure.AzureOpenAI;
-using Application.Services.JobChat;
 
 namespace Test.Support;
 
@@ -67,24 +58,25 @@ public abstract class IntegrationTestBase
             .RegisterApplicationServices(Config);
 
         //register services for testing that are not already registered in the bootstraper
-        ServicesCollection.AddAzureClients(builder =>
-        {
-            //Azure OpenAI
-            var configSection = Config.GetSection(JobChatSettings.ConfigSectionName);
-            if (configSection.Exists())
-            {
-                // Register a custom client factory since this client does not currently have a service registration method
-                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                    new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+        //ServicesCollection.AddAzureClients(builder =>
+        //{
+        //    //Azure OpenAI
+        //    var configSection = Config.GetSection(JobChatSettings.ConfigSectionName);
+        //    if (configSection.Exists())
+        //    {
+        //        // Register a custom client factory since this client does not currently have a service registration method
+        //        builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+        //            new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
 
-                //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                ServicesCollection.AddTransient<IJobChatService, JobChatService>();
-            }
-        });
+        //        //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+        //        ServicesCollection.AddTransient<IJobChatService, JobChatService>();
+        //    }
+        //});
 
+        //moved to bootstrapper
         //FusionCache settings
-        List<CacheSettings> cacheSettings = [];
-        Config.GetSection("CacheSettings").Bind(cacheSettings);
+        //List<CacheSettings> cacheSettings = [];
+        //Config.GetSection("CacheSettings").Bind(cacheSettings);
 
         ////FusionCache supports multiple named instances with different default settings
         //foreach (var cacheInstance in cacheSettings)
@@ -128,12 +120,6 @@ public abstract class IntegrationTestBase
         //            }));
         //    }
         //}
-
-
-
-
-
-
 
 
         ServicesCollection.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());

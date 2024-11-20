@@ -68,6 +68,9 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
+        services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
+        //services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
+
         return services;
     }
 
@@ -86,8 +89,6 @@ public static class IServiceCollectionExtensions
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         //https://github.com/alastairtree/LazyCache
         //services.AddLazyCache();
-
-        string? connectionString;
 
         //FusionCache - https://www.nuget.org/packages/ZiggyCreatures.FusionCache
         List<CacheSettings> cacheSettings = [];
@@ -122,7 +123,7 @@ public static class IServiceCollectionExtensions
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
             if (!string.IsNullOrEmpty(cacheInstance.RedisName))
             {
-                connectionString = config.GetConnectionString(cacheInstance.RedisName);
+                var connectionString = config.GetConnectionString(cacheInstance.RedisName);
                 fcBuilder
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))
                     //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
@@ -138,12 +139,12 @@ public static class IServiceCollectionExtensions
         }
 
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
-        connectionString = config.GetConnectionString("Redis1");
-        if (!string.IsNullOrEmpty(connectionString))
+        var redisConnectionString = config.GetConnectionString("Redis1");
+        if (!string.IsNullOrEmpty(redisConnectionString))
         {
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = connectionString;
+                options.Configuration = redisConnectionString;
                 options.InstanceName = "redis1";
             });
         }
@@ -201,8 +202,8 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
         //Database 
-        connectionString = config.GetConnectionString("TodoDbContextTrxn");
-        if (string.IsNullOrEmpty(connectionString) || connectionString == "UseInMemoryDatabase")
+        var trxnDBconnectionString = config.GetConnectionString("TodoDbContextTrxn");
+        if (string.IsNullOrEmpty(trxnDBconnectionString) || trxnDBconnectionString == "UseInMemoryDatabase")
         {
             //multiple in memory DbContexts use the same DB
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
@@ -226,7 +227,7 @@ public static class IServiceCollectionExtensions
             services.AddDbContextPool<TodoDbContextTrxn>((sp, options) =>
             {
                 var auditInterceptor = new AuditInterceptor(sp.GetRequiredService<IRequestContext<string>>(), sp.GetRequiredService<IInternalBroker>());
-                options.UseSqlServer(connectionString,
+                options.UseSqlServer(trxnDBconnectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
                     {
@@ -239,9 +240,9 @@ public static class IServiceCollectionExtensions
                     .AddInterceptors(auditInterceptor);
             });
 
-            connectionString = config.GetConnectionString("TodoDbContextQuery");
+            var queryDBconnectionString = config.GetConnectionString("TodoDbContextQuery");
             services.AddDbContextPool<TodoDbContextQuery>(options =>
-                options.UseSqlServer(connectionString,
+                options.UseSqlServer(queryDBconnectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
                     {
@@ -275,7 +276,7 @@ public static class IServiceCollectionExtensions
             //services.AddKeyedScoped<List<AuditEntry>>("Audit", (_, _) => []);
         }
 
-        IConfigurationSection configSection;
+        //IConfigurationSection configSection;
 
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
@@ -289,26 +290,26 @@ public static class IServiceCollectionExtensions
                 // Use DefaultAzureCredential by default
                 builder.UseCredential(new DefaultAzureCredential());
 
-                configSection = config.GetSection("EventGridPublisher1");
-                if (configSection.Exists())
+                var egpConfigSection = config.GetSection("EventGridPublisher1");
+                if (egpConfigSection.Exists())
                 {
                     //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
-                    builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
-                        new AzureKeyCredential(configSection.GetValue<string>("Key")!))
+                    builder.AddEventGridPublisherClient(new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
+                        new AzureKeyCredential(egpConfigSection.GetValue<string>("Key")!))
                     .WithName("EventGridPublisher1");
                 }
 
                 //Azure OpenAI
-                configSection = config.GetSection(JobChatSettings.ConfigSectionName);
-                if (configSection.Exists())
+                var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
+                if (jobChatConfigSection.Exists())
                 {
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                        new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+                        new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
 
                     //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
                     services.AddTransient<IJobChatService, JobChatService>();
-                    services.Configure<JobChatSettings>(configSection);
+                    services.Configure<JobChatSettings>(jobChatConfigSection);
                 }
             });
 
@@ -322,10 +323,10 @@ public static class IServiceCollectionExtensions
         }
 
         //external SampleAppApi
-        configSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
-        if (configSection.Exists())
+        var sampleApiconfigSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
+        if (sampleApiconfigSection.Exists())
         {
-            services.Configure<SampleApiRestClientSettings>(configSection);
+            services.Configure<SampleApiRestClientSettings>(sampleApiconfigSection);
 
             services.AddScoped(provider =>
             {
@@ -428,10 +429,10 @@ public static class IServiceCollectionExtensions
         //}
 
         //external weather service
-        configSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
+        var weatherServiceConfigSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
+        if (weatherServiceConfigSection.Exists())
         {
-            services.Configure<WeatherServiceSettings>(configSection);
+            services.Configure<WeatherServiceSettings>(weatherServiceConfigSection);
             services.AddScoped<IWeatherService, WeatherService>();
 
             services.AddHttpClient<IWeatherService, WeatherService>(client =>
@@ -450,14 +451,14 @@ public static class IServiceCollectionExtensions
         #region Jobs
 
         //jobs api service
-        configSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
+        var jobsApiConfigSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
+        if (jobsApiConfigSection.Exists())
         {
-            services.Configure<JobsApiServiceSettings>(configSection);
+            services.Configure<JobsApiServiceSettings>(jobsApiConfigSection);
             services.AddScoped<IJobsApiService, JobsApiService>();
             services.AddHttpClient<IJobsApiService, JobsApiService>(client =>
             {
-                client.BaseAddress = new Uri(configSection.GetValue<string>("BaseUrl")!);
+                client.BaseAddress = new Uri(jobsApiConfigSection.GetValue<string>("BaseUrl")!);
             })
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             .AddStandardResilienceHandler();

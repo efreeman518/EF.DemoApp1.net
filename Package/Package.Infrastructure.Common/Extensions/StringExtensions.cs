@@ -56,10 +56,10 @@ public static class StringExtensions
 
 
     public static List<string> FindTopMatches(this string target, List<string> list,
-        int maxMatches = 4, int distanceThreshold = 10, bool returnExactOnlyIfMatch = true, 
+        int maxMatches = 4, int distanceThreshold = 10, bool returnExactOnlyIfMatch = true,
         bool prirotizeStartMatch = true, bool ignoreCase = true)
     {
-        if (returnExactOnlyIfMatch) 
+        if (returnExactOnlyIfMatch)
         {
             var match = list.Find(str => string.Equals(str, target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
             if (match != null) return [match];

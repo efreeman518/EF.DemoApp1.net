@@ -51,7 +51,6 @@ td {
     width: 25px;
     height: 25px;
     animation: spin 1s linear infinite;*/
-
     /*svg spinner*/
     height: 35px;
     margin-top: -4px;
@@ -86,19 +85,48 @@ td {
         outline: none;
     }
 
-    /* chat */
-.chat {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+/* chat */
+#chat-container {
+    width: 600px; /* Adjust as needed */
+    height: 600px; /* Fixed height for the scrolling window */
 }
 
-    .chat div {
-        margin: 5px;
-        padding: 5px;
-        border-radius: 5px;
-        border: solid 1px blue;
+#chat-output {
+    width: 100%; /* Adjust as needed */
+    height: 100%; /* Fixed height for the scrolling window */
+    border: 1px solid #ccc; /* Optional: Add a border */
+    border-radius: 8px; /* Optional: Rounded corners */
+    padding: 10px; /* Optional: Padding inside the container */
+    overflow-y: scroll; /* Enable vertical scrolling */
+    background-color: #f9f9f9; /* Background color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+    margin: 10px;
+}
+
+#chat-controls {
+    text-align: right;
+}
+
+    #chat-controls input {
+        width: 100%;
     }
+
+.message {
+    margin-bottom: 10px; /* Spacing between messages */
+    padding: 8px;
+    border: 1px solid #ddd; /* Optional: Border for each message */
+    border-radius: 10px; /* Rounded corners for each message */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+}
+
+.message-user {
+    text-align: right;
+    color: cyan;
+}
+
+.message-system {
+    color: orange
+}
 
 
 @keyframes spin {

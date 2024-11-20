@@ -3,41 +3,51 @@
 const _utility = new Utility(document.querySelector(".spinner"), document.querySelector("#message"), true);
 const urlChat = 'api1/v1.1/chat';
 
+let chatId = null;
+
 async function sendMessage() {
-    const input = document.getElementById('chat-input').value.trim();
+    
 
     //send 
     const method = "POST";
     const url = urlChat;
+    const payload = { "ChatId": chatId, "Message": document.getElementById('chat-input').value.trim() };
     
-    const response = await _utility.HttpSend(method, url, input);
+    const response = await _utility.HttpSend(method, url, payload);
     if (response.ok) {
 
-        //append user message to the chat output
-        appendMessage('user', input);
-
         //get response
-        const data = await response.json();
+        const data = await response.data;
 
-        //append system message to the chat output
+        //hold the chat Id
+        chatId = data.chatId;
+
+
+        //append user message to the chat output
+        appendMessage('user', document.getElementById('chat-input').value);
         appendMessage('system', data.message);
 
         //clear input
-        document.getElementById('chat-input').innerText = "";
+        document.getElementById('chat-input').value = "";
     }
 }
 
 function appendMessage(source, message) {
     let msg = document.createElement('div');
-    msg.className = source;
-    msg.innerText = message;
+    msg.classList.add("message", "message-" +source);
+    msg.innerHTML = message;
     document.getElementById('chat-output').appendChild(msg);
 }
 
-function clearEditRow() {
-    popEdit("", false, "", "", "")
-    document.getElementById('btn-save').textContent = 'Add';
+function newChat() {
+    chatId = null;
 }
 
 //wire up event handlers
-document.getElementById('send').addEventListener('click', sendMessage);
+document.getElementById('chat-send').addEventListener('click', sendMessage);
+document.getElementById('chat-new').addEventListener('click', newChat);
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});

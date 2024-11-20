@@ -7,12 +7,12 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Infrastructure.JobsApi;
 
-public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServiceSettings> settings, 
+public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServiceSettings> settings,
     IFusionCacheProvider cacheProvider, HttpClient httpClient) : IJobsApiService
 {
     private const string CACHEKEY_LOOKUPS = "Lookups";
 
-    private readonly IFusionCache _cache = cacheProvider.GetCache("IntegrationTest.DefaultCache");
+    private readonly IFusionCache _cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     //lookups - expertises, professions, states, locationAliases, cities, 
     //https://api.ayahealthcare.com/AyaHealthCareWeb/job/joblookups

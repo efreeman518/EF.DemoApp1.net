@@ -21,14 +21,13 @@ namespace Package.Infrastructure.AzureOpenAI;
  * follow whatever naming convention is best for your use case.
 */
 
-public abstract class ChatServiceBase (ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings, AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : IChatService
+public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings,
+    AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : IChatService
 {
     private readonly ChatClient chatClient = openAIclient.GetChatClient(settings.Value.DeploymentName);
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
-    //private readonly AzureOpenAIClient openAIclient = new(new Uri(settings.Value.Url), new DefaultAzureCredential());
-
-    public async Task<string> ChatCompletionAsync(Guid? chatId, List<ChatMessage> newMessages, ChatCompletionOptions? options = null,
+    public async Task<(Guid, string)> ChatCompletionAsync(Guid? chatId, List<ChatMessage> newMessages, ChatCompletionOptions? options = null,
         Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("ChatCompletionAsync - {ChatId}", chatId);
@@ -41,12 +40,13 @@ public abstract class ChatServiceBase (ILogger<ChatServiceBase> logger, IOptions
         Chat chat;
         if (chatId != null)
         {
-            var chatCache = await cache.TryGetAsync<Chat>(cacheKey, token: cancellationToken);
-            chat = chatCache.HasValue ? chatCache.Value : new Chat();
+            chat = await cache.TryGetAsync<Chat>(cacheKey, token: cancellationToken);
+            //chat = chatCache.HasValue ? chatCache.Value.DeserializeJson<Chat>()! : new Chat();
         }
         else
         {
             chat = new Chat();
+            cacheKey = $"chat-{chat.Id}";
         }
 
         //add the message to the chat
@@ -102,7 +102,7 @@ public abstract class ChatServiceBase (ILogger<ChatServiceBase> logger, IOptions
         //save the chat to the cache
         await cache.SetAsync(cacheKey, chat, token: cancellationToken);
 
-        return chat.Messages[^1].Content.ToString()!; 
+        return (chat.Id, chat.Messages[^1].Content[0].Text);
     }
 
     public async Task<string> ChatCompletionWithDataSource(Request request)

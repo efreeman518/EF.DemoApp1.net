@@ -1,6 +1,4 @@
-﻿using LanguageExt.Common;
-
-namespace Infrastructure.JobsApi;
+﻿namespace Infrastructure.JobsApi;
 
 public interface IJobsApiService
 {

@@ -13,16 +13,16 @@ public static class ChatEndpoints
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
         //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
-        group.MapGet("/", AppendMessage).MapToApiVersion(1.0)
+        group.MapPost("/", AppendMessage)
             .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Submit a chat message and expect a response.");
     }
 
-    private static async Task<IResult> AppendMessage(HttpContext httpContext, IChatService chatService, string message)
+    private static async Task<IResult> AppendMessage(HttpContext httpContext, IJobChatOrchestrator chatService, ChatRequest request)
     {
-        var result = await chatService.SendMessageAsync(message);
+        var result = await chatService.ChatCompletionAsync(request);
         return result.Match<IResult>(
-            dto => TypedResults.Created(httpContext.Request.Path, dto),
+            dto => TypedResults.Ok(dto),
             err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
         );
     }

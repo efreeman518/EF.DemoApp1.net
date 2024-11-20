@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.Common.Extensions;
 
@@ -61,10 +60,11 @@ public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> log
 
         return await problemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
-            { 
-                HttpContext = httpContext, 
-                ProblemDetails = problemDetails, 
-                Exception = exception }
+            {
+                HttpContext = httpContext,
+                ProblemDetails = problemDetails,
+                Exception = exception
+            }
             );
     }
 }

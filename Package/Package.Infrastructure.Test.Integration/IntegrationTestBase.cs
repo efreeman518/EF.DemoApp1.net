@@ -50,7 +50,7 @@ public abstract class IntegrationTestBase
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
-        IConfigurationSection configSection;
+        //IConfigurationSection configSection;
 
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
@@ -67,98 +67,98 @@ public abstract class IntegrationTestBase
             //Azure storage generating SAS tokens require a StorageSharedKeyCredential or the managed identity to have permissions to create SAS tokens.
             //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
             //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
-            configSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
-            if (configSection.Exists())
+            var blobConfigSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
+            if (blobConfigSection.Exists())
             {
                 //Ideally use ServiceUri (w/DefaultAzureCredential)
-                builder.AddBlobServiceClient(configSection).WithName("AzureBlobStorageAccount1");
+                builder.AddBlobServiceClient(blobConfigSection).WithName("AzureBlobStorageAccount1");
             }
 
             //Table 
-            configSection = Config.GetSection("ConnectionStrings:AzureTable1");
-            if (configSection.Exists())
+            var tableConfigSection = Config.GetSection("ConnectionStrings:AzureTable1");
+            if (tableConfigSection.Exists())
             {
                 //Ideally use ServiceUri (w/DefaultAzureCredential)
-                builder.AddTableServiceClient(configSection).WithName("AzureTable1");
+                builder.AddTableServiceClient(tableConfigSection).WithName("AzureTable1");
             }
 
             //EventGrid Publisher
-            configSection = Config.GetSection("EventGridPublisherTopic1");
-            if (configSection.Exists())
+            var egpConfigSection = Config.GetSection("EventGridPublisherTopic1");
+            if (egpConfigSection.Exists())
             {
                 //Ideally use TopicEndpoint Uri only (DefaultAzureCredential defined above for all azure clients)
-                builder.AddEventGridPublisherClient(new Uri(configSection.GetValue<string>("TopicEndpoint")!),
-                    new AzureKeyCredential(configSection.GetValue<string>("Key")!))
+                builder.AddEventGridPublisherClient(new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
+                    new AzureKeyCredential(egpConfigSection.GetValue<string>("Key")!))
                 .WithName("EventGridPublisherTopic1");
             }
 
             //KeyVault
-            configSection = Config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
-            if (configSection.Exists())
+            var kvConfigSection = Config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
+            if (kvConfigSection.Exists())
             {
-                var akvUrl = configSection.GetValue<string>("VaultUrl")!;
-                var name = configSection.GetValue<string>("KeyVaultClientName")!;
+                var akvUrl = kvConfigSection.GetValue<string>("VaultUrl")!;
+                var name = kvConfigSection.GetValue<string>("KeyVaultClientName")!;
                 builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
                 builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
                 builder.AddCertificateClient(new Uri(akvUrl)).WithName(name);
 
                 //wrapper for key vault sdks
-                services.Configure<KeyVaultManager1Settings>(configSection);
+                services.Configure<KeyVaultManager1Settings>(kvConfigSection);
                 services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
             }
 
             //Azure OpenAI
-            configSection = Config.GetSection(JobChatSettings.ConfigSectionName);
-            if (configSection.Exists())
+            var jobChatconfigSection = Config.GetSection(JobChatSettings.ConfigSectionName);
+            if (jobChatconfigSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
-                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) => 
-                    new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+                    new AzureOpenAIClient(new Uri(jobChatconfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
 
                 //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
                 services.AddTransient<IJobChatService, JobChatService>();
-                services.Configure<JobChatSettings>(configSection);
+                services.Configure<JobChatSettings>(jobChatconfigSection);
             }
         });
 
         //BlobRepository
-        configSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
-        if (configSection.Exists())
+        var blobRepoConfigSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
+        if (blobRepoConfigSection.Exists())
         {
             services.AddSingleton<IBlobRepository1, BlobRepository1>();
-            services.Configure<BlobRepositorySettings1>(configSection);
+            services.Configure<BlobRepositorySettings1>(blobRepoConfigSection);
         }
 
         //TableRepository
-        configSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
-        if (configSection.Exists())
+        var tableRepoConfigSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
+        if (tableRepoConfigSection.Exists())
         {
             services.AddSingleton<ITableRepository1, TableRepository1>();
-            services.Configure<TableRepositorySettings1>(configSection);
+            services.Configure<TableRepositorySettings1>(tableRepoConfigSection);
         }
 
         //EventGridPublisher
-        configSection = Config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
-        if (configSection.Exists())
+        var egpConfigSection = Config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
+        if (egpConfigSection.Exists())
         {
             services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
-            services.Configure<EventGridPublisherSettings1>(configSection);
+            services.Configure<EventGridPublisherSettings1>(egpConfigSection);
         }
 
         //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
-        var connectionString = Config.GetConnectionString("CosmosClient1");
-        if (!string.IsNullOrEmpty(connectionString))
+        var cosmosConnectionString = Config.GetConnectionString("CosmosClient1");
+        if (!string.IsNullOrEmpty(cosmosConnectionString))
         {
-            configSection = Config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
-            if (configSection.Exists())
+            var cosmosConfigSection = Config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
+            if (cosmosConfigSection.Exists())
             {
                 services.AddTransient<ICosmosDbRepository1, CosmosDbRepository1>();
                 services.Configure<CosmosDbRepositorySettings1>(s =>
                 {
-                    s.CosmosClient = new CosmosClientBuilder(connectionString) //(AccountEndpoint, DefualtAzureCredential())
-                                                                               //.With...options
+                    s.CosmosClient = new CosmosClientBuilder(cosmosConnectionString) //(AccountEndpoint, DefualtAzureCredential())
+                                                                                     //.With...options
                         .Build();
-                    s.CosmosDbId = configSection.GetValue<string>("CosmosDbId")!;
+                    s.CosmosDbId = cosmosConfigSection.GetValue<string>("CosmosDbId")!;
                 });
             }
         }
@@ -221,13 +221,13 @@ public abstract class IntegrationTestBase
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
             if (!string.IsNullOrEmpty(cacheInstance.RedisName))
             {
-                connectionString = Config.GetConnectionString(cacheInstance.RedisName);
+                var redisConnectionString = Config.GetConnectionString(cacheInstance.RedisName);
                 fcBuilder
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = redisConnectionString }))
                     //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
-                        Configuration = connectionString,
+                        Configuration = redisConnectionString,
                         ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
                         {
                             ChannelPrefix = new StackExchange.Redis.RedisChannel(cacheInstance.BackplaneChannelName, StackExchange.Redis.RedisChannel.PatternMode.Auto)
@@ -243,10 +243,10 @@ public abstract class IntegrationTestBase
         });
 
         //external weather service
-        configSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
+        var weatherConfigSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
+        if (weatherConfigSection.Exists())
         {
-            services.Configure<WeatherServiceSettings>(configSection);
+            services.Configure<WeatherServiceSettings>(weatherConfigSection);
             services.AddScoped<IWeatherService, WeatherService>();
             services.AddHttpClient<IWeatherService, WeatherService>(client =>
             {
@@ -262,11 +262,11 @@ public abstract class IntegrationTestBase
         }
 
         //OpenAI chat service wrapper
-        configSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
+        var oaiChatConfigSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
+        if (oaiChatConfigSection.Exists())
         {
             services.AddTransient<OpenAI.ChatApi.IChatService, OpenAI.ChatApi.ChatService>();
-            services.Configure<OpenAI.ChatApi.ChatServiceSettings>(configSection);
+            services.Configure<OpenAI.ChatApi.ChatServiceSettings>(oaiChatConfigSection);
         }
 
         //Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem

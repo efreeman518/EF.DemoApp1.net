@@ -1,17 +1,15 @@
 ﻿using Infrastructure.JobsApi;
 using LanguageExt.Common;
 using OpenAI.Chat;
-using Package.Infrastructure.AzureOpenAI;
 using System.Text.Json;
 
 namespace Application.Services.JobChat;
 
-public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<JobChatOrchestratorSettings> settings,
-    IChatService chatService, IJobsApiService jobsService)
+public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IJobChatService chatService, IJobsApiService jobsService)
     : ServiceBase(logger), IJobChatOrchestrator
 {
 
-    public async Task<Result<string>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
         var messages = new List<ChatMessage>();
         if (request.ChatId == null)
@@ -27,10 +25,16 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
             Tools = { findExpertiseMatches, searchJobs }
         };
 
-        var lastMessage = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, cancellationToken);
+        try
+        {
+            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, cancellationToken);
+            return new ChatResponse(response.Item1, response.Item2);
+        }
+        catch (Exception ex)
+        {
+            return new Result<ChatResponse>(ex);
+        }
 
-        //last message should be the most recent response for the user
-        return lastMessage;
     }
 
     private static string InitialSystemMessage()

@@ -6,7 +6,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Package.Infrastructure.Test.Integration.AzureAIChat;
 
-public class JobChatService (ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings, 
-    AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger,settings,openAIclient, cacheProvider), IJobChatService
+public class JobChatService(ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings,
+    AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger, settings, openAIclient, cacheProvider), IJobChatService
 {
 }
