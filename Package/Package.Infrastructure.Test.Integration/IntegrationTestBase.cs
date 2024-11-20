@@ -9,10 +9,10 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Package.Infrastructure.AzureOpenAI;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Test.Integration.AzureAIChat;
 using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.KeyVault;
@@ -108,7 +108,7 @@ public abstract class IntegrationTestBase
             }
 
             //Azure OpenAI
-            configSection = Config.GetSection(AzureOpenAI.ChatServiceSettings.ConfigSectionName);
+            configSection = Config.GetSection(JobChatSettings.ConfigSectionName);
             if (configSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
@@ -116,8 +116,8 @@ public abstract class IntegrationTestBase
                     new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
 
                 //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                services.AddTransient<IChatService, ChatService>();
-                services.Configure<ChatServiceSettings>(configSection);
+                services.AddTransient<IJobChatService, JobChatService>();
+                services.Configure<JobChatSettings>(configSection);
             }
         });
 

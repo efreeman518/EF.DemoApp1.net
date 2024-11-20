@@ -7,8 +7,8 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Infrastructure.JobsApi;
 
-public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettings> settings, 
-    IFusionCacheProvider cacheProvider, HttpClient httpClient) : IJobsService
+public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServiceSettings> settings, 
+    IFusionCacheProvider cacheProvider, HttpClient httpClient) : IJobsApiService
 {
     private const string CACHEKEY_LOOKUPS = "Lookups";
 
@@ -31,7 +31,7 @@ public class JobsService(ILogger<JobsService> logger, IOptions<JobsServiceSettin
         return lookups;
     }
 
-    public async Task<IReadOnlyList<string>> FindTopExpertiseMatches(string target, int maxCount, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<string>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
     {
         var fullList = (await GetLookupsAsync(cancellationToken)).Expertises.Select(e => e.Name).ToList();
         return target.FindTopMatches(fullList, maxCount, 10, false);

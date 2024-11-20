@@ -42,7 +42,7 @@ public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatu
     }
 
     /// <summary>
-    /// Compile time regex for optimization
+    /// Compile time regex for optimization; requires partial class
     /// </summary>
     /// <returns></returns>
     [GeneratedRegex("a")]

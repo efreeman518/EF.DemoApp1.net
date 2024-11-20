@@ -26,6 +26,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Include="Polly" Version="8.4.2" />
     <PackageReference Include="ZiggyCreatures.FusionCache" Version="1.4.1" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +40,7 @@
     <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
     <ProjectReference Include="..\SampleApp.BackgroundServices\SampleApp.BackgroundServices.csproj" />

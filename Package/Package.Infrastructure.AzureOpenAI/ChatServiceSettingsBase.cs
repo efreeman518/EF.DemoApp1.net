@@ -1,9 +1,9 @@
 ﻿namespace Package.Infrastructure.AzureOpenAI;
 
-public class ChatServiceSettings
+public abstract class ChatServiceSettingsBase
 {
-    public const string ConfigSectionName = "AzureOpenAIChatServiceSettings";
     public string Url { get; set; } = null!;
     public string DeploymentName { get; set; } = null!;
+    public string CacheName { get; set; } = null!;
 
 }

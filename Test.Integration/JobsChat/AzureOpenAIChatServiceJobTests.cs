@@ -1,4 +1,5 @@
-﻿using Infrastructure.JobsApi;
+﻿using Application.Services.JobChat;
+using Infrastructure.JobsApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenAI.Chat;
@@ -6,9 +7,9 @@ using Package.Infrastructure.AzureOpenAI;
 using System.Text.Json;
 using Test.Support;
 
-namespace Test.Integration.JobsApi;
+namespace Test.Integration.JobsChat;
 
-[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
 public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
@@ -18,9 +19,8 @@ public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
     public AzureOpenAIChatServiceJobTests()
     {
         ConfigureServices("AzureOpenAIChatServiceJobTests");
-        var chatService = Services.GetRequiredService<IChatService>();
-        var jobsService = Services.GetRequiredService<IJobsService>();
-        //var cache = Services.GetRequiredService<IFusionCacheProvider>();
+        var chatService = Services.GetRequiredService<IJobChatService>();
+        var jobsService = Services.GetRequiredService<IJobsApiService>();
 
         _jobChat = new JobSearchChatOrchestrator(chatService, jobsService); //, cache);
     }
@@ -33,19 +33,11 @@ public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
     }
 }
 
-public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jobsService) //, IFusionCacheProvider cacheProvider)
+public class JobSearchChatOrchestrator(IChatService chatService, IJobsApiService jobsService) //, IFusionCacheProvider cacheProvider)
 {
-    //private IFusionCache _cache = cacheProvider.GetCache("IntegrationTest.DefaultCache");
-
-    //Tools
-    //private async Task<string?> GetValidExpertises()
-    //{
-    //    return (await jobsService.GetAllExpertises()).Select(e => e.Name).SerializeToJson();
-    //}
-
     private async Task<IReadOnlyList<string>> FindMatchingValidExpertises(string input)
     {
-        return await jobsService.FindTopExpertiseMatches(input, 5);
+        return await jobsService.FindExpertiseMatchesAsync(input, 10);
     }
 
     private async Task<IEnumerable<Job>> SearchJobs(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles)
@@ -122,7 +114,7 @@ public class JobSearchChatOrchestrator(IChatService chatService, IJobsService jo
     {
         var systemPrompt = @"You are a professional assistant that helps people find the job they are looking for. 
 You ask for specific information if not provided.  
-You assist the user in determining up to 5 valid expertises, taking the user input, do not ask for any additional information.
+You assist the user in determining up to 5 valid expertises, considering the user input to identify matching valid expertises.
 You collect a location, calculate the latitude and longitude, and search radius distance from that location in miles, 
 or willingness to travel anywhere. 
 Search for jobs and present the user with the search result jobs and information provided by the tool only, 
@@ -143,7 +135,7 @@ using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to ope
             Tools = { findMatchingValidExpertises, searchJobs }
         };
 
-        await chatService.ChatCompletionWithTools(messages, options, ToolsCallback);
+        await chatService.ChatCompletionAsync(null, messages, options, ToolsCallback);
 
         //should have enough info to request confirmation & continue to search jobs
         //messages.Add(new UserChatMessage("yes"));

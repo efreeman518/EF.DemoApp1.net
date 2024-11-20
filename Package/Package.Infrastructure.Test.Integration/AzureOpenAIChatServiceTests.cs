@@ -15,24 +15,24 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
         _chatService = Services.GetRequiredService<IChatService>();
     }
 
-    [TestMethod]
-    public async Task Conversation_pass()
-    {
-        var request = new Request("Why is the sky blue?");
-        var responseList = await _chatService.ChatStream(request);
-        Assert.IsNotNull(responseList);
+    //[TestMethod]
+    //public async Task Conversation_pass()
+    //{
+    //    var request = new Request("Why is the sky blue?");
+    //    var responseList = await _chatService.ChatStream(request);
+    //    Assert.IsNotNull(responseList);
 
-        var response = await _chatService.ChatCompletion(request);
-        Assert.IsNotNull(response);
-    }
+    //    var response = await _chatService.ChatCompletion(request);
+    //    Assert.IsNotNull(response);
+    //}
 
-    [TestMethod]
-    [DataRow("Whats the weather like today in Omaha, celsius?")]
-    [DataRow("What is the weather like today?")]
-    public async Task ConversationWithTools_pass(string prompt)
-    {
-        var request = new Request(prompt);
-        var response = await _chatService.ChatCompletionWithTools(request);
-        Assert.IsNotNull(response);
-    }
+    //[TestMethod]
+    //[DataRow("Whats the weather like today in Omaha, celsius?")]
+    //[DataRow("What is the weather like today?")]
+    //public async Task ConversationWithTools_pass(string prompt)
+    //{
+    //    var request = new Request(prompt);
+    //    var response = await _chatService.ChatCompletionWithTools(request);
+    //    Assert.IsNotNull(response);
+    //}
 }

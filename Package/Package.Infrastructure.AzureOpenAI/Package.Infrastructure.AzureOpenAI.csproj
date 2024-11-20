@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0-rc.2.24473.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
+  </ItemGroup>
+
 </Project>

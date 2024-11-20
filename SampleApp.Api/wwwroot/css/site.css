@@ -43,14 +43,19 @@ td {
 }
 
 .spinner {
-    margin-left: 20px;
+    /*margin-left: 20px;
     border: 5px solid #6d08ff;
     border-top: 5px solid #87a7ff;
     border-bottom: 5px solid #87a7ff;
     border-radius: 50%;
     width: 25px;
     height: 25px;
-    animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;*/
+
+    /*svg spinner*/
+    height: 35px;
+    margin-top: -4px;
+    width: 35px;
 }
 
 #pagination {
@@ -80,6 +85,21 @@ td {
     #pageSizeSelect:focus {
         outline: none;
     }
+
+    /* chat */
+.chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+    .chat div {
+        margin: 5px;
+        padding: 5px;
+        border-radius: 5px;
+        border: solid 1px blue;
+    }
+
 
 @keyframes spin {
     0% {

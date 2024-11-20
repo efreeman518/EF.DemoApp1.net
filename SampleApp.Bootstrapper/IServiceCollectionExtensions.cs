@@ -2,7 +2,9 @@
 using Application.Contracts.Services;
 using Application.MessageHandlers;
 using Application.Services;
+using Application.Services.JobChat;
 using Azure;
+using Azure.AI.OpenAI;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using CorrelationId.HttpClient;
@@ -20,6 +22,7 @@ using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -27,6 +30,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Polly;
 using Polly.Simmy;
@@ -36,6 +40,8 @@ using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
 using System.Security.Claims;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
 namespace SampleApp.Bootstrapper;
 
@@ -79,13 +85,60 @@ public static class IServiceCollectionExtensions
 
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         //https://github.com/alastairtree/LazyCache
-        services.AddLazyCache();
+        //services.AddLazyCache();
+
+        string? connectionString;
 
         //FusionCache - https://www.nuget.org/packages/ZiggyCreatures.FusionCache
-        //services.AddFusionCache();
+        List<CacheSettings> cacheSettings = [];
+        config.GetSection("CacheSettings").Bind(cacheSettings);
+
+        //FusionCache supports multiple named instances with different default settings
+        foreach (var cacheInstance in cacheSettings)
+        {
+            var fcBuilder = services.AddFusionCache(cacheInstance.Name)
+            .WithCysharpMemoryPackSerializer() //FusionCache supports several different serializers (different FusionCache nugets)
+            .WithCacheKeyPrefix($"{cacheInstance.Name}:")
+            .WithDefaultEntryOptions(new FusionCacheEntryOptions()
+            {
+                //memory cache duration
+                Duration = TimeSpan.FromMinutes(cacheInstance.DurationMinutes),
+                //distributed cache duration
+                DistributedCacheDuration = TimeSpan.FromMinutes(cacheInstance.DistributedCacheDurationMinutes),
+                //how long to use expired cache value if the factory is unable to provide an updated value
+                FailSafeMaxDuration = TimeSpan.FromMinutes(cacheInstance.FailSafeMaxDurationMinutes),
+                //how long to wait before trying to get a new value from the factory after a fail-safe expiration
+                FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheInstance.FailSafeThrottleDurationMinutes),
+                //allow some jitter in the Duration for variable expirations
+                JitterMaxDuration = TimeSpan.FromSeconds(10),
+                //factory timeout before returning stale value, if fail-safe is enabled and we have a stale value
+                FactorySoftTimeout = TimeSpan.FromSeconds(1),
+                //max allowed for factory even with no stale value to use; something may be wrong with the factory/service
+                FactoryHardTimeout = TimeSpan.FromSeconds(30),
+                //refresh active cache items upon cache retrieval, if getting close to expiration
+                EagerRefreshThreshold = 0.9f
+            });
+            //using redis for L2 distributed cache
+            //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
+            if (!string.IsNullOrEmpty(cacheInstance.RedisName))
+            {
+                connectionString = config.GetConnectionString(cacheInstance.RedisName);
+                fcBuilder
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))
+                    //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
+                    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                    {
+                        Configuration = connectionString,
+                        ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
+                        {
+                            ChannelPrefix = new StackExchange.Redis.RedisChannel(cacheInstance.BackplaneChannelName, StackExchange.Redis.RedisChannel.PatternMode.Auto)
+                        }
+                    }));
+            }
+        }
 
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
-        string? connectionString = config.GetConnectionString("Redis1");
+        connectionString = config.GetConnectionString("Redis1");
         if (!string.IsNullOrEmpty(connectionString))
         {
             services.AddStackExchangeRedisCache(options =>
@@ -244,6 +297,19 @@ public static class IServiceCollectionExtensions
                         new AzureKeyCredential(configSection.GetValue<string>("Key")!))
                     .WithName("EventGridPublisher1");
                 }
+
+                //Azure OpenAI
+                configSection = config.GetSection(JobChatSettings.ConfigSectionName);
+                if (configSection.Exists())
+                {
+                    // Register a custom client factory since this client does not currently have a service registration method
+                    builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+                        new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+
+                    //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+                    services.AddTransient<IJobChatService, JobChatService>();
+                    services.Configure<JobChatSettings>(configSection);
+                }
             });
 
         //Chaos - https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
@@ -384,12 +450,12 @@ public static class IServiceCollectionExtensions
         #region Jobs
 
         //jobs api service
-        configSection = config.GetSection(JobsServiceSettings.ConfigSectionName);
+        configSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
         if (configSection.Exists())
         {
-            services.Configure<JobsServiceSettings>(configSection);
-            services.AddScoped<IJobsService, JobsService>();
-            services.AddHttpClient<IJobsService, JobsService>(client =>
+            services.Configure<JobsApiServiceSettings>(configSection);
+            services.AddScoped<IJobsApiService, JobsApiService>();
+            services.AddHttpClient<IJobsApiService, JobsApiService>(client =>
             {
                 client.BaseAddress = new Uri(configSection.GetValue<string>("BaseUrl")!);
             })
