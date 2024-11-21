@@ -17,7 +17,7 @@ public static class EventGridEndpoints
              List<EventGridEvent>? events = null) =>
         {
             var logger = loggerFactory.CreateLogger("EventGridEndpoints");
-            logger.LogInformation("Received events: {Events}", events.SerializeToJson());
+            logger.LogInformation("Received events: {Events}", events?.SerializeToJson());
             return await Event(logger, events);
         })
         .AllowAnonymous();

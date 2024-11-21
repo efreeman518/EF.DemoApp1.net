@@ -11,6 +11,9 @@ public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IFusion
         logger.Log(LogLevel.Information, "Startup LoadCache Start");
 
         _ = config.GetHashCode();
+        _ = cache.GetHashCode();
+        _ = repoQuery.GetHashCode();
+        await Task.CompletedTask;
 
         ////memory cache
         //var cacheSettings = await repoQuery.QueryPageProjectionAsync(SystemSettingMapper.Projector,

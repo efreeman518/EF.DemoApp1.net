@@ -110,6 +110,7 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         ChatCompletionOptions options = new();
 
 #pragma warning disable AOAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#pragma warning disable S1075 // URIs should not be hardcoded
         options.AddDataSource(new AzureSearchChatDataSource()
         {
             Endpoint = new Uri("https://your-search-resource.search.windows.net"),
@@ -117,6 +118,7 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
             Authentication = DataSourceAuthentication.FromApiKey(
                 Environment.GetEnvironmentVariable("OYD_SEARCH_KEY")),
         });
+#pragma warning restore S1075 // URIs should not be hardcoded
 
         //running list of messages to be sent to the model with each request
         List<ChatMessage> messages =

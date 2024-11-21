@@ -65,7 +65,9 @@ public static class IServiceCollectionExtensions
             certSecrets2?.ToList().ForEach(delegate (string certSecret)
             {
                 privateKeyBytes = Convert.FromBase64String(certSecret);
-                X509Certificate2 value = new(privateKeyBytes, (string?)null);
+                //https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/syslib0057
+                //X509Certificate2 value = new(privateKeyBytes, (string?)null);
+                X509Certificate2 value = X509CertificateLoader.LoadCertificate(privateKeyBytes);
                 h.ClientCertificates.Add(value);
             });
             return h;

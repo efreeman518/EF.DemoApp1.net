@@ -13,11 +13,11 @@ public enum CompressionAlogrithm
 
 public static class CompressionExtensions
 {
-    public static byte[]? CompressToByteArray<T>(this T toCompress, CompressionAlogrithm algo) where T : class?
+    public static byte[]? CompressToByteArray<T>(this T toCompress, CompressionAlogrithm algo) where T : class
     {
         if (toCompress == null) return null;
 
-        string? ser = toCompress.SerializeToJson<T>(applyMasks: false);
+        string? ser = toCompress.SerializeToJson(applyMasks: false);
         if (ser == null) return null;
 
         return ser.CompressToByteArray(algo);
@@ -49,7 +49,7 @@ public static class CompressionExtensions
         return memoryStream.ToArray();
     }
 
-    public static T? DecompressFromByteArray<T>(this byte[]? toDecompress, CompressionAlogrithm algo) where T : class?
+    public static T? DecompressFromByteArray<T>(this byte[]? toDecompress, CompressionAlogrithm algo) where T : class
     {
         if (toDecompress == null) return null;
         string? ser;

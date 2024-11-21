@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System.Data;
-using System.Data.SqlClient;
+//using System.Data;
+//using System.Data.SqlClient;
 
 namespace Functions.Infrastructure;
 public class DatabaseService(IConfiguration configuration) : IDatabaseService

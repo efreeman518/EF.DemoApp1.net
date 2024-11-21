@@ -197,7 +197,7 @@ async Task AttemptResultAsync<T>(Func<Task<Result<T?>>> method) where T : class
         Console.WriteLine("----------REST Client handles response -----------");
 
         _ = result.Match(
-            dto => { Console.WriteLine($"{dto.SerializeToJson()}"); return Unit.Default; },
+            dto => { Console.WriteLine($"{dto?.SerializeToJson()}"); return Unit.Default; },
             err => { Console.WriteLine($"ERROR: {err.Message}"); return Unit.Default; }
         );
     }
@@ -216,7 +216,7 @@ async Task AttemptHttpAsync<T>(Func<Task<T?>> method) where T : class?
     {
         var response = await method();
         Console.WriteLine("----------REST Client handles response -----------");
-        Console.WriteLine($"{response?.SerializeToJson() ?? ""}");
+        Console.WriteLine($"{response.SerializeToJson() ?? ""}");
         //if (response?.Errors?.Count > 0)
         //{
         //    Console.WriteLine($"Errors: {response.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(String.Join(", ", a.Message)), sb => sb.ToString())}");

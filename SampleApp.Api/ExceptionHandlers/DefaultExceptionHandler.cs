@@ -11,6 +11,7 @@ namespace SampleApp.Api.ExceptionHandlers;
 /// </summary>
 /// <param name="logger"></param>
 /// <param name="hostEnvironment"></param>
+/// <param name="problemDetailsService"></param>
 public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> logger, IHostEnvironment hostEnvironment, IProblemDetailsService problemDetailsService)
     : IExceptionHandler
 {
