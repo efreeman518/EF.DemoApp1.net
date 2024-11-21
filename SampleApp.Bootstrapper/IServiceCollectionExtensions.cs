@@ -305,7 +305,12 @@ public static class IServiceCollectionExtensions
                 {
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                        new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+                    {
+                        var key = jobChatConfigSection.GetValue<string?>("Key", null);
+                        return !string.IsNullOrEmpty(key)
+                            ? new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options)
+                            : new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                    });
 
                     //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
                     services.AddTransient<IJobChatService, JobChatService>();
