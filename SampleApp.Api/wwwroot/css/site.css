@@ -87,29 +87,35 @@ td {
 
 /* chat */
 #chat-container {
-    width: 600px; /* Adjust as needed */
-    height: 600px; /* Fixed height for the scrolling window */
+    width: 100%; 
+    max-width:1000px;
+    height: calc(100vh - 200px);
 }
+    #chat-container .spinner{
+        margin-top:20px;
+    }
 
-#chat-output {
-    width: 100%; /* Adjust as needed */
-    height: 100%; /* Fixed height for the scrolling window */
-    border: 1px solid #ccc; /* Optional: Add a border */
-    border-radius: 8px; /* Optional: Rounded corners */
-    padding: 10px; /* Optional: Padding inside the container */
-    overflow-y: scroll; /* Enable vertical scrolling */
-    background-color: #f9f9f9; /* Background color */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
-    margin: 10px;
-    scroll-behavior: smooth;
-}
+    #chat-output {
+        height: 100%; /* Fixed height for the scrolling window */
+        border: 1px solid #ccc; /* Optional: Add a border */
+        border-radius: 8px; /* Optional: Rounded corners */
+        overflow-y: scroll; /* Enable vertical scrolling */
+        background-color: #f9f9f9; /* Background color */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+        scroll-behavior: smooth;
+    }
 
 #chat-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
     text-align: right;
+    margin: 10px 2px;
 }
 
     #chat-controls input {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
     }
 
 .message {
@@ -121,12 +127,16 @@ td {
 }
 
 .message-user {
-    text-align: right;
+    float:right;
+    /*text-align: right;*/
     color: cyan;
+    border:1px solid cyan;
 }
 
 .message-system {
-    color: orange
+    clear:both;
+    color: orange;
+    border: 1px solid orange;
 }
 
 

@@ -23,7 +23,7 @@ public static class ChatEndpoints
         var result = await chatService.ChatCompletionAsync(request);
         return result.Match<IResult>(
             dto => TypedResults.Ok(dto),
-            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
+            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: err.Message, exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
         );
     }
 

@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Application.Services.JobChat;
 
-public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IJobChatService chatService, IJobsApiService jobsService)
+public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<JobChatOrchestratorSettings> settings, IJobChatService chatService, IJobsApiService jobsService)
     : ServiceBase(logger), IJobChatOrchestrator
 {
 
@@ -27,7 +27,7 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IJobChatSe
 
         try
         {
-            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, cancellationToken);
+            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxMessageCount, cancellationToken);
             return new ChatResponse(response.Item1, response.Item2);
         }
         catch (Exception ex)
@@ -42,23 +42,36 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IJobChatSe
         //Once the location, distance, and expertises are defined, you will give a concise summarization, and ask the user to confirm or change any details.
         //based on only valid expertise names, latitude, longitude, and radius.
         //You will validate the user input against a valid list of expertise names before searching jobs.
+        //, considering the user input to identify matching valid expertises
 
-        var systemPrompt = @"You are a professional assistant that helps people find the job they are looking for. 
-You ask for specific information if not provided.  
-You assist the user in determining up to 5 valid expertises, considering the user input to identify matching valid expertises.
-You collect a location, calculate the latitude and longitude, and search radius distance from that location in miles, 
-or willingness to travel anywhere. 
-Search for jobs and present the user with the search result jobs and information provided by the tool only, 
+        var systemPrompt = @"
+###
+You are a professional assistant that helps people find the job they are looking for, introduce yourself and your mission.
+You determine a list of 1 to 5 'valid expertise's. 
+If you are unable to find a 'valid expertise', let the person know there is no match, and tell them a joke about the missing expertise.
+The user may be willing to travel anywhere, or may defines a location and optional distance from that location.
+###
+After you have 'valid expertise' list, and optional location/distance, you will give a concise summary
+in an easily readable html bullet point format, and ask the user to confirm.
+###
+If a location is provided, you calculate the latitude and longitude for the job search
+Search for jobs using only the 'valid expertise' list (and location, if provided).
+###
+Present the user with only the jobs found in the search results and information 
 in a concise, detailed, easily readable html table format that includes relevant details such as required certifications 
 and shift hours if applicable, and compensation range, with an 'More details and Apply' link to the specific job application on the job website
-using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.";
+using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.
+###
+
+";
 
         return systemPrompt;
     }
 
     private async Task<IReadOnlyList<string>> FindExpertiseMatchesAsync(string input)
     {
-        return await jobsService.FindExpertiseMatchesAsync(input, 10);
+        var matches = await jobsService.FindExpertiseMatchesAsync(input, 10);
+        return matches;
     }
 
     private async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles)
@@ -77,7 +90,7 @@ using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to ope
     //);
     private readonly ChatTool findExpertiseMatches = ChatTool.CreateFunctionTool(
         functionName: nameof(FindExpertiseMatchesAsync),
-        functionDescription: "Find closest matching valid expertises.",
+        functionDescription: "Find closest matching 'valid expertise'.",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -96,7 +109,7 @@ using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to ope
 
     private readonly ChatTool searchJobs = ChatTool.CreateFunctionTool(
         functionName: nameof(SearchJobsAsync),
-        functionDescription: "Search for jobs based on valid expertises and location (using latitude, longitude, and radius).",
+        functionDescription: "Find jobs based on 'valid expertise's and location (using latitude, longitude, and radius).",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",

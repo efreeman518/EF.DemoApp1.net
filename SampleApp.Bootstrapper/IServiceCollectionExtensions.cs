@@ -69,7 +69,7 @@ public static class IServiceCollectionExtensions
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
         services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
-        //services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
+        services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
 
         return services;
     }

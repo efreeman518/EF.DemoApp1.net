@@ -3,6 +3,7 @@ using Azure.AI.OpenAI.Chat;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using System.Linq;
 using System.Text;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -27,8 +28,19 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
     private readonly ChatClient chatClient = openAIclient.GetChatClient(settings.Value.DeploymentName);
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
+    /// <summary>
+    /// ChatCompletionAsync - Completes a chat conversation with the OpenAI model.
+    /// </summary>
+    /// <param name="chatId">Track/cache</param>
+    /// <param name="newMessages">incoming</param>
+    /// <param name="options">define available tools for the chat</param>
+    /// <param name="toolCallFunc">callback to run the tool methods requested by the model</param>
+    /// <param name="maxMessages">limit msgs sent into the model to the most recent</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
     public async Task<(Guid, string)> ChatCompletionAsync(Guid? chatId, List<ChatMessage> newMessages, ChatCompletionOptions? options = null,
-        Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null, CancellationToken cancellationToken = default)
+        Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null, int? maxMessages = null, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("ChatCompletionAsync - {ChatId}", chatId);
 
@@ -40,8 +52,8 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         Chat chat;
         if (chatId != null)
         {
-            chat = await cache.TryGetAsync<Chat>(cacheKey, token: cancellationToken);
-            //chat = chatCache.HasValue ? chatCache.Value.DeserializeJson<Chat>()! : new Chat();
+            //may have expired, in that case restart with a new chat
+            chat = (await cache.GetOrDefaultAsync<Chat>(cacheKey, token: cancellationToken)) ?? new Chat();
         }
         else
         {
@@ -49,16 +61,26 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
             cacheKey = $"chat-{chat.Id}";
         }
 
-        //add the message to the chat
+        //add new messages to the chat
         foreach (var message in newMessages)
         {
             chat.AddMessage(message);
         }
 
+        var msgs =  (maxMessages != null && maxMessages > 0 && maxMessages < chat.Messages.Count)
+            ? chat.Messages.Skip(chat.Messages.Count - maxMessages.Value).ToList()
+            : chat.Messages;
+
+        var chatToolRounds = 0;
         do
         {
+            chatToolRounds++;
+            if (chatToolRounds > 10)
+            {
+                throw new InvalidOperationException("Exceeded maximum number of tool call rounds.");
+            }
             requiresAction = false;
-            ChatCompletion completion = await chatClient.CompleteChatAsync(chat.Messages, options, cancellationToken);
+            ChatCompletion completion = await chatClient.CompleteChatAsync(msgs, options, cancellationToken);
 
             switch (completion.FinishReason)
             {
