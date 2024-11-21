@@ -12,7 +12,7 @@ namespace Test.Support;
 /// </summary>
 public abstract class IntegrationTestBase
 {
-    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().Build();
+    protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
     //protected static IServiceProvider Services => _services;
     //protected static IServiceScope ServiceScope => _serviceScope;
