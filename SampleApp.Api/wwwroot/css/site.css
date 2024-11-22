@@ -100,8 +100,7 @@ td {
         border: 1px solid #ccc; /* Optional: Add a border */
         border-radius: 8px; /* Optional: Rounded corners */
         overflow-y: scroll; /* Enable vertical scrolling */
-        background-color: #f9f9f9; /* Background color */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow */
+        background-color: #333; /* Background color */
         scroll-behavior: smooth;
     }
 
@@ -128,15 +127,16 @@ td {
 
 .message-user {
     float:right;
-    /*text-align: right;*/
     color: cyan;
-    border:1px solid cyan;
+    border: 2px solid cyan;
+    background-color: #001f1f;
 }
 
 .message-system {
-    clear:both;
+    clear: both;
     color: orange;
-    border: 1px solid orange;
+    border: 2px solid orange;
+    background-color: #120c00;
 }
 
 

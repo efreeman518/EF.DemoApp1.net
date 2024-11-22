@@ -67,19 +67,29 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
             chat.AddMessage(message);
         }
 
-        var msgs =  (maxMessages != null && maxMessages > 0 && maxMessages < chat.Messages.Count)
-            ? chat.Messages.Skip(chat.Messages.Count - maxMessages.Value).ToList()
-            : chat.Messages;
+        
 
         var chatToolRounds = 0;
         do
         {
             chatToolRounds++;
-            if (chatToolRounds > 10)
+            if (chatToolRounds > 5)
             {
                 throw new InvalidOperationException("Exceeded maximum number of tool call rounds.");
             }
             requiresAction = false;
+
+            List<ChatMessage> msgs;
+            if (maxMessages != null && maxMessages > 0 && maxMessages < chat.Messages.Count)
+            {
+                msgs = [chat.Messages[0]]; //keep the initial instructions
+                msgs.AddRange(chat.Messages.Skip(chat.Messages.Count - maxMessages.Value));
+            }
+            else
+            {
+                msgs = chat.Messages;
+            }
+
             ChatCompletion completion = await chatClient.CompleteChatAsync(msgs, options, cancellationToken);
 
             switch (completion.FinishReason)

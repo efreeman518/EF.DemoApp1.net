@@ -8,8 +8,9 @@ let chatId = null;
 async function sendMessage(message) {
     //show placeholder spinner in the chat output
     const thinking = document.createElement("div");
+    thinking.classList.add("message");
     const spin = document.getElementById("spinner-rings").cloneNode(true);
-    spin.classList.add("spinner");
+    //spin.classList.add("spinner");
     spin.removeAttribute("hidden");
     thinking.appendChild(spin);
     document.getElementById('chat-output').appendChild(thinking);
@@ -31,9 +32,6 @@ async function sendMessage(message) {
 
             thinking.remove();
             appendMessage('system', data.message);
-
-            //clear input
-            document.getElementById('chat-input').value = "";
         }
     }
     finally {
@@ -53,14 +51,16 @@ function appendMessage(source, message) {
 async function appendAndSend() {
     document.getElementById('alert1').innerHTML = "";
     const userMessage = document.getElementById('chat-input').value.trim();
+    document.getElementById("chat-input").value = "";
     appendMessage('user', userMessage); 
     await sendMessage(userMessage);
 }
 
-function newChat() {
+async function newChat() {
     chatId = null;
     document.getElementById('chat-output').innerHTML = "";
-    document.getElementById("message").innerText = "";
+    document.getElementById("chat-input").value = "";
+    await sendMessage("hi");
 }
 
 //wire up event handlers

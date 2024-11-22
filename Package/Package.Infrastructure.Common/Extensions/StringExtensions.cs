@@ -68,8 +68,10 @@ public static class StringExtensions
         List<string> matches = [];
         if (prirotizeStartMatch)
         {
-            matches = list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList();
+            matches.AddRange(list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList());
         }
+
+        matches.AddRange(list.Where(s => s.Contains(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList());
 
         if (matches.Count < maxMatches)
         {
