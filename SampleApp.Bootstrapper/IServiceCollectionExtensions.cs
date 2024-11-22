@@ -201,6 +201,8 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
+        services.AddScoped<AuditInterceptor>();
+
         //Database 
         var trxnDBconnectionString = config.GetConnectionString("TodoDbContextTrxn");
         if (string.IsNullOrEmpty(trxnDBconnectionString) || trxnDBconnectionString == "UseInMemoryDatabase")
@@ -209,14 +211,14 @@ public static class IServiceCollectionExtensions
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
             var inMemoryDatabaseRoot = new InMemoryDatabaseRoot();
 
-            services//.AddEntityFrameworkInMemoryDatabase()
+            services
                 .AddDbContext<TodoDbContextTrxn>((sp, opt) =>
                 {
-                    var auditInterceptor = new AuditInterceptor(sp.GetRequiredService<IRequestContext<string>>(), sp.GetRequiredService<IInternalBroker>());
+                    var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
                     opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot).AddInterceptors(auditInterceptor);
                 });
 
-            services//.AddEntityFrameworkInMemoryDatabase()
+            services
                 .AddDbContext<TodoDbContextQuery>((sp, opt) =>
                     opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
         }
@@ -224,9 +226,10 @@ public static class IServiceCollectionExtensions
         {
             //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
 
-            services.AddDbContextPool<TodoDbContextTrxn>((sp, options) =>
+            //sp is not scoped for the DbContextPool, so we can't use it to get the auditInterceptor
+            services.AddDbContext<TodoDbContextTrxn>((sp, options) =>
             {
-                var auditInterceptor = new AuditInterceptor(sp.GetRequiredService<IRequestContext<string>>(), sp.GetRequiredService<IInternalBroker>());
+                var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
                 options.UseSqlServer(trxnDBconnectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>
@@ -241,7 +244,7 @@ public static class IServiceCollectionExtensions
             });
 
             var queryDBconnectionString = config.GetConnectionString("TodoDbContextQuery");
-            services.AddDbContextPool<TodoDbContextQuery>(options =>
+            services.AddDbContext<TodoDbContextQuery>(options =>
                 options.UseSqlServer(queryDBconnectionString,
                     //retry strategy does not support user initiated transactions 
                     sqlServerOptionsAction: sqlOptions =>

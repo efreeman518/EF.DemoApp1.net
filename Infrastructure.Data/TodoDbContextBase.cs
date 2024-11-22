@@ -77,6 +77,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
 
     override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        //optionsBuilder.AddInterceptors(auditInterceptor);
         base.OnConfiguring(optionsBuilder);
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
