@@ -56,11 +56,15 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
-    public async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 3)
+    public async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 10)
     {
+        if(expertises == null || expertises.Count == 0)
+        {
+            return [];
+        }
         var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
         var joinExpertises = string.Join("&expertiseCodes=", expertiseCodes);
-        var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}";
+        var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
         logger.LogInformation("job/GetJobSearchResultAsync: {Url}", url);
 
         (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, null);

@@ -58,8 +58,8 @@ You can only perform a search with at least one allowed expertise or several (an
 you will reply that you are unable to search and make a joke about it.
 ###
 Always present the user with an html search results table, containing only the jobs found in the search results.
-Includes relevant details such as required certifications 
-and shift hours if applicable, and compensation range, with link 'More details and Apply' link to the specific job application on the job website
+Include up to 10 jobs and relevant details such as required certifications 
+and shift hours if applicable, compensation range, with link 'More details and Apply' link to the specific job application on the job website
 using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.
 ###
 Sample confirmation list:
@@ -134,7 +134,7 @@ Sample search results table:
 
     private readonly ChatTool searchJobs = ChatTool.CreateFunctionTool(
         functionName: nameof(SearchJobsAsync),
-        functionDescription: "Find jobs based on 'valid expertise's and location (using latitude, longitude, and radius).",
+        functionDescription: "Find jobs based on the allowed expertise list and location (using latitude, longitude, and radius).",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -142,7 +142,7 @@ Sample search results table:
             "properties": {
                 "expertises": {
                     "type": "array",
-                    "description": "The list of valid expertises.",
+                    "description": "The list of allowed expertises.",
                     "items": {
                       "type": "string"
                     }
