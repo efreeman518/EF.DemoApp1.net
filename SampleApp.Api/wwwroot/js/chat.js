@@ -1,22 +1,17 @@
 ﻿import Utility from './utility.js';
 
-const _utility = new Utility(null, document.getElementById("alert1"), true);
+const _utility = new Utility(null, document.getElementById('alert1'), true);
 const urlChat = 'api1/v1.1/chat';
 
 let chatId = null;
 
 async function sendMessage(message) {
     //show placeholder spinner in the chat output
-    const thinking = document.createElement("div");
-    thinking.classList.add("message");
-    const spin = document.getElementById("spinner-rings").cloneNode(true);
-    //spin.classList.add("spinner");
-    spin.removeAttribute("hidden");
-    thinking.appendChild(spin);
-    document.getElementById('chat-output').appendChild(thinking);
+    const thinking = showChatThinking();
+    toggleInputEnable(false);
 
     //send 
-    const method = "POST";
+    const method = 'POST';
     const url = urlChat;
     const payload = { "ChatId": chatId, "Message": message };
 
@@ -30,18 +25,30 @@ async function sendMessage(message) {
             //hold the chat Id
             chatId = data.chatId;
 
-            thinking.remove();
             appendMessage('system', data.message);
         }
     }
     finally {
         thinking.remove();
+        toggleInputEnable(true);
     }
+}
+
+function showChatThinking() {
+    const thinking = document.createElement('div');
+    thinking.classList.add('message');
+    const spin = document.getElementById('spinner-rings').cloneNode(true);
+    spin.removeAttribute('hidden');
+    thinking.appendChild(spin);
+    let elChat = document.getElementById('chat-output');
+    elChat.appendChild(thinking);
+    elChat.scrollTop = elChat.scrollHeight;
+    return thinking;
 }
 
 function appendMessage(source, message) {
     let msg = document.createElement('div');
-    msg.classList.add("message", "message-" +source);
+    msg.classList.add('message', 'message-' +source);
     msg.innerHTML = message;
     let elChat = document.getElementById('chat-output');
     elChat.appendChild(msg);
@@ -51,7 +58,8 @@ function appendMessage(source, message) {
 async function appendAndSend() {
     document.getElementById('alert1').innerHTML = "";
     const userMessage = document.getElementById('chat-input').value.trim();
-    document.getElementById("chat-input").value = "";
+    if (userMessage.length == 0) return;
+    document.getElementById('chat-input').value = "";
     appendMessage('user', userMessage); 
     await sendMessage(userMessage);
 }
@@ -59,8 +67,19 @@ async function appendAndSend() {
 async function newChat() {
     chatId = null;
     document.getElementById('chat-output').innerHTML = "";
-    document.getElementById("chat-input").value = "";
+    document.getElementById('chat-input').value = "";
     await sendMessage("hi");
+}
+
+function toggleInputEnable(toggle) {
+    if (!toggle) {
+        document.getElementById('chat-controls').classList.add('disabled');
+    }
+    else {
+        document.getElementById('chat-controls').classList.remove('disabled');
+        document.getElementById('chat-input').focus();
+    }
+    document.getElementById('chat-input').placeholder = toggle ? "Type your message here..." : "Please wait...";
 }
 
 //wire up event handlers
@@ -73,4 +92,4 @@ document.addEventListener('keydown', function (event) {
 });
 
 //init
-await sendMessage("hi");
+await newChat();

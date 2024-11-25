@@ -3,8 +3,9 @@ using Azure.AI.OpenAI.Chat;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
-using System.Linq;
+using Package.Infrastructure.Common.Extensions;
 using System.Text;
+using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Package.Infrastructure.AzureOpenAI;
@@ -28,6 +29,11 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
     private readonly ChatClient chatClient = openAIclient.GetChatClient(settings.Value.DeploymentName);
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
+    private static readonly JsonSerializerOptions optSer = new()
+    {
+        Converters = { new ChatMessageJsonConverter() }
+    };
+
     /// <summary>
     /// ChatCompletionAsync - Completes a chat conversation with the OpenAI model.
     /// </summary>
@@ -35,12 +41,15 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
     /// <param name="newMessages">incoming</param>
     /// <param name="options">define available tools for the chat</param>
     /// <param name="toolCallFunc">callback to run the tool methods requested by the model</param>
-    /// <param name="maxMessages">limit msgs sent into the model to the most recent</param>
+    /// <param name="maxCompletionMessageCount">limit msgs sent into the model to the most recent</param>
+    /// <param name="maxToolCallRounds">the model can get stuck in a loop repeatedly calling tools</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     public async Task<(Guid, string)> ChatCompletionAsync(Guid? chatId, List<ChatMessage> newMessages, ChatCompletionOptions? options = null,
-        Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null, int? maxMessages = null, CancellationToken cancellationToken = default)
+        Func<List<ChatMessage>, IReadOnlyList<ChatToolCall>, Task>? toolCallFunc = null, int? maxCompletionMessageCount = null, int maxToolCallRounds = 5,
+        CancellationToken cancellationToken = default)
     {
         logger.LogInformation("ChatCompletionAsync - {ChatId}", chatId);
 
@@ -53,7 +62,16 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         if (chatId != null)
         {
             //may have expired, in that case restart with a new chat
-            chat = (await cache.GetOrDefaultAsync<Chat>(cacheKey, token: cancellationToken)) ?? new Chat();
+            var chatjson = (await cache.GetOrDefaultAsync<string>(cacheKey, token: cancellationToken));
+            if (chatjson != null)
+            {
+                chat = chatjson.DeserializeJson<Chat>(optSer)!;
+            }
+            else
+            {
+                chat = new Chat();
+                cacheKey = $"chat-{chat.Id}";
+            }
         }
         else
         {
@@ -67,23 +85,24 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
             chat.AddMessage(message);
         }
 
-        
+        //var json = chat.Messages[0].SerializeToJson(optSer)!;
+        //var msg = json.DeserializeJson<ChatMessage>(optSer);
 
         var chatToolRounds = 0;
         do
         {
-            chatToolRounds++;
-            if (chatToolRounds > 5)
+            //sometimes the model gets stuck repeatedly calling tools; limit the number of rounds
+            if (chatToolRounds++ > maxToolCallRounds)
             {
                 throw new InvalidOperationException("Exceeded maximum number of tool call rounds.");
             }
             requiresAction = false;
 
             List<ChatMessage> msgs;
-            if (maxMessages != null && maxMessages > 0 && maxMessages < chat.Messages.Count)
+            if (maxCompletionMessageCount != null && maxCompletionMessageCount > 0 && maxCompletionMessageCount < chat.Messages.Count)
             {
                 msgs = [chat.Messages[0]]; //keep the initial instructions
-                msgs.AddRange(chat.Messages.Skip(chat.Messages.Count - maxMessages.Value));
+                msgs.AddRange(chat.Messages.Skip(chat.Messages.Count - maxCompletionMessageCount.Value));
             }
             else
             {
@@ -132,7 +151,7 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         } while (requiresAction);
 
         //save the chat to the cache
-        await cache.SetAsync(cacheKey, chat, token: cancellationToken);
+        await cache.SetAsync(cacheKey, chat.SerializeToJson(optSer), token: cancellationToken);
 
         return (chat.Id, chat.Messages[^1].Content[0].Text);
     }

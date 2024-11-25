@@ -3,5 +3,6 @@
 public class JobChatOrchestratorSettings
 {
     public static string ConfigSectionName => "JobChatOrchestratorSettings";
-    public int? MaxMessageCount { get; set; }
+    public int? MaxCompletionMessageCount { get; set; }
+    public int MaxToolCallRounds { get; set; } = 5;
 }

@@ -3,7 +3,6 @@ using OpenAI.Chat;
 
 namespace Package.Infrastructure.AzureOpenAI;
 
-[MemoryPackable]
 public partial class Chat(List<ChatMessage>? messages = null)
 {
     private readonly Guid _id = Guid.CreateVersion7();

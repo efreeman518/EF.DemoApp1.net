@@ -27,7 +27,7 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
 
         try
         {
-            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxMessageCount, cancellationToken);
+            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxCompletionMessageCount, cancellationToken: cancellationToken);
             return new ChatResponse(response.Item1, response.Item2);
         }
         catch (Exception ex)
