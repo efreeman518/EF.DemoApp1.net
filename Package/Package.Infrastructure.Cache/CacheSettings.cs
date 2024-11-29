@@ -12,8 +12,9 @@ public class CacheSettings
 
     /// <summary>
     /// Redis connection string name to look up in the configuration
+    /// ConnectionString not currently used because it doesn't work with FusionCache backplane; must load config separately
     /// </summary>
-    public string? RedisName { get; set; }
+    public string? RedisConfigurationSection { get; set; }
 
     /// <summary>
     /// Change in settings if and when the version of the backplane message needs to change
@@ -40,4 +41,11 @@ public class CacheSettings
     /// How long will we wait before trying to get a new value from the factory after a fail-safe expiration
     /// </summary>
     public int FailSafeThrottleDurationMinutes { get; set; }
+}
+
+public class RedisConfiguration
+{
+    public string EndpointUrl { get; set; } = null!;
+    public int Port { get; set; }
+    public string Password { get; set; } = null!;
 }

@@ -34,7 +34,6 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
         {
             return new Result<ChatResponse>(ex);
         }
-
     }
 
     private static string InitialSystemMessage()
@@ -43,18 +42,20 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
         //based on only valid expertise names, latitude, longitude, and radius.
         //You will validate the user input against a valid list of expertise names before searching jobs.
         //, considering the user input to identify matching valid expertises
+        //If you are unable to find a matching allowed expertise, let the person know there is no match, and tell them a joke about the missing expertise.
 
         var systemPrompt = @"
 ###
 You are a professional assistant that helps people find the job they are looking for, introduce yourself and your mission.
-The user must enter search criteria consisting of a list of expertises and an optional location and distance, or be willing to travel anywhere. 
-If you are unable to find a matching allowed expertise, let the person know there is no match, and tell them a joke about the missing expertise.
+The user must enter search criteria consisting of a list of allowed expertises and an optional location and distance, or be willing to travel anywhere. 
 ###
-After the allowed expertise list has been collected, and optional location and distance, present a summary of search criteria
-in a html unordered confirmation list, and ask the user to confirm.
+Try to find matching allowed expertises based on the user input, and present a list of the closest matches.
+###
+After the allowed expertise list has been identified from the approved expertise function, and optional location and distance, present a summary of search criteria
+in a html unordered bulletpoint list, and ask the user to confirm.
 ###
 If a location is provided, you calculate the latitude and longitude for the job search
-You can only perform a search with at least one allowed expertise or several (and location, if provided). If there are no allowed expertise's, 
+You can only perform a search with allowed expertises (and location, if provided). If there are no allowed expertise's, 
 you will reply that you are unable to search and make a joke about it.
 ###
 Always present the user with an html search results table, containing only the jobs found in the search results.

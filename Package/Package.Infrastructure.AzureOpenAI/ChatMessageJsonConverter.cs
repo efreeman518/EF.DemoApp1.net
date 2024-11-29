@@ -1,4 +1,5 @@
 ﻿using OpenAI.Chat;
+using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,13 +13,33 @@ public class ChatMessageJsonConverter : JsonConverter<ChatMessage>
         var role = root.GetProperty("role").GetString() ?? throw new JsonException();
         string? toolCallId = root.TryGetProperty("toolCallId", out var elTool) ? elTool.GetString() : null;
         //var contentParts = JsonElementToArray(root, el => ChatMessageContentPart.CreateTextPart(el.GetProperty("contentParts").GetString()));//.RefusalChatMessageContentPart.CreateTextPart(el.GetProperty("contentParts").GetString())); 
-        var contentParts = new ChatMessageContentPart[] { ChatMessageContentPart.CreateTextPart(root.GetProperty("content").GetString()) };
+
+        //AssistantChatMessage can have contentParts or toolCalls
+        var content = root.GetProperty("content").GetString();
+        List<ChatToolCall> toolCallsList = [];
+        if (root.TryGetProperty("toolCalls", out var toolCalls))
+        {
+
+            using JsonDocument document = JsonDocument.Parse(toolCalls.GetString()!);
+            JsonElement rootTools = document.RootElement;
+
+            if (rootTools.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement el in rootTools.EnumerateArray())
+                {
+                    var parameters = BinaryData.FromString(el.GetProperty("FunctionArguments").ToString());
+                    toolCallsList.Add(ChatToolCall.CreateFunctionToolCall(el.GetProperty("Id").GetString(), el.GetProperty("FunctionName").GetString(), parameters));
+                }
+            }
+        }
+
+        //var contentParts = new ChatMessageContentPart[] { ChatMessageContentPart.CreateTextPart(content) };
         ChatMessage chatMessage = role switch
         {
-            "OpenAI.Chat.SystemChatMessage" => new SystemChatMessage(contentParts),
-            "OpenAI.Chat.UserChatMessage" => new UserChatMessage(contentParts),
-            "OpenAI.Chat.AssistantChatMessage" => new AssistantChatMessage(contentParts),
-            "OpenAI.Chat.ToolChatMessage" => new ToolChatMessage(toolCallId, contentParts),
+            "OpenAI.Chat.SystemChatMessage" => new SystemChatMessage(content),
+            "OpenAI.Chat.UserChatMessage" => new UserChatMessage(content),
+            "OpenAI.Chat.AssistantChatMessage" => !string.IsNullOrEmpty(content) ? new AssistantChatMessage(content) : new AssistantChatMessage(toolCallsList),
+            "OpenAI.Chat.ToolChatMessage" => new ToolChatMessage(toolCallId, content),
             _ => throw new JsonException($"Invalid role {role}")
         };
 
@@ -33,6 +54,10 @@ public class ChatMessageJsonConverter : JsonConverter<ChatMessage>
         if (value is ToolChatMessage tool)
         {
             writer.WriteString("toolCallId", tool.ToolCallId);
+        }
+        if (value is AssistantChatMessage tool1 && tool1.ToolCalls.Count > 0)
+        {
+            writer.WriteString("toolCalls", tool1.ToolCalls.SerializeToJson());
         }
         writer.WriteEndObject();
     }

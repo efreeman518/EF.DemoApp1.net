@@ -109,6 +109,9 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
                 msgs = chat.Messages;
             }
 
+            //remove null messages - requires further research
+            //chat.Messages.RemoveAll(m => m == null);
+
             ChatCompletion completion = await chatClient.CompleteChatAsync(msgs, options, cancellationToken);
 
             switch (completion.FinishReason)

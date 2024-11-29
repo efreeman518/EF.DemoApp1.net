@@ -39,6 +39,7 @@ using Polly.Simmy.Latency;
 using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
+using StackExchange.Redis;
 using System.Security.Claims;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
@@ -86,6 +87,7 @@ public static class IServiceCollectionExtensions
             services.AddAzureAppConfiguration();
         }
 
+        //not needed when using FusionCache or .net HybridCache
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         //https://github.com/alastairtree/LazyCache
         //services.AddLazyCache();
@@ -93,7 +95,7 @@ public static class IServiceCollectionExtensions
         //FusionCache - https://www.nuget.org/packages/ZiggyCreatures.FusionCache
         List<CacheSettings> cacheSettings = [];
         config.GetSection("CacheSettings").Bind(cacheSettings);
-
+        
         //FusionCache supports multiple named instances with different default settings
         foreach (var cacheInstance in cacheSettings)
         {
@@ -119,21 +121,47 @@ public static class IServiceCollectionExtensions
                 //refresh active cache items upon cache retrieval, if getting close to expiration
                 EagerRefreshThreshold = 0.9f
             });
-            //using redis for L2 distributed cache
+
+            //using redis for L2 distributed cache & backplane
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
-            if (!string.IsNullOrEmpty(cacheInstance.RedisName))
+            //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
+            //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
+
+            RedisConfiguration redisConfiguration = new();
+            if (cacheInstance.RedisConfigurationSection != null)
             {
-                var connectionString = config.GetConnectionString(cacheInstance.RedisName);
+                config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfiguration);
+                var redisConfigurationOptions = new ConfigurationOptions
+                {
+                    EndPoints = {
+                            { 
+                                redisConfiguration.EndpointUrl,
+                                redisConfiguration.Port
+                            }
+                        },
+                    Password = redisConfiguration.Password,
+                    Ssl = true,
+                    AbortOnConnectFail = false,
+                    ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto)
+                };
+
+                //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
+                //var redisConfigurationOptions = ConfigurationOptions.Parse(redisFCConnectionString!);
+                //    .ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+
+
+                //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
                 fcBuilder
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))
-                    //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() 
+                    { 
+                        //Configuration = connectionString,  
+                        ConfigurationOptions = redisConfigurationOptions
+                    }))
+                    
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
-                        Configuration = connectionString,
-                        ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
-                        {
-                            ChannelPrefix = new StackExchange.Redis.RedisChannel(cacheInstance.BackplaneChannelName, StackExchange.Redis.RedisChannel.PatternMode.Auto)
-                        }
+                        //Configuration = connectionString,
+                        ConfigurationOptions = redisConfigurationOptions
                     }));
             }
         }

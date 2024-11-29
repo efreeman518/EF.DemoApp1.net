@@ -219,9 +219,9 @@ public abstract class IntegrationTestBase
             });
             //using redis for L2 distributed cache
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
-            if (!string.IsNullOrEmpty(cacheInstance.RedisName))
+            if (!string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
             {
-                var redisConnectionString = Config.GetConnectionString(cacheInstance.RedisName);
+                var redisConnectionString = Config.GetConnectionString(cacheInstance.RedisConfigurationSection);
                 fcBuilder
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = redisConnectionString }))
                     //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
