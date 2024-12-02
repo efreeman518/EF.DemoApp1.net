@@ -95,7 +95,7 @@ public static class IServiceCollectionExtensions
         //FusionCache - https://www.nuget.org/packages/ZiggyCreatures.FusionCache
         List<CacheSettings> cacheSettings = [];
         config.GetSection("CacheSettings").Bind(cacheSettings);
-        
+
         //FusionCache supports multiple named instances with different default settings
         foreach (var cacheInstance in cacheSettings)
         {
@@ -134,7 +134,7 @@ public static class IServiceCollectionExtensions
                 var redisConfigurationOptions = new ConfigurationOptions
                 {
                     EndPoints = {
-                            { 
+                            {
                                 redisConfiguration.EndpointUrl,
                                 redisConfiguration.Port
                             }
@@ -152,12 +152,12 @@ public static class IServiceCollectionExtensions
 
                 //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
                 fcBuilder
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() 
-                    { 
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+                    {
                         //Configuration = connectionString,  
                         ConfigurationOptions = redisConfigurationOptions
                     }))
-                    
+
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
                         //Configuration = connectionString,
@@ -291,15 +291,24 @@ public static class IServiceCollectionExtensions
             //SQL ALWAYS ENCRYPTED, the connection string must include "Column Encryption Setting=Enabled"
             if (!_keyStoreProviderRegistered)
             {
-                //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
                 var credential = new DefaultAzureCredential();
                 SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
-                SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
-                 {
-                     {
-                         SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
-                     }
-                 });
+
+                try
+                {
+                    SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+                    {
+                        {
+                            SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                        }
+                    });
+                }
+                catch
+                {
+                    //ignore; already registered.  T
+                    //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
+                    //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
+                }
                 _keyStoreProviderRegistered = true;
             }
 

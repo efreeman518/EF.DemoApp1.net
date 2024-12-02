@@ -62,12 +62,13 @@ public static class DbSupport
                             errorNumbersToAdd: null);
                         });
 
-                    if (!_keyStoreProviderRegistered)
+                    //todo check service collection for existing key store provider
+                    var registeredSqlColumnEncryptionAzureKeyVaultProvider = sp.GetService<SqlColumnEncryptionAzureKeyVaultProvider>();
+                    if (registeredSqlColumnEncryptionAzureKeyVaultProvider == null)
                     {
                         //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
                         var credential = new DefaultAzureCredential();
                         SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
-
                         try
                         {
                             SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
@@ -83,8 +84,32 @@ public static class DbSupport
                             //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
                             //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
                         }
-                        _keyStoreProviderRegistered = true;
+                 
                     }
+
+                    //if (!_keyStoreProviderRegistered)
+                    //{
+                    //    //sql always encrypted support; connection string must include "Column Encryption Setting=Enabled"
+                    //    var credential = new DefaultAzureCredential();
+                    //    SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new(credential);
+
+                    //    try
+                    //    {
+                    //        SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+                    //        {
+                    //            {
+                    //                SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider
+                    //            }
+                    //        });
+                    //    }
+                    //    catch
+                    //    {
+                    //        //ignore; already registered.  T
+                    //        //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
+                    //        //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
+                    //    }
+                    //    _keyStoreProviderRegistered = true;
+                    //}
                 }
             }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 

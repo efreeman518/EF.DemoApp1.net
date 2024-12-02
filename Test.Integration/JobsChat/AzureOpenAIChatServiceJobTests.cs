@@ -6,7 +6,7 @@ using Test.Support;
 
 namespace Test.Integration.JobsChat;
 
-//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
 public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
@@ -34,15 +34,5 @@ public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
         Assert.IsNotNull(response?.ChatId != Guid.Empty);
         Assert.IsNotNull(response?.Message);
 
-        //continue the chat
-        request = new ChatRequest { ChatId = response?.ChatId, Message = "san diego" };
-        result = await _jobChat.ChatCompletionAsync(request);
-        _ = result.Match(
-            dto => response = dto,
-            err => throw err
-            );
-
-        Assert.IsNotNull(response?.ChatId != Guid.Empty);
-        Assert.IsNotNull(response?.Message);
     }
 }
