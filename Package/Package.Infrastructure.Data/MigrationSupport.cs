@@ -25,13 +25,13 @@ namespace Package.Infrastructure.Data;
     string cekName = "CEK_WITH_AKV";
     support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
 
-    //secure column def; varbinary has no collate
+    //secure column def
     string colDef = "[SecureDeterministic] varbinary(200)";
-    support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "DETERMINISTIC");
+    support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "DETERMINISTIC"); //varbinary has no collate
 
     //secure column def; varbinary has no collate
     colDef = "[SecureRandom] varbinary(200)";
-    support.AlterColumnEncryption(cekName, schema_table, colDef, encType: "RANDOMIZED");
+    support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "RANDOMIZED"); //varbinary has no collate
 */
 
 /*
