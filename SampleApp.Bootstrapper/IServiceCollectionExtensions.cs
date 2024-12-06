@@ -127,23 +127,29 @@ public static class IServiceCollectionExtensions
             //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
             //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
 
-            RedisConfiguration redisConfiguration = new();
             if (cacheInstance.RedisConfigurationSection != null)
             {
-                config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfiguration);
+                RedisConfiguration redisConfigFusion = new();
+                config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
                 var redisConfigurationOptions = new ConfigurationOptions
                 {
-                    EndPoints = {
-                            {
-                                redisConfiguration.EndpointUrl,
-                                redisConfiguration.Port
-                            }
-                        },
-                    Password = redisConfiguration.Password,
+                    EndPoints =
+                    {
+                        {
+                            redisConfigFusion.EndpointUrl,
+                            redisConfigFusion.Port
+                        }
+                    },
+                    Password = redisConfigFusion.Password,
                     Ssl = true,
                     AbortOnConnectFail = false,
                     ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto)
                 };
+
+                if (redisConfigFusion.Password == null)
+                {
+                    redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+                }
 
                 //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
                 //var redisConfigurationOptions = ConfigurationOptions.Parse(redisFCConnectionString!);
@@ -167,13 +173,38 @@ public static class IServiceCollectionExtensions
         }
 
         //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed
-        var redisConnectionString = config.GetConnectionString("Redis1");
-        if (!string.IsNullOrEmpty(redisConnectionString))
+        //var redisConnectionString = config.GetConnectionString("Redis1");
+
+        var redisConfigSection = "Redis1Configuration";
+        var configSectionRedis = config.GetSection(redisConfigSection);
+        if (configSectionRedis != null)
         {
+            RedisConfiguration redisConfig = new();
+            configSectionRedis.Bind(redisConfig);
+            var redisConfigurationOptions = new ConfigurationOptions
+            {
+                EndPoints =
+                {
+                    {
+                        redisConfig.EndpointUrl,
+                        redisConfig.Port
+                    }
+                },
+                Password = redisConfig.Password,
+                Ssl = true,
+                AbortOnConnectFail = false
+            };
+
+            if (redisConfig.Password == null)
+            {
+                redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+            }
+
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = redisConnectionString;
-                options.InstanceName = "redis1";
+                options.ConfigurationOptions = redisConfigurationOptions;
+                //options.Configuration = redisConnectionString;
+                //options.InstanceName = "redis1";
             });
         }
         else
