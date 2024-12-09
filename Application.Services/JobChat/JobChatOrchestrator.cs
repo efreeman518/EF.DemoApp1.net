@@ -52,7 +52,7 @@ The user must enter search criteria consisting of a list of allowed expertises a
 Try to find matching allowed expertises based on the user input, and present a list of the closest matches.
 ###
 After the allowed expertise list has been identified from the approved expertise function, and optional location and distance, present a summary of search criteria
-in a html unordered bulletpoint list, and ask the user to confirm.
+in a html unordered bulletpoint list, and ask the user to confirm before searching for jobs.
 ###
 If a location is provided, you calculate the latitude and longitude for the job search
 You can only perform a search with allowed expertises (and location, if provided). If there are no allowed expertise's, 
@@ -96,7 +96,7 @@ Sample search results table:
 
     private async Task<IReadOnlyList<string>> FindExpertiseMatchesAsync(string input)
     {
-        var matches = await jobsService.FindExpertiseMatchesAsync(input, 10);
+        var matches = await jobsService.FindExpertiseMatchesAsync(input, settings.Value.MaxJobSearchResults);
         return matches;
     }
 

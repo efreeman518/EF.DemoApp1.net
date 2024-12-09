@@ -25,6 +25,8 @@ StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 ILogger<Program> loggerStartup = StaticLogging.CreateLogger<Program>();
 loggerStartup.LogInformation("{AppName} - Startup.", appName);
 
+var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
 try
 {
     loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
@@ -49,8 +51,6 @@ try
     string? credOptionsTenantId = builder.Configuration.GetValue<string?>("SharedTokenCacheTenantId", null);
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
-
-    var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
     //configuration
     string? endpoint;
@@ -93,7 +93,7 @@ try
     var config = builder.Configuration;
     builder.Services
         //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
-        .RegisterInfrastructureServices(config, true)
+        .RegisterInfrastructureServices(config, true, env == "Development")
         //domain services
         .RegisterDomainServices(config)
         //app services
@@ -122,17 +122,17 @@ try
         }
     });
 
-    loggerStartup.LogInformation("{AppName} - Running app.", appName);
+    loggerStartup.LogInformation("{AppName} {Environment} - Running app.", appName, env);
 
     await app.RunAsync();
 }
 catch (Exception ex)
 {
-    loggerStartup.LogCritical(ex, "{AppName} - Host terminated unexpectedly.", appName);
+    loggerStartup.LogCritical(ex, "{AppName} {Environment} - Host terminated unexpectedly.", appName, env);
 }
 finally
 {
-    loggerStartup.LogInformation("{AppName} - Ending application.", appName);
+    loggerStartup.LogInformation("{AppName} {Environment} - Ending application.", appName, env);
 }
 
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 using Package.Infrastructure.Common.Extensions;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
@@ -18,9 +19,6 @@ namespace Package.Infrastructure.AzureOpenAI;
  * AzureOpenAI - when you access the model via the API, you need to refer to the deployment name rather than the underlying model name in API calls, 
  * which is one of the key differences between OpenAI and Azure OpenAI. OpenAI only requires the model name. 
  * Azure OpenAI always requires deployment name, even when using the model parameter. 
- * In our docs, we often have examples where deployment names are represented as identical to model names 
- * to help indicate which model works with a particular API endpoint. Ultimately your deployment names can 
- * follow whatever naming convention is best for your use case.
 */
 
 public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings,
@@ -101,17 +99,17 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
             List<ChatMessage> msgs;
             if (maxCompletionMessageCount != null && maxCompletionMessageCount > 0 && maxCompletionMessageCount < chat.Messages.Count)
             {
-                msgs = [chat.Messages[0]]; //keep the initial instructions
-                msgs.AddRange(chat.Messages.Skip(chat.Messages.Count - maxCompletionMessageCount.Value));
+                //msgs = [chat.Messages[0]]; //keep the initial instructions
+                //msgs.AddRange(chat.Messages.Skip(chat.Messages.Count - maxCompletionMessageCount.Value));
+
+                msgs = GetRecentChatMessages(chat.Messages, maxCompletionMessageCount.Value);
             }
             else
             {
                 msgs = chat.Messages;
             }
 
-            //remove null messages - requires further research
-            //chat.Messages.RemoveAll(m => m == null);
-
+            //seems to get a 401 when hitting a token limit (gpt-4o-mini)
             ChatCompletion completion = await chatClient.CompleteChatAsync(msgs, options, cancellationToken);
 
             switch (completion.FinishReason)
@@ -157,6 +155,47 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         await cache.SetAsync(cacheKey, chat.SerializeToJson(optSer), token: cancellationToken);
 
         return (chat.Id, chat.Messages[^1].Content[0].Text);
+    }
+
+    /// <summary>
+    /// GetRecentChatMessages - Get the most recent chat messages to conserve tokens
+    /// Defend against invalid messages list going in to the model, like cutting off a tool-call message prior to a tool message
+    /// </summary>
+    /// <param name="msgs"></param>
+    /// <param name="maxMsgCount"></param>
+    /// <returns></returns>
+    private static List<ChatMessage> GetRecentChatMessages(List<ChatMessage> msgs, int maxMsgCount)
+    {
+        List<ChatMessage> msgsRecent = [msgs[0]]; //keep the initial instructions
+        msgsRecent.AddRange(msgs.Skip(msgs.Count - maxMsgCount));
+
+        //remove trailing messages if they are not a usermessage
+        for (int i = msgsRecent.Count - 1; i >= 0; i--)
+        {
+            if (msgsRecent[i] is UserChatMessage)
+            {
+                break;
+            }
+            else
+            {
+                msgsRecent.RemoveAt(i);
+            }
+        }
+
+        //remove trailing tool calls that (would need prior tool-calls message going into the model)
+        //for (int i = msgsRecent.Count - 1; i >= 0; i--)
+        //{
+        //    if (msgsRecent[i] is ToolChatMessage)
+        //    {
+        //        msgsRecent.RemoveAt(i);
+        //    }
+        //    else
+        //    {
+        //        break;
+        //    }
+        //}
+
+        return msgsRecent;
     }
 
     public async Task<string> ChatCompletionWithDataSource(Request request)

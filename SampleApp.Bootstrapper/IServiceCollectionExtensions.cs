@@ -78,7 +78,12 @@ public static class IServiceCollectionExtensions
     /// <summary>
     /// Register/configure infrastructure services for DI
     /// </summary>
-    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <param name="hasHttpContext">Prevent HttpContext dependent registrations if there is none (Integration Tests)</param>
+    /// <param name="localEnviroment">Some Azure SDKs will throw when using DefaultAzureCredential() when there is no managed identity</param>
+    /// <returns></returns>
+    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false, bool localEnviroment = true)
     {
         //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
         //middleware triggers on http request, not background service scope
@@ -126,7 +131,7 @@ public static class IServiceCollectionExtensions
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
             //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
             //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
-
+            //Redis Settings - Data Access Configuration requires the identities to have 'Data Contributor' access policy for subscribing on the backchannel
             if (cacheInstance.RedisConfigurationSection != null)
             {
                 RedisConfiguration redisConfigFusion = new();
@@ -140,15 +145,28 @@ public static class IServiceCollectionExtensions
                             redisConfigFusion.Port
                         }
                     },
-                    Password = redisConfigFusion.Password,
                     Ssl = true,
-                    AbortOnConnectFail = false,
-                    ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto)
+                    AbortOnConnectFail = false
                 };
-
-                if (redisConfigFusion.Password == null)
+                if (cacheInstance.BackplaneChannelName != null)
                 {
-                    redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+                    redisConfigurationOptions.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
+                }
+
+                if(!string.IsNullOrEmpty(redisConfigFusion.Password))
+                {
+                    redisConfigurationOptions.Password = redisConfigFusion.Password;
+                }
+                else 
+                {
+                    var options = new DefaultAzureCredentialOptions();
+                    if (localEnviroment)
+                    {
+                        //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
+                        //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
+                        options.ExcludeManagedIdentityCredential = true;
+                    }
+                    redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential(options)); //configure redis with managed identity
                 }
 
                 //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
@@ -182,7 +200,7 @@ public static class IServiceCollectionExtensions
             RedisConfiguration redisConfig = new();
             configSectionRedis.Bind(redisConfig);
             var redisConfigurationOptions = new ConfigurationOptions
-            {
+            { 
                 EndPoints =
                 {
                     {
@@ -190,14 +208,24 @@ public static class IServiceCollectionExtensions
                         redisConfig.Port
                     }
                 },
-                Password = redisConfig.Password,
                 Ssl = true,
                 AbortOnConnectFail = false
             };
 
-            if (redisConfig.Password == null)
+            if (!string.IsNullOrEmpty(redisConfig.Password))
             {
-                redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+                redisConfigurationOptions.Password = redisConfig.Password;
+            }
+            else
+            {
+                var options = new DefaultAzureCredentialOptions();
+                if (localEnviroment)
+                {
+                    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
+                    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
+                    options.ExcludeManagedIdentityCredential = true;
+                }
+                redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential(options)); //configure redis with managed identity
             }
 
             services.AddStackExchangeRedisCache(options =>
@@ -378,9 +406,19 @@ public static class IServiceCollectionExtensions
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                     {
                         var key = jobChatConfigSection.GetValue<string?>("Key", null);
-                        return !string.IsNullOrEmpty(key)
-                            ? new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options)
-                            : new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                        if(!string.IsNullOrEmpty(key))
+                        {
+                            return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                            }
+                        var defaultAzCredOptions = new DefaultAzureCredentialOptions();
+                        if (localEnviroment)
+                        {
+                            //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
+                            //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
+                            defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
+                        }
+                        
+                        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(defaultAzCredOptions), options);
                     });
 
                     //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
