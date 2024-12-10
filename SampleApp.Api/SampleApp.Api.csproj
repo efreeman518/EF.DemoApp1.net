@@ -39,7 +39,7 @@
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.5.0" />
-    <PackageReference Include="Scalar.AspNetCore" Version="1.2.49" />
+    <PackageReference Include="Scalar.AspNetCore" Version="1.2.51" />
   </ItemGroup>
 
   <ItemGroup>
