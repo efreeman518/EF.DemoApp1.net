@@ -181,16 +181,20 @@ Sample search results table:
 
     private async Task ToolsCallback(List<ChatMessage> messages, IReadOnlyList<ChatToolCall> toolCalls)
     {
+        logger.LogInformation("ToolsCallback - {ToolCallsCount}", toolCalls.Count);
+
         // Then, add a new tool message for each tool call that is resolved.
         // Should be processed in parallel if possible.
         foreach (ChatToolCall toolCall in toolCalls)
         {
+            logger.LogInformation("ToolsCallback - {FunctionName}", toolCall.FunctionName);
+
             switch (toolCall.FunctionName)
             {
                 case nameof(FindExpertiseMatchesAsync):
                     {
                         using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                        bool hasParamInput = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
+                        _ = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
                         var toolResult = await FindExpertiseMatchesAsync(elInput.GetString()!);
                         var toolResultMessage = string.Join(", ", toolResult);
                         messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));
@@ -200,13 +204,13 @@ Sample search results table:
                 case nameof(SearchJobsAsync):
                     {
                         using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                        bool hasParamExpertises = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
+                        _ = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
                         var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetString()!).ToList();
-                        bool hasParamLatitude = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
+                        _ = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
                         var paramLatitude = elLatitude.GetDecimal()!;
-                        bool hasParamLongitude = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
+                        _ = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
                         var paramLongitude = elLongitude.GetDecimal()!;
-                        bool hasParamRadius = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
+                        _ = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
                         var paramRadius = elRadius.GetInt32()!;
                         var toolResult = await SearchJobsAsync(paramExpertises, paramLatitude, paramLongitude, paramRadius);
                         var toolResultMessage = string.Join(", ", toolResult);

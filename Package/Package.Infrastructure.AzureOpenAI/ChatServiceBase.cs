@@ -58,6 +58,7 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         Chat chat;
         if (chatId != null)
         {
+            logger.LogInformation("ChatCompletionAsync - cache.GetOrDefaultAsync({CacheKey})", cacheKey);
             //may have expired, in that case restart with a new chat
             var chatjson = (await cache.GetOrDefaultAsync<string>(cacheKey, token: cancellationToken));
             if (chatjson != null)
@@ -106,6 +107,8 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
 
             //seems to get a 401 when hitting a token limit (gpt-4o-mini)
             ChatCompletion completion = await chatClient.CompleteChatAsync(msgs, options, cancellationToken);
+
+            logger.LogInformation("ChatCompletionAsync - chatClient.CompleteChatAsync - {FinishReason}", completion.FinishReason.ToString());
 
             switch (completion.FinishReason)
             {

@@ -65,7 +65,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
         var joinExpertises = string.Join("&expertiseCodes=", expertiseCodes);
         var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
-        logger.LogInformation("job/GetJobSearchResultAsync: {Url}", url);
+        logger.LogInformation("SearchJobsAsync: {Url}", url);
 
         (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, null);
         var jobResult = result.Match(
