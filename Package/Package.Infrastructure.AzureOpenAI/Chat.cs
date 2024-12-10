@@ -1,5 +1,4 @@
-﻿using MemoryPack;
-using OpenAI.Chat;
+﻿using OpenAI.Chat;
 
 namespace Package.Infrastructure.AzureOpenAI;
 

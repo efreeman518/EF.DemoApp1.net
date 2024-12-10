@@ -84,7 +84,7 @@ public static class DbSupport
                             //this is a workaround for the fact that the SqlColumnEncryptionAzureKeyVaultProvider is already registered in the web application factory registrations
                             //SqlConnection does not currently have a Try register method or any way to check if a provider is already registered
                         }
-                 
+
                     }
 
                     //if (!_keyStoreProviderRegistered)

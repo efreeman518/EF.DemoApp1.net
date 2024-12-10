@@ -19,6 +19,7 @@ using Package.Infrastructure.Test.Integration.KeyVault;
 using Package.Infrastructure.Test.Integration.Messaging;
 using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
+using StackExchange.Redis;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
@@ -108,16 +109,25 @@ public abstract class IntegrationTestBase
             }
 
             //Azure OpenAI
-            var jobChatconfigSection = Config.GetSection(JobChatSettings.ConfigSectionName);
-            if (jobChatconfigSection.Exists())
+            var jobChatConfigSection = Config.GetSection(JobChatSettings.ConfigSectionName);
+            if (jobChatConfigSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
                 builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                    new AzureOpenAIClient(new Uri(jobChatconfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
+                {
+                    var key = jobChatConfigSection.GetValue<string?>("Key", null);
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                    }
+
+                    //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
+                    return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                });
 
                 //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
                 services.AddTransient<IJobChatService, JobChatService>();
-                services.Configure<JobChatSettings>(jobChatconfigSection);
+                services.Configure<JobChatSettings>(jobChatConfigSection);
             }
         });
 
@@ -217,23 +227,58 @@ public abstract class IntegrationTestBase
                 //refresh active cache items upon cache retrieval, if getting close to expiration
                 EagerRefreshThreshold = 0.9f
             });
-            //using redis for L2 distributed cache
+
+            //using redis for L2 distributed cache & backplane
             //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
+            //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
+            //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
+            //Redis Settings - Data Access Configuration requires the identities to have 'Data Contributor' access policy for subscribing on the backchannel
             if (!string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
             {
-                var redisConnectionString = Config.GetConnectionString(cacheInstance.RedisConfigurationSection);
+                RedisConfiguration redisConfigFusion = new();
+                Config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
+                var redisConfigurationOptions = new ConfigurationOptions
+                {
+                    EndPoints =
+                    {
+                        {
+                            redisConfigFusion.EndpointUrl,
+                            redisConfigFusion.Port
+                        }
+                    },
+                    Ssl = true,
+                    AbortOnConnectFail = false
+                };
+                if (cacheInstance.BackplaneChannelName != null)
+                {
+                    redisConfigurationOptions.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
+                }
+
+                if (!string.IsNullOrEmpty(redisConfigFusion.Password))
+                {
+                    redisConfigurationOptions.Password = redisConfigFusion.Password;
+                }
+                else
+                {
+                    //configure redis with managed identity
+                    _ = Task.Run(() => redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential())).Result;
+                }
+
+                //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
                 fcBuilder
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = redisConnectionString }))
-                    //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+                    {
+                        //Configuration = connectionString,  
+                        ConfigurationOptions = redisConfigurationOptions
+                    }))
+
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
-                        Configuration = redisConnectionString,
-                        ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
-                        {
-                            ChannelPrefix = new StackExchange.Redis.RedisChannel(cacheInstance.BackplaneChannelName, StackExchange.Redis.RedisChannel.PatternMode.Auto)
-                        }
+                        //Configuration = connectionString,
+                        ConfigurationOptions = redisConfigurationOptions
                     }));
             }
+
         }
 
         //IRequestContext - injected into repositories, cache managers, etc

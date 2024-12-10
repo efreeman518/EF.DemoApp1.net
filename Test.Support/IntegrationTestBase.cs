@@ -58,69 +58,6 @@ public abstract class IntegrationTestBase
             .RegisterApplicationServices(Config);
 
         //register services for testing that are not already registered in the bootstraper
-        //ServicesCollection.AddAzureClients(builder =>
-        //{
-        //    //Azure OpenAI
-        //    var configSection = Config.GetSection(JobChatSettings.ConfigSectionName);
-        //    if (configSection.Exists())
-        //    {
-        //        // Register a custom client factory since this client does not currently have a service registration method
-        //        builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-        //            new AzureOpenAIClient(new Uri(configSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options));
-
-        //        //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-        //        ServicesCollection.AddTransient<IJobChatService, JobChatService>();
-        //    }
-        //});
-
-        //moved to bootstrapper
-        //FusionCache settings
-        //List<CacheSettings> cacheSettings = [];
-        //Config.GetSection("CacheSettings").Bind(cacheSettings);
-
-        ////FusionCache supports multiple named instances with different default settings
-        //foreach (var cacheInstance in cacheSettings)
-        //{
-        //    var fcBuilder = ServicesCollection.AddFusionCache(cacheInstance.Name)
-        //    .WithCysharpMemoryPackSerializer() //FusionCache supports several different serializers (different FusionCache nugets)
-        //    .WithCacheKeyPrefix($"{cacheInstance.Name}:")
-        //    .WithDefaultEntryOptions(new FusionCacheEntryOptions()
-        //    {
-        //        //memory cache duration
-        //        Duration = TimeSpan.FromMinutes(cacheInstance.DurationMinutes),
-        //        //distributed cache duration
-        //        DistributedCacheDuration = TimeSpan.FromMinutes(cacheInstance.DistributedCacheDurationMinutes),
-        //        //how long to use expired cache value if the factory is unable to provide an updated value
-        //        FailSafeMaxDuration = TimeSpan.FromMinutes(cacheInstance.FailSafeMaxDurationMinutes),
-        //        //how long to wait before trying to get a new value from the factory after a fail-safe expiration
-        //        FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheInstance.FailSafeThrottleDurationMinutes),
-        //        //allow some jitter in the Duration for variable expirations
-        //        JitterMaxDuration = TimeSpan.FromSeconds(10),
-        //        //factory timeout before returning stale value, if fail-safe is enabled and we have a stale value
-        //        FactorySoftTimeout = TimeSpan.FromSeconds(1),
-        //        //max allowed for factory even with no stale value to use; something may be wrong with the factory/service
-        //        FactoryHardTimeout = TimeSpan.FromSeconds(30),
-        //        //refresh active cache items upon cache retrieval, if getting close to expiration
-        //        EagerRefreshThreshold = 0.9f
-        //    });
-        //    //using redis for L2 distributed cache
-        //    if (!string.IsNullOrEmpty(cacheInstance.RedisName))
-        //    {
-        //        var connectionString = Config.GetConnectionString(cacheInstance.RedisName);
-        //        fcBuilder
-        //            .WithDistributedCache(new RedisCache(new RedisCacheOptions() { Configuration = connectionString }))
-        //            //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
-        //            .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
-        //            {
-        //                Configuration = connectionString,
-        //                ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
-        //                {
-        //                    ChannelPrefix = new StackExchange.Redis.RedisChannel(cacheInstance.BackplaneChannelName, StackExchange.Redis.RedisChannel.PatternMode.Auto)
-        //                }
-        //            }));
-        //    }
-        //}
-
 
         ServicesCollection.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
         Logger = ServicesCollection.BuildServiceProvider().GetRequiredService<ILogger<IntegrationTestBase>>();
@@ -137,12 +74,4 @@ public abstract class IntegrationTestBase
         ServiceScope = Services.CreateScope();
         Logger.Log(LogLevel.Information, "{TestContextName} Base ConfigureServices complete.", testContextName);
     }
-
-    //protected static void BuildServiceProviderAndScope()
-    //{
-    //    //build IServiceProvider for subsequent use finding/injecting services
-    //    _services = ServicesCollection.BuildServiceProvider(validateScopes: true);
-    //    _serviceScope = _services.CreateScope();
-    //    _logger.Log(LogLevel.Information, "{TestContextName} Initialized.", testContextName);
-    //}
 }

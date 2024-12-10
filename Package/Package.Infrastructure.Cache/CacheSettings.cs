@@ -20,7 +20,7 @@ public class CacheSettings
     /// Change in settings if and when the version of the backplane message needs to change
     /// https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
     /// </summary>
-    public string? BackplaneChannelName { get; set; } 
+    public string? BackplaneChannelName { get; set; }
 
     /// <summary>
     /// The duration of the cache in minutes

@@ -58,7 +58,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
     public async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 10)
     {
-        if(expertises == null || expertises.Count == 0)
+        if (expertises == null || expertises.Count == 0)
         {
             return [];
         }
