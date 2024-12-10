@@ -125,8 +125,16 @@ td {
     #chat-controls button {
         font-size: 1.2em;
         border-radius: 10px;
-        border: 2px solid #005656;
+        border: 2px solid white;
+        background-color: black;
+        color:white;
         padding: 2px;
+        transition: .5s;
+    }
+
+    #chat-controls button:hover {
+        border-color: cyan;
+        color: cyan;
     }
 
 .disabled {
