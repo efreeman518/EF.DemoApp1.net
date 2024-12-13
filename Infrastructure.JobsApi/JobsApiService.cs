@@ -31,10 +31,13 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         return lookups;
     }
 
-    public async Task<IReadOnlyList<string>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
     {
-        var fullList = (await GetLookupsAsync(cancellationToken)).Expertises.Select(e => e.Name).ToList();
-        return target.FindTopMatches(fullList, maxCount, 10, false);
+        var expertises = (await GetLookupsAsync(cancellationToken)).Expertises;
+        var fullNameList = expertises.Select(e => e.Name).ToList();
+        var matches = target.FindTopMatches(fullNameList, maxCount, 10, false);
+        //return the ids of the matches
+        return [.. expertises.Where(e => matches.Contains(e.Name)).Select(e => e.Id)];
     }
 
     //lookups - professions with types
@@ -56,13 +59,13 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
-    public async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 10)
+    public async Task<IEnumerable<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 10)
     {
-        if (expertises == null || expertises.Count == 0)
+        if (expertiseCodes.Count == 0)
         {
             return [];
         }
-        var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
+        //var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
         var joinExpertises = string.Join("&expertiseCodes=", expertiseCodes);
         var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
         logger.LogInformation("SearchJobsAsync: {Url}", url);

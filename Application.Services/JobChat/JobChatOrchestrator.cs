@@ -49,13 +49,13 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
 You are a professional assistant that helps people find the job they are looking for, introduce yourself and your mission.
 The user must enter search criteria consisting of a list of allowed expertises and an optional location and distance, or be willing to travel anywhere. 
 ###
-Try to find matching allowed expertises based on the user input, and present a list of the closest matches.
+First find matching allowed expertises based on the user input, and present a list of the closest matches. At least one matching allowed expertise is required to search for jobs.
 ###
 After the allowed expertise list has been identified from the approved expertise function, and optional location and distance, present a summary of search criteria
 in a html unordered bulletpoint list, and ask the user to confirm before searching for jobs.
 ###
 If a location is provided, you calculate the latitude and longitude for the job search
-You can only perform a search with allowed expertises (and location, if provided). If there are no allowed expertise's, 
+You can perform a search with only: at least one allowed expertises (and location, if provided). If there are no allowed expertise's, 
 you will reply that you are unable to search and make a joke about it.
 ###
 Always present the user with an html search results table, containing only the jobs found in the search results.
@@ -94,15 +94,15 @@ Sample search results table:
         return systemPrompt;
     }
 
-    private async Task<IReadOnlyList<string>> FindExpertiseMatchesAsync(string input)
+    private async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string input)
     {
         var matches = await jobsService.FindExpertiseMatchesAsync(input, settings.Value.MaxJobSearchResults);
         return matches;
     }
 
-    private async Task<IEnumerable<Job>> SearchJobsAsync(List<string> expertises, decimal latitude, decimal longitude, int radiusMiles)
+    private async Task<IEnumerable<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
     {
-        return await jobsService.SearchJobsAsync(expertises, latitude, longitude, radiusMiles);
+        return await jobsService.SearchJobsAsync(expertiseCodes, latitude, longitude, radiusMiles);
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ Sample search results table:
     //);
     private readonly ChatTool findExpertiseMatches = ChatTool.CreateFunctionTool(
         functionName: nameof(FindExpertiseMatchesAsync),
-        functionDescription: "Find closest matching allowed expertises.",
+        functionDescription: "Find closest matching allowed expertise codes.",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -135,7 +135,7 @@ Sample search results table:
 
     private readonly ChatTool searchJobs = ChatTool.CreateFunctionTool(
         functionName: nameof(SearchJobsAsync),
-        functionDescription: "Find jobs based on the allowed expertise list and location (using latitude, longitude, and radius).",
+        functionDescription: "Find jobs based on the allowed expertise codes and location (using latitude, longitude, and radius).",
         functionParameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -143,9 +143,9 @@ Sample search results table:
             "properties": {
                 "expertises": {
                     "type": "array",
-                    "description": "The list of allowed expertises.",
+                    "description": "The list of allowed expertise codes.",
                     "items": {
-                      "type": "string"
+                      "type": "number"
                     }
                 },
                 "latitude": {
@@ -205,7 +205,7 @@ Sample search results table:
                     {
                         using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
                         _ = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
-                        var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetString()!).ToList();
+                        var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetInt32()!).ToList();
                         _ = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
                         var paramLatitude = elLatitude.GetDecimal()!;
                         _ = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
