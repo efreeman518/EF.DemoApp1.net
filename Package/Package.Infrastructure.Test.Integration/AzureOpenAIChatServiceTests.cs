@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.AzureOpenAI;
+using OpenAI.Chat;
+using Package.Infrastructure.AzureOpenAI.Chat;
+using Package.Infrastructure.Test.Integration.AzureAIChat;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -12,27 +14,20 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
 
     public AzureOpenAIChatServiceTests()
     {
-        _chatService = Services.GetRequiredService<IChatService>();
+        _chatService = Services.GetRequiredService<ISomeChatService>();
     }
 
-    //[TestMethod]
-    //public async Task Conversation_pass()
-    //{
-    //    var request = new Request("Why is the sky blue?");
-    //    var responseList = await _chatService.ChatStream(request);
-    //    Assert.IsNotNull(responseList);
+    [TestMethod]
+    public async Task Conversation_pass()
+    {
+        var msgs = new List<ChatMessage> { 
+            SystemChatMessage.CreateSystemMessage("You are an expert in everything and directly answer questions from the user."),
+            UserChatMessage.CreateUserMessage("Why is the sky blue")
+        };
 
-    //    var response = await _chatService.ChatCompletion(request);
-    //    Assert.IsNotNull(response);
-    //}
+        (var chatId, var chatResponse) = await _chatService.ChatCompletionAsync(null,msgs);
+        Assert.IsNotNull(chatId);
+        Assert.IsNotNull(chatResponse);
+    }
 
-    //[TestMethod]
-    //[DataRow("Whats the weather like today in Omaha, celsius?")]
-    //[DataRow("What is the weather like today?")]
-    //public async Task ConversationWithTools_pass(string prompt)
-    //{
-    //    var request = new Request(prompt);
-    //    var response = await _chatService.ChatCompletionWithTools(request);
-    //    Assert.IsNotNull(response);
-    //}
 }

@@ -1,5 +1,5 @@
 ﻿using Azure.AI.OpenAI;
-using Package.Infrastructure.AzureOpenAI;
+using Package.Infrastructure.AzureOpenAI.Chat;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobChat;

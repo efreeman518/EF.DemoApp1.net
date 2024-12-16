@@ -1,6 +1,6 @@
 ﻿using OpenAI.Chat;
 
-namespace Package.Infrastructure.AzureOpenAI;
+namespace Package.Infrastructure.AzureOpenAI.Chat;
 
 public partial class Chat(List<ChatMessage>? messages = null)
 {

@@ -3,7 +3,7 @@ using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Package.Infrastructure.AzureOpenAI;
+namespace Package.Infrastructure.AzureOpenAI.Chat;
 public class ChatMessageJsonConverter : JsonConverter<ChatMessage>
 {
     public override ChatMessage? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -67,8 +67,6 @@ public class ChatMessageJsonConverter : JsonConverter<ChatMessage>
         if (jsonElement.ValueKind != JsonValueKind.Array)
             throw new InvalidOperationException("JsonElement is not an array.");
 
-        return jsonElement.EnumerateArray()
-                          .Select(converter)
-                          .ToArray();
+        return [.. jsonElement.EnumerateArray().Select(converter)];
     }
 }

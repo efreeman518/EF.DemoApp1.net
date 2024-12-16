@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.AzureOpenAI;
+﻿namespace Package.Infrastructure.AzureOpenAI.Chat;
 
 public abstract class ChatServiceSettingsBase
 {

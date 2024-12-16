@@ -109,25 +109,25 @@ public abstract class IntegrationTestBase
             }
 
             //Azure OpenAI
-            var jobChatConfigSection = Config.GetSection(JobChatSettings.ConfigSectionName);
-            if (jobChatConfigSection.Exists())
+            var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
+            if (someChatConfigSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
                 builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                 {
-                    var key = jobChatConfigSection.GetValue<string?>("Key", null);
+                    var key = someChatConfigSection.GetValue<string?>("Key", null);
                     if (!string.IsNullOrEmpty(key))
                     {
-                        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                        return new AzureOpenAIClient(new Uri(someChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
                     }
 
                     //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                    return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                    return new AzureOpenAIClient(new Uri(someChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
                 });
 
                 //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                services.AddTransient<IJobChatService, JobChatService>();
-                services.Configure<JobChatSettings>(jobChatConfigSection);
+                services.AddTransient<ISomeChatService, SomeChatService>();
+                services.Configure<SomeChatSettings>(someChatConfigSection);
             }
         });
 

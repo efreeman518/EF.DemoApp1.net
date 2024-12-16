@@ -8,9 +8,11 @@ using System.Text;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace Package.Infrastructure.AzureOpenAI;
+namespace Package.Infrastructure.AzureOpenAI.Chat;
 
-//https://github.com/openai/openai-dotnet?tab=readme-ov-file
+//https://github.com/openai/openai-dotnet
+//https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md
+
 //https://platform.openai.com/settings/organization/usage
 //https://platform.openai.com/docs/models
 
@@ -60,7 +62,7 @@ public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<
         {
             logger.LogInformation("ChatCompletionAsync - cache.GetOrDefaultAsync({CacheKey})", cacheKey);
             //may have expired, in that case restart with a new chat
-            var chatjson = (await cache.GetOrDefaultAsync<string>(cacheKey, token: cancellationToken));
+            var chatjson = await cache.GetOrDefaultAsync<string>(cacheKey, token: cancellationToken);
             if (chatjson != null)
             {
                 chat = chatjson.DeserializeJson<Chat>(optSer)!;
