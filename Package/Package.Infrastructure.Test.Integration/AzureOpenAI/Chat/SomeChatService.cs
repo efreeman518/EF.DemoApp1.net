@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Package.Infrastructure.AzureOpenAI.Chat;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace Package.Infrastructure.Test.Integration.AzureAIChat;
+namespace Package.Infrastructure.Test.Integration.AzureOpenAI.Chat;
 
 public class SomeChatService(ILogger<ChatServiceBase> logger, IOptions<SomeChatSettings> settings,
     AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger, settings, openAIclient, cacheProvider), ISomeChatService

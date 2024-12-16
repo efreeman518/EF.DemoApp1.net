@@ -1,10 +1,15 @@
 ﻿using Azure.AI.OpenAI;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI.Assistants;
-using OpenAI.Chat;
+using System.Text;
 
 namespace Package.Infrastructure.AzureOpenAI.Assistant;
+
+// The Assistants feature area is in beta, with API specifics subject to change.
+// Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
+#pragma warning disable OPENAI001
 
 /// <summary>
 /// Assistants are stateful, more features than chat
@@ -15,29 +20,50 @@ namespace Package.Infrastructure.AzureOpenAI.Assistant;
 /// <param name="settings"></param>
 /// <param name="openAIclient"></param>
 public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger, IOptions<AssistantServiceSettingsBase> settings,
-    AzureOpenAIClient openAIclient) : IAssistantService
+    IAzureClientFactory<AzureOpenAIClient> clientFactory) : IAssistantService
 {
+    private readonly AzureOpenAIClient openAIclient = clientFactory.CreateClient("AOAIAssistant");
 
-    // The Assistants feature area is in beta, with API specifics subject to change.
-    // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
-#pragma warning disable OPENAI001
-    private readonly AssistantClient assistantClient = openAIclient.GetAssistantClient();
-
-    public async Task<string> RunAsync(string assistantName, string? threadId, AssistantCreationOptions? options = null,
-        Func<List<ChatMessage>, IReadOnlyList<ToolDefinition>, Task>? toolCallFunc = null, int? maxCompletionMessageCount = null, int maxToolCallRounds = 5,
-        CancellationToken cancellationToken = default)
+    public async Task<(string, string)> CreateAssistandAndThreadAsync(string initMessage, AssistantCreationOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var aOptions = new AssistantCreationOptions
-        { 
-            Name = assistantName,
-            Description = "Job search assistant",
-            Instructions = "Helps users find jobs",
-            ResponseFormat = AssistantResponseFormat.CreateTextFormat(),
-            NucleusSamplingFactor = 0.1F,
-              
-        };
+        var assistantClient = openAIclient.GetAssistantClient();
+        var clientResultAssistant = await assistantClient.CreateAssistantAsync(settings.Value.DeploymentName, options, cancellationToken);
 
-        var assistant = await assistantClient.CreateAssistantAsync(settings.Value.DeploymentName);
-        return "";
+        ThreadInitializationMessage threadInitMessage = new(MessageRole.User,
+            [
+                initMessage
+            ]);
+        AssistantThread thread = await assistantClient.CreateThreadAsync(new ThreadCreationOptions()
+        {
+            InitialMessages = { threadInitMessage }
+        }, cancellationToken);
+
+        return(clientResultAssistant.Value.Id, thread.Id);
+    }
+
+    public async Task<string> RunAsync(string assistantId, string threadId, RunCreationOptions? options = null,
+        Func<IReadOnlyList<ToolDefinition>, Task>? toolCallFunc = null, CancellationToken cancellationToken = default)
+    {
+        var assistantClient = openAIclient.GetAssistantClient();
+
+        var response = new StringBuilder();
+        await foreach (StreamingUpdate streamingUpdate in assistantClient.CreateRunStreamingAsync(threadId, assistantId, options, cancellationToken))
+        {
+            if (streamingUpdate.UpdateKind == StreamingUpdateReason.RunCreated)
+            {
+                Console.WriteLine($"--- Run started! ---");
+            }
+            else if (streamingUpdate is MessageContentUpdate contentUpdate)
+            {
+                response.Append(contentUpdate.Text);
+                //Console.Write(contentUpdate.Text);
+                //if (contentUpdate.ImageFileId is not null)
+                //{
+                //    Console.WriteLine($"[Image content file ID: {contentUpdate.ImageFileId}");
+                //}
+            }
+        }
+
+        return response.ToString();
     }
 }

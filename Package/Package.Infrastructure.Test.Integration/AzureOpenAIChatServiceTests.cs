@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OpenAI.Chat;
 using Package.Infrastructure.AzureOpenAI.Chat;
-using Package.Infrastructure.Test.Integration.AzureAIChat;
+using Package.Infrastructure.Test.Integration.AzureOpenAI.Chat;
 
 namespace Package.Infrastructure.Test.Integration;
 

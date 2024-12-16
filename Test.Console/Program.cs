@@ -207,7 +207,7 @@ async Task AttemptResultAsync<T>(Func<Task<Result<T?>>> method) where T : class
     }
 }
 
-async Task AttemptHttpAsync<T>(Func<Task<T?>> method) where T : class?
+async Task AttemptHttpAsync<T>(Func<Task<T?>> method) where T : class
 {
     logger.InfoLog("REST Client initiate request");
     Console.WriteLine("----------REST Client initiate request -----------");
@@ -216,7 +216,7 @@ async Task AttemptHttpAsync<T>(Func<Task<T?>> method) where T : class?
     {
         var response = await method();
         Console.WriteLine("----------REST Client handles response -----------");
-        Console.WriteLine($"{response.SerializeToJson() ?? ""}");
+        Console.WriteLine($"{response?.SerializeToJson() ?? ""}");
         //if (response?.Errors?.Count > 0)
         //{
         //    Console.WriteLine($"Errors: {response.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(String.Join(", ", a.Message)), sb => sb.ToString())}");
