@@ -1,4 +1,4 @@
-﻿using OpenAI.Assistants;
+﻿using Azure.AI.OpenAI.Assistants;
 
 namespace Package.Infrastructure.AzureOpenAI.Assistant;
 
@@ -8,9 +8,10 @@ namespace Package.Infrastructure.AzureOpenAI.Assistant;
 
 public interface IAssistantService
 {
-    Task<(string, string)> CreateAssistandAndThreadAsync(string initMessage, AssistantCreationOptions? options = null, CancellationToken cancellationToken = default);
+    Task<string> CreateAssistandAndThreadAsync(string initMessage,
+        Azure.AI.OpenAI.Assistants.AssistantCreationOptions? aOptions = null, AssistantThreadCreationOptions? tOptions = null, CancellationToken cancellationToken = default);
 
-    Task<string> RunAsync(string assistantId, string threadId, RunCreationOptions? options = null,
-        Func<IReadOnlyList<ToolDefinition>, Task>? toolCallFunc = null, CancellationToken cancellationToken = default);
+    Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions? options = null,
+        Func<IReadOnlyList<RequiredToolCall>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default);
 
 }

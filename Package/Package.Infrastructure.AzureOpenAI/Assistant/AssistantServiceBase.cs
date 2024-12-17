@@ -25,13 +25,14 @@ public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger,
     //Experimental AssistantsClient (client factory does not currently support this client)
     //private readonly AssistantClient assistantClient = clientFactory.CreateClient(settings.Value.ResourceName).GetAssistantClient();
 
-    public async Task<(string, string)> CreateAssistandAndThreadAsync(string initMessage, 
+    public async Task<string> CreateAssistandAndThreadAsync(string initMessage, 
         AssistantCreationOptions? aOptions = null, AssistantThreadCreationOptions? tOptions = null, CancellationToken cancellationToken = default)
     {
         //why is this needed?
         Azure.AI.OpenAI.Assistants.Assistant assistant = (await client.CreateAssistantAsync(aOptions, cancellationToken)).Value;
+
         AssistantThread thread = (await client.CreateThreadAsync(tOptions, cancellationToken)).Value;
-        return (assistant.Id, thread.Id);
+        return thread.Id;
     }
 
     public async Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions? options = null,
