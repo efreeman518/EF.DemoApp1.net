@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Interfaces;
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.AI.OpenAI.Assistants;
 using Azure.Identity;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
@@ -110,47 +111,32 @@ public abstract class IntegrationTestBase
             }
 
             //Azure OpenAI
-            var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
-            if (someChatConfigSection.Exists())
+            var azureOpenIAConfigSection = Config.GetSection("AzureOpenAI");
+            if (azureOpenIAConfigSection.Exists())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
                 builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                 {
-                    var key = someChatConfigSection.GetValue<string?>("Key", null);
+                    var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                     if (!string.IsNullOrEmpty(key))
                     {
-                        return new AzureOpenAIClient(new Uri(someChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                        return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
                     }
-
                     //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                    return new AzureOpenAIClient(new Uri(someChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                }).WithName("AOAIChat");
+                    return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                }).WithName("AzureOpenAI");
 
-                //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                services.AddTransient<ISomeChatService, SomeChatService>();
-                services.Configure<SomeChatSettings>(someChatConfigSection);
-                
-            }
-
-            var someAssistantConfigSection = Config.GetSection(SomeAssistantSettings.ConfigSectionName);
-            if (someAssistantConfigSection.Exists())
-            {
-                // Register a custom client factory since this client does not currently have a service registration method
-                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+                //Experimental AssistantsClient (client factory does not currently support this client)
+                services.AddScoped<AssistantsClient>(provider =>
                 {
-                    var key = someAssistantConfigSection.GetValue<string?>("Key", null);
+                    var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                     if (!string.IsNullOrEmpty(key))
                     {
-                        return new AzureOpenAIClient(new Uri(someAssistantConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                        return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key));
                     }
+                    return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
+                });
 
-                    //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                    return new AzureOpenAIClient(new Uri(someAssistantConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                }).WithName("AOAIAssistant"); ;
-
-                //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                services.AddTransient<ISomeAssistantService, SomeAssistantService>();
-                services.Configure<SomeAssistantSettings>(someAssistantConfigSection);
             }
         });
 
@@ -327,6 +313,25 @@ public abstract class IntegrationTestBase
             //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             .AddStandardResilienceHandler();
+        }
+
+        //Some Chat
+        var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
+        if (someChatConfigSection.Exists())
+        {
+            //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<ISomeChatService, SomeChatService>();
+            services.Configure<SomeChatSettings>(someChatConfigSection);
+
+        }
+
+        //Some Assistant
+        var someAssistantConfigSection = Config.GetSection(SomeAssistantSettings.ConfigSectionName);
+        if (someAssistantConfigSection.Exists())
+        {
+            //AzureOpenAI service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<ISomeAssistantService, SomeAssistantService>();
+            services.Configure<SomeAssistantSettings>(someAssistantConfigSection);
         }
 
         //OpenAI chat service wrapper

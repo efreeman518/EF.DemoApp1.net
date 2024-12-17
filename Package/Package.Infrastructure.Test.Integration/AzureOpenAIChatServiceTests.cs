@@ -29,5 +29,4 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
         Assert.IsNotNull(chatId);
         Assert.IsNotNull(chatResponse);
     }
-
 }

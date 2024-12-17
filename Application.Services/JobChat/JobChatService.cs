@@ -1,10 +1,11 @@
 ﻿using Azure.AI.OpenAI;
+using Microsoft.Extensions.Azure;
 using Package.Infrastructure.AzureOpenAI.Chat;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobChat;
 
 public class JobChatService(ILogger<JobChatService> logger, IOptions<JobChatSettings> settings,
-    AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger, settings, openAIclient, cacheProvider), IJobChatService
+    IAzureClientFactory<AzureOpenAIClient> clientFactory, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger, settings, clientFactory, cacheProvider), IJobChatService
 {
 }

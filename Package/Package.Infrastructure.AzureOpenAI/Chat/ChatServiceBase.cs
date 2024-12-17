@@ -1,5 +1,6 @@
 ﻿using Azure.AI.OpenAI;
 using Azure.AI.OpenAI.Chat;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
@@ -23,9 +24,9 @@ namespace Package.Infrastructure.AzureOpenAI.Chat;
 */
 
 public abstract class ChatServiceBase(ILogger<ChatServiceBase> logger, IOptions<ChatServiceSettingsBase> settings,
-    AzureOpenAIClient openAIclient, IFusionCacheProvider cacheProvider) : IChatService
+    IAzureClientFactory<AzureOpenAIClient> clientFactory, IFusionCacheProvider cacheProvider) : IChatService
 {
-    private readonly ChatClient chatClient = openAIclient.GetChatClient(settings.Value.DeploymentName);
+    private readonly ChatClient chatClient = clientFactory.CreateClient(settings.Value.ResourceName).GetChatClient(settings.Value.DeploymentName);
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     private static readonly JsonSerializerOptions optSer = new()
