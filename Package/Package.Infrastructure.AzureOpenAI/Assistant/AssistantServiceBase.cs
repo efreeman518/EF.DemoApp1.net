@@ -8,7 +8,7 @@ namespace Package.Infrastructure.AzureOpenAI.Assistant;
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
-#pragma warning disable OPENAI001
+// #pragma warning disable OPENAI001
 
 /// <summary>
 /// Assistants are stateful, more features than chat
@@ -19,54 +19,62 @@ namespace Package.Infrastructure.AzureOpenAI.Assistant;
 /// </summary>
 /// <param name="logger"></param>
 /// <param name="settings"></param>
-/// <param name="openAIclient"></param>
+/// <param name="client"></param>
 public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger, IOptions<AssistantServiceSettingsBase> settings, AssistantsClient client) : IAssistantService
 {
-    //Experimental AssistantsClient (client factory does not currently support this client)
+    //Azure client factory does not currently support this AssistantsClient
     //private readonly AssistantClient assistantClient = clientFactory.CreateClient(settings.Value.ResourceName).GetAssistantClient();
 
-    public async Task<string> CreateAssistandAndThreadAsync(string initMessage, 
-        AssistantCreationOptions? aOptions = null, AssistantThreadCreationOptions? tOptions = null, CancellationToken cancellationToken = default)
+    public async Task<(string, string)> CreateAssistandAndThreadAsync(AssistantCreationOptions? aOptions = null, AssistantThreadCreationOptions? tOptions = null, CancellationToken cancellationToken = default)
     {
         //why is this needed?
         Azure.AI.OpenAI.Assistants.Assistant assistant = (await client.CreateAssistantAsync(aOptions, cancellationToken)).Value;
 
-        AssistantThread thread = (await client.CreateThreadAsync(tOptions, cancellationToken)).Value;
-        return thread.Id;
+        AssistantThread thread = tOptions == null
+            ? (await client.CreateThreadAsync(cancellationToken)).Value
+            : (await client.CreateThreadAsync(tOptions, cancellationToken)).Value;
+
+        logger.LogInformation("Assistant created: {AssistantId}, Thread created: {ThreadId}", assistant.Id, thread.Id);
+        return (assistant.Id, thread.Id);
     }
 
-    public async Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions? options = null,
+    public async Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions crOptions,
         Func<IReadOnlyList<RequiredToolCall>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default)
     {
-        ThreadMessage message = (await client.CreateMessageAsync(threadId, MessageRole.User, userMessage, cancellationToken: cancellationToken)).Value;
-        Response<ThreadRun> runResponse = await client.CreateRunAsync(threadId, options, cancellationToken);
-        ThreadRun threadRun = runResponse.Value;
+        _ = await client.CreateMessageAsync(threadId, MessageRole.User, userMessage, cancellationToken: cancellationToken);
+        ThreadRun threadRun = (await client.CreateRunAsync(threadId, crOptions, cancellationToken)).Value;
 
+        logger.LogInformation("Assistant {AssistandId} Thread {ThreadId} ThreadRun {ThreadRunId} created. Starting to poll.", crOptions.AssistantId, threadId, threadRun.Id);
+
+        //poll the thread run (and process tool calls) until it's in an end state
         do
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(settings.Value.RunThreadPollingDelayMilliseconds), cancellationToken);
             threadRun = (await client.GetRunAsync(threadId, threadRun.Id, cancellationToken)).Value;
 
-            if (threadRun.Status == RunStatus.RequiresAction && runResponse.Value.RequiredAction is SubmitToolOutputsAction submitToolOutputsAction && toolCallFunc != null)
+            if (threadRun.Status == RunStatus.RequiresAction && threadRun.RequiredAction is SubmitToolOutputsAction submitToolOutputsAction && toolCallFunc != null)
             {
-                List<ToolOutput> toolOutputs = await toolCallFunc(submitToolOutputsAction.ToolCalls);// new();
-                //foreach (RequiredToolCall toolCall in submitToolOutputsAction.ToolCalls)
-                //{
-                //    toolOutputs.Add(GetResolvedToolOutput(toolCall));
-                //}
-                runResponse = await client.SubmitToolOutputsToRunAsync(threadRun, toolOutputs, cancellationToken);
+                List<ToolOutput> toolOutputs = await toolCallFunc(submitToolOutputsAction.ToolCalls);
+                _ = await client.SubmitToolOutputsToRunAsync(threadRun, toolOutputs, cancellationToken);
             }
         }
-        while (threadRun.Status == RunStatus.Queued || runResponse.Value.Status == RunStatus.InProgress);
+        while (threadRun.Status == RunStatus.Queued || threadRun.Status == RunStatus.InProgress);
+
+        //check for failed
+        if (threadRun.Status == RunStatus.Failed)
+        {
+            logger.LogError("Assistant {AssistandId} Thread {ThreadId} ThreadRun {ThreadRunId} Failed. {Error}.", crOptions.AssistantId, threadId, threadRun.Id, threadRun.LastError.Message);
+            throw new InvalidOperationException($"ThreadRun {threadRun.Id} failed {threadRun.LastError.Message}");
+        }
 
         Response<PageableList<ThreadMessage>> afterRunMessagesResponse = await client.GetMessagesAsync(threadId, cancellationToken: cancellationToken);
         IReadOnlyList<ThreadMessage> messages = afterRunMessagesResponse.Value.Data;
 
-        // Note: messages iterate from newest to oldest, with the messages[0] being the most recent
+        // messages iterate from newest to oldest, with the messages[0] being the most recent
         StringBuilder response = new();
         foreach (ThreadMessage threadMessage in messages)
         {
-            Console.Write($"{threadMessage.CreatedAt:yyyy-MM-dd HH:mm:ss} - {threadMessage.Role,10}: ");
+            //Console.Write($"{threadMessage.CreatedAt:yyyy-MM-dd HH:mm:ss} - {threadMessage.Role,10}: ");
             foreach (MessageContent contentItem in threadMessage.ContentItems)
             {
                 if (contentItem is MessageTextContent textItem)

@@ -315,7 +315,7 @@ public abstract class IntegrationTestBase
             .AddStandardResilienceHandler();
         }
 
-        //Some Chat
+        //Azure OpenAI - Some Chat
         var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
         if (someChatConfigSection.Exists())
         {
@@ -325,7 +325,7 @@ public abstract class IntegrationTestBase
 
         }
 
-        //Some Assistant
+        //Azure OpenAI - Some Assistant
         var someAssistantConfigSection = Config.GetSection(SomeAssistantSettings.ConfigSectionName);
         if (someAssistantConfigSection.Exists())
         {

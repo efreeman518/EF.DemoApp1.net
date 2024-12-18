@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using OpenAI.Assistants;
+﻿using Azure.AI.OpenAI.Assistants;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.AzureOpenAI.Assistant;
 using Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
+using System.Text.Json;
 
 namespace Package.Infrastructure.Test.Integration;
 
@@ -9,7 +11,7 @@ namespace Package.Infrastructure.Test.Integration;
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
-#pragma warning disable OPENAI001
+// #pragma warning disable OPENAI001
 
 [TestClass]
 public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
@@ -24,31 +26,59 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
     [TestMethod]
     public async Task Conversation_pass()
     {
-        var aOptions = new AssistantCreationOptions
+        var aOptions = new AssistantCreationOptions(Config.GetValue<string>("SomeAssistantSettings:DeploymentName"))
         {
             Name = "test-assistant",
             Description = "Data finding assistant",
             Instructions = "Helps users find info",
-            ResponseFormat = AssistantResponseFormat.CreateTextFormat(),
-            NucleusSamplingFactor = 0.1F,
-            Tools = { getWeather }
+            Tools = { getWeather }, 
         };
 
-        (var assistantId, var threadId) = await _assistantService.CreateAssistandAndThreadAsync("why is the sky blue", aOptions);
-        var response = await _assistantService.RunAsync(assistantId, threadId);
+        (var assistantId, var threadId) = await _assistantService.CreateAssistandAndThreadAsync(aOptions);
+
+        var crOptions = new CreateRunOptions(assistantId);
+        var response = await _assistantService.AddMessageAndRunThreadAsync(threadId, "weather in dallas", crOptions, RunToolCalls);
         Assert.IsNotNull(response);
     }
 
-
-    private static string GetWeather(string location, string unit = "celsius")
+    private static async Task<List<ToolOutput>> RunToolCalls(IReadOnlyList<RequiredToolCall> toolCalls)
     {
-        // Call the weather API here.
+        await Task.CompletedTask;
+
+        var toolOutputs = new List<ToolOutput>();
+
+        foreach (RequiredToolCall toolCall in toolCalls)
+        {
+            if (toolCall is RequiredFunctionToolCall functionToolCall)
+            {
+                using JsonDocument argumentsJson = JsonDocument.Parse(functionToolCall.Arguments);
+                switch (functionToolCall.Name)
+                {
+                    case nameof(getWeather):
+                        {
+                            string location = argumentsJson.RootElement.GetProperty("location").GetString() ?? "San Diego, CA";
+                            string? unit = (argumentsJson.RootElement.TryGetProperty("unit", out JsonElement unitElement))
+                                ? unitElement.GetString()
+                                : null;
+                                toolOutputs.Add(new ToolOutput(functionToolCall, GetWeather(location, unit)));
+                            break;
+                        }
+                }
+            }
+        }
+
+        return toolOutputs;
+    }
+
+    static string GetWeather(string location, string? unit = "f")
+    {
+        //await some api
         return $"{location} temp is 70 {unit}";
     }
 
-    private readonly ToolDefinition getWeather = ToolDefinition.CreateFunction(
+    readonly FunctionToolDefinition getWeather = new(
         name: nameof(GetWeather),
-        description: "Determine the weather for the given location and date.",
+        description: "Determine the weather for the given location.",
         parameters: BinaryData.FromBytes("""
         {
             "type": "object",
@@ -65,8 +95,7 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
             },
             "required": [ "location" ]
         }
-        """u8.ToArray()),
-            strictParameterSchemaEnabled: true
+        """u8.ToArray())     
         );
 
 }
