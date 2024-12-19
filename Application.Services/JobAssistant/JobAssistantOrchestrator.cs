@@ -26,7 +26,7 @@ public class JobAssistantOrchestrator(ILogger<JobAssistantOrchestrator> logger, 
         }
 
         //continue the conversation
-        var crOptions = new CreateRunOptions(settings.Value.DeploymentName);
+        var crOptions = new CreateRunOptions(request.AssistantId);
         var response = await assistantService.AddMessageAndRunThreadAsync(request.ThreadId, request.Message, crOptions, RunToolCalls, cancellationToken: cancellationToken);
         return new AssistantResponse(request.AssistantId, request.ThreadId, response);
     }
