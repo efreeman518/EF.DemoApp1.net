@@ -76,7 +76,7 @@ internal static class IServiceCollectionExtensions
         //Auth
         string configSectionName = "AzureAd";
         var configSection = config.GetSection(configSectionName);
-        if (configSection.Exists())
+        if (configSection.GetChildren().Any())
         {
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/

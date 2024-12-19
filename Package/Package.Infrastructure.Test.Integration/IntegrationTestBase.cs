@@ -71,7 +71,7 @@ public abstract class IntegrationTestBase
             //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
             //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
             var blobConfigSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
-            if (blobConfigSection.Exists())
+            if (blobConfigSection.GetChildren().Any())
             {
                 //Ideally use ServiceUri (w/DefaultAzureCredential)
                 builder.AddBlobServiceClient(blobConfigSection).WithName("AzureBlobStorageAccount1");
@@ -79,7 +79,7 @@ public abstract class IntegrationTestBase
 
             //Table 
             var tableConfigSection = Config.GetSection("ConnectionStrings:AzureTable1");
-            if (tableConfigSection.Exists())
+            if (tableConfigSection.GetChildren().Any())
             {
                 //Ideally use ServiceUri (w/DefaultAzureCredential)
                 builder.AddTableServiceClient(tableConfigSection).WithName("AzureTable1");
@@ -87,7 +87,7 @@ public abstract class IntegrationTestBase
 
             //EventGrid Publisher
             var egpConfigSection = Config.GetSection("EventGridPublisherTopic1");
-            if (egpConfigSection.Exists())
+            if (egpConfigSection.GetChildren().Any())
             {
                 //Ideally use TopicEndpoint Uri only (DefaultAzureCredential defined above for all azure clients)
                 builder.AddEventGridPublisherClient(new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
@@ -97,9 +97,9 @@ public abstract class IntegrationTestBase
 
             //KeyVault
             var kvConfigSection = Config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
-            if (kvConfigSection.Exists())
+            if (kvConfigSection.GetChildren().Any())
             {
-                var akvUrl = kvConfigSection.GetValue<string>("VaultUrl")!;
+                var akvUrl = kvConfigSection.GetValue<string>("VaultUrl")!; 
                 var name = kvConfigSection.GetValue<string>("KeyVaultClientName")!;
                 builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
                 builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
@@ -112,7 +112,7 @@ public abstract class IntegrationTestBase
 
             //Azure OpenAI
             var azureOpenIAConfigSection = Config.GetSection("AzureOpenAI");
-            if (azureOpenIAConfigSection.Exists())
+            if (azureOpenIAConfigSection.GetChildren().Any())
             {
                 // Register a custom client factory since this client does not currently have a service registration method
                 builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
@@ -141,7 +141,7 @@ public abstract class IntegrationTestBase
 
         //BlobRepository
         var blobRepoConfigSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
-        if (blobRepoConfigSection.Exists())
+        if (blobRepoConfigSection.GetChildren().Any())
         {
             services.AddSingleton<IBlobRepository1, BlobRepository1>();
             services.Configure<BlobRepositorySettings1>(blobRepoConfigSection);
@@ -149,7 +149,7 @@ public abstract class IntegrationTestBase
 
         //TableRepository
         var tableRepoConfigSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
-        if (tableRepoConfigSection.Exists())
+        if (tableRepoConfigSection.GetChildren().Any())
         {
             services.AddSingleton<ITableRepository1, TableRepository1>();
             services.Configure<TableRepositorySettings1>(tableRepoConfigSection);
@@ -157,7 +157,7 @@ public abstract class IntegrationTestBase
 
         //EventGridPublisher
         var egpConfigSection = Config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
-        if (egpConfigSection.Exists())
+        if (egpConfigSection.GetChildren().Any())
         {
             services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
             services.Configure<EventGridPublisherSettings1>(egpConfigSection);
@@ -168,7 +168,7 @@ public abstract class IntegrationTestBase
         if (!string.IsNullOrEmpty(cosmosConnectionString))
         {
             var cosmosConfigSection = Config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
-            if (cosmosConfigSection.Exists())
+            if (cosmosConfigSection.GetChildren().Any())
             {
                 services.AddTransient<ICosmosDbRepository1, CosmosDbRepository1>();
                 services.Configure<CosmosDbRepositorySettings1>(s =>
@@ -297,7 +297,7 @@ public abstract class IntegrationTestBase
 
         //external weather service
         var weatherConfigSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
-        if (weatherConfigSection.Exists())
+        if (weatherConfigSection.GetChildren().Any())
         {
             services.Configure<WeatherServiceSettings>(weatherConfigSection);
             services.AddScoped<IWeatherService, WeatherService>();
@@ -316,7 +316,7 @@ public abstract class IntegrationTestBase
 
         //Azure OpenAI - Some Chat
         var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
-        if (someChatConfigSection.Exists())
+        if (someChatConfigSection.GetChildren().Any())
         {
             //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<ISomeChatService, SomeChatService>();
@@ -326,7 +326,7 @@ public abstract class IntegrationTestBase
 
         //Azure OpenAI - Some Assistant
         var someAssistantConfigSection = Config.GetSection(SomeAssistantSettings.ConfigSectionName);
-        if (someAssistantConfigSection.Exists())
+        if (someAssistantConfigSection.GetChildren().Any())
         {
             //AzureOpenAI service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<ISomeAssistantService, SomeAssistantService>();
@@ -335,7 +335,7 @@ public abstract class IntegrationTestBase
 
         //OpenAI chat service wrapper
         var oaiChatConfigSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
-        if (oaiChatConfigSection.Exists())
+        if (oaiChatConfigSection.GetChildren().Any())
         {
             services.AddTransient<OpenAI.ChatApi.IChatService, OpenAI.ChatApi.ChatService>();
             services.Configure<OpenAI.ChatApi.ChatServiceSettings>(oaiChatConfigSection);

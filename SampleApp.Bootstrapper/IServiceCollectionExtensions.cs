@@ -201,7 +201,7 @@ public static class IServiceCollectionExtensions
 
         var redisConfigSection = "Redis1Configuration";
         var configSectionRedis = config.GetSection(redisConfigSection);
-        if (configSectionRedis != null)
+        if (configSectionRedis.GetChildren().Any())
         {
             RedisConfiguration redisConfig = new();
             configSectionRedis.Bind(redisConfig);
@@ -397,7 +397,7 @@ public static class IServiceCollectionExtensions
                 builder.UseCredential(new DefaultAzureCredential());
 
                 var egpConfigSection = config.GetSection("EventGridPublisher1");
-                if (egpConfigSection.Exists())
+                if (egpConfigSection.GetChildren().Any())
                 {
                     //Ideally use TopicEndpoint Uri (w/DefaultAzureCredential)
                     builder.AddEventGridPublisherClient(new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
@@ -407,7 +407,7 @@ public static class IServiceCollectionExtensions
 
                 //Azure OpenAI
                 var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
-                if (azureOpenIAConfigSection.Exists())
+                if (azureOpenIAConfigSection.GetChildren().Any())
                 {
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
@@ -432,34 +432,11 @@ public static class IServiceCollectionExtensions
                         return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
                     });
                 }
-
-                ////Azure OpenAI
-                //var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
-                //if (jobChatConfigSection.Exists())
-                //{
-                //    // Register a custom client factory since this client does not currently have a service registration method
-                //    builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                //    {
-                //        var key = jobChatConfigSection.GetValue<string?>("Key", null);
-                //        if (!string.IsNullOrEmpty(key))
-                //        {
-                //            return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
-                //        }
-
-                //        //chat IAM role Cognitive Services OpenAI User
-                //        //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                //        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                //    });
-
-                //    //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                //    services.AddTransient<IJobChatService, JobChatService>();
-                //    services.Configure<JobChatSettings>(jobChatConfigSection);
-                //}
             });
 
         //Chaos - https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
         var configSectionChaos = config.GetSection(ChaosManagerSettings.ConfigSectionName);
-        if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+        if (configSectionChaos.GetChildren().Any() && configSectionChaos.GetValue<bool>("Enabled"))
         {
             services.AddHttpContextAccessor(); //only needed to inject ChaosManager to check query string for chaos
             services.TryAddSingleton<IChaosManager, ChaosManager>();
@@ -468,7 +445,7 @@ public static class IServiceCollectionExtensions
 
         //external SampleAppApi
         var sampleApiconfigSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
-        if (sampleApiconfigSection.Exists())
+        if (sampleApiconfigSection.GetChildren().Any())
         {
             services.Configure<SampleApiRestClientSettings>(sampleApiconfigSection);
 
@@ -524,7 +501,7 @@ public static class IServiceCollectionExtensions
             });
 
             //chaos - always after standard resilience handler
-            if (configSectionChaos.Exists() && configSectionChaos.GetValue<bool>("Enabled"))
+            if (configSectionChaos.GetChildren().Any() && configSectionChaos.GetValue<bool>("Enabled"))
             {
                 httpClientBuilder.AddResilienceHandler("chaos", (builder, context) =>
                 {
@@ -566,7 +543,7 @@ public static class IServiceCollectionExtensions
 
         //OpenAI chat service
         //configSection = config.GetSection(ChatServiceSettings.ConfigSectionName);
-        //if (configSection.Exists())
+        //if (configSection.GetChildren().Any())
         //{
         //    services.AddScoped<IChatService, ChatService>();
         //    services.Configure<ChatServiceSettings>(config.GetSection(ChatServiceSettings.ConfigSectionName));
@@ -574,7 +551,7 @@ public static class IServiceCollectionExtensions
 
         //external weather service
         var weatherServiceConfigSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
-        if (weatherServiceConfigSection.Exists())
+        if (weatherServiceConfigSection.GetChildren().Any())
         {
             services.Configure<WeatherServiceSettings>(weatherServiceConfigSection);
             services.AddScoped<IWeatherService, WeatherService>();
@@ -596,7 +573,7 @@ public static class IServiceCollectionExtensions
 
         //jobs api service
         var jobsApiConfigSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
-        if (jobsApiConfigSection.Exists())
+        if (jobsApiConfigSection.GetChildren().Any())
         {
             services.Configure<JobsApiServiceSettings>(jobsApiConfigSection);
             services.AddScoped<IJobsApiService, JobsApiService>();
@@ -609,7 +586,7 @@ public static class IServiceCollectionExtensions
         }
 
         var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
-        if (jobChatConfigSection.Exists())
+        if (jobChatConfigSection.GetChildren().Any())
         {
             //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<IJobChatService, JobChatService>();
@@ -617,7 +594,7 @@ public static class IServiceCollectionExtensions
         }
 
         var jobAssistantConfigSection = config.GetSection(JobAssistantSettings.ConfigSectionName);
-        if (jobAssistantConfigSection.Exists())
+        if (jobAssistantConfigSection.GetChildren().Any())
         {
             //AzureOpenAI assistant service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<IJobAssistantService, JobAssistantService>();
@@ -640,7 +617,7 @@ public static class IServiceCollectionExtensions
 
         //scheduler
         var configSection = config.GetSection(CronServiceSettings.ConfigSectionName);
-        if (configSection.Exists())
+        if (configSection.GetChildren().Any())
         {
             services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(configSection);
             services.AddHostedService<CronService>();
