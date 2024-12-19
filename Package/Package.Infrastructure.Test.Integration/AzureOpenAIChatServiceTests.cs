@@ -20,12 +20,12 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
     [TestMethod]
     public async Task Conversation_pass()
     {
-        var msgs = new List<ChatMessage> { 
+        var msgs = new List<ChatMessage> {
             SystemChatMessage.CreateSystemMessage("You are an expert in everything and directly answer questions from the user."),
             UserChatMessage.CreateUserMessage("Why is the sky blue")
         };
 
-        (var chatId, var chatResponse) = await _chatService.ChatCompletionAsync(null,msgs);
+        (var chatId, var chatResponse) = await _chatService.ChatCompletionAsync(null, msgs);
         Assert.IsNotNull(chatId);
         Assert.IsNotNull(chatResponse);
     }

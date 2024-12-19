@@ -5,7 +5,7 @@ using Package.Infrastructure.AzureOpenAI.Assistant;
 
 namespace Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
 
-public class SomeAssistantService(ILogger<AssistantServiceBase> logger, IOptions<SomeAssistantSettings> settings, AssistantsClient client) : 
+public class SomeAssistantService(ILogger<AssistantServiceBase> logger, IOptions<SomeAssistantSettings> settings, AssistantsClient client) :
     AssistantServiceBase(logger, settings, client), ISomeAssistantService
 {
 }

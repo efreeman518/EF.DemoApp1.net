@@ -1,39 +1,34 @@
-﻿using Infrastructure.JobsApi;
+﻿using Azure.AI.OpenAI.Assistants;
+using Infrastructure.JobsApi;
+using LanguageExt;
 using LanguageExt.Common;
-using OpenAI.Chat;
 using System.Text.Json;
 
-namespace Application.Services.JobChat;
+namespace Application.Services.JobAssistant;
 
-public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<JobChatOrchestratorSettings> settings, IJobChatService chatService, IJobsApiService jobsService)
-    : ServiceBase(logger), IJobChatOrchestrator
+public class JobAssistantOrchestrator(ILogger<JobAssistantOrchestrator> logger, IOptions<JobAssistantOrchestratorSettings> settings, IJobAssistantService assistantService, IJobsApiService jobsService)
+    : ServiceBase(logger), IJobAssistantOrchestrator
 {
-
-    public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<AssistantResponse>> AssistantRunAsync(AssistantRequest request, CancellationToken cancellationToken = default)
     {
-        var messages = new List<ChatMessage>();
-        if (request.ChatId == null)
+        if (request.AssistantId == null || request.ThreadId == null)
         {
-            messages.Add(new SystemChatMessage(InitialSystemMessage()));
+            //setup the assistant
+            var aOptions = new AssistantCreationOptions(settings.Value.DeploymentName)
+            {
+                Name = "Job Search Assistant",
+                Description = "Job search expert assistant helps users find jobs based on their location and expertise.",
+                Tools = { findExpertiseMatches, searchJobs },
+                Instructions = InitialSystemMessage()
+            };
+
+            (request.AssistantId, request.ThreadId) = await assistantService.CreateAssistandAndThreadAsync(aOptions, cancellationToken: cancellationToken);
         }
 
-        messages.Add(new UserChatMessage(request.Message));
-
-        //options for the chat - identify the tools available to the model
-        ChatCompletionOptions options = new()
-        {
-            Tools = { findExpertiseMatches, searchJobs }
-        };
-
-        try
-        {
-            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxCompletionMessageCount, cancellationToken: cancellationToken);
-            return new ChatResponse(response.Item1, response.Item2);
-        }
-        catch (Exception ex)
-        {
-            return new Result<ChatResponse>(ex);
-        }
+        //continue the conversation
+        var crOptions = new CreateRunOptions(settings.Value.DeploymentName);
+        var response = await assistantService.AddMessageAndRunThreadAsync(request.ThreadId, request.Message, crOptions, RunToolCalls, cancellationToken: cancellationToken);
+        return new AssistantResponse(request.AssistantId, request.ThreadId, response);
     }
 
     private static string InitialSystemMessage()
@@ -110,10 +105,11 @@ Sample search results table:
     /// Description only since the function does not take any parameters since the target GetCurrentLocation in theory uses the device's loaction
     /// </summary>
     /// arrays - https://community.openai.com/t/function-call-is-invalid-please-help/266803/6
-    private readonly ChatTool findExpertiseMatches = ChatTool.CreateFunctionTool(
-        functionName: nameof(FindExpertiseMatchesAsync),
-        functionDescription: "Find closest matching allowed expertise codes.",
-        functionParameters: BinaryData.FromBytes("""
+
+    private readonly FunctionToolDefinition findExpertiseMatches = new(
+        name: nameof(FindExpertiseMatchesAsync),
+        description: "Find closest matching allowed expertise codes.",
+        parameters: BinaryData.FromBytes("""
         {
             "type": "object",
             "additionalProperties": false,
@@ -125,14 +121,13 @@ Sample search results table:
             },
             "required":["input"]
         }
-        """u8.ToArray()),
-        functionSchemaIsStrict: true
+        """u8.ToArray())
     );
 
-    private readonly ChatTool searchJobs = ChatTool.CreateFunctionTool(
-        functionName: nameof(SearchJobsAsync),
-        functionDescription: "Find jobs based on the allowed expertise codes and location (using latitude, longitude, and radius).",
-        functionParameters: BinaryData.FromBytes("""
+    private readonly FunctionToolDefinition searchJobs = new(
+        name: nameof(SearchJobsAsync),
+        description: "Find jobs based on the allowed expertise codes and location (using latitude, longitude, and radius).",
+        parameters: BinaryData.FromBytes("""
         {
             "type": "object",
             "additionalProperties": false,
@@ -159,54 +154,56 @@ Sample search results table:
             },
             "required":["expertises", "latitude", "longitude", "radius"]
         }
-        """u8.ToArray()),
-        functionSchemaIsStrict: true
+        """u8.ToArray())
     );
 
-    private async Task ToolsCallback(List<ChatMessage> messages, IReadOnlyList<ChatToolCall> toolCalls)
+    private async Task<List<ToolOutput>> RunToolCalls(IReadOnlyList<RequiredToolCall> toolCalls)
     {
-        logger.LogInformation("ToolsCallback - {ToolCallsCount}", toolCalls.Count);
+        logger.LogInformation("RunToolCalls - {ToolCallsCount}", toolCalls.Count);
 
-        // Then, add a new tool message for each tool call that is resolved.
-        // Should be processed in parallel if possible.
-        foreach (ChatToolCall toolCall in toolCalls)
+        var toolOutputs = new List<ToolOutput>();
+
+        foreach (RequiredToolCall toolCall in toolCalls)
         {
-            logger.LogInformation("ToolsCallback - {FunctionName}", toolCall.FunctionName);
-
-            using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-            switch (toolCall.FunctionName)
+            if (toolCall is RequiredFunctionToolCall functionToolCall)
             {
-                case nameof(FindExpertiseMatchesAsync):
-                    {
-                        _ = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
-                        var toolResult = await FindExpertiseMatchesAsync(elInput.GetString()!);
-                        var toolResultMessage = string.Join(", ", toolResult);
-                        messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));
-                        break;
-                    }
+                logger.LogInformation("RunToolCalls - {FunctionName}", functionToolCall.Name);
+                using JsonDocument argumentsJson = JsonDocument.Parse(functionToolCall.Arguments);
+                switch (functionToolCall.Name)
+                {
+                    case nameof(FindExpertiseMatchesAsync):
+                        {
+                            _ = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
+                            var toolResult = await FindExpertiseMatchesAsync(elInput.GetString()!);
+                            var toolResultMessage = string.Join(", ", toolResult);
+                            toolOutputs.Add(new ToolOutput(functionToolCall, toolResultMessage));
+                            break;
+                        }
 
-                case nameof(SearchJobsAsync):
-                    {
-                        _ = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
-                        var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetInt32()!).ToList();
-                        _ = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
-                        var paramLatitude = elLatitude.GetDecimal()!;
-                        _ = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
-                        var paramLongitude = elLongitude.GetDecimal()!;
-                        _ = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
-                        var paramRadius = elRadius.GetInt32()!;
-                        var toolResult = await SearchJobsAsync(paramExpertises, paramLatitude, paramLongitude, paramRadius);
-                        var toolResultMessage = string.Join(", ", toolResult);
-                        messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));
-                        break;
-                    }
-
-                default:
-                    {
-                        // Handle other unexpected calls.
-                        throw new NotImplementedException($"ToolsCallback - {toolCall.FunctionName}");
-                    }
+                    case nameof(SearchJobsAsync):
+                        {
+                            _ = argumentsJson.RootElement.TryGetProperty("expertises", out JsonElement elExpertises);
+                            var paramExpertises = elExpertises.EnumerateArray().Select(e => e.GetInt32()!).ToList();
+                            _ = argumentsJson.RootElement.TryGetProperty("latitude", out JsonElement elLatitude);
+                            var paramLatitude = elLatitude.GetDecimal()!;
+                            _ = argumentsJson.RootElement.TryGetProperty("longitude", out JsonElement elLongitude);
+                            var paramLongitude = elLongitude.GetDecimal()!;
+                            _ = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
+                            var paramRadius = elRadius.GetInt32()!;
+                            var toolResult = await SearchJobsAsync(paramExpertises, paramLatitude, paramLongitude, paramRadius);
+                            var toolResultMessage = string.Join(", ", toolResult);
+                            toolOutputs.Add(new ToolOutput(functionToolCall, toolResultMessage));
+                            break;
+                        }
+                    default:
+                        {
+                            // Handle other unexpected calls.
+                            throw new NotImplementedException($"RunToolCalls - {functionToolCall.Name}");
+                        }
+                }
             }
         }
+
+        return toolOutputs;
     }
 }

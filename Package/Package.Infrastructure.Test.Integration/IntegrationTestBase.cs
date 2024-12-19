@@ -136,7 +136,6 @@ public abstract class IntegrationTestBase
                     }
                     return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
                 });
-
             }
         });
 

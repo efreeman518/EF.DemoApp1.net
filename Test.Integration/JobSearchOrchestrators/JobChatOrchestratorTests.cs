@@ -4,26 +4,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Support;
 
-namespace Test.Integration.JobsChat;
+namespace Test.Integration.JobSearchOrchestrators;
 
-[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
-public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
+public class JobChatOrchestratorTests : IntegrationTestBase
 {
     private readonly IJobChatOrchestrator _jobChat;
 
-    public AzureOpenAIChatServiceJobTests()
+    public JobChatOrchestratorTests()
     {
-        ConfigureServices("AzureOpenAIChatServiceJobTests");
+        ConfigureServices("JobChatOrchestratorTests");
         _jobChat = ServiceScope.ServiceProvider.GetRequiredService<IJobChatOrchestrator>();
     }
 
     [TestMethod]
     public async Task JobSearchChat_pass()
     {
-        var request = new ChatRequest { ChatId = null, Message = "memphis, 20 miles, er" };
-        //retrieve response chat id & message
+        var request = new ChatRequest { ChatId = null, Message = "hi" };
+
         ChatResponse? response = null;
         var result = await _jobChat.ChatCompletionAsync(request);
         _ = result.Match(
@@ -33,6 +33,5 @@ public class AzureOpenAIChatServiceJobTests : IntegrationTestBase
 
         Assert.IsNotNull(response?.ChatId != Guid.Empty);
         Assert.IsNotNull(response?.Message);
-
     }
 }

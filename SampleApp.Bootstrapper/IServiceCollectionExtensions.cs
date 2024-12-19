@@ -2,9 +2,11 @@
 using Application.Contracts.Services;
 using Application.MessageHandlers;
 using Application.Services;
+using Application.Services.JobAssistant;
 using Application.Services.JobChat;
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.AI.OpenAI.Assistants;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using CorrelationId.HttpClient;
@@ -71,6 +73,9 @@ public static class IServiceCollectionExtensions
 
         services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
         services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
+
+        services.AddScoped<IJobAssistantOrchestrator, JobAssistantOrchestrator>();
+        services.Configure<JobAssistantOrchestratorSettings>(config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName));
 
         return services;
     }
@@ -401,27 +406,55 @@ public static class IServiceCollectionExtensions
                 }
 
                 //Azure OpenAI
-                var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
-                if (jobChatConfigSection.Exists())
+                var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
+                if (azureOpenIAConfigSection.Exists())
                 {
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                     {
-                        var key = jobChatConfigSection.GetValue<string?>("Key", null);
+                        var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                         if (!string.IsNullOrEmpty(key))
                         {
-                            return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                            return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
                         }
-
-                        //chat IAM role Cognitive Services OpenAI User
                         //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                    });
+                        return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                    }).WithName("AzureOpenAI");
 
-                    //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-                    services.AddTransient<IJobChatService, JobChatService>();
-                    services.Configure<JobChatSettings>(jobChatConfigSection);
+                    //Experimental AssistantsClient (client factory does not currently support this client)
+                    services.AddScoped<AssistantsClient>(provider =>
+                    {
+                        var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key));
+                        }
+                        return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
+                    });
                 }
+
+                ////Azure OpenAI
+                //var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
+                //if (jobChatConfigSection.Exists())
+                //{
+                //    // Register a custom client factory since this client does not currently have a service registration method
+                //    builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+                //    {
+                //        var key = jobChatConfigSection.GetValue<string?>("Key", null);
+                //        if (!string.IsNullOrEmpty(key))
+                //        {
+                //            return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                //        }
+
+                //        //chat IAM role Cognitive Services OpenAI User
+                //        //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
+                //        return new AzureOpenAIClient(new Uri(jobChatConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
+                //    });
+
+                //    //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+                //    services.AddTransient<IJobChatService, JobChatService>();
+                //    services.Configure<JobChatSettings>(jobChatConfigSection);
+                //}
             });
 
         //Chaos - https://medium.com/@tauraigombera/chaos-engineering-with-net-e3a194426940
@@ -573,6 +606,22 @@ public static class IServiceCollectionExtensions
             })
             //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
             .AddStandardResilienceHandler();
+        }
+
+        var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
+        if (jobChatConfigSection.Exists())
+        {
+            //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobChatService, JobChatService>();
+            services.Configure<JobChatSettings>(jobChatConfigSection);
+        }
+
+        var jobAssistantConfigSection = config.GetSection(JobAssistantSettings.ConfigSectionName);
+        if (jobAssistantConfigSection.Exists())
+        {
+            //AzureOpenAI assistant service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobAssistantService, JobAssistantService>();
+            services.Configure<JobAssistantSettings>(jobAssistantConfigSection);
         }
 
         #endregion

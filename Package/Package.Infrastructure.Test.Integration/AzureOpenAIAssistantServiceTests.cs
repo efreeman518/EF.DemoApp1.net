@@ -31,7 +31,7 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
             Name = "test-assistant",
             Description = "Data finding assistant",
             Instructions = "Helps users find info",
-            Tools = { getWeather }, 
+            Tools = { getWeather },
         };
 
         (var assistantId, var threadId) = await _assistantService.CreateAssistandAndThreadAsync(aOptions);
@@ -60,7 +60,7 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
                             string? unit = (argumentsJson.RootElement.TryGetProperty("unit", out JsonElement unitElement))
                                 ? unitElement.GetString()
                                 : null;
-                                toolOutputs.Add(new ToolOutput(functionToolCall, GetWeather(location, unit)));
+                            toolOutputs.Add(new ToolOutput(functionToolCall, GetWeather(location, unit)));
                             break;
                         }
                 }
@@ -77,7 +77,7 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
     }
 
     readonly FunctionToolDefinition getWeather = new(
-        name: nameof(GetWeather),
+        name: nameof(getWeather),
         description: "Determine the weather for the given location.",
         parameters: BinaryData.FromBytes("""
         {
@@ -95,7 +95,7 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
             },
             "required": [ "location" ]
         }
-        """u8.ToArray())     
+        """u8.ToArray())
         );
 
 }
