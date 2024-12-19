@@ -6,7 +6,7 @@ using Test.Support;
 
 namespace Test.Integration.JobSearchOrchestrators;
 
-//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 [TestClass]
 public class JobAssistantOrchestratorTests : IntegrationTestBase

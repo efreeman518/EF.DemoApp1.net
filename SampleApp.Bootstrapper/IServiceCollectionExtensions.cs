@@ -141,58 +141,61 @@ public static class IServiceCollectionExtensions
             {
                 RedisConfiguration redisConfigFusion = new();
                 config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
-                var redisConfigurationOptions = new ConfigurationOptions
+                if (redisConfigFusion.EndpointUrl != null)
                 {
-                    EndPoints =
+                    var redisConfigurationOptions = new ConfigurationOptions
+                    {
+                        EndPoints =
                     {
                         {
                             redisConfigFusion.EndpointUrl,
                             redisConfigFusion.Port
                         }
                     },
-                    Ssl = true,
-                    AbortOnConnectFail = false
-                };
-                if (cacheInstance.BackplaneChannelName != null)
-                {
-                    redisConfigurationOptions.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
-                }
-
-                if (!string.IsNullOrEmpty(redisConfigFusion.Password))
-                {
-                    redisConfigurationOptions.Password = redisConfigFusion.Password;
-                }
-                else
-                {
-                    var options = new DefaultAzureCredentialOptions();
-                    //if (localEnviroment)
-                    //{
-                    //    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
-                    //    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
-                    //    options.ExcludeManagedIdentityCredential = true;
-                    //}
-                    //configure redis with managed identity
-                    _ = Task.Run(() => redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential(options))).Result;
-                }
-
-                //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
-                //var redisConfigurationOptions = ConfigurationOptions.Parse(redisFCConnectionString!);
-                //    .ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
-
-
-                //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
-                fcBuilder
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+                        Ssl = true,
+                        AbortOnConnectFail = false
+                    };
+                    if (cacheInstance.BackplaneChannelName != null)
                     {
-                        //Configuration = connectionString,  
-                        ConfigurationOptions = redisConfigurationOptions
-                    }))
+                        redisConfigurationOptions.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
+                    }
 
-                    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                    if (!string.IsNullOrEmpty(redisConfigFusion.Password))
                     {
-                        //Configuration = connectionString,
-                        ConfigurationOptions = redisConfigurationOptions
-                    }));
+                        redisConfigurationOptions.Password = redisConfigFusion.Password;
+                    }
+                    else
+                    {
+                        var options = new DefaultAzureCredentialOptions();
+                        //if (localEnviroment)
+                        //{
+                        //    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
+                        //    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
+                        //    options.ExcludeManagedIdentityCredential = true;
+                        //}
+                        //configure redis with managed identity
+                        _ = Task.Run(() => redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential(options))).Result;
+                    }
+
+                    //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
+                    //var redisConfigurationOptions = ConfigurationOptions.Parse(redisFCConnectionString!);
+                    //    .ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
+
+
+                    //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
+                    fcBuilder
+                        .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+                        {
+                            //Configuration = connectionString,  
+                            ConfigurationOptions = redisConfigurationOptions
+                        }))
+
+                        .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                        {
+                            //Configuration = connectionString,
+                            ConfigurationOptions = redisConfigurationOptions
+                        }));
+                }
             }
         }
 
