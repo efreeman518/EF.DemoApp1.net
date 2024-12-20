@@ -107,6 +107,12 @@ public static partial class WebApplicationBuilderExtensions
         //.RequireAuthorization("policy1", "policy2");
         group.MapChatEndpoints(!app.Environment.IsProduction());
 
+        //endpoints - assistant
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/assistant")
+            .WithApiVersionSet(apiVersionSet);
+        //.RequireAuthorization("policy1", "policy2");
+        group.MapAssistantEndpoints(!app.Environment.IsProduction());
+
         //endpoints - event grid
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/eventgrid")
             .WithApiVersionSet(apiVersionSet);

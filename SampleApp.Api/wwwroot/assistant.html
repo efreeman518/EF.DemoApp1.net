@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SampleApp - Assistant</title>
+    <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+    <h1>
+        SampleApp - Assistant
+        <span id="spinner-rings" class="spinner" hidden>
+            <img src="css/spinner-rings.svg" alt="">
+        </span>
+    </h1>
+    <div id="alert1"></div>
+    <div id="chat-container">
+        <div id="chat-output"></div>
+        <div id="chat-controls">
+            <input type="text" id="chat-input" placeholder="Type your message here...">
+            <button id="chat-send">Send</button>
+            <button id="chat-new">New Chat</button>
+        </div>
+    </div>
+
+    <script defer src="js/assistant.js" type="module"></script>
+</body>
+</html>
