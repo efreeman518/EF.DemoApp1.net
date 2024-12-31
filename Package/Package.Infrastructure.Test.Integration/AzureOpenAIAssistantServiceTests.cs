@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
