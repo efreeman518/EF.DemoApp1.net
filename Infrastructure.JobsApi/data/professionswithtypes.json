@@ -1,0 +1,337 @@
+﻿[
+  {
+    "id": 1,
+    "name": "Registered Nurse",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 5,
+    "name": "CNA / Nurse Assistant",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 938,
+    "name": "Clinical Support Services",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 2,
+    "name": "LVN / LPN",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 101,
+    "name": "Personal Care Attendant",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 475,
+    "name": "Nursing Assistant",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 476,
+    "name": "Student Nurse Extern",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 940,
+    "name": "Clinical Licensed Pool",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 941,
+    "name": "Clinical Non-Licensed Pool",
+    "professionTypeName": "Nursing"
+  },
+  {
+    "id": 75,
+    "name": "Ancillary Support Services",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 68,
+    "name": "Behavioral Health Assistant",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 30,
+    "name": "Behavioral Health Tech",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 67,
+    "name": "Certified Child Life Specialist",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 47,
+    "name": "Clinical Psychologist",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 942,
+    "name": "Acupuncturist",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 943,
+    "name": "Chiropractor",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 944,
+    "name": "Clinical Support Technician",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 948,
+    "name": "Medication Aide",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 92,
+    "name": "Dentistry",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 37,
+    "name": "Dialysis Tech",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 70,
+    "name": "Dietary Services",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 22,
+    "name": "EMT",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 74,
+    "name": "ER Tech",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 64,
+    "name": "Laboratory",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 65,
+    "name": "Medical Assistant",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 42,
+    "name": "MHT",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 95,
+    "name": "Mortuary Services",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 62,
+    "name": "Ophthalmology",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 43,
+    "name": "Paramedic",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 57,
+    "name": "Patient Care Technician",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 63,
+    "name": "Perfusionist",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 20,
+    "name": "Pharmacy",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 56,
+    "name": "Physicist",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 12,
+    "name": "Radiology / Cardiology",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 13,
+    "name": "Respiratory / Neuro Diagnostics",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 100,
+    "name": "Schools/Education",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 66,
+    "name": "Sitter",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 29,
+    "name": "Social Services",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 61,
+    "name": "Sports Medicine",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 69,
+    "name": "Surgical Services",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 91,
+    "name": "Therapy/Rehabilitation",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 49,
+    "name": "Trained Medication Assistant",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 110,
+    "name": "Genetic Counselor",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 200,
+    "name": "Home Health/Hospice Aide",
+    "professionTypeName": "Allied"
+  },
+  {
+    "id": 102,
+    "name": "Certified Anesthesiologist Assistant",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 59,
+    "name": "Physician",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 939,
+    "name": "Dentist",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 71,
+    "name": "Midwife",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 73,
+    "name": "Certified Registered Nurse Anesthetist (CRNA)",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 3,
+    "name": "Nurse Practitioner",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 72,
+    "name": "Physician Assistant",
+    "professionTypeName": "Locum Tenens"
+  },
+  {
+    "id": 23,
+    "name": "Manager / Director",
+    "professionTypeName": "Interim Leadership"
+  },
+  {
+    "id": 77,
+    "name": "Non-Clinical - Health and Information Management",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 86,
+    "name": "Non-Clinical - Environmental Services",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 87,
+    "name": "Non-Clinical - Facilities",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 88,
+    "name": "Non-Clinical - Finance/Accounting",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 89,
+    "name": "Non-Clinical - Food and Nutrition Services",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 90,
+    "name": "Non-Clinical - Human Resources",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 24,
+    "name": "Non-Clinical - Legal",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 84,
+    "name": "Non-Clinical - Marketing",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 945,
+    "name": "Non-Clinical - Religious Services",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 85,
+    "name": "Non-Clinical - Security",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 76,
+    "name": "Non-Clinical - Transportation/Logistics",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 946,
+    "name": "Psychometrician",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 78,
+    "name": "Non-Clinical - Information Technology",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 60,
+    "name": "Non-Clinical - Administrative",
+    "professionTypeName": "Non Clinical"
+  },
+  {
+    "id": 947,
+    "name": "Non-clinical - Veterinary Services",
+    "professionTypeName": "Non Clinical"
+  }
+]

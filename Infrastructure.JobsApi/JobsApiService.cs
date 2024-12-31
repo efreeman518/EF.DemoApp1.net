@@ -16,7 +16,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
 
     //lookups - expertises, professions, states, locationAliases, cities, 
     //https://api.ayahealthcare.com/AyaHealthCareWeb/job/joblookups
-    private async Task<Lookups> GetLookupsAsync(CancellationToken cancellationToken = default)
+    public async Task<Lookups> GetLookupsAsync(CancellationToken cancellationToken = default)
     {
         var lookups = await _cache.GetOrSetAsync(CACHEKEY_LOOKUPS, async _ =>
         {

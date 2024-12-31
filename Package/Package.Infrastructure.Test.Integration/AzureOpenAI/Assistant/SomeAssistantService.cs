@@ -1,7 +1,7 @@
 ﻿using Azure.AI.OpenAI.Assistants;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Package.Infrastructure.AzureOpenAI.Assistant;
+using Package.Infrastructure.AzureOpenAI.Assistants;
 
 namespace Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
 

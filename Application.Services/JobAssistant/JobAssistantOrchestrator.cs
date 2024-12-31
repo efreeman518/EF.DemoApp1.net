@@ -2,6 +2,7 @@
 using Infrastructure.JobsApi;
 using LanguageExt;
 using LanguageExt.Common;
+using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 
 namespace Application.Services.JobAssistant;
@@ -11,24 +12,67 @@ public class JobAssistantOrchestrator(ILogger<JobAssistantOrchestrator> logger, 
 {
     public async Task<Result<AssistantResponse>> AssistantRunAsync(AssistantRequest request, CancellationToken cancellationToken = default)
     {
-        if (request.AssistantId == null || request.ThreadId == null)
+        Assistant assistant = null!;
+        List<string> fileIds = [];
+
+        if (request.AssistantId == null)
         {
+            //ensure assistant files are loaded
+            fileIds = await EnsureSupportFilesUploaded(cancellationToken);
+
             //setup the assistant
             var aOptions = new AssistantCreationOptions(settings.Value.DeploymentName)
             {
-                Name = "Job Search Assistant",
+                Name = "job-search-assistant",
                 Description = "Job search expert assistant helps users find jobs based on their location and expertise.",
-                Tools = { findExpertiseMatches, searchJobs },
+                Tools = { searchJobs, new RetrievalToolDefinition() }, //RetrievalToolDefinition() required for files
                 Instructions = InitialSystemMessage()
             };
 
-            (request.AssistantId, request.ThreadId) = await assistantService.CreateAssistandAndThreadAsync(aOptions, cancellationToken: cancellationToken);
+            assistant = await assistantService.GetOrCreateAssistantByName("job-search-assistant", aOptions, cancellationToken);
+
+            //(request.AssistantId, request.ThreadId) = await assistantService.CreateAssistandAndThreadAsync(aOptions, cancellationToken: cancellationToken);
         }
+
+        //ensure files are linked to the assistant
+        await EnsureSupportFilesLinked(assistant.Id, fileIds, cancellationToken);
 
         //continue the conversation
         var crOptions = new CreateRunOptions(request.AssistantId);
-        var response = await assistantService.AddMessageAndRunThreadAsync(request.ThreadId, request.Message, crOptions, RunToolCalls, cancellationToken: cancellationToken);
-        return new AssistantResponse(request.AssistantId, request.ThreadId, response);
+        //var response = await assistantService.AddMessageAndRunThreadAsync(request.ThreadId, request.Message, crOptions, RunToolCalls, cancellationToken: cancellationToken);
+       // return new AssistantResponse(request.AssistantId, request.ThreadId, response);
+        return new AssistantResponse("", "", "");
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>File Ids</returns>
+    private async Task<List<string>> EnsureSupportFilesUploaded(CancellationToken cancellationToken = default)
+    {
+        List<string> fileIds = [];
+        var file = await assistantService.GetFileByFilenameAsync("joblookups.json", default);
+        if(file == null)
+        {
+            var jobLookups = await jobsService.GetLookupsAsync(cancellationToken);
+            file = await assistantService.UploadFileAsync(jobLookups.SerializeToJson()!.ToStream(), OpenAIFilePurpose.Assistants, "joblookups.json", cancellationToken);
+        }
+        fileIds.Add(file.Id);
+        return fileIds;
+    }
+
+    private async Task EnsureSupportFilesLinked(string assistantId, List<string> fileIds, CancellationToken cancellationToken = default)
+    {
+        var files = await assistantService.GetAssistantFilesAsync(assistantId, 100, cancellationToken: cancellationToken);
+        //ensure all files are linked
+        foreach (var fileId in fileIds)
+        {
+            if (!files.Any(f => f.Id == fileId))
+            {
+                await assistantService.LinkAssistantFileASync(assistantId, fileId, cancellationToken);
+            }
+        }
     }
 
     private static string InitialSystemMessage()
@@ -41,7 +85,7 @@ public class JobAssistantOrchestrator(ILogger<JobAssistantOrchestrator> logger, 
 
         var systemPrompt = @"
 ###
-You are a professional assistant that helps people find the job they are looking for, introduce yourself and your mission.
+You are a professional job search assistant that helps people find the job they are looking for, introduce yourself and your mission.
 The user must enter search criteria consisting of a list of allowed expertises and an optional location and distance, or be willing to travel anywhere. 
 ###
 First find matching allowed expertises based on the user input, and present a list of the closest matches. At least one matching allowed expertise is required to search for jobs.
@@ -89,11 +133,11 @@ Sample search results table:
         return systemPrompt;
     }
 
-    private async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string input)
-    {
-        var matches = await jobsService.FindExpertiseMatchesAsync(input, settings.Value.MaxJobSearchResults);
-        return matches;
-    }
+    //private async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string input)
+    //{
+    //    var matches = await jobsService.FindExpertiseMatchesAsync(input, settings.Value.MaxJobSearchResults);
+    //    return matches;
+    //}
 
     private async Task<IEnumerable<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
     {
@@ -106,23 +150,23 @@ Sample search results table:
     /// </summary>
     /// arrays - https://community.openai.com/t/function-call-is-invalid-please-help/266803/6
 
-    private readonly FunctionToolDefinition findExpertiseMatches = new(
-        name: nameof(FindExpertiseMatchesAsync),
-        description: "Find closest matching allowed expertise codes.",
-        parameters: BinaryData.FromBytes("""
-        {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "input": {
-                    "type": "string",
-                    "description": "The expertise entered by the user."
-                }
-            },
-            "required":["input"]
-        }
-        """u8.ToArray())
-    );
+    //private readonly FunctionToolDefinition findExpertiseMatches = new(
+    //    name: nameof(FindExpertiseMatchesAsync),
+    //    description: "Find closest matching allowed expertise codes.",
+    //    parameters: BinaryData.FromBytes("""
+    //    {
+    //        "type": "object",
+    //        "additionalProperties": false,
+    //        "properties": {
+    //            "input": {
+    //                "type": "string",
+    //                "description": "The expertise entered by the user."
+    //            }
+    //        },
+    //        "required":["input"]
+    //    }
+    //    """u8.ToArray())
+    //);
 
     private readonly FunctionToolDefinition searchJobs = new(
         name: nameof(SearchJobsAsync),
@@ -171,14 +215,14 @@ Sample search results table:
                 using JsonDocument argumentsJson = JsonDocument.Parse(functionToolCall.Arguments);
                 switch (functionToolCall.Name)
                 {
-                    case nameof(FindExpertiseMatchesAsync):
-                        {
-                            _ = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
-                            var toolResult = await FindExpertiseMatchesAsync(elInput.GetString()!);
-                            var toolResultMessage = string.Join(", ", toolResult);
-                            toolOutputs.Add(new ToolOutput(functionToolCall, toolResultMessage));
-                            break;
-                        }
+                    //case nameof(FindExpertiseMatchesAsync):
+                    //    {
+                    //        _ = argumentsJson.RootElement.TryGetProperty("input", out JsonElement elInput);
+                    //        var toolResult = await FindExpertiseMatchesAsync(elInput.GetString()!);
+                    //        var toolResultMessage = string.Join(", ", toolResult);
+                    //        toolOutputs.Add(new ToolOutput(functionToolCall, toolResultMessage));
+                    //        break;
+                    //    }
 
                     case nameof(SearchJobsAsync):
                         {

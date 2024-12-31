@@ -1,5 +1,5 @@
 ﻿using Azure.AI.OpenAI.Assistants;
-using Package.Infrastructure.AzureOpenAI.Assistant;
+using Package.Infrastructure.AzureOpenAI.Assistants;
 
 namespace Application.Services.JobAssistant;
 

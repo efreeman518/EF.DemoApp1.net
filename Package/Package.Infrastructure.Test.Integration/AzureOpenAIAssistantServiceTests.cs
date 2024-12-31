@@ -1,13 +1,13 @@
 ﻿using Azure.AI.OpenAI.Assistants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Package.Infrastructure.AzureOpenAI.Assistant;
+using Package.Infrastructure.AzureOpenAI.Assistants;
 using Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Test.Integration;
 
-[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
+//[Ignore("AzureOpenAI deployment required - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/openai/Azure.AI.OpenAI/README.md")]
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
@@ -24,24 +24,23 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
     }
 
     [TestMethod]
-    public async Task Conversation_pass()
+    public async Task BasicWeatherConversation_pass()
     {
         var aOptions = new AssistantCreationOptions(Config.GetValue<string>("SomeAssistantSettings:DeploymentName"))
         {
-            Name = "test-assistant",
+            Name = "test-weather-assistant",
             Description = "Data finding assistant",
             Instructions = "Helps users find info",
             Tools = { getWeather },
         };
 
-        (var assistantId, var threadId) = await _assistantService.CreateAssistandAndThreadAsync(aOptions);
-
-        var crOptions = new CreateRunOptions(assistantId);
-        var response = await _assistantService.AddMessageAndRunThreadAsync(threadId, "weather in dallas", crOptions, RunToolCalls);
+        var testAssistant = await _assistantService.GetOrCreateAssistantByName("test-weather-assistant", aOptions);
+        var thread = await _assistantService.CreateThreadAsync();
+        var response = await _assistantService.AddMessageAndRunThreadAsync(thread.Id, "weather in san diego, CA", new CreateRunOptions(testAssistant.Id), RunToolCallsWeatherTest);
         Assert.IsNotNull(response);
     }
 
-    private static async Task<List<ToolOutput>> RunToolCalls(IReadOnlyList<RequiredToolCall> toolCalls)
+    private static async Task<List<ToolOutput>> RunToolCallsWeatherTest(IReadOnlyList<RequiredToolCall> toolCalls)
     {
         await Task.CompletedTask;
 
@@ -98,4 +97,11 @@ public class AzureOpenAIAssistantServiceTests : IntegrationTestBase
         """u8.ToArray())
         );
 
+    [TestMethod]
+    public async Task DeleteAllAssistants_pass()
+    {
+        var keepers = new List<string> { "test-weather-assistant" };
+        var response = await _assistantService.DeleteAssisantsAsync(keepers);
+        Assert.IsTrue(response);
+    }
 }
