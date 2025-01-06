@@ -1,8 +1,9 @@
-﻿using Azure;
-using Azure.AI.OpenAI.Assistants;
+﻿using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-//using OpenAI.Files;
+using OpenAI.Assistants;
+using OpenAI.Files;
+using System.ClientModel;
 using System.Text;
 
 namespace Package.Infrastructure.AzureOpenAI.Assistants;
@@ -23,103 +24,80 @@ namespace Package.Infrastructure.AzureOpenAI.Assistants;
 /// </summary>
 /// <param name="logger"></param>
 /// <param name="settings"></param>
-/// <param name="client"></param>
-public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger, IOptions<AssistantServiceSettingsBase> settings, AssistantsClient client) : IAssistantService
+/// <param name="assistantClient"></param>
+public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger, IOptions<AssistantServiceSettingsBase> settings,
+    AzureOpenAIClient aoaiClient) : IAssistantService
 {
     //Azure client factory does not currently support this AssistantsClient
-    //private readonly AssistantClient client = clientFactory.CreateClient(settings.Value.ResourceName).GetAssistantClient();
+    private readonly OpenAIFileClient fileClient = aoaiClient.GetOpenAIFileClient(); // fileClientFactory.CreateClient("AzureOpenAI");
+    private readonly AssistantClient assistantClient = aoaiClient.GetAssistantClient();
 
     //assistant
-    public async Task<PageableList<Assistant>> GetAssistantsAsync(int limit, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetAssistantsAsync(limit, listSortOrder, after, before, cancellationToken)).Value;
-    public async Task<Assistant> GetAssistantAsync(string assistantId, CancellationToken cancellationToken = default) => 
-        (await client.GetAssistantAsync(assistantId, cancellationToken)).Value;
-    public async Task<Assistant> CreateAssistantAsync(AssistantCreationOptions? options = null, CancellationToken cancellationToken = default) => 
-        (await client.CreateAssistantAsync(options, cancellationToken)).Value;
-    public async Task<Assistant> UpdateAssistantAsync(string assistantId, UpdateAssistantOptions options, CancellationToken cancellationToken = default) =>
-        (await client.UpdateAssistantAsync(assistantId, options, cancellationToken)).Value;
-    public async Task<PageableList<AssistantFile>> UpdateAssistantAsync(string assistantId, int limit, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetAssistantFilesAsync(assistantId, limit, listSortOrder, after, before, cancellationToken)).Value;
+    public AsyncCollectionResult<Assistant> GetAssistantsAsync(AssistantCollectionOptions? options = null, CancellationToken cancellationToken = default) =>
+        assistantClient.GetAssistantsAsync(options, cancellationToken);
+    public async Task<Assistant> GetAssistantAsync(string assistantId, CancellationToken cancellationToken = default) =>
+        (await assistantClient.GetAssistantAsync(assistantId, cancellationToken)).Value;
+    public async Task<Assistant> CreateAssistantAsync(string model, AssistantCreationOptions? options = null, CancellationToken cancellationToken = default) =>
+        (await assistantClient.CreateAssistantAsync(model, options, cancellationToken)).Value;
+    public async Task<Assistant> ModifyAssistantAsync(string assistantId, AssistantModificationOptions options, CancellationToken cancellationToken = default) =>
+        (await assistantClient.ModifyAssistantAsync(assistantId, options, cancellationToken)).Value;
     public async Task<bool> DeleteAssistantAsync(string assistantId, CancellationToken cancellationToken = default) =>
-        (await client.DeleteAssistantAsync(assistantId, cancellationToken)).Value;
+        (await assistantClient.DeleteAssistantAsync(assistantId, cancellationToken)).Value.Deleted;
 
     //threads
     public async Task<AssistantThread> GetThread(string threadId, CancellationToken cancellationToken = default) =>
-        (await client.GetThreadAsync(threadId, cancellationToken)).Value;
-    public async Task<AssistantThread> CreateThreadAsync(AssistantThreadCreationOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        return options == null
-             ? (await client.CreateThreadAsync(cancellationToken)).Value
-             : (await client.CreateThreadAsync(options, cancellationToken)).Value;
-    }
+        (await assistantClient.GetThreadAsync(threadId, cancellationToken)).Value;
+    public async Task<AssistantThread> CreateThreadAsync(ThreadCreationOptions? options = null, CancellationToken cancellationToken = default) =>
+        (await assistantClient.CreateThreadAsync(options, cancellationToken)).Value;
 
-    public async Task<ThreadRun> CreateThreadAndRunAsync(CreateAndRunThreadOptions options, CancellationToken cancellationToken = default) =>
-        (await client.CreateThreadAndRunAsync(options, cancellationToken)).Value;
-    public async Task<AssistantThread> UpdateThreadAsync(string threadId, IDictionary<string,string>? metadata = null, CancellationToken cancellationToken = default) =>
-        (await client.UpdateThreadAsync(threadId, metadata, cancellationToken)).Value;
+
+    public async Task<ThreadRun> CreateThreadAndRunAsync(string assistantId, ThreadCreationOptions? tOptions = null, RunCreationOptions? rOptions = null, CancellationToken cancellationToken = default) =>
+        (await assistantClient.CreateThreadAndRunAsync(assistantId, tOptions, rOptions, cancellationToken)).Value;
+    public async Task<AssistantThread> UpdateThreadAsync(string threadId, ThreadModificationOptions? options = null, CancellationToken cancellationToken = default) =>
+        (await assistantClient.ModifyThreadAsync(threadId, options, cancellationToken)).Value;
     public async Task<bool> DeleteThreadAsync(string threadId, CancellationToken cancellationToken = default) =>
-        (await client.DeleteThreadAsync(threadId, cancellationToken)).Value;
-    
+        (await assistantClient.DeleteThreadAsync(threadId, cancellationToken)).Value.Deleted;
+
     //messages
-    public async Task<PageableList<ThreadMessage>> GetMessagesAsync(string threadId, int limit, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetMessagesAsync(threadId, limit, listSortOrder, after, before, cancellationToken)).Value;
+    public AsyncCollectionResult<ThreadMessage> GetMessagesAsync(string threadId, MessageCollectionOptions? options = null, CancellationToken cancellationToken = default) =>
+        assistantClient.GetMessagesAsync(threadId, options, cancellationToken);
     public async Task<ThreadMessage> GetMessageAsync(string threadId, string messageId, CancellationToken cancellationToken = default) =>
-        (await client.GetMessageAsync(threadId, messageId, cancellationToken)).Value;
-    public async Task<ThreadMessage> CreateMessageAsync(string threadId, MessageRole role, string content, CancellationToken cancellationToken = default) =>
-        (await client.CreateMessageAsync(threadId, role, content, cancellationToken: cancellationToken)).Value;
-    public async Task<ThreadMessage> UpdateMessage(string threadId, string messageId, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default) =>
-        (await client.UpdateMessageAsync(threadId, messageId, metadata, cancellationToken)).Value;
+        (await assistantClient.GetMessageAsync(threadId, messageId, cancellationToken)).Value;
+    public async Task<ThreadMessage> CreateMessageAsync(string threadId, MessageRole role, IEnumerable<MessageContent> content, CancellationToken cancellationToken = default) =>
+        (await assistantClient.CreateMessageAsync(threadId, role, content, cancellationToken: cancellationToken)).Value;
+    public async Task<ThreadMessage> UpdateMessage(string threadId, string messageId, MessageModificationOptions options, CancellationToken cancellationToken = default) =>
+        (await assistantClient.ModifyMessageAsync(threadId, messageId, options, cancellationToken)).Value;
 
     //runs
-    public async Task<PageableList<ThreadRun>> GetRunsAsync(string threadId, int limit, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetRunsAsync(threadId, limit, listSortOrder, after, before, cancellationToken)).Value;
+    public AsyncCollectionResult<ThreadRun> GetRunsAsync(string threadId, RunCollectionOptions? options = null, CancellationToken cancellationToken = default) =>
+        assistantClient.GetRunsAsync(threadId, options, cancellationToken);
     public async Task<ThreadRun> GetRunAsync(string threadId, string runId, CancellationToken cancellationToken = default) =>
-        (await client.GetRunAsync(threadId, runId, cancellationToken)).Value;
-    public async Task<ThreadRun> CreateRunAsync(string threadId, CreateRunOptions options, CancellationToken cancellationToken = default) =>
-        (await client.CreateRunAsync(threadId, options, cancellationToken)).Value;
-    public async Task<ThreadRun> UpdateRunAsync(string threadId, string runId, IDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default) =>
-        (await client.UpdateRunAsync(threadId, runId, metadata, cancellationToken)).Value;
-    public async Task<ThreadRun> SubmitToolOutputsToRunAsync(ThreadRun threadRun, List<ToolOutput> toolOutputs, CancellationToken cancellationToken = default) =>
-        (await client.SubmitToolOutputsToRunAsync(threadRun, toolOutputs, cancellationToken)).Value;
+        (await assistantClient.GetRunAsync(threadId, runId, cancellationToken)).Value;
+    public async Task<ThreadRun> CreateRunAsync(string threadId, string assistantId, RunCreationOptions options, CancellationToken cancellationToken = default) =>
+        (await assistantClient.CreateRunAsync(threadId, assistantId, options, cancellationToken)).Value;
     public async Task<ThreadRun> CancelRunAsync(string threadId, string runId, CancellationToken cancellationToken = default) =>
-        (await client.CancelRunAsync(threadId, runId, cancellationToken)).Value;
+        (await assistantClient.CancelRunAsync(threadId, runId, cancellationToken)).Value;
+    public async Task<ThreadRun> SubmitToolOutputsToRunAsync(string threadId, string runId, IEnumerable<ToolOutput> toolOutputs, CancellationToken cancellationToken = default) =>
+        (await assistantClient.SubmitToolOutputsToRunAsync(threadId, runId, toolOutputs, cancellationToken)).Value;
+
 
     //RunSteps
-    public async Task<PageableList<RunStep>> GetRunStepsRunAsync(ThreadRun threadRun, int limit, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetRunStepsAsync(threadRun, limit, listSortOrder, after, before, cancellationToken)).Value;
+    public AsyncCollectionResult<RunStep> GetRunStepsRunAsync(string threadId, string runId, RunStepCollectionOptions? options = null, CancellationToken cancellationToken = default) =>
+        assistantClient.GetRunStepsAsync(threadId, runId, options, cancellationToken);
     public async Task<RunStep> GetRunStepAsync(string threadId, string runId, string stepId, CancellationToken cancellationToken = default) =>
-        (await client.GetRunStepAsync(threadId, runId, stepId, cancellationToken)).Value;
-
-    //Files
-    public async Task<PageableList<AssistantFile>> GetAssistantFilesAsync(string assistantId, int? limit = null, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default) =>
-        (await client.GetAssistantFilesAsync(assistantId, limit, listSortOrder, after, before, cancellationToken)).Value;
-    public async Task<AssistantFile> GetAssistantFileAsync(string assistantId, string fileId, CancellationToken cancellationToken = default) =>
-        (await client.GetAssistantFileAsync(assistantId, fileId, cancellationToken)).Value;
-    public async Task<IReadOnlyList<OpenAIFile>> GetFilesAsync(OpenAIFilePurpose purpose, CancellationToken cancellationToken = default) =>
-        (await client.GetFilesAsync(purpose, cancellationToken)).Value;
-    public async Task<OpenAIFile> GetFileAsync(string fileId, CancellationToken cancellationToken = default) =>
-        (await client.GetFileAsync(fileId, cancellationToken)).Value;
-    public async Task<bool> DeleteFileAsync(string fileId, CancellationToken cancellationToken = default) =>
-        (await client.DeleteFileAsync(fileId, cancellationToken)).Value;
-    public async Task<OpenAIFile> UploadFileAsync(Stream data, OpenAIFilePurpose purpose, string? filename = null, CancellationToken cancellationToken = default) =>
-        (await client.UploadFileAsync(data, purpose, filename, cancellationToken)).Value;
-    public async Task<bool> LinkAssistantFileASync(string assistantId, string fileId, CancellationToken cancellationToken = default) =>
-        (await client.UnlinkAssistantFileAsync(assistantId, fileId, cancellationToken)).Value;
+        (await assistantClient.GetRunStepAsync(threadId, runId, stepId, cancellationToken)).Value;
 
     public async Task<Assistant> GetOrCreateAssistantByName(string? assistantName = null, AssistantCreationOptions? options = null, CancellationToken cancellationToken = default)
     {
         Assistant? assistant = null;
 
-        if(assistantName != null)
+        if (assistantName != null)
         {
-            assistant = await GetAssistantByNameAsync(assistantName, cancellationToken); 
+            assistant = await GetAssistantByNameAsync(assistantName, cancellationToken);
         }
 
-        if (assistant == null)
-        {
-            assistant = await CreateAssistantAsync(options, cancellationToken);
-        }
-        
+        assistant ??= await CreateAssistantAsync(settings.Value.Model, options, cancellationToken);
+
         return assistant;
     }
 
@@ -133,22 +111,37 @@ public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger,
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<Assistant?> GetAssistantByNameAsync(string name, CancellationToken cancellationToken)
     {
-        var assistants = await GetAssistantsAsync(100, cancellationToken: cancellationToken);
-        return assistants.Data.FirstOrDefault(a => a.Name == name); // ?? throw new InvalidOperationException($"Assistant with name {name} not found.");
-    }
-
-    public async Task<OpenAIFile?> GetFileByFilenameAsync(string filename, CancellationToken cancellationToken)
-    {
-        var files = await GetFilesAsync(OpenAIFilePurpose.Assistants, cancellationToken: cancellationToken);
-        return files.FirstOrDefault(f => f.Filename == filename); // ?? throw new InvalidOperationException($"File with name {name} not found.");
-    }
-
-    public async Task<bool> DeleteAssisantsAsync(List<string>? keepers = null, CancellationToken cancellationToken = default)
-    {
-        var assistants = GetAssistantsAsync(100, cancellationToken: cancellationToken).Result;
-        foreach (var assistant in assistants.Data)
+        var options = new AssistantCollectionOptions { PageSizeLimit = 100 };
+        var assistants = GetAssistantsAsync(options, cancellationToken: cancellationToken);
+        await foreach (var assistant in assistants)
         {
-            
+            if (assistant.Name == name)
+            {
+                return assistant;
+            }
+        }
+        return null; // throw new InvalidOperationException($"Assistant with name {name} not found.");
+    }
+
+    public async Task<string?> GetFileIdByFilenameAsync(string filename, CancellationToken cancellationToken)
+    {
+        //var files = await GetFilesAsync(OpenAIFilePurpose.Assistants, cancellationToken: cancellationToken);
+        var files = (await fileClient.GetFilesAsync(FilePurpose.Assistants, cancellationToken: cancellationToken)).Value;
+        return files?.FirstOrDefault(f => f.Filename == filename)?.Id; // ?? throw new InvalidOperationException($"File with name {name} not found.");
+    }
+
+    public async Task<string?> UploadFileAsync(Stream fileStream, string filename, CancellationToken cancellationToken)
+    {
+        var file = (await fileClient.UploadFileAsync(fileStream, filename, FileUploadPurpose.Assistants, cancellationToken: cancellationToken)).Value;
+        return file.Id;
+    }
+
+    public async Task<bool> DeleteAssistantsAsync(List<string>? keepers = null, CancellationToken cancellationToken = default)
+    {
+        var options = new AssistantCollectionOptions { PageSizeLimit = 100 };
+        var assistants = GetAssistantsAsync(options, cancellationToken: cancellationToken);
+        await foreach (var assistant in assistants)
+        {
             if (keepers == null || !(keepers.Contains(assistant.Id) || keepers.Contains(assistant.Name)))
             {
                 await DeleteAssistantAsync(assistant.Id, cancellationToken);
@@ -157,66 +150,54 @@ public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger,
         return true;
     }
 
-    //public async Task<(string, string)> CreateAssistandAndThreadAsync(AssistantCreationOptions? aOptions = null, AssistantThreadCreationOptions? tOptions = null, CancellationToken cancellationToken = default)
-    //{
-    //    AssistantThread thread = tOptions == null
-    //        ? (await client.CreateThreadAsync(cancellationToken)).Value
-    //        : (await client.CreateThreadAsync(tOptions, cancellationToken)).Value;
-
-    //    logger.LogInformation("Assistant created: {AssistantId}, Thread created: {ThreadId}", assistant.Id, thread.Id);
-    //    return (assistant.Id, thread.Id);
-    //}
-
-    public async Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions crOptions,
-        Func<IReadOnlyList<RequiredToolCall>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default)
+    public async Task<string> AddMessageAndRunThreadAsync(string assistantId, string threadId, string message, MessageCreationOptions? mOptions = null, RunCreationOptions? rOptions = null,
+        Func<IReadOnlyList<RequiredAction>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default)
     {
-        _ = await client.CreateMessageAsync(threadId, MessageRole.User, userMessage, cancellationToken: cancellationToken);
-        ThreadRun threadRun = (await client.CreateRunAsync(threadId, crOptions, cancellationToken)).Value;
+        IEnumerable<MessageContent> content = [MessageContent.FromText(message)];
+        _ = await assistantClient.CreateMessageAsync(threadId, MessageRole.User, content, mOptions, cancellationToken: cancellationToken);
+        ThreadRun threadRun = (await assistantClient.CreateRunAsync(threadId, assistantId, rOptions, cancellationToken)).Value;
 
-        logger.LogInformation("Assistant {AssistandId} Thread {ThreadId} ThreadRun {ThreadRunId} created. Starting to poll.", crOptions.AssistantId, threadId, threadRun.Id);
+
+        logger.LogInformation("Assistant {AssistandId} Thread {ThreadId} ThreadMessage created.", assistantId, threadId);
 
         //poll the thread run (and process tool calls) until it's in an end state
-        do
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(settings.Value.RunThreadPollingDelayMilliseconds), cancellationToken);
-            threadRun = (await client.GetRunAsync(threadId, threadRun.Id, cancellationToken)).Value;
+        //do
+        //{
+        //    await Task.Delay(TimeSpan.FromMilliseconds(settings.Value.RunThreadPollingDelayMilliseconds), cancellationToken);
+        //    threadRun = (await assistantClient.GetRunAsync(threadId, threadRun.Id, cancellationToken)).Value;
 
-            if (threadRun.Status == RunStatus.RequiresAction && threadRun.RequiredAction is SubmitToolOutputsAction submitToolOutputsAction && toolCallFunc != null)
+        //    if (threadRun.Status == RunStatus.RequiresAction && toolCallFunc != null)
+        //    {
+        //        var tools = threadRun.RequiredActions.Where(ra => ra.ToolCallId != null).ToList();
+        //        List<ToolOutput> toolOutputs = await toolCallFunc(tools);
+        //        threadRun = (await assistantClient.SubmitToolOutputsToRunAsync(threadId, threadRun.Id, toolOutputs, cancellationToken)).Value;
+        //    }
+        //}
+        //while (threadRun.Status == RunStatus.Queued || threadRun.Status == RunStatus.InProgress);
+
+        StringBuilder response = new();
+        var options = new RunCreationOptions();
+        await foreach (StreamingUpdate update in assistantClient.CreateRunStreamingAsync(threadId, assistantId, options, cancellationToken))
+        {
+            if (update is RequiredActionUpdate updateAction && toolCallFunc != null) //update.UpdateKind == StreamingUpdateReason.RunRequiresAction &&
             {
-                List<ToolOutput> toolOutputs = await toolCallFunc(submitToolOutputsAction.ToolCalls);
-                threadRun = (await client.SubmitToolOutputsToRunAsync(threadRun, toolOutputs, cancellationToken)).Value;
+                threadRun = updateAction.GetThreadRun();
+                var tools = threadRun.RequiredActions.Where(ra => ra.ToolCallId != null).ToList();
+                List<ToolOutput> toolOutputs = await toolCallFunc(tools);
+                await assistantClient.SubmitToolOutputsToRunAsync(threadId, threadRun.Id, toolOutputs, cancellationToken);
+            }
+            else if (update is MessageContentUpdate messageContentUpdate)
+            {
+                //do something with the message content
+                response.Append(messageContentUpdate.Text);
             }
         }
-        while (threadRun.Status == RunStatus.Queued || threadRun.Status == RunStatus.InProgress);
 
         //check for failed
         if (threadRun.Status == RunStatus.Failed)
         {
-            logger.LogError("Assistant {AssistandId} Thread {ThreadId} ThreadRun {ThreadRunId} Failed. {Error}.", crOptions.AssistantId, threadId, threadRun.Id, threadRun.LastError.Message);
+            logger.LogError("Assistant {AssistandId} Thread {ThreadId} ThreadRun {ThreadRunId} Failed. {Error}.", assistantId, threadId, threadRun.Id, threadRun.LastError.Message);
             throw new InvalidOperationException($"ThreadRun {threadRun.Id} failed {threadRun.LastError.Message}");
-        }
-
-        Response<PageableList<ThreadMessage>> afterRunMessagesResponse = await client.GetMessagesAsync(threadId, cancellationToken: cancellationToken);
-        IReadOnlyList<ThreadMessage> messages = afterRunMessagesResponse.Value.Data;
-
-        // messages iterate from newest to oldest, with the messages[0] being the most recent
-        StringBuilder response = new();
-
-        //get the most recent Assistant messages/content items for reponding to the user
-        foreach (ThreadMessage threadMessage in messages.TakeWhile(m => m.Role == MessageRole.Assistant))
-        {
-            //Console.Write($"{threadMessage.CreatedAt:yyyy-MM-dd HH:mm:ss} - {threadMessage.Role,10}: ");
-            foreach (MessageContent contentItem in threadMessage.ContentItems)
-            {
-                if (contentItem is MessageTextContent textItem)
-                {
-                    response.Append(textItem.Text);
-                }
-                else if (contentItem is MessageImageFileContent imageFileItem)
-                {
-                    response.Append($"<image from ID: {imageFileItem.FileId}");
-                }
-            }
         }
 
         return response.ToString();

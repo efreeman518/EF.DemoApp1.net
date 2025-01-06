@@ -1,4 +1,4 @@
-﻿using Azure.AI.OpenAI.Assistants;
+﻿using OpenAI.Assistants;
 
 namespace Package.Infrastructure.AzureOpenAI.Assistants;
 
@@ -10,17 +10,14 @@ public interface IAssistantService
 {
     Task<Assistant> GetOrCreateAssistantByName(string? assistantName = null, AssistantCreationOptions? options = null, CancellationToken cancellationToken = default);
     Task<Assistant> GetAssistantAsync(string assistantId, CancellationToken cancellationToken = default);
-    Task<AssistantThread> CreateThreadAsync(AssistantThreadCreationOptions? options = null, CancellationToken cancellationToken = default);
-    Task<ThreadRun> CreateThreadAndRunAsync(CreateAndRunThreadOptions options, CancellationToken cancellationToken = default);
+    Task<AssistantThread> CreateThreadAsync(ThreadCreationOptions? options = null, CancellationToken cancellationToken = default);
+    Task<ThreadRun> CreateThreadAndRunAsync(string assistantId, ThreadCreationOptions? tOptions = null, RunCreationOptions? rOptions = null, CancellationToken cancellationToken = default);
+    Task<string> AddMessageAndRunThreadAsync(string assistantId, string threadId, string message, MessageCreationOptions? mOptions = null, RunCreationOptions? rOptions = null,
+        Func<IReadOnlyList<RequiredAction>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default);
 
-    Task<string> AddMessageAndRunThreadAsync(string threadId, string userMessage, CreateRunOptions crOptions,
-        Func<IReadOnlyList<RequiredToolCall>, Task<List<ToolOutput>>>? toolCallFunc = null, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAssistantsAsync(List<string>? keepers = null, CancellationToken cancellationToken = default);
 
-    Task<OpenAIFile?> GetFileByFilenameAsync(string filename, CancellationToken cancellationToken);
-    Task<OpenAIFile> UploadFileAsync(Stream data, OpenAIFilePurpose purpose, string? filename = null, CancellationToken cancellationToken = default);
-    Task<PageableList<AssistantFile>> GetAssistantFilesAsync(string assistantId, int? limit = null, ListSortOrder? listSortOrder = null, string? after = null, string? before = null, CancellationToken cancellationToken = default);
-    Task<bool> LinkAssistantFileASync(string assistantId, string fileId, CancellationToken cancellationToken = default);
-
-    Task<bool> DeleteAssisantsAsync(List<string>? keepers = null, CancellationToken cancellationToken = default);
+    Task<string?> GetFileIdByFilenameAsync(string filename, CancellationToken cancellationToken);
+    Task<string?> UploadFileAsync(Stream fileStream, string filename, CancellationToken cancellationToken);
 
 }

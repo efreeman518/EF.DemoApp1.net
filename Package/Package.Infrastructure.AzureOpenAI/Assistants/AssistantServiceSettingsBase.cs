@@ -2,12 +2,10 @@
 
 public abstract class AssistantServiceSettingsBase
 {
-    //public string ResourceName { get; set; } = null!;
-    //public string DeploymentName { get; set; } = null!;
-
-    /// <summary>
-    /// Most likely will have been created (in the portal or programmatically) for a specific assistant task/role
-    /// </summary>
-    public string? AssistantId { get; set; }
+    //for polling, not async streaming 
     public int RunThreadPollingDelayMilliseconds { get; set; } = 500;
+
+    //Currently required to accomodate the current experimental azureOpenAIClient.CreateAssistantAsync() method 
+    //same as DeploymentName ?
+    public string Model { get; set; } = null!;
 }

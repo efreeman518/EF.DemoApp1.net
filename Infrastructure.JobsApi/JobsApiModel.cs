@@ -1,18 +1,16 @@
-﻿using MemoryPack;
+﻿namespace Infrastructure.JobsApi;
 
-namespace Infrastructure.JobsApi;
 
-[MemoryPackable]
 public partial record City(string Name, string State, int StateCode);
-[MemoryPackable]
+
 public partial record Expertise(int Id, string Name, string Abbreviation, int Sort, IReadOnlyList<int?> ProfessionExpertiseCodes);
-[MemoryPackable]
+
 public partial record LocationAlias(int FacilityId, string Location);
-[MemoryPackable]
+
 public partial record Profession(int Id, string Name, int TypeId, string Abbreviation, int Sort);
-[MemoryPackable]
+
 public partial record State(int Id, string Abbreviation, string Name, bool CompactLicenseAvailable, bool HasQuickLicense);
-[MemoryPackable]
+
 public partial record Lookups(
     IReadOnlyList<Expertise> Expertises,
     IReadOnlyList<Profession> Professions,
@@ -20,9 +18,9 @@ public partial record Lookups(
     IReadOnlyList<LocationAlias> LocationAliases,
     IReadOnlyList<City> Cities
 );
-[MemoryPackable]
+
 public partial record ProfessionWithType(int Id, string Name, string ProfessionTypeName);
-[MemoryPackable]
+
 public partial record JobSearchResult(
     IReadOnlyList<Job> Items,
     EmploymentTypeCount EmploymentTypeCount,
@@ -30,7 +28,7 @@ public partial record JobSearchResult(
     int? PositionCountAfterAllFilters,
     int? PositionCountAfterFacilityNameFilter
 );
-[MemoryPackable]
+
 public partial record EmploymentTypeCount(
     int? Permanent,
     int? TravelOrContract,
@@ -46,7 +44,7 @@ public partial record EmploymentTypeCount(
     int? Education,
     int? Undefined
 );
-[MemoryPackable]
+
 public partial record Job(
     int? JobID,
     string FacilityName,
@@ -141,10 +139,10 @@ public partial record Job(
 
 
 
-[MemoryPackable]
+
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 public partial record PayRate(int PayPeriodType, string Value);
-[MemoryPackable]
+
 public partial record JobDetail(
 int? JobID,
 string City,

@@ -6,7 +6,6 @@ using Application.Services.JobAssistant;
 using Application.Services.JobChat;
 using Azure;
 using Azure.AI.OpenAI;
-using Azure.AI.OpenAI.Assistants;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using CorrelationId.HttpClient;
@@ -146,12 +145,12 @@ public static class IServiceCollectionExtensions
                     var redisConfigurationOptions = new ConfigurationOptions
                     {
                         EndPoints =
-                    {
                         {
-                            redisConfigFusion.EndpointUrl,
-                            redisConfigFusion.Port
-                        }
-                    },
+                            {
+                                redisConfigFusion.EndpointUrl,
+                                redisConfigFusion.Port
+                            }
+                        },
                         Ssl = true,
                         AbortOnConnectFail = false
                     };
@@ -422,18 +421,20 @@ public static class IServiceCollectionExtensions
                         }
                         //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
                         return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                    }).WithName("AzureOpenAI");
+                    }); //.WithName("AzureOpenAI");
 
-                    //Experimental AssistantsClient (client factory does not currently support this client)
-                    services.AddScoped<AssistantsClient>(provider =>
-                    {
-                        var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
-                        if (!string.IsNullOrEmpty(key))
-                        {
-                            return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key));
-                        }
-                        return new AssistantsClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
-                    });
+                    //Experimental AssistantsClient(client factory does not currently support this client)
+#pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                    //services.AddScoped<AssistantClient>(provider =>
+                    //{
+                    //    var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
+                    //    if (!string.IsNullOrEmpty(key))
+                    //    {
+                    //        return new AssistantClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key));
+                    //    }
+                    //    return new AssistantClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
+                    //});
+#pragma warning restore OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 }
             });
 

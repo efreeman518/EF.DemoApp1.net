@@ -34,11 +34,11 @@ public class CacheTests : IntegrationTestBase
     {
         string key = "some-cache-key";
         var cacheItem = await _cache.GetOrSetAsync(key, _ => GetSomeItemAsync());
-        Assert.AreEqual(_someDto1.Id, cacheItem?.Id);
+        Assert.AreEqual(_someDto1.Id, cacheItem.Id);
 
         //again - step through to see that cache is hit
         cacheItem = await _cache.GetOrSetAsync(key, _ => GetSomeItemAsync());
-        Assert.AreEqual(_someDto1.Id, cacheItem?.Id);
+        Assert.AreEqual(_someDto1.Id, cacheItem.Id);
 
         //force refresh 
         await _cache.RemoveAsync(key);
@@ -55,7 +55,7 @@ public class CacheTests : IntegrationTestBase
             EagerRefreshThreshold = 0.9f
         };
         cacheItem = await _cache.GetOrSetAsync(key, _ => GetSomeItemAsync(), cacheOptions);
-        Assert.AreEqual(_someDto1.Id, cacheItem?.Id);
+        Assert.AreEqual(_someDto1.Id, cacheItem.Id);
 
         //remove from cache
         await _cache.RemoveAsync(key);

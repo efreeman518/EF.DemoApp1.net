@@ -1,11 +1,11 @@
-﻿using Azure.AI.OpenAI.Assistants;
+﻿using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.AzureOpenAI.Assistants;
 
 namespace Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
 
-public class SomeAssistantService(ILogger<AssistantServiceBase> logger, IOptions<SomeAssistantSettings> settings, AssistantsClient client) :
-    AssistantServiceBase(logger, settings, client), ISomeAssistantService
+public class SomeAssistantService(ILogger<AssistantServiceBase> logger, IOptions<SomeAssistantSettings> settings, AzureOpenAIClient aoaiClient) :
+    AssistantServiceBase(logger, settings, aoaiClient), ISomeAssistantService
 {
 }

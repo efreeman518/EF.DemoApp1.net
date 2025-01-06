@@ -1,8 +1,6 @@
-﻿using MemoryPack;
+﻿namespace Package.Infrastructure.Test.Integration.Model;
 
-namespace Package.Infrastructure.Test.Integration.Model;
 
-[MemoryPackable]
 public partial class TodoItemDto
 {
     public string Id { get; set; } = null!;
