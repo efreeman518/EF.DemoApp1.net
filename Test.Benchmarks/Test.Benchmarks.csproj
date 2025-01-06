@@ -8,6 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="SeedSql\seed1.sql" />

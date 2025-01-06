@@ -4,7 +4,7 @@ namespace Package.Infrastructure.AzureOpenAI.Assistants;
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
-// #pragma warning disable OPENAI001
+#pragma warning disable OPENAI001
 
 public interface IAssistantService
 {
@@ -21,3 +21,5 @@ public interface IAssistantService
     Task<string?> UploadFileAsync(Stream fileStream, string filename, CancellationToken cancellationToken);
 
 }
+
+#pragma warning restore OPENAI001

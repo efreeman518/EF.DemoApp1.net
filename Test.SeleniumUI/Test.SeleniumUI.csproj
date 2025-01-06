@@ -8,6 +8,10 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="appsettings.json" />
   </ItemGroup>

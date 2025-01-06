@@ -10,7 +10,7 @@ namespace Package.Infrastructure.AzureOpenAI.Assistants;
 
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
-// #pragma warning disable OPENAI001
+#pragma warning disable OPENAI001
 
 // requires higher token limits than the default
 // gpt-4o version 2024-05-13 (Default) testing worked with Rate limit (Tokens per minute) 50,000 Rate limit(Requests per minute) 300
@@ -29,7 +29,7 @@ public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger,
     AzureOpenAIClient aoaiClient) : IAssistantService
 {
     //Azure client factory does not currently support this AssistantsClient
-    private readonly OpenAIFileClient fileClient = aoaiClient.GetOpenAIFileClient(); // fileClientFactory.CreateClient("AzureOpenAI");
+    private readonly OpenAIFileClient fileClient = aoaiClient.GetOpenAIFileClient();
     private readonly AssistantClient assistantClient = aoaiClient.GetAssistantClient();
 
     //assistant
@@ -203,3 +203,5 @@ public abstract class AssistantServiceBase(ILogger<AssistantServiceBase> logger,
         return response.ToString();
     }
 }
+
+#pragma warning restore OPENAI001
