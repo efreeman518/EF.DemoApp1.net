@@ -4,6 +4,8 @@ using Application.MessageHandlers;
 using Application.Services;
 using Application.Services.JobAssistant;
 using Application.Services.JobChat;
+using Application.Services.JobSK;
+using Application.Services.JobSK.Plugins;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
@@ -28,6 +30,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using Microsoft.SemanticKernel.Plugins.Core;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
@@ -70,11 +76,11 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
-        services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
-        services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
+        //services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
+        //services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
 
-        services.AddScoped<IJobAssistantOrchestrator, JobAssistantOrchestrator>();
-        services.Configure<JobAssistantOrchestratorSettings>(config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName));
+        //services.AddScoped<IJobAssistantOrchestrator, JobAssistantOrchestrator>();
+        //services.Configure<JobAssistantOrchestratorSettings>(config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName));
 
         return services;
     }
@@ -411,30 +417,66 @@ public static class IServiceCollectionExtensions
                 var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
                 if (azureOpenIAConfigSection.GetChildren().Any())
                 {
+                    
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                     {
+                        AzureOpenAIClient aoaiClient = null!;
                         var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                         if (!string.IsNullOrEmpty(key))
                         {
-                            return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
+                            aoaiClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Endpoint")!), new AzureKeyCredential(key), options);
                         }
-                        //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                        return new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-                    }); //.WithName("AzureOpenAI");
+                        else
+                        {
+                            //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
+                            aoaiClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Endpoint")!), new DefaultAzureCredential(), options);
+                        }
+                        return aoaiClient;
+                    });
 
-                    //Experimental AssistantsClient(client factory does not currently support this client)
-#pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-                    //services.AddScoped<AssistantClient>(provider =>
-                    //{
-                    //    var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
-                    //    if (!string.IsNullOrEmpty(key))
-                    //    {
-                    //        return new AssistantClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key));
-                    //    }
-                    //    return new AssistantClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential());
-                    //});
-#pragma warning restore OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                    //semantic kernel
+                    //register singleton connector (IChatCompletionService ) and all singleton plugins (used by all transient kernels), then build each transient kernel
+                    //https://devblogs.microsoft.com/semantic-kernel/using-semantic-kernel-with-dependency-injection/
+
+                    //connector - singleton, used by all registered (transient) kernels
+                    services.AddSingleton<IChatCompletionService>(sp =>
+                    {
+                        var aoaiClient = sp.GetRequiredService<AzureOpenAIClient>();
+                        //custom HttpClient could be passed into AzureOpenAIChatCompletionService’s constructor, for instance if specific headers needed
+                        return new AzureOpenAIChatCompletionService(azureOpenIAConfigSection.GetValue<string>("DeploymentName")!, aoaiClient);
+                    });
+
+                    //plugins - singletons, for use with any registered (transient) kernel
+                    services.AddSingleton<JobSearchPlugin>();
+
+                    //kernels - transient, built with registered connector and plugins
+                    services.AddKeyedTransient<Kernel>("JobSearchKernel", (sp, key) =>
+                    {
+                        // Create a collection of plugins that the kernel will use
+                        KernelPluginCollection pluginCollection = [];
+                        
+                        //pluginCollection.AddFromObject(sp.GetRequiredService<JobSearchPlugin>());
+                        //pluginCollection.AddFromObject(sp.GetRequiredService<MyAlarmPlugin>());
+                        //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("OfficeLight"), "OfficeLight");
+                        //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("PorchLight"), "PorchLight");
+
+                        var k = new Kernel(sp, pluginCollection);
+#pragma warning disable SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                        //Microsoft.SemanticKernel.Plugins.Core - preview
+                        k.Plugins.AddFromType<ConversationSummaryPlugin>();
+                        k.Plugins.AddFromType<TimePlugin>();
+#pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+                        return k;
+                    });
+
+                    //var kernelBuilder = Kernel.CreateBuilder();
+                    //kernelBuilder.AddAzureOpenAIChatCompletion(azureOpenIAConfigSection.GetValue<string>("DeploymentName")!, 
+                    //    azureOpenIAConfigSection.GetValue<string>("Endpoint")!,
+                    //    new DefaultAzureCredential());
+                    //var kernel = kernelBuilder.Build();
+                    //services.AddSingleton(kernel);
                 }
             });
 
@@ -589,20 +631,28 @@ public static class IServiceCollectionExtensions
             .AddStandardResilienceHandler();
         }
 
-        var jobChatConfigSection = config.GetSection(JobChatSettings.ConfigSectionName);
+        var jobChatConfigSection = config.GetSection(JobChatServiceSettings.ConfigSectionName);
         if (jobChatConfigSection.GetChildren().Any())
         {
             //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<IJobChatService, JobChatService>();
-            services.Configure<JobChatSettings>(jobChatConfigSection);
+            services.Configure<JobChatServiceSettings>(jobChatConfigSection);
         }
 
-        var jobAssistantConfigSection = config.GetSection(JobAssistantSettings.ConfigSectionName);
+        var jobAssistantConfigSection = config.GetSection(JobAssistantServiceSettings.ConfigSectionName);
         if (jobAssistantConfigSection.GetChildren().Any())
         {
             //AzureOpenAI assistant service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<IJobAssistantService, JobAssistantService>();
-            services.Configure<JobAssistantSettings>(jobAssistantConfigSection);
+            services.Configure<JobAssistantServiceSettings>(jobAssistantConfigSection);
+        }
+
+        var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
+        if (jobSearchOrchestratorConfigSection.GetChildren().Any())
+        {
+            //Semanitc Kernel service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobSearchOrchestrator, JobSearchOrchestrator>();
+            services.Configure<JobSearchOrchestratorSettings>(jobSearchOrchestratorConfigSection);
         }
 
         #endregion

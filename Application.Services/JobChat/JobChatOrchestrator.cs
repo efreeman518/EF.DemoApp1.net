@@ -100,9 +100,9 @@ Sample search results table:
         return matches;
     }
 
-    private async Task<IEnumerable<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
+    private async Task<JobSearchResponse> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles)
     {
-        return await jobsService.SearchJobsAsync(expertiseCodes, latitude, longitude, radiusMiles);
+        return await jobsService.SearchJobsAsync(new JobSearchRequest(expertiseCodes, latitude, longitude, radiusMiles));
     }
 
     /// <summary>

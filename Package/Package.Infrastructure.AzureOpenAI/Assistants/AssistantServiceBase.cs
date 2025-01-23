@@ -8,6 +8,8 @@ using System.Text;
 
 namespace Package.Infrastructure.AzureOpenAI.Assistants;
 
+//NONE OF THIS WORKS - "EXPERIMENTAL" = lack of docs, limited & conflicting sample code, incompatibility with default models, non-functioning hacks, breaking changes across beta versions, community complaints - lack of support
+
 // The Assistants feature area is in beta, with API specifics subject to change.
 // Suppress the [Experimental] warning via .csproj or, as here, in the code to acknowledge.
 #pragma warning disable OPENAI001

@@ -59,22 +59,22 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
-    public async Task<IEnumerable<Job>> SearchJobsAsync(List<int> expertiseCodes, decimal latitude, decimal longitude, int radiusMiles, int pageSize = 10)
+    public async Task<JobSearchResponse> SearchJobsAsync(JobSearchRequest request)
     {
-        if (expertiseCodes.Count == 0)
+        if (request.ExpertiseCodes.Count == 0)
         {
-            return [];
+            return new([]);
         }
         //var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
-        var joinExpertises = string.Join("&expertiseCodes=", expertiseCodes);
-        var url = $"job/search?LocationLat={latitude}&LocationLong={longitude}&Radius={radiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
+        var joinExpertises = string.Join("&expertiseCodes=", request.ExpertiseCodes);
+        var url = $"job/search?LocationLat={request.Latitude}&LocationLong={request.Longitude}&Radius={request.RadiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
         logger.LogInformation("SearchJobsAsync: {Url}", url);
 
         (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, null);
         var jobResult = result.Match(
                Succ: response => response ?? throw new InvalidDataException($"Endpoint returned null: {url}"),
                Fail: err => throw err);
-        return jobResult.Items.Take(pageSize);
+        return new JobSearchResponse(jobResult.Items.Take(request.PageSize).ToList());
     }
 
     //get job details

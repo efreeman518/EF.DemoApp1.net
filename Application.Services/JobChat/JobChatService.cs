@@ -5,7 +5,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobChat;
 
-public class JobChatService(ILogger<JobChatService> logger, IOptions<JobChatSettings> settings,
+public class JobChatService(ILogger<JobChatService> logger, IOptions<JobChatServiceSettings> settings,
     IAzureClientFactory<AzureOpenAIClient> clientFactory, IFusionCacheProvider cacheProvider) : ChatServiceBase(logger, settings, clientFactory, cacheProvider), IJobChatService
 {
 }
