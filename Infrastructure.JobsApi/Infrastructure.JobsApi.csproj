@@ -17,6 +17,6 @@
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties data_4professionwithtypes_1json__JsonSchema="[" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

@@ -47,6 +47,7 @@
     <ProjectReference Include="..\Infrastructure.SampleApi\Infrastructure.SampleApi.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.BlandAI\Package.Infrastructure.BlandAI.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Cache\Package.Infrastructure.Cache.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />

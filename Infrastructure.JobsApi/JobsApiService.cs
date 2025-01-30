@@ -59,7 +59,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0
     //https://api.ayahealthcare.com/AyaHealthCareWeb/Job/Search?LocationLat=34&LocationLong=-118&Radius=50&ExpertiseCode=22
-    public async Task<JobSearchResponse> SearchJobsAsync(JobSearchRequest request)
+    public async Task<JobSearchResponse> SearchJobsAsync(JobSearchRequest request, CancellationToken cancellationToken = default)
     {
         if (request.ExpertiseCodes.Count == 0)
         {
@@ -70,7 +70,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         var url = $"job/search?LocationLat={request.Latitude}&LocationLong={request.Longitude}&Radius={request.RadiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
         logger.LogInformation("SearchJobsAsync: {Url}", url);
 
-        (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, null);
+        (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, cancellationToken: cancellationToken);
         var jobResult = result.Match(
                Succ: response => response ?? throw new InvalidDataException($"Endpoint returned null: {url}"),
                Fail: err => throw err);

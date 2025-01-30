@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Data;
-using LazyCache;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +29,7 @@ public abstract class EndpointTestBase
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration("appsettings-test.json").AddUserSecrets<Program>().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
 
-    protected static readonly IAppCache _appcache = new CachingService();
+    //protected static readonly IAppCache _appcache = new CachingService();
 
     //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
     //protected static HttpClient HttpClientApi = null!;

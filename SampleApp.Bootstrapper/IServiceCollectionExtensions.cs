@@ -37,6 +37,7 @@ using Microsoft.SemanticKernel.Plugins.Core;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Polly;
@@ -76,11 +77,44 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
 
-        //services.AddScoped<IJobChatOrchestrator, JobChatOrchestrator>();
-        //services.Configure<JobChatOrchestratorSettings>(config.GetSection(JobChatOrchestratorSettings.ConfigSectionName));
+        //chat
+        var jobChatOrchestratorConfigSection = config.GetSection(JobChatOrchestratorSettings.ConfigSectionName);
+        if (jobChatOrchestratorConfigSection.GetChildren().Any())
+        {
+            services.AddTransient<IJobChatOrchestrator, JobChatOrchestrator>();
+            services.Configure<JobChatOrchestratorSettings>(jobChatOrchestratorConfigSection);
+        }
 
-        //services.AddScoped<IJobAssistantOrchestrator, JobAssistantOrchestrator>();
-        //services.Configure<JobAssistantOrchestratorSettings>(config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName));
+        var jobChatConfigSection = config.GetSection(JobChatServiceSettings.ConfigSectionName);
+        if (jobChatConfigSection.GetChildren().Any())
+        {
+            //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobChatService, JobChatService>();
+            services.Configure<JobChatServiceSettings>(jobChatConfigSection);
+        }
+
+        //assistant - NOT WORKING
+        var jobAssistantOrchestratorConfigSection = config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName);
+        if (jobAssistantOrchestratorConfigSection.GetChildren().Any())
+        {
+            services.AddTransient<IJobAssistantOrchestrator, JobAssistantOrchestrator>();
+            services.Configure<JobAssistantOrchestratorSettings>(jobAssistantOrchestratorConfigSection);
+        }
+        var jobAssistantConfigSection = config.GetSection(JobAssistantServiceSettings.ConfigSectionName);
+        if (jobAssistantConfigSection.GetChildren().Any())
+        {
+            //AzureOpenAI assistant service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobAssistantService, JobAssistantService>();
+            services.Configure<JobAssistantServiceSettings>(jobAssistantConfigSection);
+        }
+
+        var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
+        if (jobSearchOrchestratorConfigSection.GetChildren().Any())
+        {
+            //Semanitc Kernel service wrapper (not an Azure Client but a wrapper that uses it)
+            services.AddTransient<IJobSearchOrchestrator, JobSearchOrchestrator>();
+            services.Configure<JobSearchOrchestratorSettings>(jobSearchOrchestratorConfigSection);
+        }
 
         return services;
     }
@@ -326,41 +360,86 @@ public static class IServiceCollectionExtensions
         }
         else
         {
+            //AzureSQL - https://learn.microsoft.com/en-us/ef/core/providers/sql-server/?tabs=dotnet-core-cli
             //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
+            //sql compatibility level - https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-compatibility-level?view=azuresqldb-current
 
             //sp is not scoped for the DbContextPool, so we can't use it to get the auditInterceptor
             services.AddDbContext<TodoDbContextTrxn>((sp, options) =>
             {
                 var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
-                options.UseSqlServer(trxnDBconnectionString,
-                    //retry strategy does not support user initiated transactions 
-                    sqlServerOptionsAction: sqlOptions =>
+                if (trxnDBconnectionString.Contains("database.windows.net"))
+                {
+                    options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
                     {
+                        sqlOptions.UseCompatibilityLevel(160);
+                        //retry strategy does not support user initiated transactions 
                         sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
                         //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
                         //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
                         //sqlOptions.UseRelationalNulls(true);
-                    })
-                    .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
-                    .AddInterceptors(auditInterceptor);
+                    });
+                }
+                else
+                {
+                    options.UseSqlServer(trxnDBconnectionString,
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.UseCompatibilityLevel(160);
+                            //retry strategy does not support user initiated transactions 
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                            //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
+                            //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
+                            //sqlOptions.UseRelationalNulls(true);
+                        });
+                }
+                options
+                .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
+                .AddInterceptors(auditInterceptor);
             });
 
             var queryDBconnectionString = config.GetConnectionString("TodoDbContextQuery");
-            services.AddDbContext<TodoDbContextQuery>(options =>
-                options.UseSqlServer(queryDBconnectionString,
-                    //retry strategy does not support user initiated transactions 
-                    sqlServerOptionsAction: sqlOptions =>
+            if (queryDBconnectionString != null)
+            {
+                services.AddDbContext<TodoDbContextQuery>(options =>
+                {
+                    if (queryDBconnectionString.Contains("database.windows.net"))
                     {
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                        //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
-                        //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
-                        //sqlOptions.UseRelationalNulls(true);
-                        //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
-                        //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
-                        //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                    })
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                );
+                        options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.UseCompatibilityLevel(160);   
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                            //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
+                            //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
+                            //sqlOptions.UseRelationalNulls(true);
+                            //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
+                            //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+                            //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+
+                        })
+                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                    }
+                    else
+                    {
+                        options.UseSqlServer(queryDBconnectionString,
+                            //retry strategy does not support user initiated transactions 
+                            sqlServerOptionsAction: sqlOptions =>
+                            {
+                                sqlOptions.UseCompatibilityLevel(160);
+                                //retry strategy does not support user initiated transactions
+                                sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                                //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
+                                //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
+                                //sqlOptions.UseRelationalNulls(true);
+                                //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
+                                //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+                                //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                            })
+                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    
+                    }
+                });
+            }
 
             //SQL ALWAYS ENCRYPTED, the connection string must include "Column Encryption Setting=Enabled"
             if (!_keyStoreProviderRegistered)
@@ -390,7 +469,23 @@ public static class IServiceCollectionExtensions
             //services.AddKeyedScoped<List<AuditEntry>>("Audit", (_, _) => []);
         }
 
-        //IConfigurationSection configSection;
+        #region Jobs
+
+        //jobs api service
+        var jobsApiConfigSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
+        if (jobsApiConfigSection.GetChildren().Any())
+        {
+            services.Configure<JobsApiServiceSettings>(jobsApiConfigSection);
+            services.AddScoped<IJobsApiService, JobsApiService>();
+            services.AddHttpClient<IJobsApiService, JobsApiService>(client =>
+            {
+                client.BaseAddress = new Uri(jobsApiConfigSection.GetValue<string>("BaseUrl")!);
+            })
+            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
+            .AddStandardResilienceHandler();
+        }
+
+        #endregion
 
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
@@ -417,7 +512,7 @@ public static class IServiceCollectionExtensions
                 var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
                 if (azureOpenIAConfigSection.GetChildren().Any())
                 {
-                    
+
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                     {
@@ -448,25 +543,28 @@ public static class IServiceCollectionExtensions
                     });
 
                     //plugins - singletons, for use with any registered (transient) kernel
-                    services.AddSingleton<JobSearchPlugin>();
+                    //not needed with ImportPluginFromType?
+                    //services.AddSingleton<JobSearchPlugin>();
 
                     //kernels - transient, built with registered connector and plugins
                     services.AddKeyedTransient<Kernel>("JobSearchKernel", (sp, key) =>
                     {
                         // Create a collection of plugins that the kernel will use
-                        KernelPluginCollection pluginCollection = [];
-                        
+                        //KernelPluginCollection pluginCollection = [];
+
                         //pluginCollection.AddFromObject(sp.GetRequiredService<JobSearchPlugin>());
                         //pluginCollection.AddFromObject(sp.GetRequiredService<MyAlarmPlugin>());
                         //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("OfficeLight"), "OfficeLight");
                         //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("PorchLight"), "PorchLight");
 
-                        var k = new Kernel(sp, pluginCollection);
+                        var k = new Kernel(sp); // new Kernel(sp);
 #pragma warning disable SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                         //Microsoft.SemanticKernel.Plugins.Core - preview
                         k.Plugins.AddFromType<ConversationSummaryPlugin>();
                         k.Plugins.AddFromType<TimePlugin>();
 #pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+                        k.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //ImportPluginFromType enables DI in the plugin
 
                         return k;
                     });
@@ -487,6 +585,13 @@ public static class IServiceCollectionExtensions
             services.AddHttpContextAccessor(); //only needed to inject ChaosManager to check query string for chaos
             services.TryAddSingleton<IChaosManager, ChaosManager>();
             services.Configure<ChaosManagerSettings>(configSectionChaos);
+        }
+
+        var blandAIConfigSection = config.GetSection(BlandAISettings.ConfigSectionName);
+        if (blandAIConfigSection.GetChildren().Any())
+        {
+            services.Configure<BlandAISettings>(blandAIConfigSection);
+            //services.AddScoped<IBlandAI, BlandAI>();
         }
 
         //external SampleAppApi
@@ -615,47 +720,7 @@ public static class IServiceCollectionExtensions
             .AddStandardResilienceHandler();
         }
 
-        #region Jobs
-
-        //jobs api service
-        var jobsApiConfigSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
-        if (jobsApiConfigSection.GetChildren().Any())
-        {
-            services.Configure<JobsApiServiceSettings>(jobsApiConfigSection);
-            services.AddScoped<IJobsApiService, JobsApiService>();
-            services.AddHttpClient<IJobsApiService, JobsApiService>(client =>
-            {
-                client.BaseAddress = new Uri(jobsApiConfigSection.GetValue<string>("BaseUrl")!);
-            })
-            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
-            .AddStandardResilienceHandler();
-        }
-
-        var jobChatConfigSection = config.GetSection(JobChatServiceSettings.ConfigSectionName);
-        if (jobChatConfigSection.GetChildren().Any())
-        {
-            //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
-            services.AddTransient<IJobChatService, JobChatService>();
-            services.Configure<JobChatServiceSettings>(jobChatConfigSection);
-        }
-
-        var jobAssistantConfigSection = config.GetSection(JobAssistantServiceSettings.ConfigSectionName);
-        if (jobAssistantConfigSection.GetChildren().Any())
-        {
-            //AzureOpenAI assistant service wrapper (not an Azure Client but a wrapper that uses it)
-            services.AddTransient<IJobAssistantService, JobAssistantService>();
-            services.Configure<JobAssistantServiceSettings>(jobAssistantConfigSection);
-        }
-
-        var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
-        if (jobSearchOrchestratorConfigSection.GetChildren().Any())
-        {
-            //Semanitc Kernel service wrapper (not an Azure Client but a wrapper that uses it)
-            services.AddTransient<IJobSearchOrchestrator, JobSearchOrchestrator>();
-            services.Configure<JobSearchOrchestratorSettings>(jobSearchOrchestratorConfigSection);
-        }
-
-        #endregion
+        
 
         //StartupTasks - executes once at startup
         services.AddTransient<IStartupTask, LoadCache>();

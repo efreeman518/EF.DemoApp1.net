@@ -1,51 +1,74 @@
-﻿using LanguageExt.Common;
+﻿using Application.Services.JobSK.Plugins;
+using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Package.Infrastructure.Common.Extensions;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;
 
-public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, [FromKeyedServices("JobSearchKernel")] Kernel kernel)
+public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, [FromKeyedServices("JobSearchKernel")] Kernel kernel, IFusionCacheProvider cacheProvider)
     : IJobSearchOrchestrator
 {
-    private readonly IChatCompletionService chat  = kernel.GetRequiredService<IChatCompletionService>();
+    private readonly IChatCompletionService chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+    private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
-        var chatId = request.ChatId ?? Guid.CreateVersion7();
-
-        var result = await kernel.InvokeAsync("ConversationSummaryPlugin", "GetConversationActionItems", new() { { "input", request.Message } }, cancellationToken);
-
-        return new ChatResponse(chatId, result.ToString());
-
-
-
-
-
-
-        //get ChatHistory from cache otherwise create a new one
-
-        ChatHistory? chatHistory = request.ChatId == null
-            ? CreateNewChatHistory()
-            : null; // (await cache.TryGetAsync<ChatHistory>(request.ChatId.ToString()!, token: cancellationToken)).GetValueOrDefault();
-        chatHistory ??= CreateNewChatHistory();
+        (var chatId, var chatHistory) = await GetOrCreateChatHistoryAsync(request.ChatId, cancellationToken);
         chatHistory.AddUserMessage(request.Message);
-        try
+
+        //kernel.InvokeAsync
+        //var functionResult = await kernel.InvokeAsync("ConversationSummaryPlugin", "GetConversationActionItems", new() { { "input", request.Message } }, cancellationToken);
+        //var chatResponse = new ChatResponse(chatId, functionResult.ToString());
+
+        var promptSettings = new PromptExecutionSettings
         {
-            var response = await chat.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-            return new ChatResponse(chatId, string.Join(";", response.Items.Select(i => i.ToString()))); //??
-        }
-        catch (Exception ex)
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(null, true)
+        };
+        var chatCompletionResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, promptSettings, kernel, cancellationToken);
+        chatHistory.AddSystemMessage(chatCompletionResult.Content!);
+
+        var chatResponse = new ChatResponse(chatId, chatCompletionResult.Content!);
+
+        kernel.Plugins.TryGetPlugin("ConversationSummaryPlugin", out var conversationSummaryPlugin);
+        if (conversationSummaryPlugin != null && chatHistory.Count > 10)
         {
-            return new Result<ChatResponse>(ex);
+            FunctionResult summary = await kernel.InvokeAsync(conversationSummaryPlugin["SummarizeConversation"], new() { ["input"] = chatHistory }, cancellationToken);
+            chatHistory.Clear();
+            chatHistory.AddSystemMessage(InitialSystemMessage());
+            chatHistory.AddSystemMessage(summary.ToString());
         }
+
+
+        //save the chat to the cache
+        await cache.SetAsync($"chat-{chatId}", chatHistory.SerializeToJson(), token: cancellationToken);
+
+        return chatResponse;
     }
 
-    private static ChatHistory CreateNewChatHistory()
+    private async Task<(Guid, ChatHistory)> GetOrCreateChatHistoryAsync(Guid? chatId = null, CancellationToken cancellationToken = default)
     {
-        var chatHistory = new ChatHistory();
-        chatHistory.AddSystemMessage(InitialSystemMessage());
-        return chatHistory;
+        ChatHistory? chatHistory = null;
+        if (chatId != null)
+        {
+            var cacheKey = $"chat-{chatId}";
+            //may have expired, in that case restart with a new chat
+            var chatjson = await cache.GetOrDefaultAsync<string>(cacheKey, token: cancellationToken);
+            if (chatjson != null)
+            {
+                chatHistory = chatjson.DeserializeJson<ChatHistory>()!;
+            }
+        }
+
+        if (chatHistory == null)
+        {
+            chatHistory = [];
+            chatHistory.AddSystemMessage(InitialSystemMessage());
+        }
+
+        return (chatId ?? Guid.CreateVersion7(), chatHistory);
     }
 
     private static string InitialSystemMessage()

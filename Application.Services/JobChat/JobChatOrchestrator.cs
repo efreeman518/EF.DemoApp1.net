@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Application.Services.JobChat;
 
-public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<JobChatOrchestratorSettings> settings, IJobChatService chatService, IJobsApiService jobsService)
+public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<JobChatOrchestratorSettings> settings, IJobChatService chatService2, IJobsApiService jobsService)
     : ServiceBase(logger), IJobChatOrchestrator
 {
 
@@ -27,7 +27,7 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
 
         try
         {
-            var response = await chatService.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxCompletionMessageCount, cancellationToken: cancellationToken);
+            var response = await chatService2.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxCompletionMessageCount, cancellationToken: cancellationToken);
             return new ChatResponse(response.Item1, response.Item2);
         }
         catch (Exception ex)

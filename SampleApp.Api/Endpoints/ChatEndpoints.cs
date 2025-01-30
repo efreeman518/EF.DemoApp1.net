@@ -18,9 +18,9 @@ public static class ChatEndpoints
             .WithSummary("Submit a chat message and expect a response.");
     }
 
-    private static async Task<IResult> AppendMessage(HttpContext httpContext, IJobChatOrchestrator chatService, ChatRequest request)
+    private static async Task<IResult> AppendMessage(HttpContext httpContext, IJobChatOrchestrator chatService1, ChatRequest request)
     {
-        var result = await chatService.ChatCompletionAsync(request);
+        var result = await chatService1.ChatCompletionAsync(request);
         return result.Match<IResult>(
             dto => TypedResults.Ok(dto),
             err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: err.Message, exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))

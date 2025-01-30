@@ -125,6 +125,12 @@ public static partial class WebApplicationBuilderExtensions
         //.RequireAuthorization("policy1", "policy2");
         group.MapExternalEndpoints(!app.Environment.IsProduction());
 
+        //endpoints - webhook
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/webhook")
+            .WithApiVersionSet(apiVersionSet);
+        //.RequireAuthorization("policy1", "policy2");
+        group.MapWebhookEndpoints();
+
         return app;
     }
 
