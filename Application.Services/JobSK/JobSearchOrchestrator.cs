@@ -3,6 +3,7 @@ using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Plugins.OpenApi;
 using Package.Infrastructure.Common.Extensions;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -23,6 +24,17 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         //var functionResult = await kernel.InvokeAsync("ConversationSummaryPlugin", "GetConversationActionItems", new() { { "input", request.Message } }, cancellationToken);
         //var chatResponse = new ChatResponse(chatId, functionResult.ToString());
 
+#pragma warning disable SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        //async - register during service registration?
+        await kernel.ImportPluginFromOpenApiAsync("todoitems", new Uri(settings.Value.TodoOpenApiDocUrl), new OpenApiFunctionExecutionParameters()
+           {
+               // Determines whether payload parameter names are augmented with namespaces.
+               // Namespaces prevent naming conflicts by adding the parent parameter name
+               // as a prefix, separated by dots
+               EnablePayloadNamespacing = false
+           }, cancellationToken: cancellationToken);
+#pragma warning restore SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
         var promptSettings = new PromptExecutionSettings
         {
             FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(null, true)
@@ -40,7 +52,6 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
             chatHistory.AddSystemMessage(InitialSystemMessage());
             chatHistory.AddSystemMessage(summary.ToString());
         }
-
 
         //save the chat to the cache
         await cache.SetAsync($"chat-{chatId}", chatHistory.SerializeToJson(), token: cancellationToken);

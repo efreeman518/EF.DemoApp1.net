@@ -74,7 +74,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         var jobResult = result.Match(
                Succ: response => response ?? throw new InvalidDataException($"Endpoint returned null: {url}"),
                Fail: err => throw err);
-        return new JobSearchResponse(jobResult.Items.Take(request.PageSize).ToList());
+        return new JobSearchResponse([.. jobResult.Items.Take(request.PageSize)]);
     }
 
     //get job details

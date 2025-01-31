@@ -34,6 +34,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Plugins.Core;
+using Microsoft.SemanticKernel.Plugins.OpenApi;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
@@ -562,9 +563,13 @@ public static class IServiceCollectionExtensions
                         //Microsoft.SemanticKernel.Plugins.Core - preview
                         k.Plugins.AddFromType<ConversationSummaryPlugin>();
                         k.Plugins.AddFromType<TimePlugin>();
-#pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
 
                         k.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //ImportPluginFromType enables DI in the plugin
+
+
+
+#pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
                         return k;
                     });
