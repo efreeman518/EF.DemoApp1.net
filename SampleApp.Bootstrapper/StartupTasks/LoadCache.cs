@@ -14,6 +14,10 @@ public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IFusion
         _ = cache.GetHashCode();
         _ = repoQuery.GetHashCode();
         await Task.CompletedTask;
+        
+        
+        //use FusionCache
+
 
         ////memory cache
         //var cacheSettings = await repoQuery.QueryPageProjectionAsync(SystemSettingMapper.Projector,

@@ -109,6 +109,7 @@ public static class IServiceCollectionExtensions
             services.Configure<JobAssistantServiceSettings>(jobAssistantConfigSection);
         }
 
+        //chat SK
         var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
         if (jobSearchOrchestratorConfigSection.GetChildren().Any())
         {
@@ -529,7 +530,7 @@ public static class IServiceCollectionExtensions
                             aoaiClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Endpoint")!), new DefaultAzureCredential(), options);
                         }
                         return aoaiClient;
-                    });
+                    }).WithName("AzureOpenAI"); //name enables differently named if ever needed
 
                     //semantic kernel
                     //register singleton connector (IChatCompletionService ) and all singleton plugins (used by all transient kernels), then build each transient kernel
@@ -538,7 +539,8 @@ public static class IServiceCollectionExtensions
                     //connector - singleton, used by all registered (transient) kernels
                     services.AddSingleton<IChatCompletionService>(sp =>
                     {
-                        var aoaiClient = sp.GetRequiredService<AzureOpenAIClient>();
+                        var aoaiClientFactory = sp.GetRequiredService<IAzureClientFactory<AzureOpenAIClient>>();
+                        var aoaiClient = aoaiClientFactory.CreateClient("AzureOpenAI");
                         //custom HttpClient could be passed into AzureOpenAIChatCompletionService’s constructor, for instance if specific headers needed
                         return new AzureOpenAIChatCompletionService(azureOpenIAConfigSection.GetValue<string>("DeploymentName")!, aoaiClient);
                     });

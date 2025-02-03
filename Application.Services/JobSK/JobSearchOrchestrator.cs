@@ -44,14 +44,14 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
 
         var chatResponse = new ChatResponse(chatId, chatCompletionResult.Content!);
 
-        kernel.Plugins.TryGetPlugin("ConversationSummaryPlugin", out var conversationSummaryPlugin);
-        if (conversationSummaryPlugin != null && chatHistory.Count > 10)
-        {
-            FunctionResult summary = await kernel.InvokeAsync(conversationSummaryPlugin["SummarizeConversation"], new() { ["input"] = chatHistory }, cancellationToken);
-            chatHistory.Clear();
-            chatHistory.AddSystemMessage(InitialSystemMessage());
-            chatHistory.AddSystemMessage(summary.ToString());
-        }
+        //kernel.Plugins.TryGetPlugin("ConversationSummaryPlugin", out var conversationSummaryPlugin);
+        //if (conversationSummaryPlugin != null && chatHistory.Count > 10)
+        //{
+        //    FunctionResult summary = await kernel.InvokeAsync(conversationSummaryPlugin["SummarizeConversation"], new() { ["input"] = chatHistory }, cancellationToken);
+        //    chatHistory.Clear();
+        //    chatHistory.AddSystemMessage(InitialSystemMessage());
+        //    chatHistory.AddSystemMessage(summary.ToString());
+        //}
 
         //save the chat to the cache
         await cache.SetAsync($"chat-{chatId}", chatHistory.SerializeToJson(), token: cancellationToken);
@@ -76,7 +76,8 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         if (chatHistory == null)
         {
             chatHistory = [];
-            chatHistory.AddSystemMessage(InitialSystemMessage());
+            //chatHistory.AddSystemMessage(InitialSystemMessage());
+            chatHistory.AddSystemMessage("You can manage todo items for the user - create, update, delete, search.");
         }
 
         return (chatId ?? Guid.CreateVersion7(), chatHistory);

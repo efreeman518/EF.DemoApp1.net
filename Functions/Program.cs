@@ -69,7 +69,7 @@ try
                 builder.AddAzureKeyVault(new Uri(endpoint), credential);
             }
         })
-        .ConfigureServices((hostContext, services) =>
+        .ConfigureServices(async (hostContext, services) =>
         {
             var config = hostContext.Configuration;
 
@@ -87,21 +87,22 @@ try
                     {
                         options.Rules.Remove(toRemove);
                     }
-                })
-                //needed for logging to app insights?
-                //.AddLogging(builder =>
-                //{
-                //    builder.AddApplicationInsights(configTelem =>
-                //    {
-                //        configTelem.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-                //    },
-                //    options => { });
-                //})
+                });
+            //needed for logging to app insights?
+            //.AddLogging(builder =>
+            //{
+            //    builder.AddApplicationInsights(configTelem =>
+            //    {
+            //        configTelem.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
+            //    },
+            //    options => { });
+            //})
 
+            
+            //domain services
+            services.RegisterDomainServices(config)
                 //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
-                .RegisterInfrastructureServices(config)
-                //domain services
-                .RegisterDomainServices(config)
+               .RegisterInfrastructureServices(config)
                 //app servives
                 .RegisterApplicationServices(config)
                 //BackgroundTaskQueue needed by other services

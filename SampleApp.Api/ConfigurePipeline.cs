@@ -101,6 +101,12 @@ public static partial class WebApplicationBuilderExtensions
         //.RequireAuthorization("policy1", "policy2");
         group.MapTodoItemEndpoints(!app.Environment.IsProduction());
 
+        //endpoints - skchat
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/skchat")
+            .WithApiVersionSet(apiVersionSet);
+        //.RequireAuthorization("policy1", "policy2");
+        group.MapChatSKEndpoints(!app.Environment.IsProduction());
+
         //endpoints - chat
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/chat")
             .WithApiVersionSet(apiVersionSet);
