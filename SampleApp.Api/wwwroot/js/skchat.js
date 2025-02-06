@@ -1,4 +1,5 @@
 ﻿import Utility from './utility.js';
+import * as BlandCWeblient from './external/BlandClient.js';
 
 const _utility = new Utility(null, document.getElementById('alert1'), true);
 const urlChat = 'api1/v1.1/skchat';
@@ -71,6 +72,43 @@ async function newChat() {
     await sendMessage("hi");
 }
 
+async function audioChat() {
+    chatId = null;
+    document.getElementById('chat-output').innerHTML = "";
+    document.getElementById('chat-input').value = "";
+
+    //get agentId & sessionId 
+    const method = 'GET';
+    const url = `{urlChat}\`;
+
+
+    try {
+        const response = await _utility.HttpSend(method, url, payload);
+        if (response.ok) {
+
+            //get response
+            const data = await response.data;
+
+            //hold the chat Id
+            chatId = data.chatId;
+
+            appendMessage('system', data.message);
+        }
+    }
+    finally {
+        thinking.remove();
+        toggleInputEnable(true);
+    }
+
+    const blandClient = new BlandWebClient(
+        agentId,
+        sessionToken
+    );
+    await blandClient.initConversation({
+        sampleRate: 44100,
+    });
+}
+
 function toggleInputEnable(toggle) {
     if (!toggle) {
         document.getElementById('chat-controls').classList.add('disabled');
@@ -85,6 +123,7 @@ function toggleInputEnable(toggle) {
 //wire up event handlers
 document.getElementById('chat-send').addEventListener('click', appendAndSend);
 document.getElementById('chat-new').addEventListener('click', newChat);
+document.getElementById('chat-audio').addEventListener('click', audioChat);
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         appendAndSend();

@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AngleSharp.Dom;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
 using System.Text.Json;
 
 namespace SampleApp.Api.Endpoints;
 
-public static class WebhookEndpoints
+public static class BlandAIEndpoints
 {
-    public static void MapWebhookEndpoints(this IEndpointRouteBuilder group)
+    public static void MapBlandAIEndpoints(this IEndpointRouteBuilder group)
     {
         //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
         group.MapGet("/", GetPage)
@@ -25,6 +26,16 @@ public static class WebhookEndpoints
         group.MapDelete("/{id:guid}", Delete)
             .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Delete item");
+
+        //bland webclient
+        group.MapGet("/blandwebclientconfig", GetBlandWebClientConfig)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Get bland webclient config");
+    }
+
+    private static IResult GetBlandWebClientConfig(HttpContext context)
+    {
+        return TypedResults.Ok("");
     }
 
     private static async Task<IResult> GetPage()
@@ -60,7 +71,7 @@ public static class WebhookEndpoints
         }
 
         //deserialize body into someData
-        var item = JsonSerializer.Deserialize<someData>(body.GetRawText());
+        var item = JsonSerializer.Deserialize<SomeData>(body.GetRawText());
 
         return TypedResults.Created(httpContext.Request.Path, item);
     }
@@ -78,4 +89,4 @@ public static class WebhookEndpoints
     }
 }
 
-public record someData(string Expertise, string Location, int Distance);
+public record SomeData(string Expertise, string Location, int Distance);

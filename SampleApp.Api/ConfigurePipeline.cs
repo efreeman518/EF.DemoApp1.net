@@ -137,7 +137,7 @@ public static partial class WebApplicationBuilderExtensions
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/webhook")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapWebhookEndpoints();
+        group.MapBlandAIEndpoints();
 
         return app;
     }
