@@ -6,7 +6,7 @@ using Package.Infrastructure.Common.Extensions;
 
 namespace Package.Infrastructure.BlandAI;
 
-public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<BlandAIRestClientSettings> settings, HttpClient httpClient) : IBlandAIRestClient
+public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<BlandAISettings> settings, HttpClient httpClient) : IBlandAIRestClient
 {
     private const string urlSegment = "agents";
 

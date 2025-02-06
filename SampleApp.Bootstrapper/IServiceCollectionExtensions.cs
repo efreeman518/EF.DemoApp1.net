@@ -594,11 +594,19 @@ public static class IServiceCollectionExtensions
             services.Configure<ChaosManagerSettings>(configSectionChaos);
         }
 
+        //bland.ai
         var blandAIConfigSection = config.GetSection(BlandAISettings.ConfigSectionName);
         if (blandAIConfigSection.GetChildren().Any())
         {
             services.Configure<BlandAISettings>(blandAIConfigSection);
-            //services.AddScoped<IBlandAI, BlandAI>();
+            services.AddScoped<IBlandAIRestClient, BlandAIRestClient>();
+
+            services.AddHttpClient<IBlandAIRestClient, BlandAIRestClient>(client =>
+            {
+                client.BaseAddress = new Uri(blandAIConfigSection.GetValue<string>("BaseUrl")!);
+                client.DefaultRequestHeaders.Add("Authorization", blandAIConfigSection.GetValue<string>("Key")!);
+            })
+            .AddStandardResilienceHandler();
         }
 
         //external SampleAppApi

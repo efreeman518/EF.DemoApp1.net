@@ -1,8 +1,9 @@
-﻿namespace Package.Infrastructure.BlandAI
+﻿namespace Package.Infrastructure.BlandAI;
+
+public class BlandAISettings
 {
-    public class BlandAISettings
-    {
-        public const string ConfigSectionName = "BlandAISettings";
-        public string WebhookSigningSecret { get; set; } = null!;
-    }
+    public const string ConfigSectionName = "BlandAISettings";
+    public string BaseUrl { get; set; } = null!;
+    public string ApiKey { get; set; } = null!;
+    public string WebhookSigningSecret { get; set; } = null!;
 }
