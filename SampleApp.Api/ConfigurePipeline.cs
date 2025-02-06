@@ -95,29 +95,31 @@ public static partial class WebApplicationBuilderExtensions
             .ReportApiVersions()
             .Build();
 
+        var prodDetailsIncludeStack = !app.Environment.IsProduction();
+
         //endpoints - todoitems
         var group = app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapTodoItemEndpoints(!app.Environment.IsProduction());
+        group.MapTodoItemEndpoints(prodDetailsIncludeStack);
 
         //endpoints - skchat
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/skchat")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapChatSKEndpoints(!app.Environment.IsProduction());
+        group.MapChatSKEndpoints(prodDetailsIncludeStack);
 
         //endpoints - chat
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/chat")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapChatEndpoints(!app.Environment.IsProduction());
+        group.MapChatEndpoints(prodDetailsIncludeStack);
 
         //endpoints - assistant
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/assistant")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapAssistantEndpoints(!app.Environment.IsProduction());
+        group.MapAssistantEndpoints(prodDetailsIncludeStack);
 
         //endpoints - event grid
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/eventgrid")
@@ -129,7 +131,7 @@ public static partial class WebApplicationBuilderExtensions
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/external")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
-        group.MapExternalEndpoints(!app.Environment.IsProduction());
+        group.MapExternalEndpoints(prodDetailsIncludeStack);
 
         //endpoints - webhook
         group = app.MapGroup("api1/v{apiVersion:apiVersion}/webhook")

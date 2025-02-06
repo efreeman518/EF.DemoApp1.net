@@ -1,5 +1,4 @@
-﻿using Application.Services.JobSK.Plugins;
-using LanguageExt.Common;
+﻿using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -26,13 +25,14 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
 
 #pragma warning disable SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         //async - register during service registration?
+        //https://learn.microsoft.com/en-us/semantic-kernel/concepts/plugins/adding-openapi-plugins?pivots=programming-language-csharp
         await kernel.ImportPluginFromOpenApiAsync("todoitems", new Uri(settings.Value.TodoOpenApiDocUrl), new OpenApiFunctionExecutionParameters()
-           {
-               // Determines whether payload parameter names are augmented with namespaces.
-               // Namespaces prevent naming conflicts by adding the parent parameter name
-               // as a prefix, separated by dots
-               EnablePayloadNamespacing = false
-           }, cancellationToken: cancellationToken);
+        {
+            // Determines whether payload parameter names are augmented with namespaces.
+            // Namespaces prevent naming conflicts by adding the parent parameter name
+            // as a prefix, separated by dots
+            EnablePayloadNamespacing = false
+        }, cancellationToken: cancellationToken);
 #pragma warning restore SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         var promptSettings = new PromptExecutionSettings
@@ -76,8 +76,8 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         if (chatHistory == null)
         {
             chatHistory = [];
-            //chatHistory.AddSystemMessage(InitialSystemMessage());
-            chatHistory.AddSystemMessage("You can manage todo items for the user - create, update, delete, search.");
+            chatHistory.AddSystemMessage(InitialSystemMessage());
+            //chatHistory.AddSystemMessage("You can manage todo items for the user - create, update, delete, search.");
         }
 
         return (chatId ?? Guid.CreateVersion7(), chatHistory);
@@ -93,7 +93,8 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
 
         var systemPrompt = @"
 ###
-You are a professional assistant that helps people find the job they are looking for, introduce yourself and your mission.
+You are a professional assistant that helps people find the job they are looking for, you can also manage todo items for the user (create, update, delete, search).
+Introduce yourself and your mission.
 The user must enter search criteria consisting of a list of allowed expertises and an optional location and distance, or be willing to travel anywhere. 
 ###
 First find matching allowed expertises based on the user input, and present a list of the closest matches. At least one matching allowed expertise is required to search for jobs.
@@ -109,6 +110,9 @@ Always present the user with an html search results table, containing only the j
 Include up to 10 jobs and relevant details such as required certifications 
 and shift hours if applicable, compensation range, with link 'More details and Apply' link to the specific job application on the job website
 using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.
+You will ask the user if they would like you to create a todo item for any or all of the jobs found in the search results, 
+and create them if requested with name ""apply for [facility name]"" all lower case and max 20 characters, the name must be unique so if duplicate name then modify the name by appending digit (+1 each duplicate).
+Also set SecureDetermistic = the url link to the job application.
 ###
 Sample confirmation list:
 <ul>
