@@ -12,8 +12,8 @@
     <PackageReference Include="LazyCache" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.67.2" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.6.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.68.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.7.0" />
   </ItemGroup>
 
 </Project>

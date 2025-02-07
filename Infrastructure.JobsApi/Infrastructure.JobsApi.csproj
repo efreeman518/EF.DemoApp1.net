@@ -10,7 +10,7 @@
     <PackageReference Include="LanguageExt.Core" Version="4.4.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
-    <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.CysharpMemoryPack" Version="2.0.0" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.CysharpMemoryPack" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

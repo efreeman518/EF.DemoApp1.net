@@ -26,7 +26,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0" />
     <PackageReference Include="Respawn" Version="6.2.1" />
     <PackageReference Include="Testcontainers.MsSql" Version="4.1.0" />
-    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.0.0" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
