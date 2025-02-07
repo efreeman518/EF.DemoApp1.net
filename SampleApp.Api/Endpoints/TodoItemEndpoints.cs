@@ -14,7 +14,7 @@ public static class TodoItemEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
+        //auth, version, output cache, etc. can be applied to specific enpoints if needed
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
             .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Get a list of TodoItems");

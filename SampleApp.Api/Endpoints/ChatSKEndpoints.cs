@@ -12,7 +12,7 @@ public static class ChatSKEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
+        //auth, version, output cache, etc. can be applied to specific enpoints if needed
         group.MapPost("/", AppendMessage)
             .Produces<ChatResponse>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Submit a chat message and expect a response.");

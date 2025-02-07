@@ -7,7 +7,7 @@ export default class Utility {
         this.throwOnError = throwOnError;
     }
 
-    async HttpSend(method, url, data = null, contentType = "application/json",  parseResponseType = "json") {
+    async HttpSend(method, url, data = null, contentType = "application/json", parseResponseType = "json") {
 
         let response;
         try {
@@ -38,7 +38,7 @@ export default class Utility {
                         data = null;
                         break;
                 }
-                return { ok:response.ok, statusCode: response.status, data: data };
+                return { ok: response.ok, statusCode: response.status, data: data };
             }
             else {
                 let err = `Status: ${response.status} `;
@@ -71,6 +71,21 @@ export default class Utility {
         if (toggle) this.elMessage.innerText = "";
         if (!this.elSpinner) return;
         toggle ? this.elSpinner.removeAttribute("hidden") : this.elSpinner.setAttribute("hidden", true);
+    }
+
+    showSpinner = (elParent, classForSpinner, scrollDown) => {
+        const elSpin = document.createElement('div');
+        if (classForSpinner) {
+            elSpin.classList.add(classForSpinner);
+        }
+        const spin = document.getElementById('spinner-rings').cloneNode(true);
+        spin.removeAttribute('hidden');
+        elSpin.appendChild(spin);
+        elParent.appendChild(elSpin);
+        if (elParent && scrollDown) {
+            elParent.scrollTop = elParent.scrollHeight;
+        }
+        return elSpin;
     }
 
 }

@@ -134,7 +134,7 @@ public static partial class WebApplicationBuilderExtensions
         group.MapExternalEndpoints(prodDetailsIncludeStack);
 
         //endpoints - webhook
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/webhook")
+        group = app.MapGroup("api1/v{apiVersion:apiVersion}/blandai")
             .WithApiVersionSet(apiVersionSet);
         //.RequireAuthorization("policy1", "policy2");
         group.MapBlandAIEndpoints();

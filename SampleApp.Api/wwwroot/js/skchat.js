@@ -1,14 +1,17 @@
 ﻿import Utility from './utility.js';
-import * as BlandCWeblient from './external/BlandClient.js';
+//import { BlandWebClient } from './external/BlandClient.js';
+
+//https://github.com/CINTELLILABS/bland-client-js-sdk/blob/main/dist/lib/es6/client/BlandClient.js
 
 const _utility = new Utility(null, document.getElementById('alert1'), true);
 const urlChat = 'api1/v1.1/skchat';
+const urlBland = 'api1/v1.1/blandai';
 
 let chatId = null;
 
 async function sendMessage(message) {
     //show placeholder spinner in the chat output
-    const thinking = showChatThinking();
+    const thinking = _utility.showSpinner(document.getElementById('chat-output'), 'message', true);
     toggleInputEnable(false);
 
     //send 
@@ -33,18 +36,6 @@ async function sendMessage(message) {
         thinking.remove();
         toggleInputEnable(true);
     }
-}
-
-function showChatThinking() {
-    const thinking = document.createElement('div');
-    thinking.classList.add('message');
-    const spin = document.getElementById('spinner-rings').cloneNode(true);
-    spin.removeAttribute('hidden');
-    thinking.appendChild(spin);
-    let elChat = document.getElementById('chat-output');
-    elChat.appendChild(thinking);
-    elChat.scrollTop = elChat.scrollHeight;
-    return thinking;
 }
 
 function appendMessage(source, message) {
@@ -72,42 +63,36 @@ async function newChat() {
     await sendMessage("hi");
 }
 
-async function audioChat() {
-    chatId = null;
-    document.getElementById('chat-output').innerHTML = "";
-    document.getElementById('chat-input').value = "";
+//async function audioChat() {
+//    chatId = null;
+//    document.getElementById('chat-output').innerHTML = "";
+//    document.getElementById('chat-input').value = "";
 
-    //get agentId & sessionId 
-    const method = 'GET';
-    const url = `{urlChat}\`;
+//    //get agentId & sessionId 
+//    const method = 'GET';
+//    const url = `{urlBland}/blandwebclientconfig`;
 
+//    try {
+//        const response = await _utility.HttpSend(method, url, payload);
+//        if (response.ok) {
 
-    try {
-        const response = await _utility.HttpSend(method, url, payload);
-        if (response.ok) {
+//            //get response
+//            const data = await response.data;
+//            const blandClient = new BlandWebClient(
+//                data.agentId,
+//                data.token
+//            );
+//            await blandClient.initConversation({
+//                sampleRate: 44100,
+//            });
 
-            //get response
-            const data = await response.data;
-
-            //hold the chat Id
-            chatId = data.chatId;
-
-            appendMessage('system', data.message);
-        }
-    }
-    finally {
-        thinking.remove();
-        toggleInputEnable(true);
-    }
-
-    const blandClient = new BlandWebClient(
-        agentId,
-        sessionToken
-    );
-    await blandClient.initConversation({
-        sampleRate: 44100,
-    });
-}
+//        }
+//    }
+//    finally {
+//        thinking.remove();
+//        toggleInputEnable(true);
+//    }
+//}
 
 function toggleInputEnable(toggle) {
     if (!toggle) {
@@ -120,15 +105,17 @@ function toggleInputEnable(toggle) {
     document.getElementById('chat-input').placeholder = toggle ? "Type your message here..." : "Please wait...";
 }
 
-//wire up event handlers
-document.getElementById('chat-send').addEventListener('click', appendAndSend);
-document.getElementById('chat-new').addEventListener('click', newChat);
-document.getElementById('chat-audio').addEventListener('click', audioChat);
-document.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        appendAndSend();
-    }
-});
+document.addEventListener('DOMContentLoaded', async () => {
+    //wire up event handlers
+    document.getElementById('chat-send').addEventListener('click', appendAndSend);
+    document.getElementById('chat-new').addEventListener('click', newChat);
+    //document.getElementById('chat-audio').addEventListener('click', await audioChat);
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            appendAndSend();
+        }
+    });
 
-//init
-await newChat();
+    //init
+    await newChat();
+});

@@ -10,13 +10,13 @@ public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<Bland
 {
     private const string urlSegment = "agents";
 
-    public async Task<Result<AgentResponse?>> CreateWebAgent(AgentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<AgentResponse?>> CreateWebAgent(AgentRequest request, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<AgentResponse>(HttpMethod.Post, $"{urlSegment}", request, cancellationToken: cancellationToken);
         return parsedResponse;
     }
 
-    public async Task<Result<AgentResponse?>> UpdateWebAgent(AgentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<AgentResponse?>> UpdateWebAgent(AgentRequest request, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<AgentResponse>(HttpMethod.Post, $"{urlSegment}/{request.AgentId}", request, cancellationToken: cancellationToken);
         return parsedResponse;
@@ -28,19 +28,19 @@ public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<Bland
     /// <param name="agentId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Result<TokenResponse?>> AuthorizeWebAgentCall(string agentId, CancellationToken cancellationToken)
+    public async Task<Result<TokenResponse?>> AuthorizeWebAgentCall(string agentId, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<TokenResponse>(HttpMethod.Post, $"{urlSegment}/{agentId}/authorize", cancellationToken: cancellationToken);
         return parsedResponse; 
     }
 
-    public async Task<Result<DefaultResponse?>> DeleteWebAgent(string agentId, CancellationToken cancellationToken)
+    public async Task<Result<DefaultResponse?>> DeleteWebAgent(string agentId, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<DefaultResponse>(HttpMethod.Post, $"{urlSegment}/{agentId}/delete", cancellationToken: cancellationToken);
         return parsedResponse; 
     }
 
-    public async Task<Result<IReadOnlyList<AgentResponse>?>> ListWebAgents(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<AgentResponse>?>> ListWebAgents(CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<IReadOnlyList<AgentResponse>>(HttpMethod.Get, $"{urlSegment}", cancellationToken: cancellationToken);
         return parsedResponse;

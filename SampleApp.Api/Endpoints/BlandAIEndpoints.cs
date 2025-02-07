@@ -1,7 +1,8 @@
-﻿using AngleSharp.Dom;
+﻿using LanguageExt.ClassInstances;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
+using Package.Infrastructure.BlandAI.Model;
 using System.Text.Json;
 
 namespace SampleApp.Api.Endpoints;
@@ -10,51 +11,46 @@ public static class BlandAIEndpoints
 {
     public static void MapBlandAIEndpoints(this IEndpointRouteBuilder group)
     {
-        //auth, version, aoutput cache, etc. can be applied to specific enpoints if needed
-        group.MapGet("/", GetPage)
-            .Produces<List<string>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Get a list of strings");
-        group.MapGet("/{id:guid}", GetById)
-            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Get a item by id");
-        group.MapPost("/", Post)
-            .Produces<string>(StatusCodes.Status201Created).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Create item");
-        group.MapPut("/{id:guid}", Put)
-            .Produces<string>(StatusCodes.Status200OK).ProducesValidationProblem().ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Update item");
-        group.MapDelete("/{id:guid}", Delete)
-            .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Delete item");
-
+        //auth, version, output cache, etc. can be applied to specific enpoints if needed
         //bland webclient
         group.MapGet("/blandwebclientconfig", GetBlandWebClientConfig)
             .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Get bland webclient config");
+        group.MapGet("/webhook1", Webhook1)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland webhook with job serach criteria.");
     }
 
-    private static IResult GetBlandWebClientConfig(HttpContext context)
+    private class AgentConfigResponse
     {
-        return TypedResults.Ok("");
+        public string? AgentId { get; set; }
+        public string? Token { get; set; }
     }
 
-    private static async Task<IResult> GetPage()
+    private static async Task<IResult> GetBlandWebClientConfig(IBlandAIRestClient client)
     {
-        await Task.CompletedTask;
-        List<string> items = ["apple", "orange", "lemon", "strawberry"];
-        return TypedResults.Ok(items);
+        var request = new AgentRequest
+        {
+            Prompt = InitialPrompt(),
+            FirstSentence = "Hello, I am here to help you find your dream job. Please tell me your location preference and your expertise.",
+            AnalysisSchema = new Dictionary<string, object>() { { "expertise", "string" }, { "location", "string" }, { "distance", "string" } },
+            Webhook = "https://tdcjwf8m-44318.use.devtunnels.ms/api1/v1/blandai/webhook1"
+        };
+        var resultAgent = await client.CreateWebAgent(request);
+        var agentResponse = resultAgent.Match(
+               Succ: response => response ?? throw new InvalidDataException($"CreateWebAgent returned null."),
+               Fail: err => throw err);
+        var resultToken = await client.AuthorizeWebAgentCall(agentResponse.AgentId!, CancellationToken.None);
+        var tokenResponse = resultToken.Match(
+               Succ: response => response ?? throw new InvalidDataException($"AuthorizeWebAgentCall returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(new AgentConfigResponse { AgentId = agentResponse.AgentId, Token = tokenResponse.Token });
     }
 
-    private static async Task<IResult> GetById(string id)
-    {
-        await Task.CompletedTask;
-        return TypedResults.Ok($"orange {id}");
-    }
-
-    private static IResult Post(HttpContext httpContext, IOptions<BlandAISettings> blandAISettings, [FromBody] JsonElement body) //someData item)
+    private static IResult Webhook1(HttpContext httpContext, IOptions<BlandAISettings> blandAISettings, [FromBody] JsonElement body) //someData item)
     {
         //verify webhook signature
-        // Retrieve the signature from the request headers
+        //Retrieve the signature from the request headers
         if (!httpContext.Request.Headers.TryGetValue("X-Webhook-Signature", out StringValues signatureHeader))
         {
             return TypedResults.BadRequest("Missing X-Webhook-Signature header.");
@@ -64,29 +60,32 @@ public static class BlandAIEndpoints
         // Serialize the request body to a JSON string
         string requestBody = JsonSerializer.Serialize(body);
 
-        
+
         if (!Utility.VerifyWebhookSignature(blandAISettings.Value.WebhookSigningSecret, requestBody, signature))
         {
             return Results.Unauthorized();
         }
 
         //deserialize body into someData
-        var item = JsonSerializer.Deserialize<SomeData>(body.GetRawText());
+        var item = body.GetRawText();
+        Console.WriteLine(item);
 
-        return TypedResults.Created(httpContext.Request.Path, item);
+        return TypedResults.Ok();
     }
 
-    private static async Task<IResult> Put(string id, string item)
+    private static string InitialPrompt()
     {
-        await Task.CompletedTask;
-        return TypedResults.Ok($"{id} {item}");
-    }
+        //Once the location, distance, and expertises are defined, you will give a concise summarization, and ask the user to confirm or change any details.
+        //based on only valid expertise names, latitude, longitude, and radius.
+        //You will validate the user input against a valid list of expertise names before searching jobs.
+        //, considering the user input to identify matching valid expertises
+        //If you are unable to find a matching allowed expertise, let the person know there is no match, and tell them a joke about the missing expertise.
 
-    private static async Task<IResult> Delete(string id)
-    {
-        await Task.CompletedTask;
-        return Results.Ok(id);
+        var systemPrompt = @"
+You are a professional assistant that helps people find the job they are looking for, you can also manage todo items for the user (create, update, delete, search).
+The user must enter job search criteria consisting of their expertise(s) and an optional location and distance, or be willing to travel anywhere. 
+";
+
+        return systemPrompt;
     }
 }
-
-public record SomeData(string Expertise, string Location, int Distance);

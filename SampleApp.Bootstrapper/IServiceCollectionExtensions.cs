@@ -409,7 +409,7 @@ public static class IServiceCollectionExtensions
                     {
                         options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
                         {
-                            sqlOptions.UseCompatibilityLevel(160);   
+                            sqlOptions.UseCompatibilityLevel(160);
                             sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
                             //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
                             //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
@@ -438,7 +438,7 @@ public static class IServiceCollectionExtensions
                                 //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                             })
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-    
+
                     }
                 });
             }
@@ -554,25 +554,25 @@ public static class IServiceCollectionExtensions
                     {
                         // Create a collection of plugins that the kernel will use
                         //KernelPluginCollection pluginCollection = [];
-
                         //pluginCollection.AddFromObject(sp.GetRequiredService<JobSearchPlugin>());
                         //pluginCollection.AddFromObject(sp.GetRequiredService<MyAlarmPlugin>());
                         //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("OfficeLight"), "OfficeLight");
                         //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("PorchLight"), "PorchLight");
+
+                        var kernelBuilder = Kernel.CreateBuilder();
+                        
+
 
                         var k = new Kernel(sp); // new Kernel(sp);
 #pragma warning disable SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                         //Microsoft.SemanticKernel.Plugins.Core - preview
                         k.Plugins.AddFromType<ConversationSummaryPlugin>();
                         k.Plugins.AddFromType<TimePlugin>();
-
-
-                        k.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //ImportPluginFromType enables DI in the plugin
-
-
-
 #pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
+                        k.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //ImportPluginFromType enables DI in the plugin itself which is injected with other services
+
+                        
                         return k;
                     });
 
@@ -735,7 +735,7 @@ public static class IServiceCollectionExtensions
             .AddStandardResilienceHandler();
         }
 
-        
+
 
         //StartupTasks - executes once at startup
         services.AddTransient<IStartupTask, LoadCache>();

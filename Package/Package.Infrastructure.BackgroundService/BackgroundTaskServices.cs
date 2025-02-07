@@ -14,6 +14,7 @@ namespace Package.Infrastructure.BackgroundServices;
 /// <param name="serviceScopeFactory"></param>
 public class BackgroundTaskQueue(IServiceScopeFactory serviceScopeFactory) : IBackgroundTaskQueue
 {
+    //consider Channel<T>
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
     private readonly SemaphoreSlim _semaphore = new(0); //no workItems initially, so 0 threads allowed in the semaphore that attempts to Dequeue
 
