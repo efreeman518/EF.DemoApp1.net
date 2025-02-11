@@ -30,11 +30,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Core;
-using Microsoft.SemanticKernel.Plugins.OpenApi;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
@@ -514,11 +516,13 @@ public static class IServiceCollectionExtensions
                 var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
                 if (azureOpenIAConfigSection.GetChildren().Any())
                 {
+                    AzureOpenAIClient aoaiClient = null!;
 
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
                     {
-                        AzureOpenAIClient aoaiClient = null!;
+
+                        
                         var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                         if (!string.IsNullOrEmpty(key))
                         {
@@ -532,48 +536,36 @@ public static class IServiceCollectionExtensions
                         return aoaiClient;
                     }).WithName("AzureOpenAI"); //name enables differently named if ever needed
 
-                    //semantic kernel
-                    //register singleton connector (IChatCompletionService ) and all singleton plugins (used by all transient kernels), then build each transient kernel
-                    //https://devblogs.microsoft.com/semantic-kernel/using-semantic-kernel-with-dependency-injection/
+                    //services.AddAzureOpenAIChatCompletion(config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName).GetValue<string>("ChatDeploymentName")!, aoaiClient);
 
-                    //connector - singleton, used by all registered (transient) kernels
-                    services.AddSingleton<IChatCompletionService>(sp =>
-                    {
-                        var aoaiClientFactory = sp.GetRequiredService<IAzureClientFactory<AzureOpenAIClient>>();
-                        var aoaiClient = aoaiClientFactory.CreateClient("AzureOpenAI");
-                        //custom HttpClient could be passed into AzureOpenAIChatCompletionService’s constructor, for instance if specific headers needed
-                        return new AzureOpenAIChatCompletionService(azureOpenIAConfigSection.GetValue<string>("DeploymentName")!, aoaiClient);
-                    });
+                    //register so that injected services will resolve
+                    services.AddTransient<JobSearchPlugin>();
+                    services.AddTransient<ChatSummaryPlugin>();
 
-                    //plugins - singletons, for use with any registered (transient) kernel
-                    //not needed with ImportPluginFromType?
-                    //services.AddSingleton<JobSearchPlugin>();
 
                     //kernels - transient, built with registered connector and plugins
+                    //kernels are transient and configured specifically with plugins for the use case, so create it there in the service method
                     services.AddKeyedTransient<Kernel>("JobSearchKernel", (sp, key) =>
                     {
                         // Create a collection of plugins that the kernel will use
                         //KernelPluginCollection pluginCollection = [];
-                        //pluginCollection.AddFromObject(sp.GetRequiredService<JobSearchPlugin>());
-                        //pluginCollection.AddFromObject(sp.GetRequiredService<MyAlarmPlugin>());
-                        //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("OfficeLight"), "OfficeLight");
-                        //pluginCollection.AddFromObject(sp.GetRequiredKeyedService<MyLightPlugin>("PorchLight"), "PorchLight");
+                        //pluginCollection.AddFromType<JobSearchPlugin>("JobSearchPlugin");
+                        //pluginCollection.AddFromType<ChatSummaryPlugin>();
+                        
 
+                        
                         var kernelBuilder = Kernel.CreateBuilder();
-                        
+                        var jsPlugin = sp.GetRequiredService<JobSearchPlugin>();
+                        kernelBuilder.Plugins.AddFromObject(jsPlugin);
+                        var sumPlugin = sp.GetRequiredService<ChatSummaryPlugin>();
+                        kernelBuilder.Plugins.AddFromObject(sumPlugin, "ChatSummary");
+                        kernelBuilder.Services.AddAzureOpenAIChatCompletion(config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName).GetValue<string>("ChatDeploymentName")!, aoaiClient);
 
+                        var kernel = kernelBuilder.Build();
+                        //kernel.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //enables DI (jobsApiService) 
+                        //kernel.ImportPluginFromType<ChatSummaryPlugin>("ChatSummaryPlugin");
 
-                        var k = new Kernel(sp); // new Kernel(sp);
-#pragma warning disable SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-                        //Microsoft.SemanticKernel.Plugins.Core - preview
-                        k.Plugins.AddFromType<ConversationSummaryPlugin>();
-                        k.Plugins.AddFromType<TimePlugin>();
-#pragma warning restore SKEXP0050 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-
-                        k.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //ImportPluginFromType enables DI in the plugin itself which is injected with other services
-
-                        
-                        return k;
+                        return kernel;
                     });
 
                     //var kernelBuilder = Kernel.CreateBuilder();

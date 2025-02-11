@@ -14,11 +14,11 @@ public class JobSearchPlugin(IJobsApiService jobsService)
         return await jobsService.SearchJobsAsync(request, cancellationToken);
     }
 
-    [KernelFunction("FindExpertiseMatches")]
-    [Description("Determine the expertise codes closely matching the user entered target expertise.")]
-    [return: Description("The search results containing a list of matching expertise codes.")]
-    public async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
-    {
-        return await jobsService.FindExpertiseMatchesAsync(target, maxCount, cancellationToken);
-    }
+    //[KernelFunction("FindExpertiseMatches")]
+    //[Description("Determine the expertise codes closely matching the user entered target expertise.")]
+    //[return: Description("The search results containing a list of matching expertise codes.")]
+    //public async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
+    //{
+    //    return await jobsService.FindExpertiseMatchesAsync(target, maxCount, cancellationToken);
+    //}
 }
