@@ -19,9 +19,47 @@ public static class BlandAIEndpoints
         group.MapGet("/webhook1", Webhook1)
             .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Bland webhook with job serach criteria.");
+        group.MapGet("/sendcall", SendCall)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland send call.");
+        group.MapGet("/analyzecall", AnalyzeCall)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland analyze call.");
+
     }
 
-    private class AgentConfigResponse
+
+    private static async Task<IResult> SendCall(IBlandAIRestClient client)
+    {
+        var request = new SendCallRequest
+        {
+            PhoneNumber = "+17144042404",
+            Task = "You are Ruprect, an office assistant from Shizly Dizzly Co calling Homer to ask questions and get answers for the following: 1) Date of the operation?, 2) Time of the warp jump?, 3) Favorite color?, 4) Gender (male or female)?, 5)Current Age? 6)Feedback on this call?",
+            Voice = "Florian",
+            FirstSentence = "Hello Homer, I have a few questions."
+        };
+        var callResult = await client.SendCallAsync(request);
+        var callResponse = callResult.Match(
+               Succ: response => response ?? throw new InvalidDataException($"SendCallAsync returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(callResponse);
+    }
+
+    private static async Task<IResult> AnalyzeCall(string callId, IBlandAIRestClient client)
+    {
+        var request = new AnalyzeCallRequest
+        {
+            Goal = "Get the answers from the customer",
+            Questions = [["Who answered the call?", "human or voicemail"],["Date of the operation", "date"], ["Time of the warp jump", "time"], ["Favorite color", "string"], ["Gender", "string"], ["Current Age", "number"], ["Feedback on the call", "string"]]
+        };
+        var result = await client.AnalyzeCallAsync(callId, request);
+        var callResponse = result.Match(
+               Succ: response => response ?? throw new InvalidDataException($"AnalyzeCallAsync returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(callResponse);
+    }
+
+    private sealed class AgentConfigResponse
     {
         public string? AgentId { get; set; }
         public string? Token { get; set; }
@@ -36,11 +74,11 @@ public static class BlandAIEndpoints
             AnalysisSchema = new Dictionary<string, object>() { { "expertise", "string" }, { "location", "string" }, { "distance", "string" } },
             Webhook = "https://tdcjwf8m-44318.use.devtunnels.ms/api1/v1/blandai/webhook1"
         };
-        var resultAgent = await client.CreateWebAgent(request);
+        var resultAgent = await client.CreateWebAgentAsync(request);
         var agentResponse = resultAgent.Match(
                Succ: response => response ?? throw new InvalidDataException($"CreateWebAgent returned null."),
                Fail: err => throw err);
-        var resultToken = await client.AuthorizeWebAgentCall(agentResponse.AgentId!, CancellationToken.None);
+        var resultToken = await client.AuthorizeWebAgentCallAsync(agentResponse.AgentId!, CancellationToken.None);
         var tokenResponse = resultToken.Match(
                Succ: response => response ?? throw new InvalidDataException($"AuthorizeWebAgentCall returned null."),
                Fail: err => throw err);

@@ -26,12 +26,12 @@ public static class HttpClientExtensions
     /// <returns></returns>
     /// <exception cref="HttpRequestException"></exception>
     public static async Task<(HttpResponseMessage, TResponse?)> HttpRequestAndResponseAsync<TResponse>(this HttpClient client,
-        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null,
+        System.Net.Http.HttpMethod method, string url, object? payload = null, JsonSerializerOptions? payloadJsonSerializerOptions = null, Dictionary<string, string>? headers = null,
         bool ensureSuccessStatusCode = true, bool throwOnException = true, CancellationToken cancellationToken = default)
     {
         cancellationToken.Register(() => client.CancelPendingRequests());
 
-        var httpRequest = BuildHttpRequest(method, url, payload, headers);
+        var httpRequest = BuildHttpRequest(method, url, payload, payloadJsonSerializerOptions, headers);
         using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         if (ensureSuccessStatusCode)
             httpResponse.EnsureSuccessStatusCode();
@@ -92,10 +92,10 @@ public static class HttpClientExtensions
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static async Task<(HttpResponseMessage, Result<TResponse?>)> HttpRequestAndResponseResultAsync<TResponse>(this HttpClient client,
-        System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null,
+        System.Net.Http.HttpMethod method, string url, object? payload = null, JsonSerializerOptions? payloadJsonSerializerOptions = null, Dictionary<string, string>? headers = null,
         bool ensureSuccessStatusCode = true, CancellationToken cancellationToken = default)
     {
-        var httpRequest = BuildHttpRequest(method, url, payload, headers);
+        var httpRequest = BuildHttpRequest(method, url, payload, payloadJsonSerializerOptions, headers);
         using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         if (ensureSuccessStatusCode && !httpResponse.IsSuccessStatusCode)
         {
@@ -142,11 +142,13 @@ public static class HttpClientExtensions
         }
     }
 
-    private static HttpRequestMessage BuildHttpRequest(System.Net.Http.HttpMethod method, string url, object? payload = null, Dictionary<string, string>? headers = null)
+    private static HttpRequestMessage BuildHttpRequest(System.Net.Http.HttpMethod method, string url, object? payload = null, JsonSerializerOptions? payloadJsonSerializerOptions = null, Dictionary<string, string>? headers = null)
     {
         var httpRequest = new HttpRequestMessage(method, url);
         if (payload != null)
-            httpRequest.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"); //CONTENT-TYPE header
+        {
+            httpRequest.Content = new StringContent(JsonSerializer.Serialize(payload, payloadJsonSerializerOptions), Encoding.UTF8, "application/json"); //CONTENT-TYPE header
+        }
 
         headers?.ToList().ForEach(entry =>
         {

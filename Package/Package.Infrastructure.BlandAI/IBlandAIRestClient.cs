@@ -5,10 +5,14 @@ namespace Package.Infrastructure.BlandAI;
 
 public interface IBlandAIRestClient
 {
-    Task<Result<AgentResponse?>> CreateWebAgent(AgentRequest request, CancellationToken cancellationToken = default);
-    Task<Result<AgentResponse?>> UpdateWebAgent(AgentRequest request, CancellationToken cancellationToken = default);
-    Task<Result<TokenResponse?>> AuthorizeWebAgentCall(string agentId, CancellationToken cancellationToken = default);
-    Task<Result<DefaultResponse?>> DeleteWebAgent(string agentId, CancellationToken cancellationToken = default);
-    Task<Result<IReadOnlyList<AgentResponse>?>> ListWebAgents(CancellationToken cancellationToken = default);
+    Task<Result<SendCallResponse?>> SendCallAsync(SendCallRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AnalyzeCallResponse?>> AnalyzeCallAsync(string callId, AnalyzeCallRequest request, CancellationToken cancellationToken = default);
+
+
+    Task<Result<AgentResponse?>> CreateWebAgentAsync(AgentRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AgentResponse?>> UpdateWebAgentAsync(AgentRequest request, CancellationToken cancellationToken = default);
+    Task<Result<TokenResponse?>> AuthorizeWebAgentCallAsync(string agentId, CancellationToken cancellationToken = default);
+    Task<Result<DefaultResponse?>> DeleteWebAgentAsync(string agentId, CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyList<AgentResponse>?>> ListWebAgentsAsync(CancellationToken cancellationToken = default);
 
 }
