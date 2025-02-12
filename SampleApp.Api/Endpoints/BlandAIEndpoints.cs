@@ -34,7 +34,7 @@ public static class BlandAIEndpoints
         var request = new SendCallRequest
         {
             PhoneNumber = "+17144042404",
-            Task = "You are Ruprect, an office assistant from Shizly Dizzly Co calling Homer to ask questions and get answers for the following: 1) Date of the operation?, 2) Time of the warp jump?, 3) Favorite color?, 4) Gender (male or female)?, 5)Current Age? 6)Feedback on this call?",
+            Task = "You are Ruprect, an office assistant from Shizly Dizzly Co calling Homer to ask questions and get answers for the following: 1) Date of the operation?, 2) What time of the day do you normally jump to warp speed?, 3) Favorite color?, 4) Gender (male or female)?, 5)Current Age? 6)Feedback on this call?",
             Voice = "Florian",
             FirstSentence = "Hello Homer, I have a few questions."
         };
@@ -50,7 +50,7 @@ public static class BlandAIEndpoints
         var request = new AnalyzeCallRequest
         {
             Goal = "Get the answers from the customer",
-            Questions = [["Who answered the call?", "human or voicemail"],["Date of the operation", "date"], ["Time of the warp jump", "time"], ["Favorite color", "string"], ["Gender", "string"], ["Current Age", "number"], ["Feedback on the call", "string"]]
+            Questions = [["Who answered the call?", "human or voicemail"],["Date of the operation", "date"], ["Time of the jump to warp speed", "time"], ["Favorite color", "string"], ["Gender", "string"], ["Current Age", "number"], ["Feedback on the call", "string"]]
         };
         var result = await client.AnalyzeCallAsync(callId, request);
         var callResponse = result.Match(

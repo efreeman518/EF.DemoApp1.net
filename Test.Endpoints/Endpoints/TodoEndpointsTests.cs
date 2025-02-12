@@ -68,7 +68,7 @@ public class TodoEndpointsTests : EndpointTestBase
         Assert.AreEqual(HttpStatusCode.NoContent, httpResponse.StatusCode);
 
         //GET (NotFound) - ensure deleted
-        (httpResponse, _) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, false, false);
+        (httpResponse, _) = await _httpClient.HttpRequestAndResponseAsync<TodoItemDto>(HttpMethod.Get, $"{urlBase}/{id}", null, null, null, false, false);
         Assert.AreEqual(HttpStatusCode.NotFound, httpResponse.StatusCode);
     }
 
