@@ -40,6 +40,7 @@ using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.BlandAI;
+using Package.Infrastructure.BlandAI.Model;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Polly;
@@ -611,6 +612,12 @@ public static class IServiceCollectionExtensions
                 client.DefaultRequestHeaders.Add("Authorization", blandAIConfigSection.GetValue<string>("Key")!);
             })
             .AddStandardResilienceHandler();
+
+            var callSettings = config.GetSection("SendCallSettings");
+            if (callSettings.GetChildren().Any())
+            {
+                services.Configure<SendCallSettings>(callSettings);
+            }
         }
 
         //external SampleAppApi
