@@ -1,10 +1,6 @@
-﻿using Application.Services.JobSK.Plugins;
-using Azure.AI.OpenAI;
-using Infrastructure.JobsApi;
+﻿using Infrastructure.JobsApi;
 using LanguageExt.Common;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.OpenApi;
@@ -14,11 +10,8 @@ using ZiggyCreatures.Caching.Fusion;
 namespace Application.Services.JobSK;
 
 public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, [FromKeyedServices("JobSearchKernel")] Kernel kernel,
-    IJobsApiService jobsService, IFusionCacheProvider cacheProvider) //[FromKeyedServices("JobSearchKernel")] Kernel kernel, IAzureClientFactory<AzureOpenAIClient> clientFactory, 
-    : IJobSearchOrchestrator
+    IJobsApiService jobsService, IFusionCacheProvider cacheProvider) : IJobSearchOrchestrator
 {
-    //private readonly AzureOpenAIClient aoaiClient = clientFactory.CreateClient("AzureOpenAI");
-    //private readonly IChatCompletionService chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
@@ -26,42 +19,33 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         (var chatId, var chatHistory) = await GetOrCreateChatHistoryAsync(request.ChatId, cancellationToken);
         chatHistory.AddUserMessage(request.Message);
 
-        //var kernelBuilder = Kernel.CreateBuilder();
-        //kernelBuilder.Services.ConfigureHttpClientDefaults(c => c.AddStandardResilienceHandler());
-
-        //kernelBuilder
-        //    .AddAzureOpenAIChatCompletion(settings.Value.ChatDeploymentName, aoaiClient)
-        //    .Plugins.AddFromType<JobSearchPlugin>()
-        //            .AddFromType<ChatSummaryPlugin>()
-        //    ;
-
-        //var kernel = kernelBuilder.Build();
-        // Create a collection of plugins that the kernel will use
-
-        //kernel.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //enables DI (jobsApiService) 
-        //kernel.Plugins.AddFromType<ChatSummaryPlugin>("ChatSummaryPlugin");
-
 
 #pragma warning disable SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-        //https://learn.microsoft.com/en-us/semantic-kernel/concepts/plugins/adding-openapi-plugins?pivots=programming-language-csharp
-        await kernel.ImportPluginFromOpenApiAsync("todoitems", new Uri(settings.Value.TodoOpenApiDocUrl), new OpenApiFunctionExecutionParameters()
+        if (kernel.Plugins.FirstOrDefault(p => p.Name == "TodoItemsApi") == null)
         {
-            // Determines whether payload parameter names are augmented with namespaces.
-            // Namespaces prevent naming conflicts by adding the parent parameter name
-            // as a prefix, separated by dots
-            EnablePayloadNamespacing = false
-        }, cancellationToken: cancellationToken);
+            //https://learn.microsoft.com/en-us/semantic-kernel/concepts/plugins/adding-openapi-plugins?pivots=programming-language-csharp
+            await kernel.ImportPluginFromOpenApiAsync("TodoItemsApi", new Uri(settings.Value.TodoOpenApiDocUrl), new OpenApiFunctionExecutionParameters(new HttpClient())
+            {
+                // Determines whether payload parameter names are augmented with namespaces.
+                // Namespaces prevent naming conflicts by adding the parent parameter name
+                // as a prefix, separated by dots
+                EnablePayloadNamespacing = false
+            }, cancellationToken: cancellationToken);
+        }
 #pragma warning restore SKEXP0040 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
 
-        // Initialize Kernel Memory
-        var memory = new KernelMemoryBuilder()
-            .WithAzureOpenAITextGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint= "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
-            .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint = "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
-            .Build<MemoryServerless>();
-        var lookupData = await jobsService.GetLookupsAsync(cancellationToken);
-        await memory.ImportTextAsync(lookupData.SerializeToJson()!, "lookupdata", cancellationToken: cancellationToken);
-        kernel.ImportPluginFromObject(new MemorySearchPlugin(memory), "MemoryPlugin");
+        //if (kernel.Plugins.FirstOrDefault(p => p.Name == "ExpertiseMemoryPlugin") == null)
+        //{
+        //    // Initialize Kernel Memory
+        //    var memory = new KernelMemoryBuilder()
+        //        .WithAzureOpenAITextGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint = "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
+        //        .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint = "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
+        //        .Build<MemoryServerless>();
+            //var expertises = (await jobsService.GetLookupsAsync(cancellationToken)).Expertises;
+            //await memory.ImportTextAsync(expertises.SerializeToJson(), "expertises", index:"expertisecodes", cancellationToken: cancellationToken);
+            //kernel.ImportPluginFromObject(new MemoryPlugin(memory), "ExpertiseMemoryPlugin"); //Microsoft.KernelMemory.SemanticKernelPlugin
+        //}
 
         var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
         var promptSettings = new PromptExecutionSettings
@@ -70,29 +54,30 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         };
         var chatCompletionResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, promptSettings, kernel, cancellationToken);
         chatHistory.AddAssistantMessage(chatCompletionResult.Content!);
-        
-
-        //var chatSummary = "";
-        //var prompt = $"""
-        //    [Summary] {chatSummary}
-        //    [User] {request.Message}
-        //    [Assistant] 
-        //    """;
-
-        //// get the conversation response 
-        //var response = await kernel.InvokePromptAsync<string>(prompt, cancellationToken: cancellationToken);
 
         if (chatHistory.Count > 10)
         {
-            // Update chat summary
-            var summary = await kernel.InvokeAsync("ChatSummary", "summarize", new()
+#pragma warning disable SKEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            var reducer = new ChatHistorySummarizationReducer(chatCompletionService, 3, 10); // Keep system message and last few user messages
+#pragma warning restore SKEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            var reducedMessages = await reducer.ReduceAsync(chatHistory, cancellationToken);
+            if (reducedMessages is not null)
             {
-                ["chatHistory"] = chatHistory
-            }, cancellationToken);
-
-            chatHistory = new ChatHistory(InitialSystemPrompt);
-            chatHistory.AddSystemMessage($"[Summary] {summary}");
+                chatHistory = [.. reducedMessages];
+            }
         }
+
+        //if (chatHistory.Count > 10)
+        //{
+        //    // Update chat summary
+        //    var summary = await kernel.InvokeAsync("ChatSummary", "summarize", new()
+        //    {
+        //        ["chatHistory"] = chatHistory
+        //    }, cancellationToken);
+
+        //    chatHistory = new ChatHistory(InitialSystemPrompt);
+        //    chatHistory.AddSystemMessage($"[Summary] {summary}");
+        //}
 
         //save the chat to the cache
         await cache.SetAsync($"chat-{chatId}", chatHistory, token: cancellationToken);
@@ -120,7 +105,7 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         {
             //chatHistory.Add(InitialSystemMessage);
 
-            chatHistory = new ChatHistory();
+            chatHistory = [];
             chatHistory.AddSystemMessage(InitialSystemPrompt);
         }
 
@@ -133,9 +118,9 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
     Introduce yourself and your mission.
     The user must enter search criteria consisting of a list of allowed expertises and an optional location and distance, or be willing to travel anywhere. 
     ###
-    First find matching allowed expertises based on the user input, and present a list of the closest matches. At least one matching allowed expertise is required to search for jobs.
+    Use memory to find matching allowed expertises based on the user input, and present a list of the closest matches. At least one matching allowed expertise is required to search for jobs.
     ###
-    After the allowed expertise list has been identified from the approved expertise function, and optional location and distance, present a summary of search criteria
+    After the allowed expertise list has been identified by matching user input to memory, and optional location and distance, present a summary of search criteria
     in a html unordered bulletpoint list, and ask the user to confirm before searching for jobs.
     ###
     If a location is provided, you calculate the latitude and longitude for the job search
@@ -147,7 +132,8 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
     and shift hours if applicable, compensation range, with link 'More details and Apply' link to the specific job application on the job website
     using the format https://www.ayahealthcare.com/travel-nursing-job/{JobId} to open in a new tab.
     You will ask the user if they would like you to create a todo item for any or all of the jobs found in the search results, 
-    and create them if requested with name ""apply for [facility name]"" all lower case and max 20 characters, the name must be unique so if duplicate name then modify the name by appending digit (+1 each duplicate).
+    and create them if requested with name ""apply for [facility name]"" all lower case and max 20 characters. 
+    The todo item name must be unique so if there is a duplicate name, then modify the name by appending 3 random digits to the name.
     Also set SecureDetermistic = the url link to the job application.
     ###
     Sample confirmation list:

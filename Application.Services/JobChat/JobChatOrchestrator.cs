@@ -1,6 +1,7 @@
 ﻿using Infrastructure.JobsApi;
 using LanguageExt.Common;
 using OpenAI.Chat;
+using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 
 namespace Application.Services.JobChat;
@@ -196,7 +197,8 @@ Sample search results table:
                         _ = argumentsJson.RootElement.TryGetProperty("radius", out JsonElement elRadius);
                         var paramRadius = elRadius.GetInt32()!;
                         var toolResult = await SearchJobsAsync(paramExpertises, paramLatitude, paramLongitude, paramRadius);
-                        var toolResultMessage = string.Join(", ", toolResult);
+                        //var toolResultMessage = string.Join(", ", toolResult);
+                        var toolResultMessage = toolResult.Jobs.SerializeToJson();
                         messages.Add(new ToolChatMessage(toolCall.Id, toolResultMessage));
                         break;
                     }

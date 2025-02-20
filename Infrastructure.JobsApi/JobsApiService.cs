@@ -34,10 +34,10 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     public async Task<IReadOnlyList<int>> FindExpertiseMatchesAsync(string target, int maxCount, CancellationToken cancellationToken = default)
     {
         var expertises = (await GetLookupsAsync(cancellationToken)).Expertises;
-        var fullNameList = expertises.Select(e => e.Name).ToList();
+        var fullNameList = expertises.Select(e => e.Name!).ToList();
         var matches = target.FindTopMatches(fullNameList, maxCount, 10, false);
         //return the ids of the matches
-        return [.. expertises.Where(e => matches.Contains(e.Name)).Select(e => e.Id)];
+        return [.. expertises.Where(e => matches.Contains(e.Name!)).Select(e => e.Id!.Value)];
     }
 
     //lookups - professions with types

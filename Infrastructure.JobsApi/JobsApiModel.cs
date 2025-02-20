@@ -3,7 +3,7 @@
 
 public partial record City(string Name, string State, int StateCode);
 
-public partial record Expertise(int Id, string Name, string Abbreviation, int Sort, IReadOnlyList<int?> ProfessionExpertiseCodes);
+public partial record Expertise(int? Id = null, string? Name = null, string? Abbreviation = null, int? Sort = null, IReadOnlyList<int>? ProfessionExpertiseCodes = null);
 
 public partial record LocationAlias(int FacilityId, string Location);
 

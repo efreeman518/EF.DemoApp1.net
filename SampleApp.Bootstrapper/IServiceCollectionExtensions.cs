@@ -11,6 +11,7 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using CorrelationId.Abstractions;
 using CorrelationId.HttpClient;
+using DocumentFormat.OpenXml.Wordprocessing;
 using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
@@ -19,6 +20,7 @@ using Infrastructure.JobsApi;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
@@ -30,13 +32,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.VectorData;
 using Microsoft.KernelMemory;
-using Microsoft.KernelMemory.AI;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
-using Microsoft.SemanticKernel.Memory;
-using Microsoft.SemanticKernel.Plugins.Core;
+using Microsoft.SemanticKernel.Connectors.InMemory;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
@@ -52,8 +51,10 @@ using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
 using StackExchange.Redis;
 using System.Security.Claims;
+using System.Threading;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using static Microsoft.KernelMemory.AzureOpenAIConfig;
 
 namespace SampleApp.Bootstrapper;
 
@@ -516,64 +517,75 @@ public static class IServiceCollectionExtensions
                 var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
                 if (azureOpenIAConfigSection.GetChildren().Any())
                 {
-                    AzureOpenAIClient aoaiClient = null!;
+
+                    var endpoint = azureOpenIAConfigSection.GetValue<string>("Endpoint")!;
 
                     // Register a custom client factory since this client does not currently have a service registration method
-                    builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+                    builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options) =>
                     {
-
-                        
+                        AzureOpenAIClient aoaiClient;
                         var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
                         if (!string.IsNullOrEmpty(key))
                         {
-                            aoaiClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Endpoint")!), new AzureKeyCredential(key), options);
+                            aoaiClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key), options);
                         }
                         else
                         {
                             //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                            aoaiClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Endpoint")!), new DefaultAzureCredential(), options);
+                            aoaiClient = new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential(), options);
                         }
                         return aoaiClient;
                     }).WithName("AzureOpenAI"); //name enables differently named if ever needed
 
-                    //services.AddAzureOpenAIChatCompletion(config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName).GetValue<string>("ChatDeploymentName")!, aoaiClient);
+                    var clientFactory = services.BuildServiceProvider().GetRequiredService<IAzureClientFactory<AzureOpenAIClient>>();
+                    AzureOpenAIClient aoaiClient = clientFactory.CreateClient("AzureOpenAI"); // services.BuildServiceProvider().GetRequiredService<AzureOpenAIClient>();
 
-                    //register so that injected services will resolve
-                    services.AddTransient<JobSearchPlugin>();
-                    services.AddTransient<ChatSummaryPlugin>();
+                    //default chat completion service
+                    services.AddAzureOpenAIChatCompletion(azureOpenIAConfigSection.GetValue<string>("DefaultChatDeployment")!, aoaiClient);
+
+                    //default text embedding service
+                    var textEmbeddingDeployment = azureOpenIAConfigSection.GetValue<string>("DefaultTextEmbeddingDeployment")!;
+#pragma warning disable SKEXP0010 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                    //embedding data
+                    services.AddAzureOpenAITextEmbeddingGeneration(textEmbeddingDeployment, aoaiClient);
+                    //search data
+                    services.AddAzureOpenAITextGeneration(new AzureOpenAIConfig { Auth = AuthTypes.AzureIdentity, APIType = APITypes.EmbeddingGeneration, Deployment = textEmbeddingDeployment, Endpoint = endpoint });
+#pragma warning restore SKEXP0010 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+                    //kernel memory for whatever needs it
+                    var memory = new KernelMemoryBuilder()
+                        .WithAzureOpenAITextGeneration(new AzureOpenAIConfig { Auth = AuthTypes.AzureIdentity, Endpoint = endpoint, Deployment = textEmbeddingDeployment })
+                        .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig { Auth = AuthTypes.AzureIdentity, Endpoint = endpoint, Deployment = textEmbeddingDeployment })
+                        .Build<MemoryServerless>();
+                    services.AddSingleton<IKernelMemory>(memory);
+
+                    //var memory = new InMemoryVectorStore();
+                    //var vectorStore = new InMemoryVectorStore();
+                    //var collection = vectorStore.GetCollection<int, Expertise>("expertises");
+                    //collection.UpsertBatchAsync([new(1, "Software Development", "", 0, [null])]);
 
 
-                    //kernels - transient, built with registered connector and plugins
-                    //kernels are transient and configured specifically with plugins for the use case, so create it there in the service method
+                    //plugins - singletons
+                    //services.AddSingleton<KernelMemorySearchPlugin>();
+                    services.AddSingleton<JobSearchPlugin>();
+
+                    // Create the plugin collection (using the KernelPluginFactory to create plugins from objects; retrieving from the service provider this way allows DI into the plugins if needed)
+                    services.AddSingleton<KernelPluginCollection>((serviceProvider) =>
+                        [
+                            KernelPluginFactory.CreateFromObject(serviceProvider.GetRequiredService<JobSearchPlugin>()),
+                            //KernelPluginFactory.CreateFromObject(serviceProvider.GetRequiredService<MemorySearchPlugin>()),
+                            //KernelPluginFactory.CreateFromObject(new MemoryPlugin(memory)) //Microsoft.KernelMemory.SemanticKernelPlugin
+                        ]
+                    );
+
+                    //https://learn.microsoft.com/en-us/semantic-kernel/concepts/kernel?pivots=programming-language-csharp
+                    //kernels - transient and configured specifically with plugins for the use case 
                     services.AddKeyedTransient<Kernel>("JobSearchKernel", (sp, key) =>
                     {
-                        // Create a collection of plugins that the kernel will use
-                        //KernelPluginCollection pluginCollection = [];
-                        //pluginCollection.AddFromType<JobSearchPlugin>("JobSearchPlugin");
-                        //pluginCollection.AddFromType<ChatSummaryPlugin>();
-                        
-
-                        
-                        var kernelBuilder = Kernel.CreateBuilder();
-                        var jsPlugin = sp.GetRequiredService<JobSearchPlugin>();
-                        kernelBuilder.Plugins.AddFromObject(jsPlugin);
-                        var sumPlugin = sp.GetRequiredService<ChatSummaryPlugin>();
-                        kernelBuilder.Plugins.AddFromObject(sumPlugin, "ChatSummary");
-                        kernelBuilder.Services.AddAzureOpenAIChatCompletion(config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName).GetValue<string>("ChatDeploymentName")!, aoaiClient);
-
-                        var kernel = kernelBuilder.Build();
-                        //kernel.ImportPluginFromType<JobSearchPlugin>("JobSearchPlugin"); //enables DI (jobsApiService) 
-                        //kernel.ImportPluginFromType<ChatSummaryPlugin>("ChatSummaryPlugin");
-
+                        //we have a service provider, so we don't need to user Kernel.CreateBuilder() which creates it's own service provider internally
+                        var kernel = new Kernel(sp, sp.GetRequiredService<KernelPluginCollection>());
                         return kernel;
                     });
-
-                    //var kernelBuilder = Kernel.CreateBuilder();
-                    //kernelBuilder.AddAzureOpenAIChatCompletion(azureOpenIAConfigSection.GetValue<string>("DeploymentName")!, 
-                    //    azureOpenIAConfigSection.GetValue<string>("Endpoint")!,
-                    //    new DefaultAzureCredential());
-                    //var kernel = kernelBuilder.Build();
-                    //services.AddSingleton(kernel);
                 }
             });
 

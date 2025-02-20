@@ -16,13 +16,13 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     private readonly CertificateClient _certClient;
 
     protected KeyVaultManagerBase(ILogger<KeyVaultManagerBase> logger, IOptions<KeyVaultManagerSettingsBase> settings,
-        IAzureClientFactory<SecretClient> clientFactorySecret, IAzureClientFactory<KeyClient> clientFactoryKey, IAzureClientFactory<CertificateClient> clientFactoryCert)
+        IAzureClientFactory<SecretClient> secretClientFactory, IAzureClientFactory<KeyClient> keyClientFactory, IAzureClientFactory<CertificateClient> certClientFactory)
     {
         _logger = logger;
         _settings = settings.Value;
-        _secretClient = clientFactorySecret.CreateClient(_settings.KeyVaultClientName);
-        _keyClient = clientFactoryKey.CreateClient(_settings.KeyVaultClientName);
-        _certClient = clientFactoryCert.CreateClient(_settings.KeyVaultClientName);
+        _secretClient = secretClientFactory.CreateClient(_settings.KeyVaultClientName);
+        _keyClient = keyClientFactory.CreateClient(_settings.KeyVaultClientName);
+        _certClient = certClientFactory.CreateClient(_settings.KeyVaultClientName);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
     /// <exception cref="RequestFailedException">The server returned an error. See <see cref="Exception.Message"/> for details returned from the server.</exception>
     public async Task<string?> GetSecretAsync(string name, string? version = null, CancellationToken cancellationToken = default)
     {
-        _ = _settings.GetHashCode(); //compilet warning
+        _ = _settings.GetHashCode(); //compiler warning
 
         _logger.LogInformation("GetSecretAsync - {Name} {Version}", name, version);
         var response = await _secretClient.GetSecretAsync(name, version, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
@@ -217,8 +217,6 @@ public abstract class KeyVaultManagerBase : IKeyVaultManager
         var response = await _certClient.GetCertificateAsync(certificateName, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return response.Value.Cer;
     }
-
-
 
     /// <summary>
     /// Imports a pre-existing certificate to the key vault. The specified certificate must be in PFX or ASCII PEM-format, and must contain the private key as well as the X.509 certificates. This operation requires the

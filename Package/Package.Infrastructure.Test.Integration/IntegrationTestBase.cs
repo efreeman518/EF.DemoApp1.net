@@ -2,6 +2,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
 using Infrastructure.RapidApi.WeatherApi;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.KeyVault;
 using Package.Infrastructure.Test.Integration.AzureOpenAI.Assistant;
 using Package.Infrastructure.Test.Integration.AzureOpenAI.Chat;
 using Package.Infrastructure.Test.Integration.Blob;
@@ -103,6 +105,14 @@ public abstract class IntegrationTestBase
                 builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
                 builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
                 builder.AddCertificateClient(new Uri(akvUrl)).WithName(name);
+
+                //Crypto Utility; keyed enables registering several if needed
+                services.AddKeyedSingleton<IKeyVaultCryptoUtility>("SomeCryptoUtil", (sp, _) =>
+                {
+                    var keyClient = sp.GetRequiredService<IAzureClientFactory<KeyClient>>().CreateClient(name);
+                    var cryptoClient = keyClient.GetCryptographyClient(kvConfigSection.GetValue<string>("CryptoKey")!);
+                    return new KeyVaultCryptoUtility(cryptoClient);
+                });
 
                 //wrapper for key vault sdks
                 services.Configure<KeyVaultManager1Settings>(kvConfigSection);

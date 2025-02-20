@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Security.KeyVault.Keys;
 using Microsoft.Extensions.DependencyInjection;
+using Package.Infrastructure.KeyVault;
 using Package.Infrastructure.Test.Integration.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration;
@@ -15,6 +16,18 @@ public class KeyVaultManagerTests : IntegrationTestBase
     public KeyVaultManagerTests()
     {
         _vault = Services.GetRequiredService<IKeyVaultManager1>();
+    }
+
+    [TestMethod]
+    public async Task CryptoUtilityEncryptDecrypt()
+    {
+        //var cryptoUtility = Services.GetRequiredervice<IKeyVaultCryptoUtility>();
+        var cryptoUtility = Services.GetRequiredKeyedService<IKeyVaultCryptoUtility>("SomeCryptoUtil");
+        var plainTest = "This is some sensitive data";
+        var encrypted = await cryptoUtility.EncryptAsync(plainTest);
+        Assert.IsTrue(encrypted.Length > 0);
+        var decrypted = await cryptoUtility.DecryptAsync(encrypted);
+        Assert.AreEqual(plainTest, decrypted);
     }
 
     [TestMethod]

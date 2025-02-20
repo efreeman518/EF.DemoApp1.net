@@ -30,7 +30,7 @@ public class AnalyzeCallResponse : DefaultResponse
         ]
      */
     [JsonPropertyName("answers")]
-    public List<string> Answers { get; set; } = null!;
+    public List<object> Answers { get; set; } = null!;
 
     [JsonPropertyName("credits_used")]
     public decimal CreditsUsed { get; set; } 
