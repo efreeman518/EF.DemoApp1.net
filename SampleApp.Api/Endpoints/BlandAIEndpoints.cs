@@ -1,5 +1,4 @@
-﻿using LanguageExt.ClassInstances;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
@@ -18,7 +17,7 @@ public static class BlandAIEndpoints
             .WithSummary("Get bland webclient config");
         group.MapGet("/webhook1", Webhook1)
             .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithSummary("Bland webhook with job serach criteria.");
+            .WithSummary("Bland webhook with some search criteria.");
         group.MapGet("/sendcall", SendCall)
             .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Bland send call.");
@@ -45,7 +44,7 @@ public static class BlandAIEndpoints
             Voice = "Maya",
             InterruptionThreshold = 125,
             FirstSentence = "Hello {{name}}, this is the AI assistant Betty from {{company}} and I have a few questions.",
-            RequestData = new Dictionary<string, string>() { { "name", settings.Value.Name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, {"officenumber", "999-999-9999" } },
+            RequestData = new Dictionary<string, string>() { { "name", settings.Value.Name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, { "officenumber", "999-999-9999" } },
             VoicemailMessage = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.",
             AvailableTags = ["successful", "incomplete", "failed"],
             Metadata = new Dictionary<string, object>() { { "originId", "123" }, { "reasonId", "456" } }

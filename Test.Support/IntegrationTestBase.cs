@@ -14,9 +14,6 @@ public abstract class IntegrationTestBase
 {
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().AddUserSecrets<IntegrationTestBase>().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
-    //protected static IServiceProvider Services => _services;
-    //protected static IServiceScope ServiceScope => _serviceScope;
-    //protected static ILogger Logger => _logger;
 
     //MSTest requires static ClassInitialize/ClassCleanup methods which are used to initialize the DB
 #pragma warning disable S2223 // Non-constant static fields should not be visible; 

@@ -20,16 +20,7 @@ namespace Test.Support;
 public abstract class DbIntegrationTestBase : IntegrationTestBase
 {
     private static string _testContextName = null!;
-    //protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration().Build();
-    //protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
-    //protected static IServiceProvider Services => _services;
-    //protected static IServiceScope ServiceScope => _serviceScope;
-    //protected static ILogger Logger => _logger;
     protected static TodoDbContextBase DbContext => _dbContext;
-
-    //private static IServiceProvider _services = null!;
-    //private static IServiceScope _serviceScope = null!;
-    //private static ILogger<DbIntegrationTestBase> _logger = null!;
     private static TodoDbContextBase _dbContext = null!;
 
     //https://testcontainers.com/guides/testing-an-aspnet-core-web-app/
@@ -67,31 +58,10 @@ public abstract class DbIntegrationTestBase : IntegrationTestBase
 
         //Services for DI
         ConfigureServices(_testContextName);
-        //ServiceCollection services = [];
-
-        //var loggerFactory = LoggerFactory.Create(builder =>
-        //{
-        //    builder.ClearProviders().AddConsole().AddDebug().AddApplicationInsights();
-        //});
-        //services.AddSingleton(loggerFactory);
-
-        ////bootstrapper service registrations - infrastructure, domain, application 
-        //services
-        //    .RegisterInfrastructureServices(Config)
-        //    .RegisterBackgroundServices(Config)
-        //    .RegisterDomainServices(Config)
-        //    .RegisterApplicationServices(Config);
-
-        //services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
-        //_logger = services.BuildServiceProvider().GetRequiredService<ILogger<DbIntegrationTestBase>>();
 
         //modify the services collection - swap registered for test db
         string dbName = TestConfigSection.GetValue<string>("TestSettings:DBName") ?? "Test.Integration.TestDB";
         DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(ServicesCollection, _dbConnectionString, dbName);
-
-        //scoped DbContext
-        //var scope = services.BuildServiceProvider().CreateScope();
-        //_dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContextTrxn>();
 
         //rebuild service collection and grab the DbContext
         Services = ServicesCollection.BuildServiceProvider();
@@ -109,15 +79,7 @@ public abstract class DbIntegrationTestBase : IntegrationTestBase
             await InitializeRespawner();
         }
 
-        //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
-        //services.AddTransient<IRequestContext<string>>(provider =>
-        //{
-        //    var correlationId = Guid.NewGuid().ToString();
-        //    return new RequestContext<string>(correlationId, $"Test.Support.IntegrationTestBase-{correlationId}");
-        //});
-
         //build IServiceProvider for subsequent use finding/injecting services
-        //Services = ServicesCollection.BuildServiceProvider(validateScopes: true);
         ServiceScope = Services.CreateScope();
         Logger.Log(LogLevel.Information, "{TestContextName} ConfigureTestInstanceAsync (DB swap) complete.", testContextName);
     }

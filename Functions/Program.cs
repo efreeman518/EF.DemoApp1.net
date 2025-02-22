@@ -98,10 +98,10 @@ try
             //    options => { });
             //})
 
-            
+
             //domain services
             services.RegisterDomainServices(config)
-                //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
+               //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
                .RegisterInfrastructureServices(config)
                 //app servives
                 .RegisterApplicationServices(config)

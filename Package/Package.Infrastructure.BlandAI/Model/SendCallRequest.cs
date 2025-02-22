@@ -114,7 +114,7 @@ public class SendCallRequest
     ///}
     /// </summary>
     [JsonPropertyName("transfer_list")]
-    public Dictionary<string,string>? TransferList { get; set; }
+    public Dictionary<string, string>? TransferList { get; set; }
 
     [JsonPropertyName("language")]
     public string? Language { get; set; }
@@ -150,7 +150,7 @@ public class SendCallRequest
     public string? Timezone { get; set; }
 
     [JsonPropertyName("request_data")]
-    public Dictionary<string,string>? RequestData { get; set; }
+    public Dictionary<string, string>? RequestData { get; set; }
 
     [JsonPropertyName("tools")]
     public List<Tool>? Tools { get; set; }

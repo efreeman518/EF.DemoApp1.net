@@ -4,7 +4,7 @@ namespace Test.Support;
 
 //https://github.com/dotnet/AspNetCore.Docs/blob/f7f7e6035d4fa2ecd88a969c17af7d95ae6642d8/aspnetcore/test/integration-tests/samples/2.x/IntegrationTestsSample/tests/RazorPagesProject.Tests/Helpers/HttpClientExtensions.cs
 
-public static class HttpClientExtensions
+public static class xHttpClientExtensions
 {
     public static Task<HttpResponseMessage> SendAsync(
         this HttpClient client,

@@ -56,13 +56,13 @@ public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<Bland
     public async Task<Result<TokenResponse?>> AuthorizeWebAgentCallAsync(string agentId, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<TokenResponse>(HttpMethod.Post, $"{urlAgents}/{agentId}/authorize", cancellationToken: cancellationToken);
-        return parsedResponse; 
+        return parsedResponse;
     }
 
     public async Task<Result<DefaultResponse?>> DeleteWebAgentAsync(string agentId, CancellationToken cancellationToken = default)
     {
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<DefaultResponse>(HttpMethod.Post, $"{urlAgents}/{agentId}/delete", cancellationToken: cancellationToken);
-        return parsedResponse; 
+        return parsedResponse;
     }
 
     public async Task<Result<IReadOnlyList<AgentResponse>?>> ListWebAgentsAsync(CancellationToken cancellationToken = default)

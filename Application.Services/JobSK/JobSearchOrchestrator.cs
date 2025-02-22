@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.OpenApi;
-using Package.Infrastructure.Common.Extensions;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;
@@ -42,9 +41,9 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         //        .WithAzureOpenAITextGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint = "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
         //        .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig { Auth = AzureOpenAIConfig.AuthTypes.AzureIdentity, Endpoint = "https://ef-oai-dev-1.openai.azure.com", Deployment = "text-embedding-3-small" })
         //        .Build<MemoryServerless>();
-            //var expertises = (await jobsService.GetLookupsAsync(cancellationToken)).Expertises;
-            //await memory.ImportTextAsync(expertises.SerializeToJson(), "expertises", index:"expertisecodes", cancellationToken: cancellationToken);
-            //kernel.ImportPluginFromObject(new MemoryPlugin(memory), "ExpertiseMemoryPlugin"); //Microsoft.KernelMemory.SemanticKernelPlugin
+        //var expertises = (await jobsService.GetLookupsAsync(cancellationToken)).Expertises;
+        //await memory.ImportTextAsync(expertises.SerializeToJson(), "expertises", index:"expertisecodes", cancellationToken: cancellationToken);
+        //kernel.ImportPluginFromObject(new MemoryPlugin(memory), "ExpertiseMemoryPlugin"); //Microsoft.KernelMemory.SemanticKernelPlugin
         //}
 
         var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
@@ -91,7 +90,7 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         if (chatId != null)
         {
             var cacheKey = $"chat-{chatId}";
-            
+
             chatHistory = await cache.GetOrDefaultAsync<ChatHistory>(cacheKey, token: cancellationToken);
 
             //may have expired, in that case restart with a new chat

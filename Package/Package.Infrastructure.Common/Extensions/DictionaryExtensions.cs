@@ -22,7 +22,7 @@ public static class DictionaryExtensions
         where TKey : notnull
     {
         ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
-        if(Unsafe.IsNullRef(ref val))
+        if (Unsafe.IsNullRef(ref val))
         {
             return false;
         }

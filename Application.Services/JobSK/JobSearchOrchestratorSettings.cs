@@ -10,5 +10,5 @@ public class JobSearchOrchestratorSettings
     public string CacheName { get; set; } = null!;
 
     //temp - async load so needed in the service instead of startup
-    public string TodoOpenApiDocUrl { get; set; } = null!;  
+    public string TodoOpenApiDocUrl { get; set; } = null!;
 }

@@ -33,5 +33,5 @@ public class AnalyzeCallResponse : DefaultResponse
     public List<object> Answers { get; set; } = null!;
 
     [JsonPropertyName("credits_used")]
-    public decimal CreditsUsed { get; set; } 
+    public decimal CreditsUsed { get; set; }
 }
