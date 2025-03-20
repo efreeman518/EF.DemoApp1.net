@@ -3,7 +3,7 @@ using Package.Infrastructure.OpenAI.ChatApi;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("OpenAI Api Key required - https://platform.openai.com/settings/organization/api-keys")]
+[Ignore("OpenAI Api Key required - https://platform.openai.com/settings/organization/api-keys")]
 
 [TestClass]
 public class OpenAIChatServiceTests : IntegrationTestBase

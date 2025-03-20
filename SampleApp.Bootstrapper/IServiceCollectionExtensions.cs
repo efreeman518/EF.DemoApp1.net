@@ -510,17 +510,17 @@ public static class IServiceCollectionExtensions
                 }
 
                 //Azure OpenAI
-                var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
-                if (azureOpenIAConfigSection.GetChildren().Any())
+                var aoaiConfig = config.GetSection("AzureOpenAI");
+                if (aoaiConfig.GetChildren().Any())
                 {
 
-                    var endpoint = azureOpenIAConfigSection.GetValue<string>("Endpoint")!;
+                    var endpoint = aoaiConfig.GetValue<string>("Endpoint")!;
 
                     // Register a custom client factory since this client does not currently have a service registration method
                     builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options) =>
                     {
                         AzureOpenAIClient aoaiClient;
-                        var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
+                        var key = aoaiConfig.GetValue<string?>("Key", null);
                         if (!string.IsNullOrEmpty(key))
                         {
                             aoaiClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key), options);
@@ -537,10 +537,10 @@ public static class IServiceCollectionExtensions
                     AzureOpenAIClient aoaiClient = clientFactory.CreateClient("AzureOpenAI"); // services.BuildServiceProvider().GetRequiredService<AzureOpenAIClient>();
 
                     //default chat completion service
-                    services.AddAzureOpenAIChatCompletion(azureOpenIAConfigSection.GetValue<string>("DefaultChatDeployment")!, aoaiClient);
+                    services.AddAzureOpenAIChatCompletion(aoaiConfig.GetValue<string>("DefaultChatDeployment")!, aoaiClient);
 
                     //default text embedding service
-                    var textEmbeddingDeployment = azureOpenIAConfigSection.GetValue<string>("DefaultTextEmbeddingDeployment")!;
+                    var textEmbeddingDeployment = aoaiConfig.GetValue<string>("DefaultTextEmbeddingDeployment")!;
 #pragma warning disable SKEXP0010 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                     //embedding data
                     services.AddAzureOpenAITextEmbeddingGeneration(textEmbeddingDeployment, aoaiClient);

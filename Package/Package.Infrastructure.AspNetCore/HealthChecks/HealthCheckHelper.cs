@@ -1,7 +1,7 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace Package.Infrastructure.AspNetCore;
+namespace Package.Infrastructure.AspNetCore.HealthChecks;
 
 public static class HealthCheckHelper
 {

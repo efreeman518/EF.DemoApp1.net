@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace SampleApp.Bootstrapper.HealthChecks;
+namespace Package.Infrastructure.AspNetCore.HealthChecks;
 
 //https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks
 

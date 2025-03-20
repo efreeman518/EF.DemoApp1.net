@@ -222,8 +222,9 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     /// <returns></returns>
     [HttpGet("generatetoken")]
     [AllowAnonymous]
-    public async Task<IActionResult> GenerateToken(string resourceId = "8bffeaa6-2d18-4059-9335-ce805e2c1595", string scope = ".default")
+    public async Task<IActionResult> GenerateToken(string resourceId, string scope = ".default")
     {
+        resourceId = resourceId ?? "[resource Entra Application (client) ID]";
         var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
         var token = await tokenProvider.GetAccessTokenAsync(resourceId, scope);
         return Ok(token);

@@ -1,36 +1,17 @@
-﻿using Application.Contracts.Model;
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using CorrelationId.DependencyInjection;
-using FluentValidation;
-using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
-using Package.Infrastructure.Grpc;
-using SampleApp.Api.ExceptionHandlers;
-using SampleApp.Bootstrapper.HealthChecks;
-using SampleApp.Support.Validators;
+using SampleApp.Gateway.ExceptionHandlers;
 
-namespace SampleApp.Api;
+namespace SampleApp.Gateway;
 
-internal static class IServiceCollectionExtensions
+public static class IServiceCollectionExtensions
 {
-    internal static readonly string[] healthCheckTagsFullMem = ["full", "memory"];
-    internal static readonly string[] healthCheckTagsFullDb = ["full", "db"];
-    internal static readonly string[] healthCheckTagsFullExt = ["full", "extservice"];
-
-    /// <summary>
-    /// Used at runtime for http services; not used for Workers/Functions/Tests
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="config"></param>
-    /// <param name="logger"></param>
-    /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
+    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         services.AddOpenTelemetry().UseAzureMonitor(options =>
@@ -47,32 +28,22 @@ internal static class IServiceCollectionExtensions
             options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         });
 
-        //header propagation - implement here since integration testing breaks when there is no existing http request, so no headers to propagate
-        services.AddHeaderPropagation();
-        //.AddHeaderPropagation(options =>
-        //{
-        //    options.Headers.Add("x-request-id");
-        //    options.Headers.Add("x-correlation-id");
-        //    options.Headers.Add("x-username-etc");
-        //}); 
-        //.AddCorrelationIdForwarding();
-
-        //https://github.com/stevejgordon/CorrelationId/wiki
-        services.AddDefaultCorrelationId(options =>
+        services.AddCors(options =>
         {
-            options.AddToLoggingScope = true;
-            options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
-        });
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins("https://localhost:7018") // Adjust to your Blazor app's address
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
 
-        services.AddCors(opt =>
-        {
-            opt.AddPolicy(name: "AllowSpecific", options =>
+            options.AddPolicy(name: "AllowSpecific", options =>
             {
                 options.AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
                     //.AllowCredentials(); //does not work with AllowAnyOrigin()
-                    //.SetIsOriginAllowed(origin => true) // replaces .AllowAnyOrigin() and allows any origin with AllowAnyOrigin()
             });
         });
 
@@ -85,7 +56,7 @@ internal static class IServiceCollectionExtensions
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
 
-            logger.LogInformation("Configure auth - {ConfigSectionName}", configSectionName);
+            loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", configSectionName);
 
             services.AddAuthentication(options =>
             {
@@ -129,34 +100,11 @@ internal static class IServiceCollectionExtensions
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
 
-        //if needed
-        //services.AddScoped<IValidatorDiscovery, ValidatorDiscovery>();
-        services.AddScoped<IValidator<TodoItemDto>, TodoItemDtoValidator>();
-
-        services.AddControllers();
-
-        //convenient for model validation; built in IHostEnvironmentExtensions.BuildProblemDetailsResponse
-        services.AddProblemDetails(options =>
-        {
-            options.CustomizeProblemDetails = (context) =>
-            {
-                context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-                context.ProblemDetails.Extensions.TryAdd("traceId", context.HttpContext.TraceIdentifier);
-                var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-                context.ProblemDetails.Extensions.TryAdd("activityId", activity?.Id);
-            };
-        });
-
-        //Add gRPC framework services
-        services.AddGrpc(options =>
-        {
-            options.EnableDetailedErrors = true;
-            options.MaxReceiveMessageSize = 100000; //bytes
-            options.Interceptors.Add<ServiceErrorInterceptor>();
-        });
-        services.AddScoped<ServiceErrorInterceptor>();
-
         services.AddRouting(options => options.LowercaseUrls = true);
+
+        services.AddReverseProxy()
+            .LoadFromConfig(config.GetSection("ReverseProxy"));
+
 
         if (config.GetValue("OpenApiSettings:Enable", false))
         {
@@ -178,29 +126,16 @@ internal static class IServiceCollectionExtensions
             });
         }
 
-        //ChatGPT plugin
-        if (config.GetValue("ChatGPT_Plugin:Enable", false))
-        {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("ChatGPT", policy =>
-                {
-                    policy.WithOrigins("https://chat.openai.com", config.GetValue<string>("ChatGPT_Plugin:Url")!).AllowAnyHeader().AllowAnyMethod();
-                });
-            });
-        }
-
         //HealthChecks - having infrastructure references
         //search nuget aspnetcore.healthchecks - many prebuilt health checks 
         //tag full will run when hitting health/full
 
         services.AddHealthChecks()
-            .AddMemoryHealthCheck("memory", tags: healthCheckTagsFullMem, thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L))
-            .AddDbContextCheck<TodoDbContextTrxn>("TodoDbContextTrxn", tags: healthCheckTagsFullDb)
-            .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: healthCheckTagsFullDb)
-            .AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
+            .AddMemoryHealthCheck("memory", tags: ["full", "memory"], thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L));
+        //.AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
 
-        //Todo - for http clients previously registered in infrastructure services, add header propagation here since it only applies at runtime when an http context is present
+        //register http clients to backend services
+
 
         return services;
     }

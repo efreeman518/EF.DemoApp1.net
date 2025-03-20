@@ -2,7 +2,7 @@
 using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
-using Package.Infrastructure.AspNetCore;
+using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Tokens;
 using SampleApp.Api.Endpoints;
 using SampleApp.Grpc;
@@ -41,15 +41,15 @@ public static partial class WebApplicationBuilderExtensions
         app.UseStaticFiles(); //Serve files from wwwroot
 
         //global error handler
-        app.UseExceptionHandler();
+        //app.UseExceptionHandler(); ?? not needed, handled by services.AddExceptionHandler<DefaultExceptionHandler>();
 
         app.UseCors("AllowSpecific");
 
-        //swagger before auth so it will render without auth
+        //before auth so it will render without auth
         //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/openapi?view=aspnetcore-8.0
         if (config.GetValue("OpenApiSettings:Enable", false))
         {
-            //for swagger - map gettoken endpoint 
+            //for openapi ui - map gettoken endpoint 
             var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
             app.MapGet("/getauthtoken", async (HttpContext context, string resourceId, string scope) =>
             {
