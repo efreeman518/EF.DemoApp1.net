@@ -146,6 +146,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console.AI1", "Play\Console
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Gateway", "SampleApp.Gateway\SampleApp.Gateway.csproj", "{015ACB88-882D-404A-BD42-715844E2C425}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.UI1", "SampleApp.UI1\SampleApp.UI1.csproj", "{AD4EEA90-6A64-41B6-B8F2-13BA55F23387}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -364,6 +366,10 @@ Global
 		{015ACB88-882D-404A-BD42-715844E2C425}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{015ACB88-882D-404A-BD42-715844E2C425}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{015ACB88-882D-404A-BD42-715844E2C425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD4EEA90-6A64-41B6-B8F2-13BA55F23387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD4EEA90-6A64-41B6-B8F2-13BA55F23387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD4EEA90-6A64-41B6-B8F2-13BA55F23387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD4EEA90-6A64-41B6-B8F2-13BA55F23387}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -425,6 +431,7 @@ Global
 		{12835BB1-7C07-4161-A863-C5591475D4FB} = {BE933F04-5CF5-4937-A92C-19FA02029327}
 		{F6FBC6C2-0335-4C38-88A5-AB9DDC9C41A6} = {12835BB1-7C07-4161-A863-C5591475D4FB}
 		{015ACB88-882D-404A-BD42-715844E2C425} = {E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}
+		{AD4EEA90-6A64-41B6-B8F2-13BA55F23387} = {E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {744652B5-CD14-47ED-912C-63E1CCEA2108}

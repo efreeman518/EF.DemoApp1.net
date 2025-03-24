@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Blazored.LocalStorage
+
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
+@inject IStringLocalizer<Localization.Locals> Localizer
+
+<AuthorizeView>
+    <Authorized>
+        @context.User.Identity?.Name!
+        <MudBlazor.MudButton ButtonType="MudBlazor.ButtonType.Button" Color="MudBlazor.Color.Primary" @onclick="BeginLogOut">@Localizer["Logout"]</MudBlazor.MudButton>
+    </Authorized>
+    <NotAuthorized>
+        <a href="authentication/login">@Localizer["Login"]</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    [Inject]
+    private ILocalStorageService LocalStorage { get; set; } = null!;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //get user identity name from the context
+        var authState = await AuthenticationState;
+        var user = authState.User;
+    }
+
+    public async Task BeginLogOut()
+    {
+        await Task.Yield();
+
+        //AzureB2C
+        Navigation.NavigateToLogout("authentication/logout");
+
+        //EntraID
+        //await LogoutEntraID();
+    }
+
+    private async Task LogoutEntraID()
+    {
+        //EntraId
+        //https://blogs.aaddevsup.xyz/2022/03/how-to-logout-of-an-oauth2-application-without-getting-prompted-to-select-a-user/#:%7E:text=How%20to%20logout%20of%20an%20OAuth2%20application%20without,logout_hint%20parameter%20where%20login_hint%20is%20the%20value%3A%20
+
+        //use this with EntraID logout to avoid the user selection popup; login_hint was captured from claims upon login
+        var hint = await LocalStorage.GetItemAsync<string>("login_hint") ?? "";
+        if (!string.IsNullOrEmpty(hint))
+        {
+            hint = "&logout_hint=" + hint;
+        }
+
+        // Clear local/session storage (MSAL authentication caches)
+        await JS.InvokeVoidAsync("sessionStorage.clear");
+        await JS.InvokeVoidAsync("localStorage.clear");
+
+        var uri = new Uri(Navigation.Uri);
+        var rootFolder = uri.GetLeftPart(UriPartial.Authority);
+        var logoutUrl = string.Concat(Configuration["EntraIDLogoutUrl"], rootFolder, "/", hint);
+        Navigation.NavigateTo(logoutUrl, forceLoad: true);
+    }
+}

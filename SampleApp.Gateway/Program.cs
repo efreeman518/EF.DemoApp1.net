@@ -10,6 +10,8 @@ using SampleApp.Gateway;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var config = builder.Configuration;
+var appName = config.GetValue<string>("AppName");
+var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Undefined";
 
 //static logger factory setup - for startup
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
@@ -23,12 +25,11 @@ StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 
 //startup logger
 ILogger<Program> loggerStartup = StaticLogging.CreateLogger<Program>();
-var appName = config.GetValue<string>("AppName");
-loggerStartup.LogInformation("{AppName} - Startup.", appName);
+loggerStartup.LogInformation("{AppName} env:{Environment} - Startup.", appName, env);
 
 try
 {
-    loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
+    loggerStartup.LogInformation("{AppName} env:{Environment} - Configure app logging.", appName, env);
     builder.Logging
         .ClearProviders()
         .AddApplicationInsights(configureTelemetryConfiguration: (config) =>
@@ -58,7 +59,7 @@ try
     string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
     {
-        loggerStartup.LogInformation("{AppName} - Configure Data Protection.", appName);
+        loggerStartup.LogInformation("{AppName} env:{Environment} - Configure Data Protection.", appName, env);
         builder.Services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(new Uri(dataProtectionKeysFileUrl), credential)
             .ProtectKeysWithAzureKeyVault(new Uri(dataProtectionEncryptionKeyUrl), credential);
@@ -76,11 +77,11 @@ try
 }
 catch (Exception ex)
 {
-    loggerStartup.LogCritical(ex, "{AppName} - Host terminated unexpectedly.", appName);
+    loggerStartup.LogCritical(ex, "{AppName} env:{Environment} - Host terminated unexpectedly.", appName, env);
 }
 finally
 {
-    loggerStartup.LogInformation("{AppName} - Ending application.", appName);
+    loggerStartup.LogInformation("{AppName} env:{Environment} - Ending application.", appName, env);
 }
 
 

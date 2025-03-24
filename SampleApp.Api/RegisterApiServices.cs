@@ -71,8 +71,8 @@ internal static class IServiceCollectionExtensions
                 options.AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
-                    //.AllowCredentials(); //does not work with AllowAnyOrigin()
-                    //.SetIsOriginAllowed(origin => true) // replaces .AllowAnyOrigin() and allows any origin with AllowAnyOrigin()
+                //.AllowCredentials(); //does not work with AllowAnyOrigin()
+                //.SetIsOriginAllowed(origin => true) // replaces .AllowAnyOrigin() and allows any origin with AllowAnyOrigin()
             });
         });
 

@@ -16,7 +16,7 @@ public class CustomTerminationStrategy(int maxIterations = 10, string terminatio
             return Task.FromResult(true);
         }
 
-        if(history.Count >= maxIterations)
+        if (history.Count >= maxIterations)
         {
             return Task.FromResult(true);
         }

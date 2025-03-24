@@ -1,0 +1,57 @@
+﻿@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Blazored.LocalStorage
+
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceded"  />
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = null!;
+
+    //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/?view=aspnetcore-9.0
+    //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standalone-with-azure-active-directory-b2c?view=aspnetcore-9.0#authentication-component
+    [Parameter] public string? Action { get; set; }
+
+    private async Task OnLoginSucceded()
+    {
+        //EntraId - ideally the login_hint is appended to the entra logout url in order to skip the logout user selection popup
+        var state = await AuthenticationState;
+        var user = state.User;
+
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            foreach (var claim in user.Claims)
+            {
+                if (claim.Type == "login_hint")
+                {
+                    await LocalStorage.SetItemAsStringAsync("login_hint", claim.Value);
+                }
+            }
+        }
+    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     switch (Action)
+    //     {
+    //         case "login-callback":
+    //             break;
+    //         case "logout-callback":
+    //             break;
+    //         case "login":
+    //             break;
+    //         case "logout":
+    //             break;
+    //         case "profile":
+    //             break;
+    //         default:
+    //             break;
+    //     }
+
+    //     await Task.CompletedTask;
+    // }
+}

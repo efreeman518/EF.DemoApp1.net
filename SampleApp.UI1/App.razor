@@ -1,0 +1,29 @@
+﻿@using SampleApp.UI1.Components
+
+@inject IStringLocalizer<Localization.Locals> Localizer
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <p role="alert">@Localizer["NotAuthorized"]</p>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">@Localizer["NotFound"]</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

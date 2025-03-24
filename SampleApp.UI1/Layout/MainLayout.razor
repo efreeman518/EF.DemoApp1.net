@@ -1,0 +1,113 @@
+﻿@inherits LayoutComponentBase
+
+@using MudBlazor
+@using Blazored.LocalStorage
+@using SampleApp.UI1.Utility
+@using System.Globalization
+
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<MudRTLProvider RightToLeft="@_rtl">
+    @* Required *@
+    <MudThemeProvider Theme="@CurrentTheme" @bind-IsDarkMode="IsDarkMode" />
+    <MudPopoverProvider />
+
+    @* Needed for dialogs *@
+    <MudDialogProvider />
+
+    @* Needed for snackbars *@
+    <MudSnackbarProvider />
+
+    <MudLayout>
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+            <MudSpacer />
+            <SampleApp.UI1.Components.LanguageSelector />
+            <MudSpacer />
+            <MudSwitch @bind-Value="IsDarkMode" Label="Dark" Color="Color.Info" />
+            <MudSpacer />
+            <MudToggleIconButton @bind-Toggled="IsDarkMode"
+            Icon="@Icons.Material.Filled.LightMode"
+            Color="@Color.Warning"
+            ToggledIcon="@Icons.Material.Filled.DarkMode"
+            ToggledColor="@Color.Primary"
+            title="@(IsDarkMode ? "Dark" : "Light")" />
+            <MudSpacer />
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+            <MudSpacer />
+            <LoginDisplay />
+        </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2" Color="Color.Secondary" OnOverlayClick="CloseDrawer">
+            <MudNavMenu>
+                <MudNavLink OnClick="@(async () => await Nav("/"))">Home</MudNavLink>
+                <MudNavLink OnClick="@(async () => await Nav("/user"))">User</MudNavLink>
+                <MudNavLink OnClick="@(async () => await Nav("/weather"))">Weather</MudNavLink>
+            </MudNavMenu>
+        </MudDrawer>
+        <MudMainContent Class="ma-10">
+            @Body
+            
+        </MudMainContent>
+    </MudLayout>
+</MudRTLProvider>
+
+@code {
+    [Inject]
+    private ILocalStorageService LocalStorage { get; set; } = null!;
+    [Inject]
+    private IJsInteropUtility JsInteropUtility { get; set; } = null!;
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    private MudTheme CurrentTheme { get; set; } = Utility.ColorThemes.ThemePastel1;
+    private bool IsDarkMode { get; set; }
+    private bool _rtl = false;
+    private bool _drawerOpen = false;
+
+    private void DrawerToggle(bool? force = null)
+    {
+        _drawerOpen = force ?? !_drawerOpen;
+        //StateHasChanged();  // Force UI update
+        //await Task.Delay(100); // Small delay to ensure UI updates
+    }
+
+    private async Task Nav(string url)
+    {
+        _drawerOpen = false;
+        // Optionally, add a small delay to allow the drawer to close before navigation
+        await Task.Delay(100); // Adjust delay as needed
+        NavigationManager.NavigateTo(url); 
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsDarkMode = (await LocalStorage.ContainKeyAsync("DarkMode"))
+            ? await LocalStorage.GetItemAsync<bool>("DarkMode")
+            : await JsInteropUtility.GetSystemDarkModeAsync();
+
+        //rtl
+        var rtlLanguages = new[] { "ar", "he", "ur", "fa", "ps", "sd", "iw" }; // Arabic, Hebrew, Urdu, Farsi, Pashto, Sindhi, etc.
+        _rtl = rtlLanguages.Contains(CultureInfo.CurrentCulture.Name.Substring(0, 2));
+
+        await StoreUsernameOnLogin();
+    }
+
+    private async Task StoreUsernameOnLogin()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var username = user.FindFirst("username")?.Value
+                        ?? user.FindFirst("email")?.Value; // Use email if preferred_username is not available
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                await LocalStorage.SetItemAsStringAsync("username", username);
+            }
+        }
+    }
+
+}

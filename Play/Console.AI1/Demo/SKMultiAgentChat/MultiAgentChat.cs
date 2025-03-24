@@ -76,9 +76,9 @@ When you determine the best match, show both your object and the other agent's o
             Instructions = "Your task is to provide your database items when AgentA asks for them. You can only get items from your items database.",
             Kernel = kernelB,
             Arguments =
-            new KernelArguments(new AzureOpenAIPromptExecutionSettings() 
-            { 
-                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() 
+            new KernelArguments(new AzureOpenAIPromptExecutionSettings()
+            {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
             })
         };
 

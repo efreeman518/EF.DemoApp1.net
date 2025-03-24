@@ -52,7 +52,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
         List<ChatMessage> chatHistory = CreateChatHistory();
 
         while (true)
-        {  
+        {
             ChatResponse response = await chatClient.GetResponseAsync(chatHistory, chatOptions);
             chatHistory.Add(new ChatMessage(ChatRole.Assistant, response.Message.Contents));
             System.Console.WriteLine($"{chatHistory[^1].Role} >>> {chatHistory[^1]}");
@@ -70,7 +70,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
         }
     }
 
-    private async Task< ChatMessage> SummarizeChatHistory(IChatClient chatClient, List<ChatMessage> chatHistory)
+    private async Task<ChatMessage> SummarizeChatHistory(IChatClient chatClient, List<ChatMessage> chatHistory)
     {
         var chatJoined = string.Join("#\n", chatHistory.Select(c => $"{c.Role} > {c.Text}"));
         var summary = await chatClient.GetResponseAsync([
