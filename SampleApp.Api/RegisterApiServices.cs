@@ -77,7 +77,7 @@ internal static class IServiceCollectionExtensions
         });
 
         //Auth
-        string configSectionName = "AzureAd";
+        string configSectionName = "Api-EntraID";
         var configSection = config.GetSection(configSectionName);
         if (configSection.GetChildren().Any())
         {

@@ -137,4 +137,12 @@
     <value>Not Found</value>
     <comment>None</comment>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+    <comment>None</comment>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Sample Application</value>
+    <comment>None</comment>
+  </data>
 </root>

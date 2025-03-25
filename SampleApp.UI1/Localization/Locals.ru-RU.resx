@@ -132,4 +132,10 @@
   <data name="NotFound" xml:space="preserve">
     <value>Не найден</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Пример приложения</value>
+  </data>
 </root>

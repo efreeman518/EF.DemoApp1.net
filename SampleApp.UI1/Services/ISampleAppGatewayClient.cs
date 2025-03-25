@@ -3,7 +3,7 @@ using SampleApp.UI1.Model;
 
 namespace SampleApp.UI1.Services;
 
-public interface ISampleApiRestClient
+public interface ISampleAppGatewayClient
 {
     [Get("/api1/todoitems?pagesize={pageSize}&pageindex={pageIndex}")]
     Task<PagedResponse<TodoItemDto>?> GetPageAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default);

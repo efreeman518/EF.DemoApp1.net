@@ -132,4 +132,10 @@
   <data name="NotFound" xml:space="preserve">
     <value>পাওয়া যায়নি</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>ভাষা</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>নমুনা অ্যাপ্লিকেশন</value>
+  </data>
 </root>

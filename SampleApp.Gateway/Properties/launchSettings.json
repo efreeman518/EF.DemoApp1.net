@@ -1,12 +1,28 @@
 ﻿{
   "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:13389",
+      "sslPort": 44389
+    }
+  },
   "profiles": {
-    "https": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      //"launchBrowser": true,
+      //"launchUrl": "scalar/v1.1",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Kestrel": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "scalar/v1.1",
-      "applicationUrl": "https://localhost:7190;http://localhost:5291",
+      //"launchBrowser": true,
+      //"launchUrl": "scalar/v1.1",
+      "applicationUrl": "https://localhost:7389;http://localhost:5389",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -1,4 +1,5 @@
-@SampleApp.Gateway_HostAddress = http://localhost:5291
+//IIS:13389 Kestrel:7389
+@SampleApp.Gateway_HostAddress = http://localhost:7389 
 
 GET {{SampleApp.Gateway_HostAddress}}/weatherforecast/
 Accept: application/json

@@ -25,8 +25,7 @@ builder.Services.AddMsalAuthentication(options =>
 
     //access token to include scopes defined in the UI app registration's API Permissions which are linked to
     //scopes exposed by (a different) AzureB2C api app reg that (Exposes an API - scopes) as scopes and included as part of the sign-in flow
-    options.ProviderOptions.DefaultAccessTokenScopes.Add("https://adIntuitivedevb2c.onmicrosoft.com/a71f112a-b979-46d2-a776-2a95f7a4e015/DefaultScope1");
-    options.ProviderOptions.DefaultAccessTokenScopes.Add("https://adIntuitivedevb2c.onmicrosoft.com/a71f112a-b979-46d2-a776-2a95f7a4e015/CustomScope2");
+    options.ProviderOptions.DefaultAccessTokenScopes.Add("https://efazureadb2c.onmicrosoft.com/f26c2e2c-ea6e-4046-8116-e541df232c2d/StandardAccess");
 });
 
 //ENTRA ID AUTHENTICATION
@@ -51,21 +50,19 @@ builder.Services.AddBlazoredLocalStorage();
 // Add localization support
 builder.Services.AddLocalization();
 
-//SampleApi client auth handler
+//SampleAppGateway client auth handler
 builder.Services.AddScoped(provider =>
 {
     var tokenProvider = provider.GetRequiredService<IAccessTokenProvider>();
     //tken request can contain scopes from a single resource (api) not multiple (apis + MSGraph)
-    var scopes = builder.Configuration.GetSection("SampleApi:Scopes").Get<string[]>();
+    var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<string[]>();
     return new ApiAuthHandler(tokenProvider, scopes!);
 });
 
-//SampleApi client - Refit
-builder.Services.AddRefitClient<ISampleApiRestClient>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["SampleApi:BaseUrl"]!))
+//SampleAppGateway client - Refit
+builder.Services.AddRefitClient<ISampleAppGatewayClient>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["SampleAppGateway:BaseUrl"]!))
     .AddHttpMessageHandler<ApiAuthHandler>();
-
-
 
 var host = builder.Build();
 

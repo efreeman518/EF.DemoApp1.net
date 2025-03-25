@@ -3,10 +3,11 @@
 
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Localization.Locals> Localizer
 
 <p>
     <label>
-        Select Language:
+        @Localizer["Language"]:
         <select @bind="selectedCultureName" @bind:after="ApplySelectedCultureAsync">
             @foreach (var culture in supportedCultures)
             {
