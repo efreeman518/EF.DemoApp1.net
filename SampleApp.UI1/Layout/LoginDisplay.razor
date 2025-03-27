@@ -8,7 +8,7 @@
 
 <AuthorizeView>
     <Authorized>
-        @context.User.Identity?.Name!
+        @context.User.Identity?.Name
         <MudBlazor.MudButton ButtonType="MudBlazor.ButtonType.Button" Color="MudBlazor.Color.Primary" @onclick="BeginLogOut">@Localizer["Logout"]</MudBlazor.MudButton>
     </Authorized>
     <NotAuthorized>
@@ -33,7 +33,7 @@
 
     public async Task BeginLogOut()
     {
-        await Task.Yield();
+        await Task.CompletedTask;
 
         //AzureB2C
         Navigation.NavigateToLogout("authentication/logout");

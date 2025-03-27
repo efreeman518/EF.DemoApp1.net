@@ -9,40 +9,49 @@
 
 @inject IAccessTokenProvider AuthorizationService
 
-<h1>@AuthenticatedUser?.Identity?.Name</h1>
 
-<h2>Claims</h2>
+<AuthorizeView>
+    <Authorized>
+        <h1>@AuthenticatedUser?.Identity?.Name</h1>
 
-@foreach (var claim in AuthenticatedUser?.Claims ?? Array.Empty<Claim>())
-{
-    <p class="claim">@(claim.Type): @claim.Value</p>
-}
+        <h2>Claims</h2>
 
-<h2>Access token</h2>
+        @foreach (var claim in AuthenticatedUser?.Claims ?? Array.Empty<Claim>())
+        {
+            <p class="claim">@(claim.Type): @claim.Value</p>
+        }
 
-<p id="access-token">@AccessToken?.Value</p>
+        <h2>Access token</h2>
 
-<h2>Access token claims</h2>
+        <p id="access-token">@AccessToken?.Value</p>
 
-@foreach (var claim in GetAccessTokenClaims() ?? new Dictionary<string, object>())
-{
-    <p>@(claim.Key): @claim.Value.ToString()</p>
-}
+        <h2>Access token claims</h2>
 
-@if (AccessToken != null)
-{
-    <h2>Access token expires</h2>
+        @foreach (var claim in GetAccessTokenClaims() ?? new Dictionary<string, object>())
+        {
+            <p>@(claim.Key): @claim.Value.ToString()</p>
+        }
 
-    <p>Current time: <span id="current-time">@DateTimeOffset.Now</span></p>
-    <p id="access-token-expires">@AccessToken.Expires</p>
+        @if (AccessToken != null)
+        {
+            <h2>Access token expires</h2>
 
-    <h2>Access token granted scopes (as reported by the API)</h2>
+            <p>Current time: <span id="current-time">@DateTimeOffset.Now</span></p>
+            <p id="access-token-expires">@AccessToken.Expires</p>
 
-    @foreach (var scope in AccessToken.GrantedScopes)
-    {
-        <p>Scope: @scope</p>
-    }
-}
+            <h2>Access token granted scopes (as reported by the API)</h2>
+
+            @foreach (var scope in AccessToken.GrantedScopes)
+            {
+                <p>Scope: @scope</p>
+            }
+        }
+
+    </Authorized>
+    <NotAuthorized>
+        <a href="authentication/login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Inject]

@@ -138,4 +138,22 @@
   <data name="AppName" xml:space="preserve">
     <value>নমুনা অ্যাপ্লিকেশন</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>হোম / প্রধান পৃষ্ঠা</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>ব্যবহারকারী</value>
+  </data>
+  <data name="Todo" xml:space="preserve">
+    <value>করণীয়</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>অনুসন্ধান</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>সম্পাদনা করুন</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>যোগ করুন</value>
+  </data>
 </root>

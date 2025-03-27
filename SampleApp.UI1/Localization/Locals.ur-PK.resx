@@ -138,4 +138,22 @@
   <data name="AppName" xml:space="preserve">
     <value>نمونہ ایپلیکیشن</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>ہوم / مرکزی صفحہ</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>صارف</value>
+  </data>
+  <data name="Todo" xml:space="preserve">
+    <value>کرنے کے کام</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>تلاش</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>ترمیم</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>شامل کریں</value>
+  </data>
 </root>

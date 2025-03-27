@@ -145,4 +145,28 @@
     <value>Sample Application</value>
     <comment>None</comment>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+    <comment>None</comment>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+    <comment>None</comment>
+  </data>
+  <data name="Todo" xml:space="preserve">
+    <value>Todo</value>
+    <comment>None</comment>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+    <comment>None</comment>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+    <comment>None</comment>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+    <comment>None</comment>
+  </data>
 </root>

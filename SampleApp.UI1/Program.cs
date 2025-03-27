@@ -25,7 +25,12 @@ builder.Services.AddMsalAuthentication(options =>
 
     //access token to include scopes defined in the UI app registration's API Permissions which are linked to
     //scopes exposed by (a different) AzureB2C api app reg that (Exposes an API - scopes) as scopes and included as part of the sign-in flow
-    options.ProviderOptions.DefaultAccessTokenScopes.Add("https://efazureadb2c.onmicrosoft.com/f26c2e2c-ea6e-4046-8116-e541df232c2d/StandardAccess");
+    var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<List<string>>();
+    if(scopes != null)
+    {
+        scopes.ForEach(scope => options.ProviderOptions.DefaultAccessTokenScopes.Add(scope));
+    }
+    
 });
 
 //ENTRA ID AUTHENTICATION
@@ -60,7 +65,7 @@ builder.Services.AddScoped(provider =>
 });
 
 //SampleAppGateway client - Refit
-builder.Services.AddRefitClient<ISampleAppGatewayClient>()
+builder.Services.AddRefitClient<ISampleAppClient>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["SampleAppGateway:BaseUrl"]!))
     .AddHttpMessageHandler<ApiAuthHandler>();
 

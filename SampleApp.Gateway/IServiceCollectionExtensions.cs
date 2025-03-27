@@ -29,7 +29,7 @@ public static class IServiceCollectionExtensions
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("https://localhost:7018") // Adjust to your Blazor app's address
+                policy.WithOrigins("https://localhost:7124") // Adjust to your Blazor app's address
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials(); //does not work with AllowAnyOrigin()

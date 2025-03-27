@@ -138,4 +138,22 @@
   <data name="AppName" xml:space="preserve">
     <value>नमूना अनुप्रयोग</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>होम / मुखपृष्ठ</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>उपयोगकर्ता</value>
+  </data>
+  <data name="Todo" xml:space="preserve">
+    <value>करने के लिए</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>खोज</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>संपादित करें</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>जोड़ें</value>
+  </data>
 </root>

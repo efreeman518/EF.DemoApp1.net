@@ -138,4 +138,22 @@
   <data name="AppName" xml:space="preserve">
     <value>Aplicação de Exemplo</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>Início</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Utilizador</value>
+  </data>
+  <data name="Todo" xml:space="preserve">
+    <value>Tarefa pendente</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Pesquisar</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
 </root>

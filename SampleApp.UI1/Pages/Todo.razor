@@ -1,0 +1,32 @@
+﻿@page "/todo"
+
+@using SampleApp.UI1.Model
+
+<MudText Typo="Typo.h4">Todo Items</MudText>
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+    <MudTabPanel Text="@Localizer["Search"]">
+        <MudPaper>
+            <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false">
+                <ToolBarContent>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.Id" Hidden="true" />
+                    <PropertyColumn Property="x => x.Name" />
+                    <PropertyColumn Property="x => x.Status" />
+                    <PropertyColumn Property="x => x.SecureDeterministic" />
+                    <PropertyColumn Property="x => x.SecureRandom" />
+                 </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="TodoItemDto" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudTabPanel>
+    <MudTabPanel Text="@Localizer["Add"]">
+        <MudPaper>
+            <MudText>Add/Edit</MudText>
+        </MudPaper>
+    </MudTabPanel>
+</MudTabs>

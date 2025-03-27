@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-@using MudBlazor
 @using Blazored.LocalStorage
 @using SampleApp.UI1.Utility
 @using System.Globalization
@@ -10,7 +9,7 @@
 
 <MudRTLProvider RightToLeft="@_rtl">
     @* Required *@
-    <MudThemeProvider Theme="@CurrentTheme" @bind-IsDarkMode="IsDarkMode" />
+    <MudThemeProvider Theme="@CurrentTheme" @bind-IsDarkMode="_isDarkMode" />
     <MudPopoverProvider />
 
     @* Needed for dialogs *@
@@ -20,35 +19,36 @@
     <MudSnackbarProvider />
 
     <MudLayout>
-        <MudAppBar Elevation="1">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudAppBar Elevation="1" Dense="true">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
             <MudText Typo="Typo.h5" Class="ml-3">@Localizer["AppName"]</MudText>
             <MudSpacer />
             <SampleApp.UI1.Components.LanguageSelector />
+            @* <MudSpacer />
+            <MudSwitch @bind-Value="IsDarkMode" Label="Dark" Color="Color.Info" /> *@
             <MudSpacer />
-            <MudSwitch @bind-Value="IsDarkMode" Label="Dark" Color="Color.Info" />
-            <MudSpacer />
-            <MudToggleIconButton @bind-Toggled="IsDarkMode"
-            Icon="@Icons.Material.Filled.LightMode"
-            Color="@Color.Warning"
-            ToggledIcon="@Icons.Material.Filled.DarkMode"
-            ToggledColor="@Color.Primary"
-            title="@(IsDarkMode ? "Dark" : "Light")" />
+            <MudToggleIconButton @bind-Toggled="_isDarkMode"
+                                 Icon="@Icons.Material.Filled.LightMode"
+                                 Color="@Color.Warning"
+                                 ToggledIcon="@Icons.Material.Filled.DarkMode"
+                                 ToggledColor="@Color.Primary"
+                                 title="Toggle dark mode" />
             <MudSpacer />
             <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
             <MudSpacer />
             <LoginDisplay />
         </MudAppBar>
-        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2" Color="Color.Secondary" OnOverlayClick="CloseDrawer">
+        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" Color="Color.Secondary">
             <MudNavMenu>
-                <MudNavLink OnClick="@(async () => await Nav("/"))">Home</MudNavLink>
-                <MudNavLink OnClick="@(async () => await Nav("/user"))">User</MudNavLink>
-                <MudNavLink OnClick="@(async () => await Nav("/weather"))">Weather</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" OnClick="@(() => Nav("/"))">@Localizer["Home"]</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person" OnClick="@(() => Nav("/user"))">@Localizer["User"]</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="@(() => Nav("/todo"))">@Localizer["Todo"]</MudNavLink>
             </MudNavMenu>
         </MudDrawer>
-        <MudMainContent Class="ma-10">
-            @Body
-            
+        <MudMainContent>
+            <MudPaper Class="pa-4">
+                @Body
+            </MudPaper>
         </MudMainContent>
     </MudLayout>
 </MudRTLProvider>
@@ -62,28 +62,28 @@
     private NavigationManager NavigationManager { get; set; } = null!;
 
     private MudTheme CurrentTheme { get; set; } = Utility.ColorThemes.ThemePastel1;
-    private bool IsDarkMode { get; set; }
+    private bool _isDarkMode { get; set; }
     private bool _rtl = false;
     private bool _drawerOpen = false;
 
-    private void DrawerToggle(bool? force = null)
+    private void DrawerToggle()
     {
-        _drawerOpen = force ?? !_drawerOpen;
-        //StateHasChanged();  // Force UI update
-        //await Task.Delay(100); // Small delay to ensure UI updates
+        _drawerOpen = !_drawerOpen;
     }
 
-    private async Task Nav(string url)
+    private void Nav(string url)
     {
-        _drawerOpen = false;
+        //_drawerOpen = false;
         // Optionally, add a small delay to allow the drawer to close before navigation
-        await Task.Delay(100); // Adjust delay as needed
-        NavigationManager.NavigateTo(url); 
+        //await Task.Delay(100); // Adjust delay as needed
+        //OnClick="@(async () => await Nav("/"))"
+
+        NavigationManager.NavigateTo(url);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        IsDarkMode = (await LocalStorage.ContainKeyAsync("DarkMode"))
+        _isDarkMode = (await LocalStorage.ContainKeyAsync("DarkMode"))
             ? await LocalStorage.GetItemAsync<bool>("DarkMode")
             : await JsInteropUtility.GetSystemDarkModeAsync();
 
