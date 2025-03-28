@@ -77,7 +77,7 @@ internal static class IServiceCollectionExtensions
         });
 
         //Auth
-        string configSectionName = "Api-EntraID";
+        string configSectionName = "Api1-EntraID";
         var configSection = config.GetSection(configSectionName);
         if (configSection.GetChildren().Any())
         {
@@ -112,9 +112,9 @@ internal static class IServiceCollectionExtensions
                 .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build())
-                //define specific roles/scopes policies
+                //define policies based on specific roles/scopes 
+                .AddPolicy("StandardAccessPolicy1", policy => policy.RequireRole("StandardAccess"))
                 .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
-                .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
                 .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))
                 .AddPolicy("ScopeOrRolePolicy1", policy => policy.AddRequirements(new RolesOrScopesRequirement(["SomeAccess1"], ["SomeScope1"])))
                 .AddPolicy("ScopeOrRolePolicy2", policy =>

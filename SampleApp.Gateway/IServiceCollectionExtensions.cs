@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.Auth.Handlers;
+using System.Net.Http.Headers;
+using Yarp.ReverseProxy.Transforms;
 
 namespace SampleApp.Gateway;
 
@@ -92,8 +94,38 @@ public static class IServiceCollectionExtensions
 
         //services.AddRouting(options => options.LowercaseUrls = true);
 
+        //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+        //so if we need to use client/secret (client AAD App Reg), set the env vars
+        if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
+        {
+            Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
+        }
+
+        services.AddSingleton<TokenService>(); // Add TokenService
         services.AddReverseProxy()
-            .LoadFromConfig(config.GetSection("ReverseProxy"));
+            .LoadFromConfig(config.GetSection("ReverseProxy"))
+            .AddTransforms(context =>
+            {
+                var tokenService = context.Services.GetRequiredService<TokenService>();
+                var clusterId = context.Cluster?.ClusterId;
+                if (string.IsNullOrEmpty(clusterId)) return;
+
+                
+                //if (!string.IsNullOrEmpty(token))
+                //{
+                    context.AddRequestTransform(async context =>
+                    {
+                        var token = await tokenService.GetAccessTokenAsync(clusterId);
+
+                        // Remove the existing Authorization header (if any)
+                        context.ProxyRequest.Headers.Authorization = null;
+                        context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                        //return ValueTask.CompletedTask;
+                    });
+                //}
+            });
 
 
         //if (config.GetValue("OpenApiSettings:Enable", false))

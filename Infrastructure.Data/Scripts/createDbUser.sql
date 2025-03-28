@@ -7,6 +7,19 @@ grant VIEW ANY COLUMN MASTER KEY DEFINITION to [managed-identity-name]
 grant VIEW ANY COLUMN ENCRYPTION KEY DEFINITION to [managed-identity-name]
 --see 'create a role with execute permissions' step below if needed
 
+--create a user using EntraID user using their email
+CREATE USER [email] FROM EXTERNAL PROVIDER;
+GO
+-- Full DB owner access
+ALTER ROLE db_owner ADD MEMBER [email];
+GO
+-- OR Read/Write access
+ALTER ROLE db_datawriter ADD MEMBER [email];
+ALTER ROLE db_datareader ADD MEMBER [email];
+GO
+
+
+
 USE [targetDB];
 ALTER USER [targetDBUser] WITH login = [server-login];
 

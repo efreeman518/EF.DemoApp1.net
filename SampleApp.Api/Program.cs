@@ -57,7 +57,7 @@ try
 
     //Azure AppConfig
     var appConfig = builder.Configuration.GetSection("AzureAppConfig");
-    if (appConfig != null)
+    if (appConfig.GetChildren().Any())
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
