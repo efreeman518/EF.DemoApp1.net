@@ -156,4 +156,7 @@
   <data name="Add" xml:space="preserve">
     <value>إضافة</value>
   </data>
+  <data name="TodoNameLengthRule" xml:space="preserve">
+    <value>يجب أن يكون الاسم بين 5 و 50 حرفًا.</value>
+  </data>
 </root>

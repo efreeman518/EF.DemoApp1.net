@@ -156,4 +156,7 @@
   <data name="Add" xml:space="preserve">
     <value>Добавить</value>
   </data>
+  <data name="TodoNameLengthRule" xml:space="preserve">
+    <value>Имя должно содержать от 5 до 50 символов.</value>
+  </data>
 </root>

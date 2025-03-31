@@ -5,7 +5,7 @@
 <MudText Typo="Typo.h4">Todo Items</MudText>
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
     <MudTabPanel Text="@Localizer["Search"]">
-        <MudPaper>
+        <MudPaper Elevation="1" Outlined="true" Class="p-2">
             <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false">
                 <ToolBarContent>
                     <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
@@ -17,7 +17,7 @@
                     <PropertyColumn Property="x => x.Status" />
                     <PropertyColumn Property="x => x.SecureDeterministic" />
                     <PropertyColumn Property="x => x.SecureRandom" />
-                 </Columns>
+                </Columns>
                 <PagerContent>
                     <MudDataGridPager T="TodoItemDto" />
                 </PagerContent>
@@ -25,8 +25,23 @@
         </MudPaper>
     </MudTabPanel>
     <MudTabPanel Text="@Localizer["Add"]">
-        <MudPaper>
-            <MudText>Add/Edit</MudText>
-        </MudPaper>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Name" @bind-Value="model.Name" For="@(() => model.Name)" />
+                    <MudSelect @bind-Value="model.Status" Label="Status">
+                        @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
+                        {
+                            <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField Label="SecureDeterministic" @bind-Value="model.SecureDeterministic" For="@(() => model.SecureDeterministic)" />
+                    <MudTextField Label="SecureRandom" @bind-Value="model.SecureRandom" For="@(() => model.SecureRandom)" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
     </MudTabPanel>
 </MudTabs>

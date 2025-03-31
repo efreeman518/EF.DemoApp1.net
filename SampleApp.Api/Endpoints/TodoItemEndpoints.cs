@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Filters;
 using AppConstants = Application.Contracts.Constants.Constants;
@@ -16,22 +17,22 @@ public static class TodoItemEndpoints
 
         //auth, version, output cache, etc. can be applied to specific enpoints if needed
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
-            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK)
             .WithSummary("Get a list of TodoItems");
         group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)
-            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK)
             .WithSummary("Get a list of TodoItems");
         group.MapGet("/{id:guid}", GetById)
-            .Produces<TodoItemDto>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces<TodoItemDto>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status404NotFound)
             .WithSummary("Get a TodoItem");
         group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
-            .Produces<TodoItemDto>(StatusCodes.Status201Created).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces<TodoItemDto>(StatusCodes.Status201Created).ProducesValidationProblem()
             .WithSummary("Create a TodoItem");
         group.MapPut("/{id:guid}", Update).AddEndpointFilter<ValidationFilter<TodoItemDto>>()
-            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(StatusCodes.Status404NotFound)
             .WithSummary("Update a TodoItem");
         group.MapDelete("/{id:guid}", Delete)
-            .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem().ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem()
             .WithSummary("Delete a TodoItem");
     }
 

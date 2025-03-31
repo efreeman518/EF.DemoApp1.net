@@ -169,4 +169,8 @@
     <value>Add</value>
     <comment>None</comment>
   </data>
+  <data name="TodoNameLengthRule" xml:space="preserve">
+    <value>Name must be between 5 and 50 characters.</value>
+    <comment>None</comment>
+  </data>
 </root>

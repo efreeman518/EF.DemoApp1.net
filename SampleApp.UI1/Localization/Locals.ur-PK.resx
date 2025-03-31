@@ -156,4 +156,7 @@
   <data name="Add" xml:space="preserve">
     <value>شامل کریں</value>
   </data>
+  <data name="TodoNameLengthRule" xml:space="preserve">
+    <value>نام 5 سے 50 حروف کے درمیان ہونا چاہیے</value>
+  </data>
 </root>

@@ -22,9 +22,12 @@ public interface ISampleAppClient
     #endregion
 
     [Post("/api1/v1.1/todoitems")]
-    Task<TodoItemDto> SaveItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default);
+    Task<TodoItemDto> CreateItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default);
 
     [Put("/api1/v1.1/todoitems/{id}")]
+    Task<TodoItemDto> UpdateItemAsync(Guid id, TodoItemDto todo, CancellationToken cancellationToken = default);
+
+    [Delete("/api1/v1.1/todoitems/{id}")]
     Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default);
 
     //Task<object?> GetUserAsync(CancellationToken cancellationToken = default);

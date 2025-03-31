@@ -12,8 +12,6 @@
 
 <p>@Localizer["Greeting"] @userName</p> 
 
-<p>@x @userName</p>
-
 <AuthorizeView>
     <Authorized>
 
@@ -61,13 +59,10 @@
 @code {
     private DateTime dt = DateTime.Now;
     private double number = 1999.69;
-    private string? x;
     private string userName = "";
 
     protected override async Task OnInitializedAsync()
     {
-        x = Localizer["Greeting"];
-
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -75,6 +70,5 @@
         {
             userName = user.Identity.Name ?? "";
         }
-
     }
 }

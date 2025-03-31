@@ -131,7 +131,7 @@ internal static class IServiceCollectionExtensions
 
         //if needed
         //services.AddScoped<IValidatorDiscovery, ValidatorDiscovery>();
-        services.AddScoped<IValidator<TodoItemDto>, TodoItemDtoValidator>();
+        services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
 
         services.AddControllers();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using MudBlazor;
 using SampleApp.UI1.Model;
@@ -10,12 +11,22 @@ namespace SampleApp.UI1.Pages;
 public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISampleAppClient sampleAppClient)
 {
     MudDataGrid<TodoItemDto> DataGrid { get; set; } = null!;
-    string? searchString = null;
+    private string? searchString;
+    private TodoItemDto model = new();
 
     private Task OnSearch(string text)
     {
         searchString = text;
         return DataGrid.ReloadServerData();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        model = model.Id == null 
+            ? await sampleAppClient.CreateItemAsync(model)
+            : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
+
+        //StateHasChanged();
     }
 
     private async Task<GridData<TodoItemDto>> ServerReload(GridState<TodoItemDto> state)
