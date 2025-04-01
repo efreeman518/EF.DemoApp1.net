@@ -13,11 +13,20 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
     MudDataGrid<TodoItemDto> DataGrid { get; set; } = null!;
     private string? searchString;
     private TodoItemDto model = new();
+    bool success;
+    MudForm form = null!;
+    private string[] errors = [];
 
-    private Task OnSearch(string text)
+
+    private IEnumerable<string> NameValidation(string name)
     {
-        searchString = text;
-        return DataGrid.ReloadServerData();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            yield return Localizer["Required"];
+            yield break;
+        }
+        if (!name.Contains("a", StringComparison.CurrentCulture))
+            yield return "Name must include 'a'.";
     }
 
     private async Task OnValidSubmit(EditContext context)
@@ -26,7 +35,13 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
             ? await sampleAppClient.CreateItemAsync(model)
             : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
 
-        //StateHasChanged();
+        StateHasChanged();
+    }
+
+    private Task OnSearch(string text)
+    {
+        searchString = text;
+        return DataGrid.ReloadServerData();
     }
 
     private async Task<GridData<TodoItemDto>> ServerReload(GridState<TodoItemDto> state)

@@ -8,6 +8,7 @@ using SampleApp.UI1;
 using SampleApp.UI1.Services;
 using SampleApp.UI1.Utility;
 using System.Globalization;
+using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -67,7 +68,20 @@ builder.Services.AddScoped(provider =>
 //SampleAppGateway client - Refit
 builder.Services.AddRefitClient<ISampleAppClient>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["SampleAppGateway:BaseUrl"]!))
-    .AddHttpMessageHandler<ApiAuthHandler>();
+    .AddHttpMessageHandler<ApiAuthHandler>()
+    .ConfigureHttpClient((sp, client) =>
+    {
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+    })
+    .AddTypedClient((client, sp) => RestService.For<ISampleAppClient>(client, new RefitSettings
+    {
+        //prevent enum serialization as strings
+        ContentSerializer = new SystemTextJsonContentSerializer(new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { } // No JsonStringEnumConverter here
+        })
+    }));
 
 var host = builder.Build();
 

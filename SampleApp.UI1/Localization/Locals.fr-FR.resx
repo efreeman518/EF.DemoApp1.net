@@ -159,4 +159,7 @@
   <data name="TodoNameLengthRule" xml:space="preserve">
     <value>Le nom doit contenir entre 5 et 50 caractères.</value>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>Requis</value>
+  </data>
 </root>

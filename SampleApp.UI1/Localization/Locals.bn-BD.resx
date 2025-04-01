@@ -159,4 +159,7 @@
   <data name="TodoNameLengthRule" xml:space="preserve">
     <value>নাম অবশ্যই ৫ থেকে ৫০ অক্ষরের মধ্যে হতে হবে।</value>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>প্রয়োজনীয়</value>
+  </data>
 </root>

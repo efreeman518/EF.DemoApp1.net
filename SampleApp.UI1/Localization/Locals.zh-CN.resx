@@ -159,4 +159,7 @@
   <data name="TodoNameLengthRule" xml:space="preserve">
     <value>名称必须在 5 到 50 个字符之间。</value>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>必填</value>
+  </data>
 </root>

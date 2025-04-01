@@ -25,23 +25,38 @@
         </MudPaper>
     </MudTabPanel>
     <MudTabPanel Text="@Localizer["Add"]">
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <MudCard>
-                <MudCardContent>
-                    <MudTextField Label="Name" @bind-Value="model.Name" For="@(() => model.Name)" />
-                    <MudSelect @bind-Value="model.Status" Label="Status">
-                        @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
-                        {
-                            <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
-                        }
-                    </MudSelect>
-                    <MudTextField Label="SecureDeterministic" @bind-Value="model.SecureDeterministic" For="@(() => model.SecureDeterministic)" />
-                    <MudTextField Label="SecureRandom" @bind-Value="model.SecureRandom" For="@(() => model.SecureRandom)" />
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </EditForm>
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Spacing="2">
+                        <MudTextField T="string" Label="Name" @bind-Value="model.Name" For="@(() => model.Name)"
+                                      Validation="@(new Func<string, IEnumerable<string>>(NameValidation))" Required="true" RequiredError="Required" />
+
+                        <MudSelect @bind-Value="model.Status" Label="Status">
+                            @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
+                            {
+                                <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudTextField Label="SecureDeterministic" @bind-Value="model.SecureDeterministic" For="@(() => model.SecureDeterministic)" />
+                        <MudTextField Label="SecureRandom" @bind-Value="model.SecureRandom" For="@(() => model.SecureRandom)" />
+                    </MudForm>
+                </MudPaper>
+                <MudPaper Class="pa-4 mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(() => form.Validate())">Validate</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@(() => form.ResetAsync())" Class="mx-2">Reset</MudButton>
+                    <MudButton Variant="Variant.Filled" DropShadow="false" OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+                    @foreach (var error in errors)
+                    {
+                        <MudText Color="@Color.Error">@error</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     </MudTabPanel>
 </MudTabs>

@@ -159,4 +159,7 @@
   <data name="TodoNameLengthRule" xml:space="preserve">
     <value>يجب أن يكون الاسم بين 5 و 50 حرفًا.</value>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>مطلوب</value>
+  </data>
 </root>

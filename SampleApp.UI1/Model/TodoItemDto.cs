@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+﻿using MudBlazor;
+using SampleApp.UI1.Localization;
+using System.ComponentModel.DataAnnotations;
 
 namespace SampleApp.UI1.Model;
 
@@ -9,12 +10,11 @@ public record TodoItemDto
 {
     public Guid? Id { get; init; }
 
-    [Required]
-    [StringLength(50, ErrorMessageResourceName = "TodoNameLengthRule", MinimumLength = 5)]
     public string Name { get; set; } = null!;
 
-    [JsonConverter(typeof(JsonNumberEnumConverter<TodoItemStatus>))]
+    //[JsonConverter(typeof(JsonNumberEnumConverter<TodoItemStatus>))]
     public TodoItemStatus Status { get; set; } = TodoItemStatus.Created;
+
 
     public string? SecureRandom { get; set; }
     public string? SecureDeterministic { get; set; }

@@ -173,4 +173,8 @@
     <value>Name must be between 5 and 50 characters.</value>
     <comment>None</comment>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
+    <comment>None</comment>
+  </data>
 </root>

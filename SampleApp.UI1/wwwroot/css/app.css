@@ -1,3 +1,9 @@
+html, body {
+    background-color: #222;
+    color: aliceblue;
+    font-family: Arial, sans-serif;
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
