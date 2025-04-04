@@ -1,20 +1,26 @@
 ﻿@using SampleApp.UI1.Components
+@using SampleApp.UI1.Utility
 
 @inject IStringLocalizer<Localization.Locals> Localizer
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
-                    @if (!(context.User.Identity?.IsAuthenticated ?? false))
+                    @* Entire app requires authentication *@
+                    <RedirectToLogin />
+
+                    @* Some pages are anonymous, others @attribute [Authorize] *@
+                    @* @if (!(context.User?.Identity?.IsAuthenticated ?? false))
                     {
                         <RedirectToLogin />
                     }
                     else
                     {
                         <p role="alert">@Localizer["NotAuthorized"]</p>
-                    }
+                    } *@
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -27,4 +33,29 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    [Inject]
+    AppStateService appStateService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StoreUsernameOnLogin();
+    }
+
+    private async Task StoreUsernameOnLogin()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var username = user.FindFirst("username")?.Value
+                        ?? user.FindFirst("email")?.Value; // Use email if preferred_username is not available
+
+            await appStateService.SetSetting("username", username);
+        }
+    }
+
+}
 

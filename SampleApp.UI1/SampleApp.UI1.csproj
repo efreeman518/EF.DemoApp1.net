@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <BlazorEnableDebugging>true</BlazorEnableDebugging>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 

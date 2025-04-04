@@ -9,7 +9,7 @@
 <AuthorizeView>
     <Authorized>
         @context.User.Identity?.Name
-        <MudBlazor.MudButton ButtonType="MudBlazor.ButtonType.Button" Color="MudBlazor.Color.Primary" @onclick="BeginLogOut">@Localizer["Logout"]</MudBlazor.MudButton>
+        <MudBlazor.MudButton ButtonType="MudBlazor.ButtonType.Button" @onclick="BeginLogOut">@Localizer["Logout"]</MudBlazor.MudButton>
     </Authorized>
     <NotAuthorized>
         <a href="authentication/login">@Localizer["Login"]</a>

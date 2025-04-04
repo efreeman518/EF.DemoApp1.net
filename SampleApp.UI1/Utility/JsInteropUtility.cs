@@ -22,7 +22,8 @@ public class JsInteropUtility(IJSRuntime jsRuntime) : IJsInteropUtility, IAsyncD
     public async Task<string> GetBrowserCultureNameAsync()
     {
         var module = await GetModule();
-        return await module.InvokeAsync<string>("GetBrowserCultureName");
+        var cultureName = await module.InvokeAsync<string>("GetBrowserCultureName");
+        return cultureName ?? "en-US";
     }
 
     public async Task<bool> GetSystemDarkModeAsync()

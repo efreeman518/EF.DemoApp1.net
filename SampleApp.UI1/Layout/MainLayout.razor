@@ -1,15 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
-@using Blazored.LocalStorage
 @using SampleApp.UI1.Utility
 @using System.Globalization
 
-@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+@* @inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider *@
+@inject AppStateService AppStateService
 @inject IStringLocalizer<Localization.Locals> Localizer
 
-<MudRTLProvider RightToLeft="@_rtl">
+<MudRTLProvider RightToLeft="@Rtl">
     @* Required *@
-    <MudThemeProvider Theme="@CurrentTheme" @bind-IsDarkMode="_isDarkMode" />
+    <MudThemeProvider Theme="appStateService.Theme" IsDarkMode="appStateService.IsDarkMode" />
     <MudPopoverProvider />
 
     @* Needed for dialogs *@
@@ -22,93 +22,42 @@
         <MudAppBar Elevation="1" Dense="true">
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
             <MudText Typo="Typo.h5" Class="ml-3">@Localizer["AppName"]</MudText>
-            <MudSpacer />
-            <SampleApp.UI1.Components.LanguageSelector />
             @* <MudSpacer />
-            <MudSwitch @bind-Value="IsDarkMode" Label="Dark" Color="Color.Info" /> *@
+            <SampleApp.UI1.Components.LanguageSelector />
             <MudSpacer />
-            <MudToggleIconButton @bind-Toggled="_isDarkMode"
+            <MudToggleIconButton @bind-Toggled="IsDarkMode"
                                  Icon="@Icons.Material.Filled.LightMode"
                                  Color="@Color.Warning"
                                  ToggledIcon="@Icons.Material.Filled.DarkMode"
                                  ToggledColor="@Color.Primary"
-                                 title="Toggle dark mode" />
+                                 title="Toggle dark mode" /> *@
             <MudSpacer />
             <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
             <MudSpacer />
             <LoginDisplay />
         </MudAppBar>
-        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" Color="Color.Secondary">
+        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" Color="Color.Secondary">
             <MudNavMenu>
                 <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" OnClick="@(() => Nav("/"))">@Localizer["Home"]</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person" OnClick="@(() => Nav("/user"))">@Localizer["User"]</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="@(() => Nav("/todo"))">@Localizer["Todo"]</MudNavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person" OnClick="@(() => Nav("/user"))">@Localizer["User"]</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="@(() => Nav("/todo"))">@Localizer["Todo"]</MudNavLink>
+                    </Authorized>
+                </AuthorizeView>
+                <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings" OnClick="@(() => Nav("/settings"))">@Localizer["Settings"]</MudNavLink>
+                <AuthorizeView>
+                    <Authorized>
+
+                    </Authorized>
+                </AuthorizeView>
             </MudNavMenu>
         </MudDrawer>
         <MudMainContent>
-            <MudPaper Class="pa-4">
-                @Body
-            </MudPaper>
+            <MudContainer Class="pa-2" MaxWidth="MaxWidth.False">
+            @Body
+            </MudContainer>
         </MudMainContent>
     </MudLayout>
 </MudRTLProvider>
 
-@code {
-    [Inject]
-    private ILocalStorageService LocalStorage { get; set; } = null!;
-    [Inject]
-    private IJsInteropUtility JsInteropUtility { get; set; } = null!;
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
-
-    private MudTheme CurrentTheme { get; set; } = Utility.ColorThemes.ThemePastel1;
-    private bool _isDarkMode { get; set; }
-    private bool _rtl = false;
-    private bool _drawerOpen = false;
-
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-
-    private void Nav(string url)
-    {
-        //_drawerOpen = false;
-        // Optionally, add a small delay to allow the drawer to close before navigation
-        //await Task.Delay(100); // Adjust delay as needed
-        //OnClick="@(async () => await Nav("/"))"
-
-        NavigationManager.NavigateTo(url);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        _isDarkMode = (await LocalStorage.ContainKeyAsync("DarkMode"))
-            ? await LocalStorage.GetItemAsync<bool>("DarkMode")
-            : await JsInteropUtility.GetSystemDarkModeAsync();
-
-        //rtl
-        var rtlLanguages = new[] { "ar", "he", "ur", "fa", "ps", "sd", "iw" }; // Arabic, Hebrew, Urdu, Farsi, Pashto, Sindhi, etc.
-        _rtl = rtlLanguages.Contains(CultureInfo.CurrentCulture.Name.Substring(0, 2));
-
-        await StoreUsernameOnLogin();
-    }
-
-    private async Task StoreUsernameOnLogin()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            var username = user.FindFirst("username")?.Value
-                        ?? user.FindFirst("email")?.Value; // Use email if preferred_username is not available
-
-            if (!string.IsNullOrEmpty(username))
-            {
-                await LocalStorage.SetItemAsStringAsync("username", username);
-            }
-        }
-    }
-
-}

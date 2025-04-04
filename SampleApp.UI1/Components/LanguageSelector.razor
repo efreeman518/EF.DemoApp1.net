@@ -1,23 +1,36 @@
 ﻿@using System.Globalization
-@using Blazored.LocalStorage
+@using SampleApp.UI1.Utility
+@using Blazored.LocalStorage;
 
-@inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
 @inject IStringLocalizer<Localization.Locals> Localizer
 
 <p>
     <label>
         @Localizer["Language"]:
-        <select @bind="selectedCultureName" @bind:after="ApplySelectedCultureAsync">
+
+        @* <MudSelect Dense="true" @bind-Value="selectedCultureName" onchange="@ApplySelectedCultureAsync()" innerWidth="300px">
+            @foreach (var culture in supportedCultures)
+            {
+                <MudSelectItem Value="@culture.Name">@culture.NativeName</MudSelectItem>
+            }
+        </MudSelect> *@
+        <select @bind="SelectedCultureName">
             @foreach (var culture in supportedCultures)
             {
                 <option value="@culture.Name">@culture.NativeName</option>
             }
         </select>
+
     </label>
 </p>
 
 @code {
+    [Inject]
+    private AppStateService AppStateService { get; set; } = null!;
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
     private readonly CultureInfo[] supportedCultures = new[]
     {
         new CultureInfo("en-US"),
@@ -32,31 +45,34 @@
         new CultureInfo("ur-PK")
     };
 
-    private string GetLocalizedCultureName(CultureInfo culture)
-    {
-        // Return the name of the culture in its native language
-        //return new CultureInfo(selectedCultureName ?? CultureInfo.CurrentCulture.Name).TextInfo.ToTitleCase(culture.DisplayName);
-        var localizedCulture = new CultureInfo(culture.Name);
-        return localizedCulture.DisplayName;
-    }
-
-    private string? selectedCultureName;
-
     protected override async Task OnInitializedAsync()
     {
-        var storedCulture = await LocalStorage.GetItemAsync<string>("BlazorAppCultureName");
-        selectedCultureName = storedCulture ?? CultureInfo.CurrentCulture.Name;
+        selectedCultureName = AppStateService.CultureName;
+    }
+
+    //get from current culture
+    private string selectedCultureName { get; set; } = null!;
+
+    private string SelectedCultureName
+    {
+        get => selectedCultureName;
+        set
+        {
+            if (selectedCultureName != value)
+            {
+                selectedCultureName = value;
+                _ = ApplySelectedCultureAsync();
+            }
+        }
     }
 
     //break point does not break here
     private async Task ApplySelectedCultureAsync()
     {
-        Console.WriteLine("ApplySelectedCultureAsync triggered");
-
         if (CultureInfo.CurrentCulture.Name != selectedCultureName)
         {
-            await LocalStorage.SetItemAsync("BlazorAppCultureName", selectedCultureName);
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            await AppStateService.SetSetting("SampleAppCultureName", selectedCultureName!);
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true); // full reload for language change
         }
     }
 }

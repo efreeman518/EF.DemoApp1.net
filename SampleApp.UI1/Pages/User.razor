@@ -1,5 +1,4 @@
 ﻿@page "/user"
-@attribute [Authorize]
 
 @using System.Text.Json
 @using System.Security.Claims
@@ -65,7 +64,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
+        //await base.OnInitializedAsync();
         var state = await AuthenticationState;
         var accessTokenResult = await AuthorizationService.RequestAccessToken();
 

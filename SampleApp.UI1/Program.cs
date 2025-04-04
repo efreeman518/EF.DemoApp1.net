@@ -7,7 +7,6 @@ using Refit;
 using SampleApp.UI1;
 using SampleApp.UI1.Services;
 using SampleApp.UI1.Utility;
-using System.Globalization;
 using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -27,10 +26,7 @@ builder.Services.AddMsalAuthentication(options =>
     //access token to include scopes defined in the UI app registration's API Permissions which are linked to
     //scopes exposed by (a different) AzureB2C api app reg that (Exposes an API - scopes) as scopes and included as part of the sign-in flow
     var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<List<string>>();
-    if(scopes != null)
-    {
-        scopes.ForEach(scope => options.ProviderOptions.DefaultAccessTokenScopes.Add(scope));
-    }
+    scopes?.ForEach(scope => options.ProviderOptions.DefaultAccessTokenScopes.Add(scope));
     
 });
 
@@ -49,12 +45,14 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 //JS Interop utility
 builder.Services.AddSingleton<IJsInteropUtility, JsInteropUtility>();
-//MudBlazor component support
-builder.Services.AddMudServices();
 //browser localstorage
 builder.Services.AddBlazoredLocalStorage();
+//App State
+builder.Services.AddScoped<AppStateService>();
 // Add localization support
 builder.Services.AddLocalization();
+//MudBlazor component support
+builder.Services.AddMudServices();
 
 //SampleAppGateway client auth handler
 builder.Services.AddScoped(provider =>
@@ -85,17 +83,8 @@ builder.Services.AddRefitClient<ISampleAppClient>()
 
 var host = builder.Build();
 
-//Get/set the app culture/language
-var localStorage = host.Services.GetRequiredService<ILocalStorageService>();
-var cultureName = await localStorage.GetItemAsync<string>("BlazorAppCultureName");
-if (string.IsNullOrEmpty(cultureName))
-{
-    var jsInterop = host.Services.GetRequiredService<IJsInteropUtility>();
-    cultureName = await jsInterop.GetBrowserCultureNameAsync();
-}
-
-var culture = new CultureInfo(cultureName);
-CultureInfo.DefaultThreadCurrentCulture = culture;
-CultureInfo.DefaultThreadCurrentUICulture = culture; //https://github.com/dotnet/aspnetcore/issues/56824
+//setup initial app state
+var appState = host.Services.GetRequiredService<AppStateService>();
+await appState.InitializeAsync();
 
 await host.RunAsync();

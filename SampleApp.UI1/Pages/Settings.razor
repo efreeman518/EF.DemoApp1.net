@@ -1,0 +1,49 @@
+﻿@page "/settings"
+
+@using Microsoft.AspNetCore.Authorization
+@using Blazored.LocalStorage
+@using SampleApp.UI1.Utility
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IStringLocalizer<Localization.Locals> Localizer
+
+<PageTitle>Settings</PageTitle>
+
+<MudText Typo="Typo.h5">Settings</MudText>
+
+<MudGrid>
+    <MudItem xs="12" md="8">
+        <MudStack>
+            <MudPaper Class="pa-3">
+                <MudToggleIconButton Toggled="@appState.IsDarkMode" ToggledChanged="ToggleDarkMode"
+                                     Icon="@Icons.Material.Filled.LightMode" Size="Size.Small"
+                                     Color="@Color.Warning"
+                                     ToggledIcon="@Icons.Material.Filled.DarkMode"
+                                     ToggledColor="@Color.Success"
+                                     title="Toggle light/dark mode" />
+            </MudPaper>
+            <MudPaper Class="pa-3">
+                <SampleApp.UI1.Components.LanguageSelector />
+            </MudPaper>
+            <MudPaper Class="pa-3">Item 3</MudPaper>
+        </MudStack>
+    </MudItem>
+
+</MudGrid>
+
+<AuthorizeView>
+    <Authorized>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    [Inject]
+    private AppStateService appState { get; set; } = null!;
+
+    private async Task ToggleDarkMode(bool darkMode)
+    {
+        appState.IsDarkMode = darkMode;
+        await appState.SetSetting("DarkMode", darkMode);
+    }
+}
