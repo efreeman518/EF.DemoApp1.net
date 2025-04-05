@@ -1,10 +1,19 @@
 ﻿@page "/authentication/{action}"
+@layout EmptyLayout
+
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.Authorization
-@using Blazored.LocalStorage
+@using SampleApp.UI1.Utility
 
 @inject NavigationManager Navigation
-@inject ILocalStorageService LocalStorage
+@inject AppStateService AppStateService
+
+<MudPaper Class="d-flex justify-center align-center" Style="height: 100vh;">
+    <div>
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+        <MudText Typo="Typo.h6" Align="Align.Center" Class="mt-4">Redirecting to login...</MudText>
+    </div>
+</MudPaper>
 
 <RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceded"  />
 
@@ -18,17 +27,23 @@
 
     private async Task OnLoginSucceded()
     {
-        //EntraId - ideally the login_hint is appended to the entra logout url in order to skip the logout user selection popup
         var state = await AuthenticationState;
         var user = state.User;
 
         if (user?.Identity?.IsAuthenticated == true)
         {
+            var username = user.FindFirst("name")?.Value ?? user.FindFirst("username")?.Value
+                        ?? user.FindFirst("email")?.Value; // Use email if preferred_username is not available
+            //await appStateService.SetSetting("username", username);
+            await AppStateService.SetSetting("username", username);
+
+            //EntraId - ideally the login_hint is appended later to the entra logout url in order to skip the logout user selection popup
             foreach (var claim in user.Claims)
             {
                 if (claim.Type == "login_hint")
                 {
-                    await LocalStorage.SetItemAsStringAsync("login_hint", claim.Value);
+                    //await LocalStorage.SetItemAsStringAsync("login_hint", claim.Value);
+                    await AppStateService.SetSetting("login_hint", claim.Value);
                 }
             }
         }

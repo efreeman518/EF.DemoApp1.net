@@ -1,9 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using Blazored.LocalStorage
+@using SampleApp.UI1.Utility
 
-@inject NavigationManager Navigation
 @inject IConfiguration Configuration
-@inject IJSRuntime JS
 @inject IStringLocalizer<Localization.Locals> Localizer
 
 <AuthorizeView>
@@ -19,7 +17,11 @@
 @code {
 
     [Inject]
-    private ILocalStorageService LocalStorage { get; set; } = null!;
+    private AppStateService AppStateService { get; set; } = null!;
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
+    [Inject]
+    private NavigationManager Nav { get; set; } = null!;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; } = null!;
@@ -36,19 +38,25 @@
         await Task.CompletedTask;
 
         //AzureB2C
-        Navigation.NavigateToLogout("authentication/logout");
+        Nav.NavigateToLogout("authentication/logout");
 
         //EntraID
         //await LogoutEntraID();
     }
 
+
+    /// <summary>
+    /// Custom EntraID logout since blazor default lacks the logout_hint parameter and forces user selection
+    /// </summary>
+    /// <returns></returns>
     private async Task LogoutEntraID()
     {
         //EntraId
         //https://blogs.aaddevsup.xyz/2022/03/how-to-logout-of-an-oauth2-application-without-getting-prompted-to-select-a-user/#:%7E:text=How%20to%20logout%20of%20an%20OAuth2%20application%20without,logout_hint%20parameter%20where%20login_hint%20is%20the%20value%3A%20
 
         //use this with EntraID logout to avoid the user selection popup; login_hint was captured from claims upon login
-        var hint = await LocalStorage.GetItemAsync<string>("login_hint") ?? "";
+        //var hint = await LocalStorage.GetItemAsync<string>("login_hint") ?? "";
+        var hint = await AppStateService.GetOrFetchSetting<string>("login_hint");
         if (!string.IsNullOrEmpty(hint))
         {
             hint = "&logout_hint=" + hint;
@@ -58,9 +66,9 @@
         await JS.InvokeVoidAsync("sessionStorage.clear");
         await JS.InvokeVoidAsync("localStorage.clear");
 
-        var uri = new Uri(Navigation.Uri);
+        var uri = new Uri(Nav.Uri);
         var rootFolder = uri.GetLeftPart(UriPartial.Authority);
         var logoutUrl = string.Concat(Configuration["EntraIDLogoutUrl"], rootFolder, "/", hint);
-        Navigation.NavigateTo(logoutUrl, forceLoad: true);
+        Nav.NavigateTo(logoutUrl, forceLoad: true);
     }
 }

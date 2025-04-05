@@ -7,7 +7,8 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <AuthorizeRouteView RouteData="@routeData"> @*  DefaultLayout="@typeof(EmptyLayout)" *@
+                @* Handled in initialize *@
                 <NotAuthorized>
                     @* Entire app requires authentication *@
                     <RedirectToLogin />
@@ -33,29 +34,3 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
-
-@code {
-    [Inject]
-    AppStateService appStateService { get; set; } = null!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await StoreUsernameOnLogin();
-    }
-
-    private async Task StoreUsernameOnLogin()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            var username = user.FindFirst("username")?.Value
-                        ?? user.FindFirst("email")?.Value; // Use email if preferred_username is not available
-
-            await appStateService.SetSetting("username", username);
-        }
-    }
-
-}
-

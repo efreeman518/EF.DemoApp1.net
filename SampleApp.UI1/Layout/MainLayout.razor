@@ -7,6 +7,7 @@
 @inject AppStateService AppStateService
 @inject IStringLocalizer<Localization.Locals> Localizer
 
+
 <MudRTLProvider RightToLeft="@Rtl">
     @* Required *@
     <MudThemeProvider Theme="appStateService.Theme" IsDarkMode="appStateService.IsDarkMode" />
@@ -55,9 +56,10 @@
         </MudDrawer>
         <MudMainContent>
             <MudContainer Class="pa-2" MaxWidth="MaxWidth.False">
-            @Body
+                @Body
             </MudContainer>
         </MudMainContent>
     </MudLayout>
 </MudRTLProvider>
+
 
