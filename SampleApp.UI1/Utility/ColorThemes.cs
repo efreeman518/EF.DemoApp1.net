@@ -8,10 +8,10 @@ public static class ColorThemes
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#F3F3F3",
-            TextPrimary = "#151515",
-            Secondary = "#010961",
-            DrawerIcon = "#F3F3F3"
+            //Primary = "#F3F3F3",
+            //TextPrimary = "#151515",
+            //Secondary = "#010961",
+            //DrawerIcon = "#F3F3F3"
             //Primary = "#007BFF",
             //Secondary = "#6C757D",
             //Background = "#EDEDED", // Less bright light gray
@@ -28,10 +28,10 @@ public static class ColorThemes
         },
         PaletteDark = new PaletteDark()
         {
-            Primary = "#151515",
-            TextPrimary = "#F3F3F3",
-            Secondary = "#010961",
-            DrawerIcon = "#F3F3F3" 
+            //Primary = "#151515",
+            //TextPrimary = "#F3F3F3",
+            //Secondary = "#010961",
+            //DrawerIcon = "#F3F3F3" 
             //Primary = "#ADADFD",
             //Secondary = "#5D557D",
             //Background = "#0E0E0E", // Darker for contrast

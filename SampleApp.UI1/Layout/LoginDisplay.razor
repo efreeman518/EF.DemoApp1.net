@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using SampleApp.UI1.Utility
+@using MudBlazor
 
 @inject IConfiguration Configuration
 @inject IStringLocalizer<Localization.Locals> Localizer
@@ -7,7 +8,7 @@
 <AuthorizeView>
     <Authorized>
         @context.User.Identity?.Name
-        <MudBlazor.MudButton ButtonType="MudBlazor.ButtonType.Button" @onclick="BeginLogOut">@Localizer["Logout"]</MudBlazor.MudButton>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Outlined" Color="Color.Success" @onclick="BeginLogOut">@Localizer["Logout"]</MudButton>
     </Authorized>
     <NotAuthorized>
         <a href="authentication/login">@Localizer["Login"]</a>

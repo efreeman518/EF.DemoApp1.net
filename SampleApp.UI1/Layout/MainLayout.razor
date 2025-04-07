@@ -33,11 +33,11 @@
                                  ToggledColor="@Color.Primary"
                                  title="Toggle dark mode" /> *@
             <MudSpacer />
-            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-            <MudSpacer />
+            @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+            <MudSpacer /> *@
             <LoginDisplay />
         </MudAppBar>
-        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" Color="Color.Secondary">
+        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" >
             <MudNavMenu>
                 <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" OnClick="@(() => Nav("/"))">@Localizer["Home"]</MudNavLink>
                 <AuthorizeView>
