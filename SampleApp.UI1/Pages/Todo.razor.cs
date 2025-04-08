@@ -16,6 +16,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
     bool success;
     MudForm form = null!;
     private string[] errors = [];
+    private bool HasErrors => errors != null && errors.Length > 0;
 
 
     private IEnumerable<string> NameValidation(string name)

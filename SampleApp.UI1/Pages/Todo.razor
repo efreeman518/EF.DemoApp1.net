@@ -28,7 +28,7 @@
         </MudTabPanel>
         <MudTabPanel Text="@Localizer["Add"]">
             <MudPaper>
-                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Spacing="2">
+                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Spacing="2" Class="pa-2">
                     <MudTextField T="string" Label="Name" @bind-Value="model.Name" For="@(() => model.Name)"
                                   Validation="@(new Func<string, IEnumerable<string>>(NameValidation))" Required="true" RequiredError="Required" />
 
@@ -41,14 +41,16 @@
                     <MudTextField Label="SecureDeterministic" @bind-Value="model.SecureDeterministic" For="@(() => model.SecureDeterministic)" />
                     <MudTextField Label="SecureRandom" @bind-Value="model.SecureRandom" For="@(() => model.SecureRandom)" />
                 </MudForm>
-                <MudPaper Class="pa-4 mud-height-full">
+                @if(HasErrors)
+                {
+                <MudPaper Class="pa-4">
                     <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
                     @foreach (var error in errors)
                     {
                         <MudText Color="@Color.Error">@error</MudText>
                     }
                 </MudPaper>
-
+                }
             </MudPaper>
         </MudTabPanel>
     </MudTabs>
