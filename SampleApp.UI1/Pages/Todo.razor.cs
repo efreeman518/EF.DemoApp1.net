@@ -97,8 +97,8 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
             _statusMessage = error?.Detail ?? "Something went wrong.";
             return null;
         }
-        var response = result.Data;
-        var data = response?.Data?.AsEnumerable();
+        var response = result.Data!;
+        var data = response.Data!.AsEnumerable();
 
         var sortDefinition = state.SortDefinitions.FirstOrDefault();
         if (sortDefinition != null)
