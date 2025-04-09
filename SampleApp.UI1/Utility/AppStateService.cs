@@ -8,44 +8,44 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
 {
     public event Action? OnChange;
 
-    //private readonly Dictionary<string, object> _settings = [];
-    //public T? Get<T>(string key) => _settings.TryGetValue(key, out var value) ? (T)value : default;
+    private readonly Dictionary<string, object> _settings = [];
+    public T? Get<T>(string key) => _settings.TryGetValue(key, out var value) ? (T)value : default;
 
-    public string CultureName { get; set; } = "en-US"; 
-    public MudTheme Theme { get; set; } = ColorThemes.Theme1;
-    public bool IsDarkMode { get; set; } = false;
+    //public string CultureName { get; set; } = "en-US"; 
+    //public MudTheme Theme { get; set; } = ColorThemes.Theme1;
+    //public bool IsDarkMode { get; set; } = false;
 
     public async Task InitializeAsync()
     {
         //culture/language
-        CultureName = await localStorage.GetItemAsync<string>("SampleAppCultureName")
+        var cultureName = await localStorage.GetItemAsync<string>("SampleAppCultureName")
             ?? await jsInteropUtility.GetBrowserCultureNameAsync()
             ?? "en-US";
 
-        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(CultureName);
-        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(CultureName);
+        _settings.Add("CultureName", cultureName);
 
-        //_settings["Language"] = await _localStorage.GetItemAsync<string>("Language") ?? "en";
-        //_settings["Theme"] = await _localStorage.GetItemAsync<string>("Theme") ?? "light";
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(cultureName);
+        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(cultureName);
 
         //theme
-        //determine MudTheme from the saved name
         var themeName = await localStorage.GetItemAsync<string>("ThemeName") ?? "Theme1";
         var theme = typeof(ColorThemes).GetProperty(themeName);
+        MudTheme mudTheme;
         if (theme != null)
         {
-            Theme = (MudTheme)theme.GetValue(null)!;
+            mudTheme = (MudTheme)theme.GetValue(null)!;
         }
         else
         {
             // Fallback to default theme if not found
-            Theme = ColorThemes.Theme1;
+            mudTheme = ColorThemes.Theme1;
         }
+        _settings.Add("Theme", mudTheme);
 
-        //darkmode
-        IsDarkMode = await localStorage.GetItemAsync<bool>("DarkMode"); //jsInteropUtility.GetSystemDarkModeAsync()
 
-        //await NotifyStateChangedAsync();
+        //dark mode
+        var isDarkMode = await localStorage.GetItemAsync<bool>("IsDarkMode"); //jsInteropUtility.GetSystemDarkModeAsync()
+        _settings.Add("IsDarkMode", isDarkMode);
     }
 
     /// <summary>
@@ -67,6 +67,24 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
     /// </summary>
     public async Task SetSetting<T>(string key, T value, bool nullRemoval = true, CancellationToken cancellationToken = default)
     {
+        //update in memory
+        if (value is null && _settings.ContainsKey(key))
+        {
+            _settings.Remove(key);
+        }
+        else if (value is not null)
+        {
+            if (_settings.ContainsKey(key))
+            {
+                _settings[key] = value;
+            }
+            else
+            {
+                _settings.Add(key, value);
+            }
+        }
+
+        //update in local storage
         //remove if null
         if (value is null && nullRemoval)
         {

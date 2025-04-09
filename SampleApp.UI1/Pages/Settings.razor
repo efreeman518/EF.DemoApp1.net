@@ -16,7 +16,7 @@
     <MudItem xs="12" md="8">
         <MudStack>
             <MudPaper Class="pa-3">
-                <MudToggleIconButton Toggled="@appState.IsDarkMode" ToggledChanged="ToggleDarkMode"
+                <MudToggleIconButton Toggled="@IsDarkMode" ToggledChanged="ToggleDarkMode"
                                      Icon="@Icons.Material.Filled.LightMode" Size="Size.Small"
                                      Color="@Color.Warning"
                                      ToggledIcon="@Icons.Material.Filled.DarkMode"
@@ -42,9 +42,17 @@
     [Inject]
     private AppStateService appState { get; set; } = null!;
 
+    private bool IsDarkMode { get; set; } 
+
+    protected override void OnInitialized()
+    {
+        IsDarkMode = appState.Get<bool>("IsDarkMode");
+    }
+
     private async Task ToggleDarkMode(bool darkMode)
     {
-        appState.IsDarkMode = darkMode;
-        await appState.SetSetting("DarkMode", darkMode);
+        IsDarkMode = darkMode;
+        await appState.SetSetting("IsDarkMode", darkMode);
+        StateHasChanged();
     }
 }

@@ -19,7 +19,7 @@
     </div>
 </MudPaper>
  *@
-<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceded"  />
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded"  />
 
 @code {
     [CascadingParameter]
@@ -29,7 +29,7 @@
     //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standalone-with-azure-active-directory-b2c?view=aspnetcore-9.0#authentication-component
     [Parameter] public string? Action { get; set; }
 
-    private async Task OnLoginSucceded()
+    private async Task OnLoginSucceeded()
     {
         var state = await AuthenticationState;
         var user = state.User;
@@ -41,7 +41,7 @@
             //await appStateService.SetSetting("username", username);
             await AppStateService.SetSetting("username", username);
 
-            //EntraId - ideally the login_hint is appended later to the entra logout url in order to skip the logout user selection popup
+            //EntraID - ideally the login_hint is appended later to the entra logout url in order to skip the logout user selection popup
             foreach (var claim in user.Claims)
             {
                 if (claim.Type == "login_hint")

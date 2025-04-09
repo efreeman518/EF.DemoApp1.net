@@ -57,7 +57,7 @@
 
         //use this with EntraID logout to avoid the user selection popup; login_hint was captured from claims upon login
         //var hint = await LocalStorage.GetItemAsync<string>("login_hint") ?? "";
-        var hint = await AppStateService.GetOrFetchSetting<string>("login_hint");
+        var hint = AppStateService.Get<string>("login_hint");
         if (!string.IsNullOrEmpty(hint))
         {
             hint = "&logout_hint=" + hint;

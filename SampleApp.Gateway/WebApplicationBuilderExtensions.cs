@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace SampleApp.Gateway;
 
@@ -55,6 +56,8 @@ public static partial class WebApplicationBuilderExtensions
             {
                 try
                 {
+                    // Disable response buffering to allow ProblemDetails to flow through
+                    //context.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
                     await next();
                 }
                 catch (Exception ex)

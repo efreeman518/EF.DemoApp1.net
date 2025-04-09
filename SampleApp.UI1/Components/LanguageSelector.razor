@@ -45,9 +45,9 @@
         new CultureInfo("ur-PK")
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        selectedCultureName = AppStateService.CultureName;
+        selectedCultureName = AppStateService.Get<string>("CultureName")!; 
     }
 
     //get from current culture

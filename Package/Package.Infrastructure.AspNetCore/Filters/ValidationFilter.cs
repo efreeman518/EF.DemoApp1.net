@@ -18,7 +18,7 @@ public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter wher
             var validationResult = await validator.ValidateAsync((T)validateable);
             if (!validationResult.IsValid)
             {
-                return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: validationResult.Errors.ToMessage(), traceId: context.HttpContext.TraceIdentifier));
+                return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: validationResult.Errors.ToMessage(), traceId: context.HttpContext.TraceIdentifier));
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using MudBlazor;
+using Package.Infrastructure.Utility.UI;
 using SampleApp.UI1.Model;
 using SampleApp.UI1.Services;
 
@@ -13,31 +13,72 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
     MudDataGrid<TodoItemDto> DataGrid { get; set; } = null!;
     private string? searchString;
     private TodoItemDto model = new();
-    bool success;
+    //bool success;
     MudForm form = null!;
-    private string[] errors = [];
-    private bool HasErrors => errors != null && errors.Length > 0;
+    private string? _statusMessage;
+    //private string[] errors = [];
+    //private bool HasErrors => errors != null && errors.Length > 0;
 
-
-    private IEnumerable<string> NameValidation(string name)
+    private async Task ValidateAndSave()
     {
-        if (string.IsNullOrWhiteSpace(name))
+
+        await form.Validate();
+
+        if (form.IsValid)
         {
-            yield return Localizer["Required"];
-            yield break;
+            _statusMessage = string.Empty;
+            //try
+            //{
+            //    model = model.Id == null
+            //        ? await sampleAppClient.CreateItemAsync(model)
+            //        : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
+            //    _statusMessage = "Saved!";
+            //}
+            //catch (Refit.ApiException ex)
+            //{
+            //    _statusMessage = $"Error: {ex.ToProblemDetails()}";
+            //}
+
+            var result = model.Id == null
+                ? await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
+                : await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.UpdateItemAsync((Guid)model.Id, model));
+
+            if (result.IsSuccess)
+            {
+                var item = result.Data;
+                _statusMessage = "Saved";
+            }
+            else
+            {
+                var error = result.Problem;
+                _statusMessage = error?.Detail ?? "Something went wrong.";
+            }
+
         }
-        if (!name.Contains("a", StringComparison.CurrentCulture))
-            yield return "Name must include 'a'.";
+        else
+        {
+            _statusMessage = "Please fix validation errors.";
+        }
     }
+    //private IEnumerable<string> NameValidation(string name)
+    //{
+    //    if (string.IsNullOrWhiteSpace(name))
+    //    {
+    //        yield return Localizer["Required"];
+    //        yield break;
+    //    }
+    //    if (!name.Contains('a', StringComparison.CurrentCulture))
+    //        yield return "Name must include 'a'.";
+    //}
 
-    private async Task OnValidSubmit(EditContext context)
-    {
-        model = model.Id == null 
-            ? await sampleAppClient.CreateItemAsync(model)
-            : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
+    //private async Task OnValidSubmit(EditContext context)
+    //{
+    //    model = model.Id == null 
+    //        ? await sampleAppClient.CreateItemAsync(model)
+    //        : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
 
-        StateHasChanged();
-    }
+    //    StateHasChanged();
+    //}
 
     private Task OnSearch(string text)
     {
@@ -45,9 +86,18 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
         return DataGrid.ReloadServerData();
     }
 
-    private async Task<GridData<TodoItemDto>> ServerReload(GridState<TodoItemDto> state)
+    private async Task<GridData<TodoItemDto>?> ServerReload(GridState<TodoItemDto> state)
     {
-        var response = await sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1);
+        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1));
+        //var response = await sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1);
+
+        if (result.Problem is not null)
+        {
+            var error = result.Problem;
+            _statusMessage = error?.Detail ?? "Something went wrong.";
+            return null;
+        }
+        var response = result.Data;
         var data = response.Data.AsEnumerable();
 
         var sortDefinition = state.SortDefinitions.FirstOrDefault();

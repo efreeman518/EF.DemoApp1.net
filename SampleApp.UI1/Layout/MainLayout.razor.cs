@@ -9,9 +9,14 @@ public partial class MainLayout(AppStateService appStateService, NavigationManag
 {
     private bool Rtl = false;
     private bool DrawerOpen = false;
+    private MudTheme Theme = null!;
+    private bool IsDarkMode = false;
 
     protected override void OnInitialized()
     {
+        IsDarkMode = appStateService.Get<bool>("IsDarkMode");
+        Theme = appStateService.Get<MudTheme>("Theme")!;
+
         //var currentPath = nav.ToBaseRelativePath(nav.Uri).Split('?')[0];
 
         //// 🚨 Skip redirect logic for Azure B2C auth routes
@@ -42,7 +47,7 @@ public partial class MainLayout(AppStateService appStateService, NavigationManag
         var rtlLanguages = new[] { "ar", "he", "ur", "fa", "ps", "sd", "iw" }; // Arabic, Hebrew, Urdu, Farsi, Pashto, Sindhi, etc.
         Rtl = rtlLanguages.Contains(CultureInfo.CurrentCulture.Name[..2]);
 
-        //settings changes (drak mode) should refresh the UI 
+        //settings changes (dark mode) should refresh the UI 
         appStateService.OnChange += StateHasChanged;
     }
 
