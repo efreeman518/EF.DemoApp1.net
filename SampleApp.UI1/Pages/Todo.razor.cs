@@ -98,7 +98,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
             return null;
         }
         var response = result.Data;
-        var data = response.Data.AsEnumerable();
+        var data = response?.Data?.AsEnumerable();
 
         var sortDefinition = state.SortDefinitions.FirstOrDefault();
         if (sortDefinition != null)
