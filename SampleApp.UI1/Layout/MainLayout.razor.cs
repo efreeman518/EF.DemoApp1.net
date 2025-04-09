@@ -5,17 +5,17 @@ using System.Globalization;
 
 namespace SampleApp.UI1.Layout;
 
-public partial class MainLayout(AppStateService appStateService, NavigationManager nav) : IDisposable
+public partial class MainLayout(AppStateService appState, NavigationManager nav) : IDisposable
 {
     private bool Rtl = false;
     private bool DrawerOpen = false;
-    private MudTheme Theme = null!;
-    private bool IsDarkMode = false;
+    //private MudTheme Theme = null!;
+    //private bool IsDarkMode = appState.Get<bool>("IsDarkMode"); // false;
 
     protected override void OnInitialized()
     {
-        IsDarkMode = appStateService.Get<bool>("IsDarkMode");
-        Theme = appStateService.Get<MudTheme>("Theme")!;
+        //IsDarkMode = appStateService.IsDarkMode; //.Get<bool>("IsDarkMode");
+        //Theme = appState.Get<MudTheme>("Theme")!;
 
         //var currentPath = nav.ToBaseRelativePath(nav.Uri).Split('?')[0];
 
@@ -48,7 +48,7 @@ public partial class MainLayout(AppStateService appStateService, NavigationManag
         Rtl = rtlLanguages.Contains(CultureInfo.CurrentCulture.Name[..2]);
 
         //settings changes (dark mode) should refresh the UI 
-        appStateService.OnChange += StateHasChanged;
+        appState.OnChange += StateHasChanged;
     }
 
     private void DrawerToggle()
@@ -63,7 +63,7 @@ public partial class MainLayout(AppStateService appStateService, NavigationManag
 
     protected virtual void Dispose(bool disposing)
     {
-        appStateService.OnChange -= StateHasChanged;
+        appState.OnChange -= StateHasChanged;
     }
     public void Dispose()
     {

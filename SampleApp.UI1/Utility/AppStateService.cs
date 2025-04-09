@@ -46,6 +46,7 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
         //dark mode
         var isDarkMode = await localStorage.GetItemAsync<bool>("IsDarkMode"); //jsInteropUtility.GetSystemDarkModeAsync()
         _settings.Add("IsDarkMode", isDarkMode);
+        //IsDarkMode = isDarkMode;
     }
 
     /// <summary>
