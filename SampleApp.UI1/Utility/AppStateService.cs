@@ -1,65 +1,46 @@
 ﻿using Blazored.LocalStorage;
-using MudBlazor;
 using System.Globalization;
 
 namespace SampleApp.UI1.Utility;
 
 public class AppStateService(ILocalStorageService localStorage, IJsInteropUtility jsInteropUtility)
 {
-    public event Action? OnChange;
+    public event Action<string?>? SettingChanged;
 
-    private readonly Dictionary<string, object> _settings = [];
-    public T? Get<T>(string key) => _settings.TryGetValue(key, out var value) ? (T)value : default;
+    //private readonly Dictionary<string, object> _settings = [];
+    //public T? Get<T>(string key) => _settings.TryGetValue(key, out var value) ? (T)value : default;
 
-    //public string CultureName { get; set; } = "en-US"; 
-    //public MudTheme Theme { get; set; } = ColorThemes.Theme1;
-    //public bool IsDarkMode { get; set; } = false;
-
+    //called from Program.cs before host.RunAsync
     public async Task InitializeAsync()
     {
-        //culture/language
-        var cultureName = await localStorage.GetItemAsync<string>("SampleAppCultureName")
-            ?? await jsInteropUtility.GetBrowserCultureNameAsync()
-            ?? "en-US";
-
-        _settings.Add("CultureName", cultureName);
-
-        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(cultureName);
-        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(cultureName);
-
-        //theme
-        var themeName = await localStorage.GetItemAsync<string>("ThemeName") ?? "Theme1";
-        var theme = typeof(ColorThemes).GetProperty(themeName);
-        MudTheme mudTheme;
-        if (theme != null)
+        var cultureName = await GetSetting("SampleAppCultureName", null, async () => await jsInteropUtility.GetBrowserCultureNameAsync());
+        if(cultureName != CultureInfo.CurrentCulture.Name)
         {
-            mudTheme = (MudTheme)theme.GetValue(null)!;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(cultureName!);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(cultureName!);
         }
-        else
-        {
-            // Fallback to default theme if not found
-            mudTheme = ColorThemes.Theme1;
-        }
-        _settings.Add("Theme", mudTheme);
-
-
-        //dark mode
-        var isDarkMode = await localStorage.GetItemAsync<bool>("IsDarkMode"); //jsInteropUtility.GetSystemDarkModeAsync()
-        _settings.Add("IsDarkMode", isDarkMode);
-        //IsDarkMode = isDarkMode;
     }
 
     /// <summary>
     /// Retrieves a setting from the app state or fetches if factory function provided.
     /// </summary>
-    public async Task<T?> GetOrFetchSetting<T>(string key, Func<Task<T?>>? factory = null, CancellationToken cancellationToken = default)
+    public async ValueTask<T?> GetSetting<T>(string key, T? defaultVal, Func<Task<T?>>? factory = null, CancellationToken cancellationToken = default)
     {
         var item = await localStorage.GetItemAsync<T?>(key, cancellationToken);
-        if (item == null && factory != null)
+        if (item is null)
         {
-            item = await factory();
+            if(defaultVal is not null)
+            {
+                item = defaultVal;
+            }
+            else if (factory != null)
+            {
+                //only run the factory is the item is null and no non-null default provided
+                item = await factory();
+            }
             await SetSetting(key, item, cancellationToken: cancellationToken);
         }
+
         return item;
     }
 
@@ -68,23 +49,6 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
     /// </summary>
     public async Task SetSetting<T>(string key, T value, bool nullRemoval = true, CancellationToken cancellationToken = default)
     {
-        //update in memory
-        if (value is null && _settings.ContainsKey(key))
-        {
-            _settings.Remove(key);
-        }
-        else if (value is not null)
-        {
-            if (_settings.ContainsKey(key))
-            {
-                _settings[key] = value;
-            }
-            else
-            {
-                _settings.Add(key, value);
-            }
-        }
-
         //update in local storage
         //remove if null
         if (value is null && nullRemoval)
@@ -96,11 +60,11 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
             await localStorage.SetItemAsync<T>(key, value, cancellationToken);
         }
 
-        NotifyStateChangedAsync();
+        NotifySettingsChangedAsync(key);
     }
 
-    private void NotifyStateChangedAsync()
+    private void NotifySettingsChangedAsync(string? key = null)
     {
-        OnChange?.Invoke();
+        SettingChanged?.Invoke(key);
     }
 }

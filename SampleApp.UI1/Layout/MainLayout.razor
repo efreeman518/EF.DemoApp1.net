@@ -10,7 +10,7 @@
 
 <MudRTLProvider RightToLeft="@Rtl">
     @* Required *@
-    <MudThemeProvider Theme="@(appState.Get<MudTheme>("Theme"))" IsDarkMode="@(appState.Get<bool>("IsDarkMode"))" />
+    <MudThemeProvider Theme="theme" IsDarkMode="isDarkMode" />
     <MudPopoverProvider />
 
     @* Needed for dialogs *@

@@ -69,7 +69,8 @@ try
                 builder.AddAzureKeyVault(new Uri(endpoint), credential);
             }
         })
-        .ConfigureServices(async (hostContext, services) =>
+        //?? .ConfigureServices(async (hostContext, services) =>
+        .ConfigureServices((hostContext, services) =>
         {
             var config = hostContext.Configuration;
 

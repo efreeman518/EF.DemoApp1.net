@@ -16,12 +16,13 @@
     <MudItem xs="12" md="8">
         <MudStack>
             <MudPaper Class="pa-3">
-                <MudToggleIconButton Toggled="@(appState.Get<bool>("IsDarkMode"))" ToggledChanged="ToggleDarkMode"
-                                     Icon="@Icons.Material.Filled.LightMode" Size="Size.Small"
+                @* <MudToggleIconButton Toggled="IsDarkMode" ToggledChanged="ToggleDarkMode"
+                                     Icon="@Icons.Material.Filled.LightMode" Size="Size.Medium"
                                      Color="@Color.Warning"
                                      ToggledIcon="@Icons.Material.Filled.DarkMode"
                                      ToggledColor="@Color.Success"
-                                     title="Toggle light/dark mode" />
+                                     title="Toggle light/dark mode" /> *@
+                <MudIconButton Icon="@(isDarkMode? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" OnClick="@(() => ToggleDarkMode())" />
             </MudPaper>
             <MudPaper Class="pa-3">
                 <SampleApp.UI1.Components.LanguageSelector />
@@ -42,18 +43,16 @@
     [Inject]
     private AppStateService appState { get; set; } = null!;
 
-    //private bool IsDarkMode { get; set; } 
+    private bool isDarkMode { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        //IsDarkMode = appState.Get<bool>("IsDarkMode");
+        isDarkMode = await appState.GetSetting<bool>("IsDarkMode", true);
     }
 
-    private async Task ToggleDarkMode(bool darkMode)
+    private async Task ToggleDarkMode()
     {
-        //IsDarkMode = darkMode;
-        //appState.IsDarkMode = darkMode;
-        await appState.SetSetting("IsDarkMode", darkMode);
-        //StateHasChanged();
+        isDarkMode = !isDarkMode;
+        await appState.SetSetting("IsDarkMode", isDarkMode);
     }
 }

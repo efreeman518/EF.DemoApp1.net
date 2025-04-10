@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using System.Globalization;
 
 namespace SampleApp.UI1.Utility;
 
@@ -23,7 +24,7 @@ public class JsInteropUtility(IJSRuntime jsRuntime) : IJsInteropUtility, IAsyncD
     {
         var module = await GetModule();
         var cultureName = await module.InvokeAsync<string>("GetBrowserCultureName");
-        return cultureName ?? "en-US";
+        return cultureName ?? CultureInfo.CurrentCulture.Name; // ?? "en-US";
     }
 
     public async Task<bool> GetSystemDarkModeAsync()

@@ -9,25 +9,18 @@
     <label>
         @Localizer["Language"]:
 
-        @* <MudSelect Dense="true" @bind-Value="selectedCultureName" onchange="@ApplySelectedCultureAsync()" innerWidth="300px">
-            @foreach (var culture in supportedCultures)
-            {
-                <MudSelectItem Value="@culture.Name">@culture.NativeName</MudSelectItem>
-            }
-        </MudSelect> *@
         <select @bind="SelectedCultureName">
             @foreach (var culture in supportedCultures)
             {
                 <option value="@culture.Name">@culture.NativeName</option>
             }
         </select>
-
     </label>
 </p>
 
 @code {
     [Inject]
-    private AppStateService AppStateService { get; set; } = null!;
+    private AppStateService AppState { get; set; } = null!;
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
 
@@ -45,33 +38,25 @@
         new CultureInfo("ur-PK")
     };
 
-    protected override void OnInitialized()
-    {
-        selectedCultureName = AppStateService.Get<string>("CultureName")!; 
-    }
-
-    //get from current culture
-    private string selectedCultureName { get; set; } = null!;
+    private string selectedCultureName = CultureInfo.CurrentCulture.Name; //set at startup
 
     private string SelectedCultureName
     {
-        get => selectedCultureName;
+        get => selectedCultureName; 
         set
         {
-            if (selectedCultureName != value)
-            {
-                selectedCultureName = value;
-                _ = ApplySelectedCultureAsync();
-            }
+            selectedCultureName = value;
+            _ = ApplySelectedCultureAsync();
         }
     }
 
     //break point does not break here
     private async Task ApplySelectedCultureAsync()
     {
+        Console.WriteLine($"Apply culture logic here for: {selectedCultureName}");
         if (CultureInfo.CurrentCulture.Name != selectedCultureName)
         {
-            await AppStateService.SetSetting("SampleAppCultureName", selectedCultureName!);
+            await AppState.SetSetting("SampleAppCultureName", selectedCultureName!);
             NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true); // full reload for language change
         }
     }

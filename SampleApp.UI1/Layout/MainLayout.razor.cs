@@ -9,46 +9,30 @@ public partial class MainLayout(AppStateService appState, NavigationManager nav)
 {
     private bool Rtl = false;
     private bool DrawerOpen = false;
-    //private MudTheme Theme = null!;
-    //private bool IsDarkMode = appState.Get<bool>("IsDarkMode"); // false;
+    private MudTheme? theme;
+    private bool isDarkMode;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        //IsDarkMode = appStateService.IsDarkMode; //.Get<bool>("IsDarkMode");
-        //Theme = appState.Get<MudTheme>("Theme")!;
-
-        //var currentPath = nav.ToBaseRelativePath(nav.Uri).Split('?')[0];
-
-        //// 🚨 Skip redirect logic for Azure B2C auth routes
-        //if (currentPath.StartsWith("authentication", StringComparison.OrdinalIgnoreCase))
-        //    return;
-
-        //check for any anonymous routes and exit
-        //var anonymousRoutes = new[] { "authentication/login", "authentication/register", "authentication/forgot-password" };
-        //var currentUrl = navigationManager.ToBaseRelativePath(navigationManager.Uri);
-        //if (anonymousRoutes.Any(route => currentUrl.StartsWith(route, StringComparison.OrdinalIgnoreCase)))
-        //{
-        //    return;
-        //}
-
-        //Console.WriteLine($"MainLayout loaded for: {nav.ToBaseRelativePath(nav.Uri)}");
-
-        //var authState = await authStateProvider.GetAuthenticationStateAsync();
-        //var user = authState.User;
-
-        //if (!user.Identity?.IsAuthenticated ?? false)
-        //{
-        //    // Redirect to login if not authenticated
-        //    var returnUrl = nav.ToBaseRelativePath(nav.Uri);
-        //    nav.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(returnUrl)}", forceLoad: true);
-        //}
+        theme = await appState.GetSetting("Theme", ColorThemes.Theme1);
+        isDarkMode = await appState.GetSetting("IsDarkMode", true);
 
         //rtl
         var rtlLanguages = new[] { "ar", "he", "ur", "fa", "ps", "sd", "iw" }; // Arabic, Hebrew, Urdu, Farsi, Pashto, Sindhi, etc.
         Rtl = rtlLanguages.Contains(CultureInfo.CurrentCulture.Name[..2]);
 
         //settings changes (dark mode) should refresh the UI 
-        appState.OnChange += StateHasChanged;
+        appState.SettingChanged += OnSettingChanged;
+    }
+
+    private async void OnSettingChanged(string? key = null)
+    {
+        if (key == "IsDarkMode")
+        {
+            isDarkMode = await appState.GetSetting("IsDarkMode", true);
+            //InvokeAsync(StateHasChanged); // no need to await in event handler; ensure safe re-render
+            StateHasChanged();
+        }
     }
 
     private void DrawerToggle()
@@ -63,7 +47,7 @@ public partial class MainLayout(AppStateService appState, NavigationManager nav)
 
     protected virtual void Dispose(bool disposing)
     {
-        appState.OnChange -= StateHasChanged;
+        appState.SettingChanged -= OnSettingChanged;
     }
     public void Dispose()
     {

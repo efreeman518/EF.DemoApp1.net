@@ -83,7 +83,7 @@ builder.Services.AddRefitClient<ISampleAppClient>()
 
 var host = builder.Build();
 
-//setup initial app state
+//setup initial app state- set thread culture/language
 var appState = host.Services.GetRequiredService<AppStateService>();
 await appState.InitializeAsync();
 
