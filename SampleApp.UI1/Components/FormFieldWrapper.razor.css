@@ -1,0 +1,11 @@
+﻿.form-field-wrapper {
+    /*border: 1px solid var(--mud-palette-primary);
+    border-radius: 8px;*/
+    padding: .2rem;
+    /* margin-bottom: 1rem;*/
+}
+
+    /* Optional: apply label color to anything inside */
+    .form-field-wrapper .mud-input-label {
+        color: var(--mud-palette-primary) !important;
+    }

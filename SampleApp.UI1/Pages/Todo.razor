@@ -1,74 +1,94 @@
 ﻿@page "/todo"
 @layout MainLayout
 
+@using SampleApp.UI1.Components
 @using SampleApp.UI1.Model
 
 <MudText Typo="Typo.h5">Todo Items</MudText>
 <div Class="d-flex flex-grow-1 pa-2" style="background: linear-gradient(to bottom, #4A90E2, #50235E);">
-    <MudTabs Elevation="2" Outlined="true" Rounded="true" KeepPanelsAlive="true">
+    <MudTabs Rounded="true" KeepPanelsAlive="true">
         <MudTabPanel Text="@Localizer["Search"]">
-            <MudPaper Elevation="1" Outlined="true" Class="p-2">
-                <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false">
-                    <ToolBarContent>
-                        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
-                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-                    </ToolBarContent>
-                    <Columns>
-                        <PropertyColumn Property="x => x.Id" Hidden="true" />
-                        <PropertyColumn Property="x => x.Name" />
-                        <PropertyColumn Property="x => x.Status" />
-                        <PropertyColumn Property="x => x.SecureDeterministic" />
-                        <PropertyColumn Property="x => x.SecureRandom" />
-                    </Columns>
-                    <PagerContent>
-                        <MudDataGridPager T="TodoItemDto" />
-                    </PagerContent>
-                </MudDataGrid>
-            </MudPaper>
-        </MudTabPanel>
-        <MudTabPanel Text="@Localizer["Add"]">
-            <MudPaper Class="p-4 max-w-md mx-auto" Elevation="4">
-                @* <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Spacing="2" Class="pa-2">
-                    <MudTextField T="string" Label="Name" @bind-Value="model.Name" For="@(() => model.Name)"
-                                  Validation="@(new Func<string, IEnumerable<string>>(NameValidation))" Required="true" RequiredError="Required" />
-
-                    <MudSelect @bind-Value="model.Status" Label="Status">
-                        @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
-                        {
-                            <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
-                        }
-                    </MudSelect>
-                    <MudTextField Label="SecureDeterministic" @bind-Value="model.SecureDeterministic" For="@(() => model.SecureDeterministic)" />
-                    <MudTextField Label="SecureRandom" @bind-Value="model.SecureRandom" For="@(() => model.SecureRandom)" />
-                </MudForm>
-                @if(HasErrors)
-                {
-                <MudPaper Class="pa-4">
-                    <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
-                    @foreach (var error in errors)
-                    {
-                        <MudText Color="@Color.Error">@error</MudText>
-                    }
+            <div class="custom-tab-panel">
+                <MudPaper>
+                    <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false">
+                        <ToolBarContent>
+                            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                        </ToolBarContent>
+                        <Columns>
+                            <PropertyColumn Property="x => x.Id" Hidden="true" />
+                            @* <PropertyColumn Property="x => x.Name" /> *@
+                            <TemplateColumn T="TodoItemDto" Title="Name">
+                                <CellTemplate Context="context">
+                                    <MudText Link="true" Class="mud-hover" Style="cursor: pointer;" @onclick="(() => OnNameClick(context.Item.Id!))">
+                                        @context.Item.Name
+                                    </MudText>
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <PropertyColumn Property="x => x.Status" />
+                            <PropertyColumn Property="x => x.SecureDeterministic" />
+                            <PropertyColumn Property="x => x.SecureRandom" />
+                        </Columns>
+                        <PagerContent>
+                            <MudDataGridPager T="TodoItemDto" />
+                        </PagerContent>
+                    </MudDataGrid>
                 </MudPaper>
-                } *@
-                <MudForm @ref="form" Model="@model">
-                    <MudTextField Label="Name" For="@(() => model.Name)" @bind-Value="model.Name" />
-                    <MudSelect @bind-Value="model.Status" Label="Status">
-                        @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
-                        {
-                            <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
-                        }
-                    </MudSelect>
-                    <MudTextField Label="SecureDeterministic" For="@(() => model.SecureDeterministic)" @bind-Value="model.SecureDeterministic" />
-                    <MudTextField Label="SecureRandom" For="@(() => model.SecureRandom)" @bind-Value="model.SecureRandom" />
+            </div>
+        </MudTabPanel>
+        <MudTabPanel Text="@_editTabLabel">
+            <div class="custom-tab-panel">
+                <MudPaper Class="p-4 max-w-md mx-auto" Elevation="4">
+                    <MudForm @ref="form" Model="@model">
+                        <MudGrid>
+                            <MudItem xs="12" sm="6">
+                                <FormFieldWrapper>
+                                    <MudTextField Label="Name" For="@(() => model.Name)" @bind-Value="model.Name" />
+                                </FormFieldWrapper>
+                            </MudItem>
 
-                    <MudButton OnClick="ValidateAndSave" Color="Color.Primary">Save</MudButton>
+                            <MudItem xs="12" sm="6">
+                                <FormFieldWrapper>
+                                    <MudSelect @bind-Value="model.Status" Label="Status">
+                                        @foreach (var item in Enum.GetValues(typeof(TodoItemStatus)).Cast<TodoItemStatus>())
+                                        {
+                                            <MudSelectItem Value="item">@item.ToString()</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </FormFieldWrapper>
+                            </MudItem>
 
-                    <MudText Typo="Typo.caption" Color="Color.Success" Class="mt-2">
-                        @_statusMessage
-                    </MudText>
-                </MudForm>
-            </MudPaper>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField Label="SecureDeterministic" For="@(() => model.SecureDeterministic)" @bind-Value="model.SecureDeterministic" />
+                            </MudItem>
+
+                            <MudItem xs="12" sm="6">
+                                <MudTextField Label="SecureRandom" For="@(() => model.SecureRandom)" @bind-Value="model.SecureRandom" />
+                            </MudItem>
+
+                            <MudItem xs="12" Class="d-flex justify-end pa-4">
+                                <MudButton OnClick="ValidateAndSave" Color="Color.Primary" Variant="Variant.Filled" Disabled="@_requestActive">
+                                    @if (_requestActive)
+                                    {
+                                        <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
+                                        <span>Saving...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Save</span>
+                                    }
+                                </MudButton>
+                            </MudItem>
+
+                            <MudItem xs="12">
+                                <MudText Typo="Typo.caption" Color="Color.Success" Class="mt-2">
+                                    @_statusMessage
+                                </MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudForm>
+                </MudPaper>
+            </div>
         </MudTabPanel>
     </MudTabs>
 </div>

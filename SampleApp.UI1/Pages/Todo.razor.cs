@@ -15,9 +15,17 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
     private TodoItemDto model = new();
     //bool success;
     MudForm form = null!;
+    private bool _requestActive;
     private string? _statusMessage;
+    private string _editTabLabel => model?.Id != null ? Localizer["Edit"] : Localizer["Add"];
     //private string[] errors = [];
     //private bool HasErrors => errors != null && errors.Length > 0;
+
+    private async Task OnNameClick(Guid? id)
+    {
+        // Custom logic, like opening a dialog or navigating
+        Console.WriteLine($"Clicked item with ID: {id}");
+    }
 
     private async Task ValidateAndSave()
     {
@@ -26,6 +34,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
 
         if (form.IsValid)
         {
+            _requestActive = true;
             _statusMessage = string.Empty;
             //try
             //{
@@ -43,9 +52,10 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
                 ? await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
                 : await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.UpdateItemAsync((Guid)model.Id, model));
 
+            _requestActive = false;
             if (result.IsSuccess)
             {
-                var item = result.Data;
+                model = result.Data!;
                 _statusMessage = "Saved";
             }
             else
@@ -53,7 +63,6 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
                 var error = result.Problem;
                 _statusMessage = error?.Detail ?? "Something went wrong.";
             }
-
         }
         else
         {

@@ -4,7 +4,7 @@
 @code {
     protected override void OnInitialized()
     {
-        //returnUrl doesnt work ?returnUrl={Uri.EscapeDataString(Navigation.Uri)}
+        //returnUrl doesn't work ?returnUrl={Uri.EscapeDataString(Navigation.Uri)}
         // Navigation.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
         Navigation.NavigateTo($"authentication/login", true);
     }

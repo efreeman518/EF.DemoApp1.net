@@ -8,18 +8,7 @@
 @inject NavigationManager Navigation
 @inject AppStateService AppStateService
 
-@* <MudPaper Class="d-flex justify-center align-center" Style="height: 100vh;">
-    <div class="mud-width-full mud-height-full d-flex justify-center align-center" style="height: 100vh;">
-        <div>
-            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-        </div>
-        <div>
-            <MudText Typo="Typo.h6" Class="mt-4">Redirecting to login...</MudText>
-        </div>
-    </div>
-</MudPaper>
- *@
-<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded"  />
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded" />
 
 @code {
     [CascadingParameter]
