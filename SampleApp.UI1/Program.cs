@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor;
 using MudBlazor.Services;
 using Refit;
 using SampleApp.UI1;
@@ -52,13 +53,18 @@ builder.Services.AddScoped<AppStateService>();
 // Add localization support
 builder.Services.AddLocalization();
 //MudBlazor component support
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+    config.SnackbarConfiguration.PreventDuplicates = true;
+    config.SnackbarConfiguration.NewestOnTop = false;
+});
 
 //SampleAppGateway client auth handler
 builder.Services.AddScoped(provider =>
 {
     var tokenProvider = provider.GetRequiredService<IAccessTokenProvider>();
-    //tken request can contain scopes from a single resource (api) not multiple (apis + MSGraph)
+    //token request can contain scopes from a single resource (api) not multiple (apis + MSGraph)
     var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<string[]>();
     return new ApiAuthHandler(tokenProvider, scopes!);
 });

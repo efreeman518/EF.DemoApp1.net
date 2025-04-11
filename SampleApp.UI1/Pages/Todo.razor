@@ -6,25 +6,25 @@
 
 <MudText Typo="Typo.h5">Todo Items</MudText>
 <div Class="d-flex flex-grow-1 pa-2" style="background: linear-gradient(to bottom, #4A90E2, #50235E);">
-    <MudTabs Rounded="true" KeepPanelsAlive="true">
+    <MudTabs @ref="tabsRef" Rounded="true" KeepPanelsAlive="true">
         <MudTabPanel Text="@Localizer["Search"]">
             <div class="custom-tab-panel">
                 <MudPaper>
-                    <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false">
+                    <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerReload" Filterable="false" RowClick="OnRowClicked">
                         <ToolBarContent>
                             <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                         </ToolBarContent>
                         <Columns>
                             <PropertyColumn Property="x => x.Id" Hidden="true" />
-                            @* <PropertyColumn Property="x => x.Name" /> *@
-                            <TemplateColumn T="TodoItemDto" Title="Name">
+                            <PropertyColumn Property="x => x.Name" />
+                            @* <TemplateColumn T="TodoItemDto" Title="Name">
                                 <CellTemplate Context="context">
                                     <MudText Link="true" Class="mud-hover" Style="cursor: pointer;" @onclick="(() => OnNameClick(context.Item.Id!))">
                                         @context.Item.Name
                                     </MudText>
                                 </CellTemplate>
-                            </TemplateColumn>
+                            </TemplateColumn> *@
                             <PropertyColumn Property="x => x.Status" />
                             <PropertyColumn Property="x => x.SecureDeterministic" />
                             <PropertyColumn Property="x => x.SecureRandom" />
@@ -67,7 +67,10 @@
                             </MudItem>
 
                             <MudItem xs="12" Class="d-flex justify-end pa-4">
-                                <MudButton OnClick="ValidateAndSave" Color="Color.Primary" Variant="Variant.Filled" Disabled="@_requestActive">
+                                <MudButton OnClick="NewItem" Color="Color.Secondary" Variant="Variant.Outlined" Disabled="@_requestActive" Style="width:140px;" Class="me-2">
+                                    <span>New</span>
+                                </MudButton>
+                                <MudButton OnClick="ValidateAndSave" Color="Color.Primary" Variant="Variant.Filled" Disabled="@_requestActive" Style="width:140px;">
                                     @if (_requestActive)
                                     {
                                         <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
@@ -78,12 +81,6 @@
                                         <span>Save</span>
                                     }
                                 </MudButton>
-                            </MudItem>
-
-                            <MudItem xs="12">
-                                <MudText Typo="Typo.caption" Color="Color.Success" Class="mt-2">
-                                    @_statusMessage
-                                </MudText>
                             </MudItem>
                         </MudGrid>
                     </MudForm>

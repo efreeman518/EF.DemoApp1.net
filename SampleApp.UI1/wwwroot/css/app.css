@@ -100,3 +100,24 @@ code {
     border: 2px solid var(--mud-palette-primary);
     border-radius: 0 0 6px 6px;
 }
+
+.mud-data-grid tr:hover {
+    background-color: #02296155; /* Change this color as desired */
+    cursor: pointer;
+}
+
+.progress-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.progress-button-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-button-wrapper .mud-button-root {
+    transition: width 0.3s ease;
+}

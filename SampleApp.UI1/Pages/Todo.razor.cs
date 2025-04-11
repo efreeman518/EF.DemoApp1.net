@@ -8,45 +8,51 @@ using SampleApp.UI1.Services;
 namespace SampleApp.UI1.Pages;
 
 [Authorize]
-public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISampleAppClient sampleAppClient)
+public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnackbar snackbar, ISampleAppClient sampleAppClient)
 {
+    private MudTabs? tabsRef;
     MudDataGrid<TodoItemDto> DataGrid { get; set; } = null!;
     private string? searchString;
     private TodoItemDto model = new();
-    //bool success;
     MudForm form = null!;
     private bool _requestActive;
-    private string? _statusMessage;
+    //private string? _statusMessage;
     private string _editTabLabel => model?.Id != null ? Localizer["Edit"] : Localizer["Add"];
-    //private string[] errors = [];
-    //private bool HasErrors => errors != null && errors.Length > 0;
 
-    private async Task OnNameClick(Guid? id)
+    private void NewItem()
     {
-        // Custom logic, like opening a dialog or navigating
-        Console.WriteLine($"Clicked item with ID: {id}");
+        model = new TodoItemDto();
+        tabsRef?.ActivatePanel(1);
+    }
+
+    private async Task GetItem(Guid? id)
+    {
+        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetItemAsync((Guid)id!));
+        if(result.IsSuccess)
+        {
+            model = result.Data!;
+            tabsRef?.ActivatePanel(1);
+        }
+        else
+        {
+            Console.WriteLine(result.Problem);
+            snackbar.Add(result.Problem?.Detail ?? "Error.", Severity.Error);
+        }
+    }
+
+    private async Task OnRowClicked(DataGridRowClickEventArgs<TodoItemDto> args)
+    {
+        await GetItem(args.Item.Id);
     }
 
     private async Task ValidateAndSave()
     {
-
         await form.Validate();
 
         if (form.IsValid)
         {
             _requestActive = true;
-            _statusMessage = string.Empty;
-            //try
-            //{
-            //    model = model.Id == null
-            //        ? await sampleAppClient.CreateItemAsync(model)
-            //        : await sampleAppClient.UpdateItemAsync((Guid)model.Id, model);
-            //    _statusMessage = "Saved!";
-            //}
-            //catch (Refit.ApiException ex)
-            //{
-            //    _statusMessage = $"Error: {ex.ToProblemDetails()}";
-            //}
+            //_statusMessage = string.Empty;
 
             var result = model.Id == null
                 ? await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
@@ -56,17 +62,22 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
             if (result.IsSuccess)
             {
                 model = result.Data!;
-                _statusMessage = "Saved";
+                //_statusMessage = "Saved";
+                snackbar.Add("Saved.", Severity.Success, config =>
+                {
+                    config.VisibleStateDuration = 2000;
+                });
             }
             else
             {
-                var error = result.Problem;
-                _statusMessage = error?.Detail ?? "Something went wrong.";
+                Console.WriteLine(result.Problem);
+                snackbar.Add(result.Problem?.Detail ?? "Error.", Severity.Error);
             }
         }
         else
         {
-            _statusMessage = "Please fix validation errors.";
+            //_statusMessage = "Please fix validation errors.";
+            snackbar.Add("Please fix validation errors.", Severity.Error);
         }
     }
     //private IEnumerable<string> NameValidation(string name)
@@ -98,12 +109,12 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISamp
     private async Task<GridData<TodoItemDto>?> ServerReload(GridState<TodoItemDto> state)
     {
         var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1));
-        //var response = await sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1);
 
         if (result.Problem is not null)
         {
             var error = result.Problem;
-            _statusMessage = error?.Detail ?? "Something went wrong.";
+            //_statusMessage = error?.Detail ?? "Something went wrong.";
+            snackbar.Add(result.Problem?.Detail ?? "Error.", Severity.Error);
             return null;
         }
         var response = result.Data!;
