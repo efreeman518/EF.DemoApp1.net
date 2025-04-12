@@ -40,7 +40,7 @@ public static class IServiceCollectionExtensions
         });
 
         //Auth
-        string configSectionName = "Gateway-AzureAdB2C"; //AzureAdB2C EntraID
+        string configSectionName = "Gateway-AzureAdB2C"; //AzureAdB2C / EntraID
         var configSection = config.GetSection(configSectionName);
         if (configSection.GetChildren().Any())
         {

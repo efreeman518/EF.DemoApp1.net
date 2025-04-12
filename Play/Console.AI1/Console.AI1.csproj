@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.4" />
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.3.0-preview.1.25114.11" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.3.0-preview.1.25114.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.38.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.38.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.38.0-alpha" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.4.0-preview.1.25207.5" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.4.0-preview.1.25207.5" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.46.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.46.0" />
   </ItemGroup>
 
   <ItemGroup>

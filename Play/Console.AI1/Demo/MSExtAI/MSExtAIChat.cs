@@ -15,7 +15,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
     {
         var aoaiConfig = config.GetSection("AzureOpenAI");
         var chatDeployment = aoaiConfig.GetValue<string>("DefaultChatDeployment")!;
-        IChatClient chatClientInner = aoaiClient.AsChatClient(chatDeployment);
+        IChatClient chatClientInner = (IChatClient)aoaiClient.GetChatClient(chatDeployment);
         IChatClient chatClient = new ChatClientBuilder(chatClientInner)
             .UseFunctionInvocation()
             .Build();
@@ -42,7 +42,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
                     var summary = await chatClient.GetResponseAsync([
                         new(ChatRole.System, $"Summarize the following conversation, maintianing the initial system prompt and important information:###\n{chatJoined}"),
                     ]);
-                    return summary.Message;
+                    return summary.Text; //.Message;
                 },
                 "SummarizeChat",
                 "Returns a summarization of the chat, maintianing the system prompt and important information."),
@@ -54,7 +54,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
         while (true)
         {
             ChatResponse response = await chatClient.GetResponseAsync(chatHistory, chatOptions);
-            chatHistory.Add(new ChatMessage(ChatRole.Assistant, response.Message.Contents));
+            chatHistory.Add(new ChatMessage(ChatRole.Assistant, response.Text)); //.Message.Contents));
             System.Console.WriteLine($"{chatHistory[^1].Role} >>> {chatHistory[^1]}");
 
             if (chatHistory.Count > 10)
@@ -76,7 +76,7 @@ internal class MSExtAIChat(IConfigurationRoot config, IServiceCollection service
         var summary = await chatClient.GetResponseAsync([
             new(ChatRole.System, $"Summarize the following conversation, maintianing the initial system prompt and important information:###\n{chatJoined}"),
         ]);
-        return summary.Message;
+        return summary.Messages[0]; // Message;
     }
 
     private List<ChatMessage> CreateChatHistory(List<ChatMessage>? init = null)

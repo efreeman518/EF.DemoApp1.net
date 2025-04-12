@@ -43,7 +43,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     {
         _scenarioContext["value"] = value + _scenarioContext["random"];
         _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//input[@id='edit-name']")))
-            .SendKeys(_scenarioContext["value"].ToString());
+            .SendKeys(_scenarioContext["value"].ToString()!);
         _driver!.FindElement(By.XPath("//table//button[@id='btn-save']"))
             .Click();
     }
@@ -93,7 +93,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     {
         Thread.Sleep(1000); //wait for refresh with same elements, otherwise next line finds the old element which is stale on the following GetAttribute()
         var found = _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//*[@id='todos']/tr[td[contains(text(),'" + _scenarioContext["value"] + "')]]/td/input[@type='checkbox']")));
-        Assert.IsTrue(bool.Parse(found.GetDomAttribute("checked"))); //OpenQA.Selenium.StaleElementReferenceException: 'stale element reference: element is not attached to the page document'
+        Assert.IsTrue(bool.Parse(found.GetDomAttribute("checked")!)); //OpenQA.Selenium.StaleElementReferenceException: 'stale element reference: element is not attached to the page document'
     }
 
     [When(@"user clicks the delete button for this item")]
