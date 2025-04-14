@@ -43,7 +43,7 @@ public class TodoRepositoryQuery(TodoDbContextQuery dbContext, IRequestContext<s
             if (filter.Name != null)
             {
                 q = filter.Name.Contains('*')
-                    ? q.Where(e => e.Name.Contains(filter.Name))
+                    ? q.Where(e => e.Name.Contains(filter.Name.Replace("*", "")))
                     : q.Where(e => e.Name == filter.Name);
             }
             if (filter.Statuses != null)

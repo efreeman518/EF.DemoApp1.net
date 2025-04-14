@@ -1,10 +1,14 @@
-﻿using Refit;
+﻿using Package.Infrastructure.Common.Contracts;
+using Refit;
 using SampleApp.UI1.Model;
 
 namespace SampleApp.UI1.Services;
 
 public interface ISampleAppClient
 {
+    [Post("/api1/v1.1/todoitems/search")]
+    Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default);
+
     [Get("/api1/v1.1/todoitems?pagesize={pageSize}&pageindex={pageIndex}")]
     Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default);
 

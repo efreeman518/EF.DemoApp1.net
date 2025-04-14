@@ -8,9 +8,10 @@ namespace SampleApp.UI1.Layout;
 public partial class MainLayout(AppStateService appState, NavigationManager nav) : IDisposable
 {
     private bool Rtl = false;
-    private bool DrawerOpen = false;
+    private bool DrawerOpen = true;
     private MudTheme? theme;
     private bool isDarkMode;
+    private string backgroundClass => isDarkMode ? "background-dark" : "background-light";
 
     protected override async Task OnInitializedAsync()
     {

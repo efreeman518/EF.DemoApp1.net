@@ -94,11 +94,19 @@ code {
 }
 
 /* custom */
+.background-light {
+    background: linear-gradient(to bottom, #cfd2ff, #ab9dd2);
+}
+.background-dark {
+    background: linear-gradient(to bottom, #00239a, #4500c6);
+}
 
-/* Style for the panel itself */
-.custom-tab-panel {
-    border: 2px solid var(--mud-palette-primary);
-    border-radius: 0 0 6px 6px;
+.mud-tabs-panels {
+    border-top: 4px solid var(--mud-palette-divider);
+}
+
+.grid-toolbar-control-wrapper {
+    border-bottom: 2px solid var(--mud-palette-divider);
 }
 
 .mud-data-grid tr:hover {

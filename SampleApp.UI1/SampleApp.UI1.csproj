@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Package\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Utility.UI\Package.Infrastructure.Utility.UI.csproj" />
   </ItemGroup>
 

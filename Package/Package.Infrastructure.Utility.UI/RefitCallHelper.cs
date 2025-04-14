@@ -1,9 +1,15 @@
 ﻿using Refit;
+using System.Net;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Utility.UI;
 public static class RefitCallHelper
 {
+    private static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public static async Task<ApiResult<T>> TryApiCallAsync<T>(Func<Task<T>> apiCall)
     {
         try
@@ -13,30 +19,37 @@ public static class RefitCallHelper
         }
         catch (ApiException ex)
         {
-            var problem = DeserializeProblemDetails(ex.Content);
-            return ApiResult<T>.Failure(problem ?? new ProblemDetails
-            {
-                Status = (int)ex.StatusCode,
-                Title = "Unexpected error",
-                Detail = "An unexpected error occurred."
-            });
+            return ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
         }
     }
 
-    private static ProblemDetails? DeserializeProblemDetails(string? content)
+    private static ProblemDetails DeserializeProblemDetails(HttpStatusCode statusCode, string? content)
     {
-        if (string.IsNullOrEmpty(content)) return null;
+        if (string.IsNullOrEmpty(content)) return new ProblemDetails
+        {
+            Status = (int)statusCode,
+            Title = "Unexpected empty response",
+            Detail = "Response was empty or null."
+        };
 
         try
         {
-            return JsonSerializer.Deserialize<ProblemDetails>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            return JsonSerializer.Deserialize<ProblemDetails>(content, DefaultJsonSerializerOptions)
+                ?? new ProblemDetails
+                {
+                    Status = (int)statusCode,
+                    Title = "Unexpected error",
+                    Detail = "Failed to deserialize the error response."
+                };
         }
         catch
         {
-            return null;
+            return new ProblemDetails
+            {
+                Status = (int)statusCode,
+                Title = "Response deserialization error",
+                Detail = $"Failed to deserialize the error response: {content}"
+            };
         }
     }
 }

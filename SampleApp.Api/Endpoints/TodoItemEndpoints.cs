@@ -1,8 +1,8 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Filters;
+using Package.Infrastructure.Common.Contracts;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace SampleApp.Api.Endpoints;
@@ -15,13 +15,16 @@ public static class TodoItemEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth, version, output cache, etc. can be applied to specific enpoints if needed
+        //auth, version, output cache, etc. can be applied to specific endpoints if needed
+        group.MapPost("/search", Search)
+            .Produces<List<TodoItemDto>>(StatusCodes.Status200OK)
+            .WithSummary("Search TodoItems with paging, filters, and sorts");
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
             .Produces<List<TodoItemDto>>(StatusCodes.Status200OK)
-            .WithSummary("Get a list of TodoItems");
+            .WithSummary("Get a page of TodoItems");
         group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)
             .Produces<List<TodoItemDto>>(StatusCodes.Status200OK)
-            .WithSummary("Get a list of TodoItems");
+            .WithSummary("Get a page of TodoItems");
         group.MapGet("/{id:guid}", GetById)
             .Produces<TodoItemDto>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status404NotFound)
             .WithSummary("Get a TodoItem");
@@ -34,6 +37,12 @@ public static class TodoItemEndpoints
         group.MapDelete("/{id:guid}", Delete)
             .Produces(StatusCodes.Status204NoContent).ProducesValidationProblem()
             .WithSummary("Delete a TodoItem");
+    }
+
+    private static async Task<IResult> Search(ITodoService todoService, SearchRequest<TodoItemSearchFilter> request)
+    {
+        var items = await todoService.SearchAsync(request);
+        return TypedResults.Ok(items);
     }
 
     private static async Task<IResult> GetPage1(ITodoService todoService, int pageSize = 10, int pageIndex = 1)

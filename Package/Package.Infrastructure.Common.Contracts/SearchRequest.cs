@@ -2,11 +2,11 @@
 
 public record SearchRequest<TFilter>
 {
-    public int PageSize { get; init; }
+    public int PageSize { get; set; }
 
-    public int PageIndex { get; init; }
+    public int PageIndex { get; set; }
 
-    public List<Sort>? Sorts { get; init; }
+    public IEnumerable<Sort>? Sorts { get; set; }
 
-    public TFilter? Filter { get; init; }
+    public TFilter? Filter { get; set; }
 }

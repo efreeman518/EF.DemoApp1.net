@@ -28,7 +28,7 @@ builder.Services.AddMsalAuthentication(options =>
     //scopes exposed by (a different) AzureB2C api app reg that (Exposes an API - scopes) as scopes and included as part of the sign-in flow
     var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<List<string>>();
     scopes?.ForEach(scope => options.ProviderOptions.DefaultAccessTokenScopes.Add(scope));
-    
+
 });
 
 //ENTRA ID AUTHENTICATION

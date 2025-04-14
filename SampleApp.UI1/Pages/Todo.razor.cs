@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 using MudBlazor;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Utility.UI;
 using SampleApp.UI1.Model;
 using SampleApp.UI1.Services;
@@ -12,12 +13,13 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
 {
     private MudTabs? tabsRef;
     MudDataGrid<TodoItemDto> DataGrid { get; set; } = null!;
+    private bool isSearchClicked = false;
     private string? searchString;
     private TodoItemDto model = new();
     MudForm form = null!;
-    private bool _requestActive;
-    //private string? _statusMessage;
-    private string _editTabLabel => model?.Id != null ? Localizer["Edit"] : Localizer["Add"];
+    private bool requestActive;
+
+    private string EditTabLabel => model?.Id != null ? Localizer["Edit"] : Localizer["Add"];
 
     private void NewItem()
     {
@@ -28,7 +30,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
     private async Task GetItem(Guid? id)
     {
         var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetItemAsync((Guid)id!));
-        if(result.IsSuccess)
+        if (result.IsSuccess)
         {
             model = result.Data!;
             tabsRef?.ActivatePanel(1);
@@ -51,14 +53,14 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
 
         if (form.IsValid)
         {
-            _requestActive = true;
+            requestActive = true;
             //_statusMessage = string.Empty;
 
             var result = model.Id == null
                 ? await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
                 : await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.UpdateItemAsync((Guid)model.Id, model));
 
-            _requestActive = false;
+            requestActive = false;
             if (result.IsSuccess)
             {
                 model = result.Data!;
@@ -100,22 +102,62 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
     //    StateHasChanged();
     //}
 
-    private Task OnSearch(string text)
+    private async Task Search()
     {
-        searchString = text;
-        return DataGrid.ReloadServerData();
+        isSearchClicked = true;
+        await DataGrid.ReloadServerData();
     }
 
-    private async Task<GridData<TodoItemDto>?> ServerReload(GridState<TodoItemDto> state)
+    private async Task<GridData<TodoItemDto>?> ServerLoad(GridState<TodoItemDto> state)
     {
-        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetPageAsync(state.PageSize, state.Page + 1));
+        //prevent initial autoload until there is a GridState property used to manually build the query
+        if (!isSearchClicked)
+        {
+            return new GridData<TodoItemDto>
+            {
+                TotalItems = 0,
+                Items = []
+            };
+        }
+
+        //build the query
+        var filter = new TodoItemSearchFilter();
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            filter.Name = searchString;
+        }
+        var request = new SearchRequest<TodoItemSearchFilter>
+        {
+            PageSize = state.PageSize,
+            PageIndex = state.Page + 1,
+            Filter = filter
+        };
+        if (state.SortDefinitions.Count > 0)
+        {
+            request.Sorts = state.SortDefinitions.Select(x => new Sort(x.SortBy, x.Descending ? SortOrder.Descending : SortOrder.Ascending));
+        }
+        if (state.FilterDefinitions.Count > 0)
+        {
+            //var filter = new TodoItemSearchFilter();
+            //populate the filter based on state
+            foreach (var filterDefinition in state.FilterDefinitions)
+            {
+                //TODO: Add filter logic here from the state
+            }
+        }
+
+        requestActive = true;
+        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.SearchAsync(request));
+        requestActive = false;
 
         if (result.Problem is not null)
         {
-            var error = result.Problem;
-            //_statusMessage = error?.Detail ?? "Something went wrong.";
             snackbar.Add(result.Problem?.Detail ?? "Error.", Severity.Error);
-            return null;
+            return new GridData<TodoItemDto>
+            {
+                TotalItems = 0,
+                Items = []
+            };
         }
         var response = result.Data!;
         var data = response.Data!.AsEnumerable();

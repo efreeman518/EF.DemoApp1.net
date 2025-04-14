@@ -7,37 +7,21 @@
 @inject AppStateService AppStateService
 @inject IStringLocalizer<Localization.Locals> Localizer
 
-
 <MudRTLProvider RightToLeft="@Rtl">
     @* Required *@
     <MudThemeProvider Theme="theme" IsDarkMode="isDarkMode" />
     <MudPopoverProvider />
-
-    @* Needed for dialogs *@
     <MudDialogProvider />
-
-    @* Needed for snackbars *@
     <MudSnackbarProvider />
 
     <MudLayout>
         <MudAppBar Elevation="1" Dense="true">
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
             <MudText Typo="Typo.h5" Class="ml-3">@Localizer["AppName"]</MudText>
-            @* <MudSpacer />
-            <SampleApp.UI1.Components.LanguageSelector />
             <MudSpacer />
-            <MudToggleIconButton @bind-Toggled="IsDarkMode"
-                                 Icon="@Icons.Material.Filled.LightMode"
-                                 Color="@Color.Warning"
-                                 ToggledIcon="@Icons.Material.Filled.DarkMode"
-                                 ToggledColor="@Color.Primary"
-                                 title="Toggle dark mode" /> *@
-            <MudSpacer />
-            @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-            <MudSpacer /> *@
             <LoginDisplay />
         </MudAppBar>
-        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1" >
+        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1">
             <MudNavMenu>
                 <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" OnClick="@(() => Nav("/"))">@Localizer["Home"]</MudNavLink>
                 <AuthorizeView>
@@ -55,9 +39,11 @@
             </MudNavMenu>
         </MudDrawer>
         <MudMainContent>
-            <MudContainer Class="pa-2" MaxWidth="MaxWidth.False">
-                @Body
-            </MudContainer>
+            <div class="@backgroundClass">
+                <MudContainer Class="pa-2" MaxWidth="MaxWidth.False">
+                    @Body
+                </MudContainer>
+            </div>
         </MudMainContent>
     </MudLayout>
 </MudRTLProvider>

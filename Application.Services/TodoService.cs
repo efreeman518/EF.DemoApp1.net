@@ -17,6 +17,13 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
+    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
+    {
+        logger.InfoLogExt("SearchAsync {query}", request.SerializeToJson());
+        var items = await repoQuery.SearchTodoItemAsync(request, cancellationToken);
+        return items;
+    }
+
     public async Task<PagedResponse<TodoItemDto>> GetPageAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
     {
         //avoid compiler warning
@@ -138,12 +145,6 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         await repoTrxn.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken);
 
         logger.TodoItemCRUD("DeleteItemAsync Complete", id.ToString());
-    }
-
-    public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
-    {
-        logger.InfoLogExt($"SearchAsync", request.SerializeToJson());
-        return await repoQuery.SearchTodoItemAsync(request, cancellationToken);
     }
 
     //external API call

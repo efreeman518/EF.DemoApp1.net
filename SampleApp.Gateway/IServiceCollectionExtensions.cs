@@ -112,18 +112,18 @@ public static class IServiceCollectionExtensions
                 var clusterId = context.Cluster?.ClusterId;
                 if (string.IsNullOrEmpty(clusterId)) return;
 
-                
+
                 //if (!string.IsNullOrEmpty(token))
                 //{
-                    context.AddRequestTransform(async context =>
-                    {
-                        var token = await tokenService.GetAccessTokenAsync(clusterId);
+                context.AddRequestTransform(async context =>
+                {
+                    var token = await tokenService.GetAccessTokenAsync(clusterId);
 
-                        // Remove the existing Authorization header (if any)
-                        context.ProxyRequest.Headers.Authorization = null;
-                        context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                        //return ValueTask.CompletedTask;
-                    });
+                    // Remove the existing Authorization header (if any)
+                    context.ProxyRequest.Headers.Authorization = null;
+                    context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    //return ValueTask.CompletedTask;
+                });
                 //}
             });
 

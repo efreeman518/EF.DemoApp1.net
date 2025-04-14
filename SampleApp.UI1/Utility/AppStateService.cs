@@ -14,7 +14,7 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
     public async Task InitializeAsync()
     {
         var cultureName = await GetSetting("SampleAppCultureName", null, async () => await jsInteropUtility.GetBrowserCultureNameAsync());
-        if(cultureName != CultureInfo.CurrentCulture.Name)
+        if (cultureName != CultureInfo.CurrentCulture.Name)
         {
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(cultureName!);
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(cultureName!);
@@ -29,7 +29,7 @@ public class AppStateService(ILocalStorageService localStorage, IJsInteropUtilit
         var item = await localStorage.GetItemAsync<T?>(key, cancellationToken);
         if (item is null)
         {
-            if(defaultVal is not null)
+            if (defaultVal is not null)
             {
                 item = defaultVal;
             }

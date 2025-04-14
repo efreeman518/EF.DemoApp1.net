@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace SampleApp.Gateway;
 

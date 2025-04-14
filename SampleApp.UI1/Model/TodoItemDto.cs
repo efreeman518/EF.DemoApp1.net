@@ -28,7 +28,7 @@ public record TodoItemDto : IValidatableObject
     /// <returns></returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if(string.IsNullOrWhiteSpace(Name))
+        if (string.IsNullOrWhiteSpace(Name))
         {
             yield return new ValidationResult("Name is required.", [nameof(Name)]);
         }
