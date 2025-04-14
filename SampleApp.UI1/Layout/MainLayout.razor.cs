@@ -8,14 +8,14 @@ namespace SampleApp.UI1.Layout;
 public partial class MainLayout(AppStateService appState, NavigationManager nav) : IDisposable
 {
     private bool Rtl = false;
-    private bool DrawerOpen = true;
+    private bool DrawerOpen = false;
     private MudTheme? theme;
     private bool isDarkMode;
-    private string backgroundClass => isDarkMode ? "background-dark" : "background-light";
+    private string BackgroundClass => isDarkMode ? "background-dark" : "background-light";
 
     protected override async Task OnInitializedAsync()
     {
-        theme = await appState.GetSetting("Theme", ColorThemes.Theme1);
+        theme = ColorThemes.Theme1; // await appState.GetSetting("Theme", ColorThemes.Theme1);
         isDarkMode = await appState.GetSetting("IsDarkMode", true);
 
         //rtl
@@ -43,6 +43,7 @@ public partial class MainLayout(AppStateService appState, NavigationManager nav)
 
     private void Nav(string url)
     {
+        //DrawerOpen = false;
         nav.NavigateTo(url);
     }
 

@@ -21,7 +21,8 @@
             <MudSpacer />
             <LoginDisplay />
         </MudAppBar>
-        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Breakpoint="@Breakpoint.Lg" Variant="@DrawerVariant.Mini" Elevation="1">
+        <MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive" Elevation="1">
+            @* DrawerClipMode.Always  @DrawerVariant.Mini *@
             <MudNavMenu>
                 <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" OnClick="@(() => Nav("/"))">@Localizer["Home"]</MudNavLink>
                 <AuthorizeView>
@@ -39,7 +40,7 @@
             </MudNavMenu>
         </MudDrawer>
         <MudMainContent>
-            <div class="@backgroundClass">
+            <div class="@BackgroundClass">
                 <MudContainer Class="pa-2" MaxWidth="MaxWidth.False">
                     @Body
                 </MudContainer>

@@ -16,9 +16,9 @@ public static class ColorThemes
             //Secondary = "#6C757D",
             //Background = "#EDEDED", // Less bright light gray
             //Surface = "#E0E0E0", // Soft contrast to Background
-            //AppbarBackground = "#3A50F2",
-            //DrawerBackground = "#010961", // Improved contrast for drawer
-            //DrawerText = "#F1F1F1",
+            AppbarBackground = "#010d36",
+            DrawerBackground = "#010d36", // Improved contrast for drawer
+            DrawerText = "#F1F1F1",
             //Success = "#28A745",
             //Warning = "#FFC107",
             //Error = "#DC3545",
@@ -36,9 +36,9 @@ public static class ColorThemes
             //Secondary = "#5D557D",
             //Background = "#0E0E0E", // Darker for contrast
             //Surface = "#25272A", // Slightly lighter for differentiation
-            //AppbarBackground = "#3A50F2",
-            //DrawerBackground = "#010961", // Better distinction
-            //DrawerText = "#F1F1F1", // Slightly brighter for better readability
+            AppbarBackground = "#010d36",
+            DrawerBackground = "#010d36", // Better distinction
+            DrawerText = "#F1F1F1", // Slightly brighter for better readability
             //Success = "#198754",
             //Warning = "#FFC107",
             //Error = "#DC3545",
