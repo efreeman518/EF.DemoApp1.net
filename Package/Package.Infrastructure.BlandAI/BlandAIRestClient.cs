@@ -30,6 +30,26 @@ public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<Bland
         return parsedResponse;
     }
 
+    public async Task<Result<CallDetails?>> CallDetailsAsync(string callId, CancellationToken cancellationToken = default)
+    {
+        var url = $"{urlCalls}/{callId}";
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<CallDetails>(HttpMethod.Get, $"{url}", null, JsonSerializerOptions, ensureSuccessStatusCode: false, cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<Result<CorrectedTranscript?>> CorrectedTranscriptAsync(string callId, CancellationToken cancellationToken = default)
+    {
+        var url = $"{urlCalls}/{callId}/correct";
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<CorrectedTranscript>(HttpMethod.Get, $"{url}", null, JsonSerializerOptions, ensureSuccessStatusCode: false, cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
+
+    public async Task<Result<CallEmotionResponse?>> CallEmotionsAsync(CallEmotionRequest request, CancellationToken cancellationToken = default)
+    {
+        var url = $"intelligence/emotions";
+        (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<CallEmotionResponse>(HttpMethod.Post, $"{url}", request, JsonSerializerOptions, ensureSuccessStatusCode: false, cancellationToken: cancellationToken);
+        return parsedResponse;
+    }
 
     #endregion
 

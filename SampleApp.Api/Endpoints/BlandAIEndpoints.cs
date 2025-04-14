@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Package.Infrastructure.AzureOpenAI.Chat;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
 using System.Text.Json;
@@ -24,6 +25,15 @@ public static class BlandAIEndpoints
         group.MapGet("/analyzecall", AnalyzeCall)
             .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Bland analyze call.");
+        group.MapGet("/calldetails", CallDetails)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland get the call details.");
+        group.MapGet("/calltranscript", CorrectedTranscript)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland get the call corrected transcript using the (required) recorded audio.");
+        group.MapGet("/callemotion", CallEmotion)
+            .Produces<string>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithSummary("Bland get the call emotion using the (required) recorded audio.");
 
     }
 
@@ -36,18 +46,29 @@ public static class BlandAIEndpoints
             //1)What is your profession? 2)What are your areas of expertise? 3)What is your availability by days and work hours? 
             //4)How soon can you start?, 5)What time of the day do you normally jump to warp speed?, 6)Favorite color?, 7)Gender (male or female)?, 8)Current Age? 9)Feedback on this call?
 
-            Task = @"You are Betty, an AI assistant from {{company}} calling {{name}}, get asnwers to the following questions: 
-             1)What date and time did the incident occur?  2)Describe what happenned in 1-2 sentences? 3)Was anyone injured and if so, describe the injuries? 
-             4)Describe your resting pain level on a scale of 1-10? 5)Describe your pain level climbing stairs 1-10?
-             6)Are you male or female?  7)What is your current age? 8)What is your favorite color? 9)Feedback on this call?
+            //1)What date and time did the incident occur ? 2)Describe what happened in 1 - 2 sentences ? 3)Was anyone injured and if so, describe the injuries ?
+            //4)Describe your resting pain level on a scale of 1 - 10 ? 5)Describe your pain level climbing stairs 1 - 10 ?
+            //6)Are you male or female ? 7)What is your current age ? 8)What is your favorite color ? 9)Feedback on this call?
+
+           Task = @"You are Betty, an AI assistant from {{company}} calling {{name}}, get answers to the following questions: 
+                1)What is your profession? 2)What are your areas of expertise? 3)What is your availability by days and work hours? 
+                4)How soon can you start?, 5)What time of the day do you normally jump to warp speed?, 6)Favorite color?, 7)Gender (male or female)?, 8)Current Age? 9)Feedback on this call
             ",
             Voice = "Maya",
             InterruptionThreshold = 125,
+            Record = true,
             FirstSentence = "Hello {{name}}, this is the AI assistant Betty from {{company}} and I have a few questions.",
             RequestData = new Dictionary<string, string>() { { "name", settings.Value.Name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, { "officenumber", "999-999-9999" } },
             VoicemailMessage = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.",
             AvailableTags = ["successful", "incomplete", "failed"],
             Metadata = new Dictionary<string, object>() { { "originId", "123" }, { "reasonId", "456" } }
+            //https://docs.bland.ai/tutorials/custom-tools#custom-tools
+            //Tools = 
+            //[
+            //    new() {  
+
+            //    }
+            //],
         };
         var callResult = await client.SendCallAsync(request);
         var callResponse = callResult.Match(
@@ -61,14 +82,41 @@ public static class BlandAIEndpoints
         var request = new AnalyzeCallRequest
         {
             Goal = "Get the answers from the customer",
-            Questions = [["Who answered the call?", "human or voicemail"],["Date and time of the incident", "date and time in format YYYY-MM-DDTHH:mm"], ["Incident description", "string"], ["Injuries", "string"],
-            ["Resting pain level", "number"], ["Climbing stairs pain level", "number"], ["Gender", "male or female or other"], ["Current Age", "number"], ["Favorite color", "string"], ["Feedback on the call", "string"]]
-            //Questions = [["Who answered the call?", "human or voicemail"],["Profession", "string"], ["Areas of expertise", "string"], ["Availability by days and work hours", "weekdays with time ranges"],
-            //["How soon can you start?", "date"], ["Normal time of the jump to warp speed", "time"], ["Favorite color", "string"], ["Gender", "male or female or other"], ["Current Age", "number"], ["Feedback on the call", "string"]]
+            //Questions = [["Who answered the call?", "human or voicemail"],["Date and time of the incident", "date and time in format YYYY-MM-DDTHH:mm"], ["Incident description", "string"], ["Injuries", "string"],
+            //["Resting pain level", "number"], ["Climbing stairs pain level", "number"], ["Gender", "male or female or other"], ["Current Age", "number"], ["Favorite color", "string"], ["Feedback on the call", "string"]]
+            Questions = [["Who answered the call?", "human or voicemail"],["Profession", "string"], ["Areas of expertise", "string"], ["Availability by days and work hours", "weekdays with time ranges"],
+            ["How soon can you start?", "date"], ["Normal time of the jump to warp speed", "time"], ["Favorite color", "string"], ["Gender", "male or female or other"], ["Current Age", "number"], ["Feedback on the call", "string"]]
         };
         var result = await client.AnalyzeCallAsync(callId, request);
         var callResponse = result.Match(
                Succ: response => response ?? throw new InvalidDataException($"AnalyzeCallAsync returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(callResponse);
+    }
+
+    private static async Task<IResult> CallDetails(string callId, IBlandAIRestClient client)
+    {
+        var result = await client.CallDetailsAsync(callId);
+        var callResponse = result.Match(
+               Succ: response => response ?? throw new InvalidDataException($"CallDetailsAsync returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(callResponse);
+    }
+
+    private static async Task<IResult> CorrectedTranscript(string callId, IBlandAIRestClient client)
+    {
+        var result = await client.CorrectedTranscriptAsync(callId);
+        var callResponse = result.Match(
+               Succ: response => response ?? throw new InvalidDataException($"CorrectedTranscriptAsync returned null."),
+               Fail: err => throw err);
+        return TypedResults.Ok(callResponse);
+    }
+
+    private static async Task<IResult> CallEmotion(string callId, IBlandAIRestClient client)
+    {
+        var result = await client.CallEmotionsAsync(new CallEmotionRequest { CallId = callId });
+        var callResponse = result.Match(
+               Succ: response => response ?? throw new InvalidDataException($"CallEmotionsAsync returned null."),
                Fail: err => throw err);
         return TypedResults.Ok(callResponse);
     }

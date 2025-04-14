@@ -7,7 +7,9 @@ public interface IBlandAIRestClient
 {
     Task<Result<SendCallResponse?>> SendCallAsync(SendCallRequest request, CancellationToken cancellationToken = default);
     Task<Result<AnalyzeCallResponse?>> AnalyzeCallAsync(string callId, AnalyzeCallRequest request, CancellationToken cancellationToken = default);
-
+    Task<Result<CallDetails?>> CallDetailsAsync(string callId, CancellationToken cancellationToken = default);
+    Task<Result<CorrectedTranscript?>> CorrectedTranscriptAsync(string callId, CancellationToken cancellationToken = default);
+    Task<Result<CallEmotionResponse?>> CallEmotionsAsync(CallEmotionRequest request, CancellationToken cancellationToken = default);
 
     Task<Result<AgentResponse?>> CreateWebAgentAsync(AgentRequest request, CancellationToken cancellationToken = default);
     Task<Result<AgentResponse?>> UpdateWebAgentAsync(AgentRequest request, CancellationToken cancellationToken = default);
