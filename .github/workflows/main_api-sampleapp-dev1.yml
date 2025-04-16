@@ -4,65 +4,79 @@
 name: Build and deploy SampleApp.Api to Azure Web App - api-sampleapp-dev1
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+
+env:
+  DOTNET_VERSION: '9.x'
+  AZURE_WEBAPP_NAME: 'api-sampleapp-dev1'
+  AZURE_RESOURCE_GROUP: 'rg-dev1'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build with dotnet
-        run: dotnet build SampleApp.Api/SampleApp.Api.csproj --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
 
-      - name: dotnet publish
-        run: dotnet publish SampleApp.Api/SampleApp.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: Build
+        run: dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
 
-      - name: Upload artifact for deployment job
+      - name: Publish
+        run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: sampleapp-artifact
+          path: publish
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Production'
+      name: ${{ github.event.inputs.environment }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
-      - name: Login to Azure
+          name: sampleapp-artifact
+          path: .
+
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6548A42868F344A8A02E04F128E979A4 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DCA67DCA61FC407F98E4D672FFE4F666 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DE82300114FF4A2CB7B3DF7CFE29C9D5 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'api-sampleapp-dev1'
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: 'Production'
           package: .
-          
