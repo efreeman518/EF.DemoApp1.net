@@ -80,30 +80,37 @@ jobs:
       #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
       #     slot-name: 'Production'
       #     package: .
-      - name: Run deployment in temporary ACI container
+      - name: Deploy using temporary Azure Container Instance
+        shell: bash
         run: |
-          set +e # Disable exit-on-error mode
-          echo "Creating container to deploy package"
-          
-          # Create the temporary container with .NET and Azure CLI
+          set +e # Don’t exit on error to allow cleanup
+
+          containerName=deploy-temp-container
+          resourceGroup=rg-dev1
+          image=ubuntu:20.04
+          region=eastus2
+
+          echo "Creating container to deploy package..."
+
           az container create \
             --name deploy-container \
+            --os-type Linux
             --image mcr.microsoft.com/dotnet/aspnet:9.0 \
             --resource-group $AZURE_RESOURCE_GROUP \
             --vnet vnet-dev1 \
-            --subnet subnet-aci-dev1 \
+            --subnet subnet-api-dev1 \
             --environment-variables AZURE_WEBAPP_NAME=$AZURE_WEBAPP_NAME AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-            --command-line "bash -c 'apt-get update && apt-get install -y curl gnupg ca-certificates lsb-release apt-transport-https && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && curl -sSL https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-9.0.100-linux-x64-binaries && dotnet --version && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src /workspace/sampleappgateway-artifact.zip'"
-          
-          # Check the container creation status (for debugging purposes)
-          if [ $? -ne 0 ]; then
-            echo "Error: Container creation failed. Cleaning up..."
-            az container delete --name deploy-container --resource-group rg-dev1 --yes --no-wait
-            exit 1
-          fi
+            --command-line "bash -c 'apt-get update && apt-get install -y curl gnupg ca-certificates lsb-release apt-transport-https && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && curl -sSL https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-9.0.100-linux-x64-binaries && dotnet --version && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src /workspace/sampleapp-artifact.zip'"
+
+
+          # Wait until the container finishes running
+          az container wait --name $containerName --resource-group $resourceGroup --custom "containerInstance.instanceView.state=='Terminated'"
+
+          echo "Cleaning up container..."
+          az container delete --name $containerName --resource-group $resourceGroup --yes
 
       - name: Clean up ACI container
         if: failure() || success() # Ensure cleanup happens whether the previous step fails or succeeds
         run: |
           echo "Cleaning up ACI container..."
-          az container delete --name deploy-container --resource-group rg-dev1 --yes --no-wait
+          az container delete --name deploy-container --resource-group rg-dev1 --yes
