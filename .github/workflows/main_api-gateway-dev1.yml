@@ -69,9 +69,14 @@ jobs:
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
+        # These are created manually in Github repo secrets (manual EntraID appreg for deployment with OIDC federated credentials))
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        # These are created automatically when creating Azure App Service and specifying the repo - integration
+        #   client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_78EDC076F62A4BDE95214A4FE559C46A }}
+        #   tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_02767756C0BD402DABA351F3EDC94DF9 }}
+        #   subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DEFCA863CA1D40F0A851534635EACA7F }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
