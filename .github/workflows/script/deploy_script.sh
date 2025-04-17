@@ -6,11 +6,6 @@ echo "🔧 Debugging: Checking if curl and unzip are available..."
 which curl || echo "curl not found"
 which unzip || echo "unzip not found"
 
-# Install required tools
-echo "🔧 Installing required tools..."
-apt-get update && apt-get install -y curl unzip || { echo "Installation failed"; exit 1; }
-
-
 echo "=== Azure App Service Deployment Script ==="
 echo
 
