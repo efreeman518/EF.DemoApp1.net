@@ -25,6 +25,8 @@ env:
   ACI_NAME: deploy-temp-aci
   ACI_SUBNET: subnet-aci-dev1
   ACI_VNET: vnet-dev1
+  CONTAINER_IMAGE: efreeman518/aci-deployer:latest
+  CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
   REGION: eastus2  # Change as needed
   ZIP_NAME: sampleapp-api.zip
 
@@ -108,7 +110,7 @@ jobs:
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --os-type Linux \
-            --image mcr.microsoft.com/dotnet/sdk:9.0 \
+            --image $CONTAINER_IMAGE \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
             --cpu 1 \
@@ -119,36 +121,27 @@ jobs:
 
       - name: Wait for ACI to be ready
         run: |
-          for i in {1..10}; do
-            STATUS=$(az container show -g ${{ env.RESOURCE_GROUP }} -n ${{ env.ACI_NAME }} --query "instanceView.state" -o tsv)
-            echo "ACI Status: $STATUS"
-            if [[ "$STATUS" == "Running" ]]; then break; fi
-            sleep 10
-          done
+          az container wait --name $ACI_NAME --resource-group $RESOURCE_GROUP --custom "instanceView.state=='Running'"
 
-      - name: Write deploy script locally
+      - name: Prepare deployment script
         run: |
-          cat <<'EOF' > deploy_script.sh
+          cat <<EOF | base64 > deploy_script.b64
           #!/bin/bash
           set -e
 
-          echo "Installing unzip, curl, and Azure CLI..."
-          apt-get update && apt-get install -y unzip curl
-          curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
           echo "Downloading artifact zip from storage..."
-          curl -O https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
+          curl -O https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/sampleapp-api.zip
 
           echo "Unzipping artifact..."
-          unzip ${{ env.ZIP_NAME }} -d app
+          unzip sampleapp-api.zip -d app
 
           echo "Deploying to Azure App Service..."
           az webapp deploy \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_SERVICE_NAME }} \
-            --src-path app \
-            --type zip \
-            --restart true
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.APP_NAME }} \
+              --src-path app \
+              --type zip \
+              --restart true
           EOF
 
       - name: Run deploy script in ACI via stdin
@@ -156,18 +149,7 @@ jobs:
           az container exec \
             -g $RESOURCE_GROUP \
             -n $ACI_NAME \
-            --exec-command "bash -s" < deploy_script.sh
-
-      # - name: Encode deploy script
-      #   run: base64 deploy_script.sh > deploy_script.b64
-
-      # - name: Run deploy script in ACI via stdin
-      #   run: |
-      #     cat deploy_script.b64 | base64 -d | az container exec \
-      #       -g ${{ env.RESOURCE_GROUP }} \
-      #       -n ${{ env.ACI_NAME }} \
-      #       --exec-command "bash -s"
-      #       --env STORAGE_ACCOUNT=${{ env.STORAGE_ACCOUNT }}
+            --exec-command "/bin/bash -c \"cat /dev/stdin | base64 -d | bash\"" < deploy_script.b64
 
       - name: Cleanup ACI and Storage
         run: |
