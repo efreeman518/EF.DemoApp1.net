@@ -121,13 +121,13 @@ jobs:
           #   --file ./artifact/deploy_script.sh \
           #   --name deploy_script.sh
 
-      - name: Deploy via ACI (single step)
+      - name: Deploy via ACI 
         run: |
           # Generate SAS token for the zip file
           ZIP_SAS=$(az storage blob generate-sas \
             --account-name $STORAGE_ACCOUNT \
             --container-name deploy \
-            --name ${{ env.ZIP_NAME }} \
+            --name $ZIP_NAME \
             --permissions r \
             --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
             --output tsv)
@@ -146,17 +146,20 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/bash -c 'apt-get update && apt-get install -y curl unzip lsb-release && \
-                curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
-                curl -sSL \"$ZIP_URL\" -o $ZIP_NAME && \
-                unzip -q $ZIP_NAME -d app && \
-                az webapp deploy \
-                  --resource-group \"$RESOURCE_GROUP\" \
-                  --name \"$APP_SERVICE_NAME\" \
-                  --src-path app \
-                  --type zip \
-                  --restart true && \
-                echo \"Deployment complete\"'"
+            --command-line "
+              # Verify tools
+              which az && az --version && \
+              which unzip || apt-get update -qq && apt-get install -y unzip && \
+              # Download and deploy
+              curl -sSL 'https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}' -o ${ZIP_NAME} && \
+              unzip -q ${ZIP_NAME} -d /app && \
+              az webapp deploy \
+                --resource-group ${RESOURCE_GROUP} \
+                --name ${APP_SERVICE_NAME} \
+                --src-path /app \
+                --type zip \
+                --restart true && \
+              echo 'Deployment succeeded'" \
             --environment-variables \
                 RESOURCE_GROUP="$RESOURCE_GROUP" \
                 APP_NAME="$APP_SERVICE_NAME"
