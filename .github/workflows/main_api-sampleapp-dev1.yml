@@ -110,6 +110,8 @@ jobs:
             --image mcr.microsoft.com/azure-cli \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
+            --cpu 1 \
+            --memory 1.5 \
             --location $REGION \
             --command-line "sleep 3600" \
             --restart-policy Never
