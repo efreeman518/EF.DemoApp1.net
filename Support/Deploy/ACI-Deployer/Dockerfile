@@ -1,8 +1,7 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0
+FROM mcr.microsoft.com/azure-cli:latest
 
-RUN apt-get update -yq && \
-    apt-get install -yq curl unzip gnupg ca-certificates lsb-release && \
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install additional tools (curl, unzip)
+RUN apt-get update && apt-get install -y curl unzip
 
-CMD [ "sleep", "3600" ]
+# Set the default command to bash
+CMD [ "bash" ]
