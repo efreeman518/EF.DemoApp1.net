@@ -14,13 +14,24 @@ on:
         required: true
         default: 'dev'
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   DOTNET_VERSION: '9.x'
-  AZURE_WEBAPP_NAME: 'api-sampleapp-dev1'
-  AZURE_RESOURCE_GROUP: 'rg-dev1'
+  RESOURCE_GROUP: 'rg-dev1'
+  APP_SERVICE_NAME: api-sampleapp-dev1
+  ACI_NAME: aci-temp-deploy
+  ACI_SUBNET: subnet-aci-dev1
+  ACI_VNET: vnet-dev1
+  CONTAINER_IMAGE: efreeman518/aci-deployer:latest
+  CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
+  REGION: eastus2  # Change as needed
+  ZIP_NAME: sampleapp-api.zip
 
 jobs:
-  build:
+  build-and-package:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,73 +52,116 @@ jobs:
         run: dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish
+        run: dotnet publish SampleApp.Api/SampleApp.Api.csproj -c Release -o publish_output
+
+      - name: Zip published output
+        run: zip -r ${{ env.ZIP_NAME }} publish_output
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sampleapp-artifact
-          path: publish
+          name: sampleapp-api
+          path: ${{ env.ZIP_NAME }}
 
-  deploy:
+  deploy-via-aci:
+    needs: build-and-package
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: ${{ github.event.inputs.environment }}
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write
-      contents: read
+    name: Deploy via ACI
 
     steps:
-      - name: Download build artifact
+      - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: sampleapp-artifact
-          path: .
+          name: sampleapp-api
+          path: ./artifact
 
-      - name: Azure Login (OIDC)
+      - name: Azure Login with OIDC
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # - name: Deploy to Azure Web App
-      #   id: deploy-to-webapp
-      #   uses: azure/webapps-deploy@v3
-      #   with:
-      #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
-      #     slot-name: 'Production'
-      #     package: .
-      - name: Deploy using temporary Azure Container Instance
-        shell: bash
+      - name: Upload to Azure Storage (temp blob storage & container)
         run: |
-          set +e # Don’t exit on error to allow cleanup
+          STORAGE_ACCOUNT="stgtmpdeploy$RANDOM"
+          echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
 
-          containerName=deploy-temp-container
+          az storage account create \
+            --name $STORAGE_ACCOUNT \
+            --resource-group $RESOURCE_GROUP \
+            --location $REGION \
+            --sku Standard_LRS \
+            --kind StorageV2
 
-          echo "Creating container to deploy package..."
+          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --query connectionString -o tsv)
 
+          az storage container create --name deploy --connection-string "$CONNECTION_STRING"
+
+          az storage blob upload \
+            --connection-string "$CONNECTION_STRING" \
+            --container-name deploy \
+            --file ./artifact/${{ env.ZIP_NAME }} \
+            --name ${{ env.ZIP_NAME }}
+
+      - name: Start Temporary ACI
+        run: |
           az container create \
-            --name $containerName \
-            --os-type Linux
-            --image mcr.microsoft.com/dotnet/aspnet:9.0 \
-            --resource-group $AZURE_RESOURCE_GROUP \
-            --vnet vnet-dev1 \
-            --subnet subnet-aci-dev1 \
-            --environment-variables AZURE_WEBAPP_NAME=$AZURE_WEBAPP_NAME AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-            --command-line "bash -c 'apt-get update && apt-get install -y curl gnupg ca-certificates lsb-release apt-transport-https && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && curl -sSL https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-9.0.100-linux-x64-binaries && dotnet --version && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src /workspace/sampleapp-artifact.zip'"
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --os-type Linux \
+            --image $CONTAINER_IMAGE \
+            --vnet $ACI_VNET \
+            --subnet $ACI_SUBNET \
+            --cpu 1 \
+            --memory 1.5 \
+            --location $REGION \
+            --command-line "sleep 3600" \
+            --restart-policy Never
 
-
-          # Wait until the container finishes running
-          az container wait --name $containerName --resource-group $AZURE_RESOURCE_GROUP --custom "containerInstance.instanceView.state=='Terminated'"
-
-          echo "Cleaning up container..."
-          az container delete --name $containerName --resource-group $AZURE_RESOURCE_GROUP --yes
-
-      - name: Clean up ACI container
-        if: failure() || success() # Ensure cleanup happens whether the previous step fails or succeeds
+      - name: Wait for ACI to be ready
         run: |
-          echo "Cleaning up ACI container..."
-          az container delete --name deploy-container --resource-group rg-dev1 --yes
+          echo "Waiting for container to reach 'Running' state..."
+          for i in {1..30}; do
+            STATUS=$(az container show --name $ACI_NAME --resource-group $RESOURCE_GROUP --query "instanceView.state" -o tsv)
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "Running" ]]; then
+              echo "Container is running."
+              break
+            fi
+            if [[ "$STATUS" == "Terminated" || "$STATUS" == "Failed" ]]; then
+              echo "Container failed or terminated early. Exiting."
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Copy deploy script into ACI
+        run: |
+          az container exec \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --exec-command "mkdir -p /app && cat > /app/deploy_script.sh" < .github/workflows/script/deploy_script.sh
+
+          az container exec \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --exec-command "chmod +x /app/deploy_script.sh"
+
+      - name: Run deploy script in ACI with environment variables
+        run: |
+          az container exec \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --exec-command "/bin/bash -c 'export STORAGE_ACCOUNT=${STORAGE_ACCOUNT} ZIP_NAME=${ZIP_NAME} RESOURCE_GROUP=${RESOURCE_GROUP} APP_NAME=${APP_SERVICE_NAME} && /app/deploy_script.sh'"
+
+      - name: Cleanup ACI and Storage
+        run: |
+          az container delete \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.ACI_NAME }} \
+            --yes
+          az storage account delete \
+            --name $STORAGE_ACCOUNT \
+            --resource-group $RESOURCE_GROUP \
+            --yes
