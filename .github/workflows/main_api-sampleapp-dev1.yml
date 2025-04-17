@@ -164,8 +164,38 @@ jobs:
                 RESOURCE_GROUP="$RESOURCE_GROUP" \
                 APP_NAME="$APP_SERVICE_NAME"
 
-          # Wait for completion and get logs
+          # Wait for completion with timeout
+          echo "Waiting for ACI to complete (max 5 minutes)..."
+          for i in {1..30}; do
+            STATUS=$(az container show \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --query "instanceView.state" \
+            --output tsv)
+      
+            echo "Status: $STATUS"
+      
+            if [[ "$STATUS" == "Succeeded" ]]; then
+            echo "Deployment completed successfully"
+            break
+            elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+            echo "Deployment failed. Container logs:"
+            az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+            exit 1
+            fi
+      
+            sleep 10
+          done
+
+          # Get logs regardless of status
+          echo "Final container logs:"
           az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+
+          # Fail if not succeeded
+          if [[ "$STATUS" != "Succeeded" ]]; then
+            echo "Timeout reached - deployment did not complete"
+            exit 1
+          fi
 
       - name: Cleanup resources
         if: always()
