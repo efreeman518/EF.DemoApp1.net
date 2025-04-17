@@ -121,7 +121,20 @@ jobs:
 
       - name: Wait for ACI to be ready
         run: |
-          az container wait --name $ACI_NAME --resource-group $RESOURCE_GROUP --custom "instanceView.state=='Running'"
+          echo "Waiting for container to reach 'Running' state..."
+          for i in {1..30}; do
+            STATUS=$(az container show --name $ACI_NAME --resource-group $RESOURCE_GROUP --query "instanceView.state" -o tsv)
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "Running" ]]; then
+              echo "Container is running."
+              break
+            fi
+            if [[ "$STATUS" == "Terminated" || "$STATUS" == "Failed" ]]; then
+              echo "Container failed or terminated early. Exiting."
+              exit 1
+            fi
+            sleep 10
+          done
 
       - name: Prepare deployment script
         run: |
