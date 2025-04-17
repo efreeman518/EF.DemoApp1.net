@@ -83,6 +83,8 @@ jobs:
       - name: Upload to Azure Storage (temp container)
         run: |
           STORAGE_ACCOUNT="stgtmpdeploy$RANDOM"
+          echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
+
           az storage account create \
             --name $STORAGE_ACCOUNT \
             --resource-group $RESOURCE_GROUP \
@@ -106,7 +108,7 @@ jobs:
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --os-type Linux \
-            --image mcr.microsoft.com/azure-cli \
+            --image mcr.microsoft.com/dotnet/sdk:9.0 \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
             --cpu 1 \
@@ -130,8 +132,9 @@ jobs:
           #!/bin/bash
           set -e
 
-          echo "Installing unzip and curl..."
+          echo "Installing unzip, curl, and Azure CLI..."
           apt-get update && apt-get install -y unzip curl
+          curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
           echo "Downloading artifact zip from storage..."
           curl -O https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
@@ -148,15 +151,23 @@ jobs:
             --restart true
           EOF
 
-      - name: Encode deploy script
-        run: base64 deploy_script.sh > deploy_script.b64
-
       - name: Run deploy script in ACI via stdin
         run: |
-          cat deploy_script.b64 | base64 -d | az container exec \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.ACI_NAME }} \
-            --exec-command "bash -s"
+          az container exec \
+            -g $RESOURCE_GROUP \
+            -n $ACI_NAME \
+            --exec-command "bash -s" < deploy_script.sh
+
+      # - name: Encode deploy script
+      #   run: base64 deploy_script.sh > deploy_script.b64
+
+      # - name: Run deploy script in ACI via stdin
+      #   run: |
+      #     cat deploy_script.b64 | base64 -d | az container exec \
+      #       -g ${{ env.RESOURCE_GROUP }} \
+      #       -n ${{ env.ACI_NAME }} \
+      #       --exec-command "bash -s"
+      #       --env STORAGE_ACCOUNT=${{ env.STORAGE_ACCOUNT }}
 
       - name: Cleanup ACI and Storage
         run: |
