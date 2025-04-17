@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# Install required tools
+echo "🔧 Installing required tools..."
+apt-get update && apt-get install -y curl unzip
+
 echo "=== Azure App Service Deployment Script ==="
 echo
 
