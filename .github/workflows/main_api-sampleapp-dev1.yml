@@ -145,7 +145,7 @@ jobs:
             --memory 1.5 \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/sh -c 'apk update && apk add --no-cache curl unzip bash && curl -sSL ${SCRIPT_URL} -o deploy.sh && chmod +x deploy.sh && ./deploy.sh'" \
+            --command-line "/bin/sh -c 'echo Installing dependencies && apk update && apk add --no-cache curl bash unzip && echo Downloading deploy script && curl -sSL ${SCRIPT_URL} -o deploy.sh && chmod +x deploy.sh && ./deploy.sh'" \
             --environment-variables \
                 RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
                 APP_NAME=${{ env.APP_SERVICE_NAME }} \
