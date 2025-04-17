@@ -86,12 +86,6 @@ jobs:
           name: sampleapp-api
           path: ./artifact
 
-      - name: Download deploy script
-        uses: actions/download-artifact@v4
-        with:
-          name: deploy-script
-          path: ./artifact
-
       - name: Azure Login with OIDC
         uses: azure/login@v2
         with:
