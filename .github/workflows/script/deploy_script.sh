@@ -1,13 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-# Debugging: Check if curl and unzip are already installed
-echo "🔧 Debugging: Checking if curl and unzip are available..."
-which curl || echo "curl not found"
-which unzip || echo "unzip not found"
+# Debugging info
+echo "=== Environment Variables ==="
+env
+echo "============================"
 
-echo "=== Azure App Service Deployment Script ==="
-echo
+echo "Current working directory: $(pwd)"
+echo "Contents of current directory:"
+ls -la
 
 # Check required env vars
 : "${STORAGE_ACCOUNT:?Environment variable STORAGE_ACCOUNT not set}"

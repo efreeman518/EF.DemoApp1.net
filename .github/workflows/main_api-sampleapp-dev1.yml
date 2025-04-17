@@ -142,10 +142,10 @@ jobs:
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
             --cpu 1 \
-            --memory 1.5 \
+            --memory 2 \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/sh -c 'apk update && apk add --no-cache curl unzip bash && curl -sSL ${SCRIPT_URL} -o deploy.sh && chmod +x deploy.sh && ./deploy.sh'" \
+            --command-line "/bin/bash -c 'apt-get update && apt-get install -y curl unzip && curl -sSL ${SCRIPT_URL} -o deploy.sh && chmod +x deploy.sh && ./deploy.sh'" \
             --environment-variables \
                 RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
                 APP_NAME=${{ env.APP_SERVICE_NAME }} \
@@ -176,24 +176,24 @@ jobs:
             sleep 10
           done
           
-      - name: Copy deploy script into ACI
-        run: |
-          az container exec \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --exec-command "mkdir -p /app && cat > /app/deploy_script.sh" < .github/workflows/script/deploy_script.sh
+      # - name: Copy deploy script into ACI
+      #   run: |
+      #     az container exec \
+      #       --resource-group $RESOURCE_GROUP \
+      #       --name $ACI_NAME \
+      #       --exec-command "mkdir -p /app && cat > /app/deploy_script.sh" < .github/workflows/script/deploy_script.sh
 
-          az container exec \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --exec-command "chmod +x /app/deploy_script.sh"
+      #     az container exec \
+      #       --resource-group $RESOURCE_GROUP \
+      #       --name $ACI_NAME \
+      #       --exec-command "chmod +x /app/deploy_script.sh"
 
-      - name: Run deploy script in ACI with environment variables
-        run: |
-          az container exec \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --exec-command "/bin/bash -c 'export STORAGE_ACCOUNT=${STORAGE_ACCOUNT} ZIP_NAME=${ZIP_NAME} RESOURCE_GROUP=${RESOURCE_GROUP} APP_NAME=${APP_SERVICE_NAME} && /app/deploy_script.sh'"
+      # - name: Run deploy script in ACI with environment variables
+      #   run: |
+      #     az container exec \
+      #       --resource-group $RESOURCE_GROUP \
+      #       --name $ACI_NAME \
+      #       --exec-command "/bin/bash -c 'export STORAGE_ACCOUNT=${STORAGE_ACCOUNT} ZIP_NAME=${ZIP_NAME} RESOURCE_GROUP=${RESOURCE_GROUP} APP_NAME=${APP_SERVICE_NAME} && /app/deploy_script.sh'"
 
       - name: Cleanup ACI and Storage
         run: |
