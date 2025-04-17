@@ -119,31 +119,50 @@ jobs:
           echo "Waiting for ACI to initialize..."
           sleep 30
 
-      - name: Execute Deployment from ACI
+      - name: Write deploy script locally
         run: |
-          # Get ACI IP or FQDN
-          ACI_IP=$(az container show -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --query ipAddress.ip -o tsv)
-
-          # Create deployment script
-          cat <<EOF > deploy_script.sh
+          cat <<'EOF' > deploy_script.sh
           #!/bin/bash
           set -e
+
+          echo "Installing unzip and curl..."
           apt-get update && apt-get install -y unzip curl
 
-          curl -O https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
+          echo "Downloading artifact zip from storage..."
+          curl -O https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
+
+          echo "Unzipping artifact..."
           unzip ${{ env.ZIP_NAME }} -d app
-          az webapp deploy --resource-group $AZURE_RESOURCE_GROUP \
-            --name $APP_SERVICE_NAME \
+
+          echo "Deploying to Azure App Service..."
+          az webapp deploy \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name ${{ env.APP_SERVICE_NAME }} \
             --src-path app \
             --type zip \
             --restart true
           EOF
 
-          # Copy script to ACI
-          az container exec -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --exec-command "bash -c 'echo \"$(cat deploy_script.sh)\" > /tmp/deploy_script.sh && chmod +x /tmp/deploy_script.sh'"
+      - name: Copy deploy script into ACI
+        run: |
+          az container exec \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.ACI_NAME }} \
+            --exec-command "bash -c 'cat > /tmp/deploy_script.sh'" < deploy_script.sh
 
-          # Execute script
-          az container exec -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --exec-command "bash /tmp/deploy_script.sh"
+      - name: Make deploy script executable in ACI
+        run: |
+          az container exec \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.ACI_NAME }} \
+            --exec-command "chmod +x /tmp/deploy_script.sh"
+
+      - name: Run deploy script in ACI
+        run: |
+          az container exec \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.ACI_NAME }} \
+            --exec-command "bash /tmp/deploy_script.sh"
 
       - name: Cleanup ACI and Storage
         run: |
