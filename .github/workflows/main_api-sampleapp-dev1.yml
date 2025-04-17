@@ -143,30 +143,31 @@ jobs:
                 APP_NAME=${{ env.APP_SERVICE_NAME }} \
                 ZIP_NAME=${{ env.ZIP_NAME }} \
                 STORAGE_ACCOUNT=${{ env.STORAGE_ACCOUNT }}
-
-      - name: Get ACI logs on failure
-        if: failure()
-        run: |
-          echo "Fetching container logs..."
-          az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME || echo "Failed to fetch logs"
-    
+      
+      - name: Delay briefly before checking ACI status
+        run: sleep 10
+        
       - name: Wait for ACI to be ready
         run: |
-          echo "Waiting for container to reach 'Running' state..."
+          echo "Waiting for container '${ACI_NAME}' in resource group '${RESOURCE_GROUP}' to reach 'Running' state..."
           for i in {1..30}; do
-            STATUS=$(az container show --name $ACI_NAME --resource-group $RESOURCE_GROUP --query "instanceView.state" -o tsv)
+            STATUS=$(az container show --name "$ACI_NAME" --resource-group "$RESOURCE_GROUP" --query "instanceView.state" -o tsv 2>/dev/null || echo "NotFound")
             echo "Current status: $STATUS"
+      
             if [[ "$STATUS" == "Running" ]]; then
               echo "Container is running."
               break
             fi
-            if [[ "$STATUS" == "Terminated" || "$STATUS" == "Failed" ]]; then
-              echo "Container failed or terminated early. Exiting."
+      
+            if [[ "$STATUS" == "Terminated" || "$STATUS" == "Failed" || "$STATUS" == "NotFound" ]]; then
+              echo "Container failed, terminated early, or not found. Exiting."
+              az container logs --resource-group "$RESOURCE_GROUP" --name "$ACI_NAME" || echo "Failed to fetch logs"
               exit 1
             fi
+      
             sleep 10
           done
-
+          
       - name: Copy deploy script into ACI
         run: |
           az container exec \
