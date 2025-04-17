@@ -99,7 +99,6 @@ jobs:
             --container-name deploy \
             --file ./artifact/${{ env.ZIP_NAME }} \
             --name ${{ env.ZIP_NAME }}
-            --overwrite
 
       - name: Start Temporary ACI
         run: |
