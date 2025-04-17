@@ -54,7 +54,7 @@ jobs:
     needs: build
     environment:
       name: ${{ github.event.inputs.environment }}
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      # url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write
       contents: read
@@ -64,7 +64,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sampleapp-artifact
-          path: .
+          path: publish
+
+      - name: Zip artifact
+        run: zip -r sampleapp-artifact.zip publish
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -83,31 +86,39 @@ jobs:
       - name: Deploy using temporary Azure Container Instance
         shell: bash
         run: |
-          set +e # Don’t exit on error to allow cleanup
+          set +e # Donâ€™t exit on error to allow cleanup
 
           containerName=deploy-temp-container
 
           echo "Creating container to deploy package..."
 
           az container create \
-            --name $containerName \
-            --os-type Linux
-            --image mcr.microsoft.com/dotnet/aspnet:9.0 \
-            --resource-group $AZURE_RESOURCE_GROUP \
+            --name "$containerName" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image mcr.microsoft.com/dotnet/sdk:9.0 \
+            --os-type Linux \
+            --cpu 1 \
+            --memory 1.5 \
+            --restart-policy Never \
             --vnet vnet-dev1 \
             --subnet subnet-aci-dev1 \
-            --environment-variables AZURE_WEBAPP_NAME=$AZURE_WEBAPP_NAME AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-            --command-line "bash -c 'apt-get update && apt-get install -y curl gnupg ca-certificates lsb-release apt-transport-https && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && curl -sSL https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-9.0.100-linux-x64-binaries && dotnet --version && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src /workspace/sampleapp-artifact.zip'"
-
+            --environment-variables \
+              AZURE_WEBAPP_NAME="$AZURE_WEBAPP_NAME" \
+              AZURE_RESOURCE_GROUP="$AZURE_RESOURCE_GROUP" \
+            --command-line "/bin/sh -c 'apt update && apt install -y curl unzip && curl -sL https://aka.ms/InstallAzureCLIDeb | bash && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src sampleapp-artifact.zip'" \
+            --file sampleapp-artifact.zip
 
           # Wait until the container finishes running
-          az container wait --name $containerName --resource-group $AZURE_RESOURCE_GROUP --custom "containerInstance.instanceView.state=='Terminated'"
+          az container wait \
+            --name "$containerName" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --custom "containerInstance.instanceView.state=='Terminated'"
 
           echo "Cleaning up container..."
-          az container delete --name $containerName --resource-group $AZURE_RESOURCE_GROUP --yes
+          az container delete --name "$containerName" --resource-group "$AZURE_RESOURCE_GROUP" --yes
 
-      - name: Clean up ACI container
-        if: failure() || success() # Ensure cleanup happens whether the previous step fails or succeeds
+      - name: Final ACI cleanup fallback
+        if: always()
         run: |
-          echo "Cleaning up ACI container..."
-          az container delete --name deploy-container --resource-group rg-dev1 --yes
+          echo "Final container cleanup (in case of failure)..."
+          az container delete --name deploy-temp-container --resource-group $AZURE_RESOURCE_GROUP --yes || true
