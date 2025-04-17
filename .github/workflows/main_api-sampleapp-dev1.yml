@@ -147,10 +147,8 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --command-line "
-              # Verify tools
               which az && az --version && \
               which unzip || apt-get update -qq && apt-get install -y unzip && \
-              # Download and deploy
               curl -sSL '{ZIP_URL}' -o ${ZIP_NAME} && \
               unzip -q ${ZIP_NAME} -d /app && \
               az webapp deploy \
