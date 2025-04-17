@@ -146,16 +146,17 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/bash -c 'apt-get update && apt-get install -y curl unzip && \
-                            curl -sSL \"$ZIP_URL\" -o $ZIP_NAME && \
-                            unzip -q $ZIP_NAME -d app && \
-                            az webapp deploy \
-                              --resource-group \"$RESOURCE_GROUP\" \
-                              --name \"$APP_SERVICE_NAME\" \
-                              --src-path app \
-                              --type zip \
-                              --restart true && \
-                            echo \"Deployment complete\"'" \
+            --command-line "/bin/bash -c 'apt-get update && apt-get install -y curl unzip lsb-release && \
+                curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
+                curl -sSL \"$ZIP_URL\" -o $ZIP_NAME && \
+                unzip -q $ZIP_NAME -d app && \
+                az webapp deploy \
+                  --resource-group \"$RESOURCE_GROUP\" \
+                  --name \"$APP_SERVICE_NAME\" \
+                  --src-path app \
+                  --type zip \
+                  --restart true && \
+                echo \"Deployment complete\"'"
             --environment-variables \
                 RESOURCE_GROUP="$RESOURCE_GROUP" \
                 APP_NAME="$APP_SERVICE_NAME"
