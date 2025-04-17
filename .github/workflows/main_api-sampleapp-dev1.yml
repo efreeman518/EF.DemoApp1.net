@@ -76,6 +76,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Upload artifact to blob
+        run: |
+          az storage blob upload \
+            --account-name stgef1dev1 \
+            --container-name temp-deploy-artifacts \
+            --name sampleapp-artifact.zip \
+            --file publish/sampleapp-artifact.zip \
+            --auth-mode login \
+            --overwrite
+
       # - name: Deploy to Azure Web App
       #   id: deploy-to-webapp
       #   uses: azure/webapps-deploy@v3
@@ -84,41 +94,55 @@ jobs:
       #     slot-name: 'Production'
       #     package: .
       - name: Deploy using temporary Azure Container Instance
-        shell: bash
         run: |
-          set +e # Don’t exit on error to allow cleanup
-
           containerName=deploy-temp-container
-
-          echo "Creating container to deploy package..."
+          blobUrl="https://<yourstorageaccount>.blob.core.windows.net/temp-deploy-artifacts/sampleapp-artifact.zip"
 
           az container create \
-            --name "$containerName" \
-            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --resource-group $AZURE_RESOURCE_GROUP \
+            --name $containerName \
             --image mcr.microsoft.com/dotnet/sdk:9.0 \
             --os-type Linux \
-            --cpu 1 \
-            --memory 1.5 \
-            --restart-policy Never \
             --vnet vnet-dev1 \
             --subnet subnet-aci-dev1 \
-            --environment-variables \
-              AZURE_WEBAPP_NAME="$AZURE_WEBAPP_NAME" \
-              AZURE_RESOURCE_GROUP="$AZURE_RESOURCE_GROUP" \
-            --command-line "/bin/sh -c 'apt update && apt install -y curl unzip && curl -sL https://aka.ms/InstallAzureCLIDeb | bash && az webapp deployment source config-zip --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src sampleapp-artifact.zip'" \
-            --file sampleapp-artifact.zip
+            --restart-policy Never \
+            --command-line "/bin/sh -c '
+            apt update && apt install -y curl unzip zip && \
+            curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
+            curl -o app.zip \"$blobUrl\" && \
+            az webapp deployment source config-zip \
+                --resource-group $AZURE_RESOURCE_GROUP \
+                --name $AZURE_WEBAPP_NAME \
+                --src app.zip'" \
+            --environment-variables AZURE_WEBAPP_NAME=$AZURE_WEBAPP_NAME AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP
 
-          # Wait until the container finishes running
-          az container wait \
-            --name "$containerName" \
-            --resource-group "$AZURE_RESOURCE_GROUP" \
-            --custom "containerInstance.instanceView.state=='Terminated'"
-
-          echo "Cleaning up container..."
-          az container delete --name "$containerName" --resource-group "$AZURE_RESOURCE_GROUP" --yes
-
-      - name: Final ACI cleanup fallback
-        if: always()
+      - name: Wait for container to complete
         run: |
-          echo "Final container cleanup (in case of failure)..."
-          az container delete --name deploy-temp-container --resource-group $AZURE_RESOURCE_GROUP --yes || true
+          az container wait \
+            --resource-group $AZURE_RESOURCE_GROUP \
+            --name deploy-temp-container \
+            --custom "instanceView.state=='Terminated'"
+
+      - name: Cleanup container and blob
+        run: |
+          az container delete --name deploy-temp-container --resource-group $AZURE_RESOURCE_GROUP --yes
+          az storage blob delete \
+            --account-name <yourstorageaccount> \
+            --container-name temp-deploy-artifacts \
+            --name sampleapp-artifact.zip \
+            --auth-mode login
+
+      #     # Wait until the container finishes running
+      #     az container wait \
+      #       --name "$containerName" \
+      #       --resource-group "$AZURE_RESOURCE_GROUP" \
+      #       --custom "containerInstance.instanceView.state=='Terminated'"
+
+      #     echo "Cleaning up container..."
+      #     az container delete --name "$containerName" --resource-group "$AZURE_RESOURCE_GROUP" --yes
+
+      # - name: Final ACI cleanup fallback
+      #   if: always()
+      #   run: |
+      #     echo "Final container cleanup (in case of failure)..."
+      #     az container delete --name deploy-temp-container --resource-group $AZURE_RESOURCE_GROUP --yes || true
