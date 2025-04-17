@@ -124,7 +124,15 @@ jobs:
 
       - name: Start Temporary ACI (with deploy script)
         run: |
-          SCRIPT_URL="https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/deploy_script.sh"
+          SAS_TOKEN=$(az storage blob generate-sas \
+            --account-name $STORAGE_ACCOUNT \
+            --container-name deploy \
+            --name deploy_script.sh \
+            --permissions r \
+            --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
+            --output tsv)
+
+          SCRIPT_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/deploy_script.sh?$SAS_TOKEN"
           
           az container create \
             --resource-group $RESOURCE_GROUP \
