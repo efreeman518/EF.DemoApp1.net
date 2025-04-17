@@ -130,7 +130,6 @@ jobs:
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --os-type Linux \
-            # --image $CONTAINER_IMAGE \
             --image mcr.microsoft.com/azure-cli \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
