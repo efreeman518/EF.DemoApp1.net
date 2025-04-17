@@ -86,12 +86,12 @@ jobs:
           STORAGE_ACCOUNT="samplestorage$RANDOM"
           az storage account create \
             --name $STORAGE_ACCOUNT \
-            --resource-group $RESOURCE_GROUP \
+            --resource-group $AZURE_RESOURCE_GROUP \
             --location $REGION \
             --sku Standard_LRS \
             --kind StorageV2
 
-          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --query connectionString -o tsv)
+          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $AZURE_RESOURCE_GROUP --query connectionString -o tsv)
 
           az storage container create --name deploy --connection-string "$CONNECTION_STRING"
 
@@ -104,7 +104,7 @@ jobs:
       - name: Start Temporary ACI
         run: |
           az container create \
-            --resource-group $RESOURCE_GROUP \
+            --resource-group $AZURE_RESOURCE_GROUP \
             --name $ACI_NAME \
             --image mcr.microsoft.com/azure-cli \
             --vnet $ACI_VNET \
@@ -119,7 +119,7 @@ jobs:
       - name: Execute Deployment from ACI
         run: |
           # Get ACI IP or FQDN
-          ACI_IP=$(az container show -g $RESOURCE_GROUP -n $ACI_NAME --query ipAddress.ip -o tsv)
+          ACI_IP=$(az container show -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --query ipAddress.ip -o tsv)
 
           # Create deployment script
           cat <<EOF > deploy_script.sh
@@ -129,7 +129,7 @@ jobs:
 
           curl -O https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
           unzip ${{ env.ZIP_NAME }} -d app
-          az webapp deploy --resource-group $RESOURCE_GROUP \
+          az webapp deploy --resource-group $AZURE_RESOURCE_GROUP \
             --name $APP_SERVICE_NAME \
             --src-path app \
             --type zip \
@@ -137,12 +137,12 @@ jobs:
           EOF
 
           # Copy script to ACI
-          az container exec -g $RESOURCE_GROUP -n $ACI_NAME --exec-command "bash -c 'echo \"$(cat deploy_script.sh)\" > /tmp/deploy_script.sh && chmod +x /tmp/deploy_script.sh'"
+          az container exec -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --exec-command "bash -c 'echo \"$(cat deploy_script.sh)\" > /tmp/deploy_script.sh && chmod +x /tmp/deploy_script.sh'"
 
           # Execute script
-          az container exec -g $RESOURCE_GROUP -n $ACI_NAME --exec-command "bash /tmp/deploy_script.sh"
+          az container exec -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --exec-command "bash /tmp/deploy_script.sh"
 
       - name: Cleanup ACI and Storage
         run: |
-          az container delete -g $RESOURCE_GROUP -n $ACI_NAME --yes
-          az storage account delete --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --yes
+          az container delete -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --yes
+          az storage account delete --name $STORAGE_ACCOUNT --resource-group $AZURE_RESOURCE_GROUP --yes
