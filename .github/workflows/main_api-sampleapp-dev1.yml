@@ -82,7 +82,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Upload to Azure Storage (temp container)
+      - name: Upload to Azure Storage (temp blob storage & container)
         run: |
           STORAGE_ACCOUNT="stgtmpdeploy$RANDOM"
           echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
@@ -136,32 +136,34 @@ jobs:
             sleep 10
           done
 
-      - name: Prepare deployment script
+      - name: Create deploy script and encode
         run: |
-          cat <<EOF | base64 > deploy_script.b64
+          cat > deploy_script.sh <<'EOF'
           #!/bin/bash
           set -e
 
           echo "Downloading artifact zip from storage..."
-          curl -O https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/sampleapp-api.zip
+          curl -O "https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/sampleapp-api.zip${STORAGE_SAS_TOKEN}"
 
           echo "Unzipping artifact..."
           unzip sampleapp-api.zip -d app
 
           echo "Deploying to Azure App Service..."
           az webapp deploy \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.APP_NAME }} \
-              --src-path app \
-              --type zip \
-              --restart true
+            --resource-group $RESOURCE_GROUP \
+            --name $APP_NAME \
+            --src-path app \
+            --type zip \
+            --restart true
           EOF
 
-      - name: Run deploy script in ACI via stdin
+          base64 deploy_script.sh > deploy_script.b64
+
+      - name: Run deploy script in ACI
         run: |
           az container exec \
-            -g $RESOURCE_GROUP \
-            -n $ACI_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
             --exec-command "/bin/bash -c \"cat /dev/stdin | base64 -d | bash\"" < deploy_script.b64
 
       - name: Cleanup ACI and Storage
