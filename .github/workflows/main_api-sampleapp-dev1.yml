@@ -63,19 +63,28 @@ jobs:
           name: sampleapp-api
           path: ${{ env.ZIP_NAME }}
 
+      - name: Upload deploy script
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-script
+          path: .github/workflows/script/deploy_script.sh
+
   deploy-via-aci:
     needs: build-and-package
     runs-on: ubuntu-latest
     name: Deploy via ACI
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-    
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
           name: sampleapp-api
+          path: ./artifact
+
+      - name: Download deploy script
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-script
           path: ./artifact
 
       - name: Azure Login with OIDC
@@ -107,6 +116,12 @@ jobs:
             --file ./artifact/${{ env.ZIP_NAME }} \
             --name ${{ env.ZIP_NAME }}
 
+          az storage blob upload \
+            --connection-string "$CONNECTION_STRING" \
+            --container-name deploy \
+            --file ./artifact/deploy_script.sh \
+            --name deploy_script.sh
+
       - name: Start Temporary ACI
         run: |
           az container create \
@@ -119,8 +134,13 @@ jobs:
             --cpu 1 \
             --memory 1.5 \
             --location $REGION \
-            --command-line "sleep 3600" \
-            --restart-policy Never
+            --restart-policy Never \
+            --environment-variables \
+              STORAGE_ACCOUNT=$STORAGE_ACCOUNT \
+              ZIP_NAME=${{ env.ZIP_NAME }} \
+              RESOURCE_GROUP=$RESOURCE_GROUP \
+              APP_NAME=$APP_SERVICE_NAME \
+            --command-line "/bin/bash -c 'curl -f https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/deploy_script.sh -o deploy_script.sh && chmod +x deploy_script.sh && ./deploy_script.sh'"
 
       - name: Wait for ACI to be ready
         run: |
