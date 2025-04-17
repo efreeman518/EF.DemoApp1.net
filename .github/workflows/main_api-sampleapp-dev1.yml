@@ -137,7 +137,7 @@ jobs:
             --memory 1.5 \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/bash -c 'echo Starting ACI... && curl -f ${SCRIPT_URL} -o deploy_script.sh && chmod +x deploy_script.sh && ./deploy_script.sh'" \
+            --command-line "/bin/sh -c 'curl -sSL ${SCRIPT_URL} -o deploy.sh && chmod +x deploy.sh && ./deploy.sh'" \
             --environment-variables \
                 RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
                 APP_NAME=${{ env.APP_SERVICE_NAME }} \
