@@ -134,7 +134,7 @@ jobs:
           apt-get update && apt-get install -y unzip curl
 
           echo "Downloading artifact zip from storage..."
-          curl -O https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
+          curl -O https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${{ env.ZIP_NAME }}
 
           echo "Unzipping artifact..."
           unzip ${{ env.ZIP_NAME }} -d app
@@ -153,12 +153,18 @@ jobs:
 
       - name: Run deploy script in ACI via stdin
         run: |
-          cat deploy_script.sh | az container exec \
+          cat deploy_script.b64 | base64 -d | az container exec \
             -g ${{ env.RESOURCE_GROUP }} \
             -n ${{ env.ACI_NAME }} \
             --exec-command "bash -s"
 
       - name: Cleanup ACI and Storage
         run: |
-          az container delete -g $RESOURCE_GROUP -n $ACI_NAME --yes
-          az storage account delete --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --yes
+          az container delete \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.ACI_NAME }} \
+            --yes
+          az storage account delete \
+            --name $STORAGE_ACCOUNT \
+            --resource-group $RESOURCE_GROUP \
+            --yes
