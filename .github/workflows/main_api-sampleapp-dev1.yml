@@ -151,7 +151,7 @@ jobs:
               which az && az --version && \
               which unzip || apt-get update -qq && apt-get install -y unzip && \
               # Download and deploy
-              curl -sSL 'https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}' -o ${ZIP_NAME} && \
+              curl -sSL '{ZIP_URL}' -o ${ZIP_NAME} && \
               unzip -q ${ZIP_NAME} -d /app && \
               az webapp deploy \
                 --resource-group ${RESOURCE_GROUP} \
