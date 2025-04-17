@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload to Azure Storage (temp container)
         run: |
-          STORAGE_ACCOUNT="tempdeploymentstorage$RANDOM"
+          STORAGE_ACCOUNT="stgtmpdeploy$RANDOM"
           az storage account create \
             --name $STORAGE_ACCOUNT \
             --resource-group $RESOURCE_GROUP \
