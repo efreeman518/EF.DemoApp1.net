@@ -151,19 +151,12 @@ jobs:
       - name: Encode deploy script
         run: base64 deploy_script.sh > deploy_script.b64
 
-      - name: Transfer script into ACI
+      - name: Run deploy script in ACI via stdin
         run: |
-          az container exec \
+          cat deploy_script.sh | az container exec \
             -g ${{ env.RESOURCE_GROUP }} \
             -n ${{ env.ACI_NAME }} \
-            --exec-command "bash -c 'base64 -d > /tmp/deploy_script.sh'" < deploy_script.b64
-
-      - name: Run script inside ACI
-        run: |
-          az container exec \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.ACI_NAME }} \
-            --exec-command "chmod +x /tmp/deploy_script.sh && bash /tmp/deploy_script.sh"
+            --exec-command "bash -s"
 
       - name: Cleanup ACI and Storage
         run: |
