@@ -106,6 +106,7 @@ jobs:
           az container create \
             --resource-group $AZURE_RESOURCE_GROUP \
             --name $ACI_NAME \
+            --osType Linux \
             --image mcr.microsoft.com/azure-cli \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
