@@ -122,10 +122,9 @@ jobs:
             --file ./artifact/deploy_script.sh \
             --name deploy_script.sh
 
-      - name: Start Temporary ACI
+      - name: Start Temporary ACI (with deploy script)
         run: |
-          STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT
-          SCRIPT_URL="https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/deploy/deploy_script.sh"
+          SCRIPT_URL="https://${{ env.STORAGE_ACCOUNT }}.blob.core.windows.net/deploy/deploy_script.sh"
           
           az container create \
             --resource-group $RESOURCE_GROUP \
@@ -141,10 +140,10 @@ jobs:
             --restart-policy Never \
             --command-line "/bin/bash -c 'echo Starting ACI... && curl -f ${SCRIPT_URL} -o deploy_script.sh && chmod +x deploy_script.sh && ./deploy_script.sh'" \
             --environment-variables \
-              STORAGE_ACCOUNT=$STORAGE_ACCOUNT \
-              ZIP_NAME=${{ env.ZIP_NAME }} \
-              RESOURCE_GROUP=$RESOURCE_GROUP \
-              APP_NAME=$APP_SERVICE_NAME \
+                RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+                APP_NAME=${{ env.APP_SERVICE_NAME }} \
+                ZIP_NAME=${{ env.ZIP_NAME }} \
+                STORAGE_ACCOUNT=${{ env.STORAGE_ACCOUNT }}
 
       - name: Get ACI logs on failure
         if: failure()
