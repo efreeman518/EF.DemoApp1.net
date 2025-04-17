@@ -124,24 +124,34 @@ jobs:
 
       - name: Start Temporary ACI
         run: |
+          STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT
+          SCRIPT_URL="https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/deploy/deploy_script.sh"
+          
           az container create \
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --os-type Linux \
-            --image $CONTAINER_IMAGE \
+            # --image $CONTAINER_IMAGE \
+            --image mcr.microsoft.com/azure-cli \
             --vnet $ACI_VNET \
             --subnet $ACI_SUBNET \
             --cpu 1 \
             --memory 1.5 \
             --location $REGION \
             --restart-policy Never \
+            --command-line "/bin/bash -c 'echo Starting ACI... && curl -f ${SCRIPT_URL} -o deploy_script.sh && chmod +x deploy_script.sh && ./deploy_script.sh'" \
             --environment-variables \
               STORAGE_ACCOUNT=$STORAGE_ACCOUNT \
               ZIP_NAME=${{ env.ZIP_NAME }} \
               RESOURCE_GROUP=$RESOURCE_GROUP \
               APP_NAME=$APP_SERVICE_NAME \
-            --command-line "/bin/bash -c 'curl -f https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/deploy_script.sh -o deploy_script.sh && chmod +x deploy_script.sh && ./deploy_script.sh'"
 
+      - name: Get ACI logs on failure
+        if: failure()
+        run: |
+          echo "Fetching container logs..."
+          az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME || echo "Failed to fetch logs"
+    
       - name: Wait for ACI to be ready
         run: |
           echo "Waiting for container to reach 'Running' state..."
