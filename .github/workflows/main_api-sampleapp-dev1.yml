@@ -20,8 +20,7 @@ permissions:
 
 env:
   DOTNET_VERSION: '9.x'
-  AZURE_WEBAPP_NAME: 'api-sampleapp-dev1'
-  AZURE_RESOURCE_GROUP: 'rg-dev1'
+  RESOURCE_GROUP: 'rg-dev1'
   APP_SERVICE_NAME: api-sampleapp-dev1
   ACI_NAME: deploy-temp-aci
   ACI_SUBNET: subnet-aci-dev1
@@ -86,12 +85,12 @@ jobs:
           STORAGE_ACCOUNT="samplestorage$RANDOM"
           az storage account create \
             --name $STORAGE_ACCOUNT \
-            --resource-group $AZURE_RESOURCE_GROUP \
+            --resource-group $RESOURCE_GROUP \
             --location $REGION \
             --sku Standard_LRS \
             --kind StorageV2
 
-          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $AZURE_RESOURCE_GROUP --query connectionString -o tsv)
+          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --query connectionString -o tsv)
 
           az storage container create --name deploy --connection-string "$CONNECTION_STRING"
 
@@ -104,7 +103,7 @@ jobs:
       - name: Start Temporary ACI
         run: |
           az container create \
-            --resource-group $AZURE_RESOURCE_GROUP \
+            --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --os-type Linux \
             --image mcr.microsoft.com/azure-cli \
@@ -166,5 +165,5 @@ jobs:
 
       - name: Cleanup ACI and Storage
         run: |
-          az container delete -g $AZURE_RESOURCE_GROUP -n $ACI_NAME --yes
-          az storage account delete --name $STORAGE_ACCOUNT --resource-group $AZURE_RESOURCE_GROUP --yes
+          az container delete -g $RESOURCE_GROUP -n $ACI_NAME --yes
+          az storage account delete --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --yes
