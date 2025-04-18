@@ -133,7 +133,8 @@ jobs:
             --output tsv)
 
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
-          
+          echo "ZIP_URL = ${ZIP_URL}"
+            
           # Create and run ACI with deployment command
           az container create \
             --resource-group $RESOURCE_GROUP \
@@ -146,17 +147,23 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/bin/bash -c \"set -euo pipefail; \
-              apt-get update -qq && apt-get install -y unzip; \
-              curl -sSL ${ZIP_URL} -o ${ZIP_NAME} && \
-              unzip -q ${ZIP_NAME} -d /app && \
+            --command-line "
+              set -euo pipefail
+              apt-get update -qq
+              apt-get install -y unzip
+              curl -sSL '${ZIP_URL}' -o ${ZIP_NAME}
+              unzip -q ${ZIP_NAME} -d /app
               az webapp deploy \
-                --resource-group ${RESOURCE_GROUP} \
-                --name ${APP_SERVICE_NAME} \
+                --resource-group '${RESOURCE_GROUP}' \
+                --name '${APP_SERVICE_NAME}' \
                 --src-path /app \
                 --type zip \
-                --restart true && \
-              echo 'Deployment succeeded'\""
+                --restart true
+              echo 'Deployment succeeded'
+              " \
+              --environment-variables \
+              RESOURCE_GROUP="$RESOURCE_GROUP" \
+              APP_SERVICE_NAME="$APP_SERVICE_NAME"
 
           # Wait for completion with timeout
           echo "Waiting for ACI to complete (max 5 minutes)..."
