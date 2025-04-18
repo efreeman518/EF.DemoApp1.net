@@ -159,10 +159,6 @@ jobs:
                 --type zip \
                 --restart true'" \
 
-            --environment-variables \
-              RESOURCE_GROUP="$RESOURCE_GROUP" \
-              APP_SERVICE_NAME="$APP_SERVICE_NAME"
-
           # Wait for completion with timeout
           echo "Waiting for ACI to complete (max 5 minutes)..."
           for i in {1..30}; do
