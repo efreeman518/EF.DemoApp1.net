@@ -153,33 +153,21 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --assign-identity \
-            --command-line "/bin/bash -c 'set -euo pipefail; \
-              apt-get update -qq && apt-get install -y unzip curl; \
-              curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
-              unzip -q \"$ZIP_NAME\" -d /app; \
-              az login --identity; \
-              echo Deployment started'" \
+            --command-line "/bin/bash -c 'sleep 600'" \
             --environment-variables \
               RESOURCE_GROUP="$RESOURCE_GROUP" \
               APP_SERVICE_NAME="$APP_SERVICE_NAME" \
               ZIP_URL="$ZIP_URL" \
               ZIP_NAME="$ZIP_NAME"
 
-          # Wait for ACI container to be running
-          echo "Waiting for ACI to be running..."
-          while true; do
-              STATUS=$(az container show \
-                --resource-group $RESOURCE_GROUP \
-                --name $ACI_NAME \
-                --query "instanceView.state" \
-                --output tsv)
-              if [[ "$STATUS" == "Running" ]]; then
-                  echo "ACI is running"
-                  break
-              fi
-              echo "ACI is not yet running. Status: $STATUS. Retrying..."
-              sleep 10
-            done
+          # Wait until the container exists and is running
+          echo "Waiting for ACI to be ready..."
+          for i in {1..30}; do
+            STATE=$(az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "instanceView.state" -o tsv 2>/dev/null || echo "Creating")
+            echo "Current ACI state: $STATE"
+            if [[ "$STATE" == "Running" ]]; then break; fi
+            sleep 10
+          done
 
           # Get ACI identity
           ACI_PRINCIPAL_ID=$(az container show \
@@ -202,6 +190,9 @@ jobs:
             --name $ACI_NAME \
             --exec-command "/bin/bash -c 'set -euo pipefail; \
               az login --identity; \
+              apt-get update -qq && apt-get install -y unzip curl; \
+              curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
+              unzip -q \"$ZIP_NAME\" -d /app; \
               az webapp deploy \
                 --resource-group \"$RESOURCE_GROUP\" \
                 --name \"$APP_SERVICE_NAME\" \
