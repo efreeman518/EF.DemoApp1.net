@@ -156,7 +156,7 @@ jobs:
                 --name \"$APP_SERVICE_NAME\" \
                 --src-path /app \
                 --type zip \
-                --restart true \
+                --restart true; \
               echo Deployment succeeded'" \
             --environment-variables \
               RESOURCE_GROUP="$RESOURCE_GROUP" \
