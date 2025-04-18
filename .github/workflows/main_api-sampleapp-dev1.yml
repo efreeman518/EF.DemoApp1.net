@@ -151,11 +151,7 @@ jobs:
               curl -sSL '$ZIP_URL' -o '$ZIP_NAME' && \
               unzip -q '$ZIP_NAME' -d /app && \
               az webapp deploy --resource-group '$RESOURCE_GROUP' --name '$APP_SERVICE_NAME' --src-path /app --type zip --restart true\""
-            --environment-variables \
-              RESOURCE_GROUP="$RESOURCE_GROUP" \
-              APP_SERVICE_NAME="$APP_SERVICE_NAME" \
-              ZIP_URL="$ZIP_URL" \
-              ZIP_NAME="$ZIP_NAME"
+
 
           - name: Wait for completion
             run: |
