@@ -25,6 +25,7 @@ env:
   ACI_NAME: aci-temp-deploy-${{ github.run_id }} # Unique name per run
   ACI_SUBNET: subnet-aci-dev1
   ACI_VNET: vnet-dev1
+  IDENTITY_RESOURCE_ID: /subscriptions/856c8385-8e8f-44c2-a98b-6be88601ad26/resourcegroups/rg-dev1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aci-deployer-identity
   CONTAINER_IMAGE: efreeman518/aci-deployer:latest #hub.docker.com
   CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
   REGION: eastus2  # Change as needed
@@ -115,14 +116,6 @@ jobs:
             --file ./artifact/${{ env.ZIP_NAME }} \
             --name ${{ env.ZIP_NAME }}
 
-          # az storage blob upload \
-          #   --connection-string "$CONNECTION_STRING" \
-          #   --container-name deploy \
-          #   --file ./artifact/deploy_script.sh \
-          #   --name deploy_script.sh
-
-      - name: Deploy via ACI 
-        run: |
           # Generate SAS token for the zip file
           SAS_TOKEN=$(az storage blob generate-sas \
             --account-name $STORAGE_ACCOUNT \
@@ -134,12 +127,9 @@ jobs:
 
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           echo "ZIP_URL = ${ZIP_URL}"
-            
-          az role assignment create \
-            --assignee-object-id $(az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "identity.principalId" -o tsv) \
-            --role Contributor \
-            --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME
 
+      - name: Deploy via ACI 
+        run: |
           # Create and run ACI with deployment command
           az container create \
             --resource-group $RESOURCE_GROUP \
@@ -152,59 +142,54 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --assign-identity \
-            --command-line "/bin/bash -c 'sleep 600'" \
+            --assign-identity $IDENTITY_RESOURCE_ID \
+            --command-line "/bin/bash -c 'apt-get update -qq && apt-get install -y unzip curl; curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; unzip -q \"$ZIP_NAME\" -d /app; az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'" \
             --environment-variables \
               RESOURCE_GROUP="$RESOURCE_GROUP" \
               APP_SERVICE_NAME="$APP_SERVICE_NAME" \
               ZIP_URL="$ZIP_URL" \
               ZIP_NAME="$ZIP_NAME"
 
-          # Poll until the container has a principalId
-          echo "Waiting for container identity to become available..."
-          for i in {1..30}; do
-            PRINCIPAL_ID=$(az container show \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --query identity.principalId \
-            --output tsv)
+          - name: Wait for completion
+            run: |
+              echo "Waiting for ACI to complete..."
+              for i in {1..30}; do
+              STATUS=$(az container show \
+                --resource-group $RESOURCE_GROUP \
+                --name $ACI_NAME \
+                --query "instanceView.state" \
+                --output tsv)
 
-            if [[ -n "$PRINCIPAL_ID" && "$PRINCIPAL_ID" != "null" ]]; then
-            echo "Got principal ID: $PRINCIPAL_ID"
-            break
-            fi
+              echo "Status: $STATUS"
 
-            echo "Still waiting..."
-            sleep 10
-          done
+              if [[ "$STATUS" == "Succeeded" ]]; then
+                echo "Deployment completed successfully"
+                break
+              elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+                echo "Deployment failed. Logs:"
+                az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+                exit 1
+              fi
 
-          if [[ -z "$PRINCIPAL_ID" || "$PRINCIPAL_ID" == "null" ]]; then
-            echo "Timed out waiting for principal ID"
-            exit 1
-          fi
+              sleep 10
+              done
 
-          # Now assign role to App Service
-          az role assignment create \
-            --assignee-object-id "$PRINCIPAL_ID" \
-            --role "Contributor" \
-            --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME"
-
-          # Run deployment from ACI
-          az container exec \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --exec-command "/bin/bash -c 'set -euo pipefail; \
-              az login --identity; \
-              apt-get update -qq && apt-get install -y unzip curl; \
-              curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
-              unzip -q \"$ZIP_NAME\" -d /app; \
-              az webapp deploy \
-                --resource-group \"$RESOURCE_GROUP\" \
-                --name \"$APP_SERVICE_NAME\" \
-                --src-path /app \
-                --type zip \
-                --restart true; \
-              echo Deployment succeeded'"
+          # # Run deployment from ACI
+          # az container exec \
+          #   --resource-group $RESOURCE_GROUP \
+          #   --name $ACI_NAME \
+          #   --exec-command "/bin/bash -c 'set -euo pipefail; \
+          #     az login --identity; \
+          #     apt-get update -qq && apt-get install -y unzip curl; \
+          #     curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
+          #     unzip -q \"$ZIP_NAME\" -d /app; \
+          #     az webapp deploy \
+          #       --resource-group \"$RESOURCE_GROUP\" \
+          #       --name \"$APP_SERVICE_NAME\" \
+          #       --src-path /app \
+          #       --type zip \
+          #       --restart true; \
+          #     echo Deployment succeeded'"
 
           # Get logs regardless of status
           echo "Final container logs:"
