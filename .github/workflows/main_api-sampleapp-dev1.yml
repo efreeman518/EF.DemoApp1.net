@@ -147,17 +147,25 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --command-line "/usr/bin/bash -c \
-              'apk update && \
-              apk add --no-cache unzip && \
-              curl -sSL \"${ZIP_URL}\" -o ${ZIP_NAME} && \
-              unzip -q ${ZIP_NAME} -d /app && \
+            --command-line-args "-c" "
+              set -euo pipefail
+              apt-get update -qq && apt-get install -y unzip curl
+              curl -sSL ${ZIP_URL} -o ${ZIP_NAME}
+              unzip -q ${ZIP_NAME} -d /app
               az webapp deploy \
-                --resource-group \"${RESOURCE_GROUP}\" \
-                --name \"${APP_SERVICE_NAME}\" \
+                --resource-group ${RESOURCE_GROUP} \
+                --name ${APP_SERVICE_NAME} \
                 --src-path /app \
                 --type zip \
-                --restart true'" \
+                --restart true \
+                --auth-mode login
+              echo 'Deployment succeeded'
+              " \
+              --environment-variables \
+                RESOURCE_GROUP="$RESOURCE_GROUP" \
+                APP_SERVICE_NAME="$APP_SERVICE_NAME" \
+                ZIP_URL="$ZIP_URL" \
+                ZIP_NAME="$ZIP_NAME"
 
           # Wait for completion with timeout
           echo "Waiting for ACI to complete (max 5 minutes)..."
