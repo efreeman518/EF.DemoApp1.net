@@ -150,7 +150,7 @@ jobs:
             --command-line "/usr/bin/bash -c \
               'apk update && \
               apk add --no-cache unzip && \
-              curl -sSL \"${ZIP_URL}" -o ${ZIP_NAME} && \
+              curl -sSL \"${ZIP_URL}\" -o ${ZIP_NAME} && \
               unzip -q ${ZIP_NAME} -d /app && \
               az webapp deploy \
                 --resource-group \"${RESOURCE_GROUP}\" \
