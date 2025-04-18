@@ -160,29 +160,34 @@ jobs:
               ZIP_URL="$ZIP_URL" \
               ZIP_NAME="$ZIP_NAME"
 
-          # Wait until the container exists and is running
-          echo "Waiting for ACI to be ready..."
+          # Poll until the container has a principalId
+          echo "Waiting for container identity to become available..."
           for i in {1..30}; do
-            STATE=$(az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "instanceView.state" -o tsv 2>/dev/null || echo "Creating")
-            echo "Current ACI state: $STATE"
-            if [[ "$STATE" == "Running" ]]; then break; fi
-            sleep 10
-          done
-
-          # Get ACI identity
-          ACI_PRINCIPAL_ID=$(az container show \
+            PRINCIPAL_ID=$(az container show \
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
             --query identity.principalId \
             --output tsv)
-          
-          echo "ACI Principal ID: $ACI_PRINCIPAL_ID"
 
-          # Assign role to the ACI identity
+            if [[ -n "$PRINCIPAL_ID" && "$PRINCIPAL_ID" != "null" ]]; then
+            echo "Got principal ID: $PRINCIPAL_ID"
+            break
+            fi
+
+            echo "Still waiting..."
+            sleep 10
+          done
+
+          if [[ -z "$PRINCIPAL_ID" || "$PRINCIPAL_ID" == "null" ]]; then
+            echo "Timed out waiting for principal ID"
+            exit 1
+          fi
+
+          # Now assign role to App Service
           az role assignment create \
-            --assignee-object-id $ACI_PRINCIPAL_ID \
-            --role Contributor \
-            --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME
+            --assignee-object-id "$PRINCIPAL_ID" \
+            --role "Contributor" \
+            --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME"
 
           # Run deployment from ACI
           az container exec \
