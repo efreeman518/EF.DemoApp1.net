@@ -148,7 +148,7 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --assign-identity $IDENTITY_RESOURCE_ID \
-            --command-line "/bin/bash -c 'echo running deployment... && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app'"
+            --command-line "/bin/bash -c 'curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app'"
 
           - name: Wait for completion
             run: |
