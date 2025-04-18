@@ -26,7 +26,7 @@ env:
   ACI_SUBNET: subnet-aci-dev1
   ACI_VNET: vnet-dev1
   IDENTITY_RESOURCE_ID: /subscriptions/856c8385-8e8f-44c2-a98b-6be88601ad26/resourcegroups/rg-dev1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aci-deployer-identity
-  CONTAINER_IMAGE: efreeman518/aci-deployer:latest #hub.docker.com
+  CONTAINER_IMAGE: mcr.microsoft.com/azure-cli:latest #efreeman518/aci-deployer:latest #hub.docker.com
   CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
   REGION: eastus2  # Change as needed
   ZIP_NAME: sampleapp-api.zip
@@ -116,8 +116,6 @@ jobs:
             --file ./artifact/${{ env.ZIP_NAME }} \
             --name ${{ env.ZIP_NAME }}
 
-          
-
       - name: Deploy via ACI 
         run: |
           # Generate SAS token for the zip file
@@ -171,23 +169,6 @@ jobs:
 
             sleep 10
           done
-
-          # # Run deployment from ACI
-          # az container exec \
-          #   --resource-group $RESOURCE_GROUP \
-          #   --name $ACI_NAME \
-          #   --exec-command "/bin/bash -c 'set -euo pipefail; \
-          #     az login --identity; \
-          #     apt-get update -qq && apt-get install -y unzip curl; \
-          #     curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
-          #     unzip -q \"$ZIP_NAME\" -d /app; \
-          #     az webapp deploy \
-          #       --resource-group \"$RESOURCE_GROUP\" \
-          #       --name \"$APP_SERVICE_NAME\" \
-          #       --src-path /app \
-          #       --type zip \
-          #       --restart true; \
-          #     echo Deployment succeeded'"
 
           # Get logs regardless of status
           echo "Final container logs:"
