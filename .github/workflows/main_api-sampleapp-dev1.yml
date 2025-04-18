@@ -146,11 +146,14 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
-            --command-line "
-              which az && az --version && \
-              which unzip || apt-get update -qq && apt-get install -y unzip && \
-              curl -sSL '{ZIP_URL}' -o ${ZIP_NAME} && \
+            --command-line "/bin/bash -c 'set -euo pipefail; \
+              echo \"Installing unzip...\"; \
+              apt-get update -qq && apt-get install -y unzip; \
+              echo \"Downloading package...\"; \
+              curl -f -S -sSL '{ZIP_URL}' -o ${ZIP_NAME} && \
+              echo \"Unzipping...\"; \
               unzip -q ${ZIP_NAME} -d /app && \
+              echo \"Deploying to App Service...\"; \
               az webapp deploy \
                 --resource-group ${RESOURCE_GROUP} \
                 --name ${APP_SERVICE_NAME} \
