@@ -130,7 +130,6 @@ jobs:
             --name $ZIP_NAME \
             --permissions r \
             --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
-            --auth-mode login \
             --output tsv)
 
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
