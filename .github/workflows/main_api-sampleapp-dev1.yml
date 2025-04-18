@@ -154,24 +154,24 @@ jobs:
         run: |
           echo "Waiting for ACI to complete..."
           for i in {1..30}; do
-          STATUS=$(az container show \
-          --resource-group $RESOURCE_GROUP \
-          --name $ACI_NAME \
-          --query "instanceView.state" \
-          --output tsv)
+            STATUS=$(az container show \
+              --resource-group $RESOURCE_GROUP \
+              --name $ACI_NAME \
+              --query "instanceView.state" \
+              --output tsv)
 
-          echo "Status: $STATUS"
+            echo "Status: $STATUS"
 
-          if [[ "$STATUS" == "Succeeded" ]]; then
-          echo "Deployment completed successfully"
-          break
-          elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-          echo "Deployment failed. Logs:"
-          az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
-          exit 1
-          fi
+            if [[ "$STATUS" == "Succeeded" ]]; then
+              echo "Deployment completed successfully"
+              break
+            elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+              echo "Deployment failed. Logs:"
+              az container logs --resource-group "$RESOURCE_GROUP" --name "$ACI_NAME"
+              exit 1
+            fi
 
-          sleep 10
+            sleep 10
           done
 
           # # Run deployment from ACI
