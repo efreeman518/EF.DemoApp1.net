@@ -132,9 +132,10 @@ jobs:
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           echo "ZIP_URL=$ZIP_URL"
 
-          echo "ACI deploy command: /bin/bash -c 'apt-get update -qq && apt-get install -y unzip curl; curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; unzip -q \"$ZIP_NAME\" -d /app; az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"  # include the final string
+          echo "ACI deploy command: /bin/bash -c 'set -x && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"  # include the final string
 
           # Create and run ACI with deployment command
+          # && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true
           az container create \
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
@@ -147,7 +148,7 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --assign-identity $IDENTITY_RESOURCE_ID \
-            --command-line "/bin/bash -c 'set -x && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"
+            --command-line "/bin/bash -c 'curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app'"
 
           - name: Wait for completion
             run: |
