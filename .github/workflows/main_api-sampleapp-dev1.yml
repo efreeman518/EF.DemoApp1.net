@@ -25,7 +25,7 @@ env:
   ACI_NAME: aci-temp-deploy-${{ github.run_id }} # Unique name per run
   ACI_SUBNET: subnet-aci-dev1
   ACI_VNET: vnet-dev1
-  CONTAINER_IMAGE: mcr.microsoft.com/azure-cli
+  CONTAINER_IMAGE: mcr.microsoft.com/azure-cli:2.53.0-bullseye
   CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
   REGION: eastus2  # Change as needed
   ZIP_NAME: sampleapp-api.zip
