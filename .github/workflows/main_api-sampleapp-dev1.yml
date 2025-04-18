@@ -130,6 +130,7 @@ jobs:
 
       - name: Deploy via ACI 
         run: |
+          echo "ZIP_URL=${{ env.ZIP_URL }}"
           # Create and run ACI with deployment command
           az container create \
             --resource-group $RESOURCE_GROUP \
