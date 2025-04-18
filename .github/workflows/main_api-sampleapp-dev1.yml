@@ -188,6 +188,7 @@ jobs:
             sleep 10
           done
 
+          # Get ACI identity
           ACI_PRINCIPAL_ID=$(az container show \
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
@@ -196,11 +197,13 @@ jobs:
           
           echo "ACI Principal ID: $ACI_PRINCIPAL_ID"
 
+          # Assign role to the ACI identity
           az role assignment create \
             --assignee-object-id $ACI_PRINCIPAL_ID \
             --role Contributor \
             --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME
 
+          # Run deployment from ACI
           az container exec \
             --resource-group $RESOURCE_GROUP \
             --name $ACI_NAME \
