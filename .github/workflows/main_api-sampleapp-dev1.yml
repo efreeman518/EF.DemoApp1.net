@@ -126,7 +126,7 @@ jobs:
             --output tsv)
 
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
-          echo "ZIP_URL = ${ZIP_URL}"
+          echo "ZIP_URL = ${ZIP_URL}" >> $GITHUB_ENV
 
       - name: Deploy via ACI 
         run: |
