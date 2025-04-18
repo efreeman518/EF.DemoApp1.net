@@ -124,15 +124,16 @@ jobs:
       - name: Deploy via ACI 
         run: |
           # Generate SAS token for the zip file
-          ZIP_SAS=$(az storage blob generate-sas \
+          SAS_TOKEN=$(az storage blob generate-sas \
             --account-name $STORAGE_ACCOUNT \
             --container-name deploy \
             --name $ZIP_NAME \
             --permissions r \
             --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
+            --auth-mode login \
             --output tsv)
 
-          ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${ZIP_SAS}"
+          ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           
           # Create and run ACI with deployment command
           az container create \
@@ -148,7 +149,7 @@ jobs:
             --restart-policy Never \
             --command-line "/bin/bash -c \"set -euo pipefail; \
               apt-get update -qq && apt-get install -y unzip; \
-              curl -f -S -sSL '{ZIP_URL}' -o ${ZIP_NAME} && \
+              curl -sSL ${ZIP_URL} -o ${ZIP_NAME} && \
               unzip -q ${ZIP_NAME} -d /app && \
               az webapp deploy \
                 --resource-group ${RESOURCE_GROUP} \
@@ -156,7 +157,6 @@ jobs:
                 --src-path /app \
                 --type zip \
                 --restart true && \
-                --auth-mode login && \
               echo 'Deployment succeeded'\""
 
           # Wait for completion with timeout
