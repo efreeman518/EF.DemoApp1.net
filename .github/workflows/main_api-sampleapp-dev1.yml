@@ -127,10 +127,13 @@ jobs:
             --name $ZIP_NAME \
             --permissions r \
             --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
+            --auth-mode login \
             --output tsv)
 
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           echo "ZIP_URL=$ZIP_URL"
+
+          echo "ACI deploy command: /bin/bash -c 'apt-get update -qq && apt-get install -y unzip curl; curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; unzip -q \"$ZIP_NAME\" -d /app; az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"  # include the final string
 
           # Create and run ACI with deployment command
           az container create \
