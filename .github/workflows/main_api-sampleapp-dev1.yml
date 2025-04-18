@@ -165,28 +165,21 @@ jobs:
               ZIP_URL="$ZIP_URL" \
               ZIP_NAME="$ZIP_NAME"
 
-          # Wait for completion with timeout
-          echo "Waiting for ACI to complete (max 5 minutes)..."
-          for i in {1..30}; do
-            STATUS=$(az container show \
-            --resource-group $RESOURCE_GROUP \
-            --name $ACI_NAME \
-            --query "instanceView.state" \
-            --output tsv)
-      
-            echo "Status: $STATUS"
-      
-            if [[ "$STATUS" == "Succeeded" ]]; then
-            echo "Deployment completed successfully"
-            break
-            elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-            echo "Deployment failed. Container logs:"
-            az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
-            exit 1
-            fi
-      
-            sleep 10
-          done
+          # Wait for ACI container to be running
+          echo "Waiting for ACI to be running..."
+          while true; do
+              STATUS=$(az container show \
+                --resource-group $RESOURCE_GROUP \
+                --name $ACI_NAME \
+                --query "instanceView.state" \
+                --output tsv)
+              if [[ "$STATUS" == "Running" ]]; then
+                  echo "ACI is running"
+                  break
+              fi
+              echo "ACI is not yet running. Status: $STATUS. Retrying..."
+              sleep 10
+            done
 
           # Get ACI identity
           ACI_PRINCIPAL_ID=$(az container show \
