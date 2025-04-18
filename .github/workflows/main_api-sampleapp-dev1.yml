@@ -135,6 +135,11 @@ jobs:
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           echo "ZIP_URL = ${ZIP_URL}"
             
+          az role assignment create \
+            --assignee-object-id $(az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "identity.principalId" -o tsv) \
+            --role Contributor \
+            --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Web/sites/$APP_SERVICE_NAME
+
           # Create and run ACI with deployment command
           az container create \
             --resource-group $RESOURCE_GROUP \
@@ -147,10 +152,12 @@ jobs:
             --memory $ACI_MEMORY \
             --location $REGION \
             --restart-policy Never \
+            --assign-identity \
             --command-line "/bin/bash -c 'set -euo pipefail; \
               apt-get update -qq && apt-get install -y unzip curl; \
               curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\"; \
               unzip -q \"$ZIP_NAME\" -d /app; \
+              az login --identity; \
               az webapp deploy \
                 --resource-group \"$RESOURCE_GROUP\" \
                 --name \"$APP_SERVICE_NAME\" \
