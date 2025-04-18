@@ -116,6 +116,10 @@ jobs:
             --file ./artifact/${{ env.ZIP_NAME }} \
             --name ${{ env.ZIP_NAME }}
 
+          
+
+      - name: Deploy via ACI 
+        run: |
           # Generate SAS token for the zip file
           SAS_TOKEN=$(az storage blob generate-sas \
             --account-name $STORAGE_ACCOUNT \
@@ -125,10 +129,9 @@ jobs:
             --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
             --output tsv)
 
-      - name: Deploy via ACI 
-        run: |
           ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
           echo "ZIP_URL=$ZIP_URL"
+
           # Create and run ACI with deployment command
           az container create \
             --resource-group $RESOURCE_GROUP \
