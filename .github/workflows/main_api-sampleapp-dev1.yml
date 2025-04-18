@@ -148,31 +148,31 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --assign-identity $IDENTITY_RESOURCE_ID \
-            --command-line "/bin/bash -c 'curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app'"
+            --command-line "/bin/bash -c 'set -x && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"
 
-          - name: Wait for completion
-            run: |
-              echo "Waiting for ACI to complete..."
-              for i in {1..30}; do
-              STATUS=$(az container show \
-                --resource-group $RESOURCE_GROUP \
-                --name $ACI_NAME \
-                --query "instanceView.state" \
-                --output tsv)
+      - name: Wait for completion
+        run: |
+          echo "Waiting for ACI to complete..."
+          for i in {1..30}; do
+          STATUS=$(az container show \
+          --resource-group $RESOURCE_GROUP \
+          --name $ACI_NAME \
+          --query "instanceView.state" \
+          --output tsv)
 
-              echo "Status: $STATUS"
+          echo "Status: $STATUS"
 
-              if [[ "$STATUS" == "Succeeded" ]]; then
-                echo "Deployment completed successfully"
-                break
-              elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-                echo "Deployment failed. Logs:"
-                az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
-                exit 1
-              fi
+          if [[ "$STATUS" == "Succeeded" ]]; then
+          echo "Deployment completed successfully"
+          break
+          elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+          echo "Deployment failed. Logs:"
+          az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+          exit 1
+          fi
 
-              sleep 10
-              done
+          sleep 10
+          done
 
           # # Run deployment from ACI
           # az container exec \
