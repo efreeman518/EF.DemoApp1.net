@@ -147,11 +147,7 @@ jobs:
             --location $REGION \
             --restart-policy Never \
             --assign-identity $IDENTITY_RESOURCE_ID \
-            --command-line "/bin/bash -c \"set -x && \
-              curl -sSL '$ZIP_URL' -o '$ZIP_NAME' && \
-              unzip -q '$ZIP_NAME' -d /app && \
-              az webapp deploy --resource-group '$RESOURCE_GROUP' --name '$APP_SERVICE_NAME' --src-path /app --type zip --restart true\""
-
+            --command-line "/bin/bash -c 'set -x && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && unzip -q \"$ZIP_NAME\" -d /app && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true'"
 
           - name: Wait for completion
             run: |
