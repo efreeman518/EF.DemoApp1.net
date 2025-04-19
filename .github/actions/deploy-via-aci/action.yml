@@ -14,6 +14,9 @@ inputs:
   resource-group:
     description: 'Resource group for the deployment'
     required: true
+  region:
+    description: 'Region for creating deployment resources'
+    required: true
   identity-resource-id:
     description: 'Resource ID (mamanged identity id) for ACI'
     required: true
@@ -57,7 +60,7 @@ runs:
         az storage account create \
           --name $STORAGE_ACCOUNT \
           --resource-group ${{ inputs.resource-group }} \
-          --location $REGION \
+          --location ${{ inputs.region }} \
           --sku Standard_LRS \
           --kind StorageV2
 

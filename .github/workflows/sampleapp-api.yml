@@ -55,8 +55,7 @@ jobs:
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: dev
+    environment: dev
     steps:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
@@ -72,16 +71,18 @@ jobs:
           echo "github-run-id=${{ github.run_id }}"
           echo "environment=${{ github.event.inputs.environment }}"
           echo "RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}"
+          echo "IDENTITY_RESOURCE_ID=${{ env.IDENTITY_RESOURCE_ID }}"
           echo "ACI_VNET=${{ env.ACI_VNET }}"
           echo "ACI_SUBNET=${{ env.ACI_SUBNET }}"
-          echo "IDENTITY_RESOURCE_ID=${{ env.IDENTITY_RESOURCE_ID }}"
+          
 
       - name: Deploy to Dev via ACI
         uses: ./.github/actions/deploy-via-aci
         with:
           github-run-id: ${{ github.run_id }}
           environment: ${{ github.event.inputs.environment }}
-          resource-group: ${{ env.RESOURCE_GROUP }}
+          resource-group: ${{ env.RESOURCE_GROUP 
+          region: ${{ env.REGION }}
           identity-resource-id: ${{ env.IDENTITY_RESOURCE_ID }}
           aci-vnet: ${{ env.ACI_VNET }}
           aci-subnet: ${{ env.ACI_SUBNET }}
@@ -92,8 +93,7 @@ jobs:
   deploy-prod:
     needs: deploy-dev
     runs-on: ubuntu-latest
-    environment:
-      name: prod
+    environment: prod
     steps:
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
