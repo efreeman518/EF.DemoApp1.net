@@ -1,0 +1,90 @@
+#promote artifact through environments
+name: Build and Deploy SampleApp.Api
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  DOTNET_VERSION: '9.x'
+  #RESOURCE_GROUP: 'rg-dev1'
+  REGION: 'eastus2'
+  ZIP_NAME: 'sampleapp-api.zip'
+  ACI_MEMORY: 2
+  ACI_CPU: 1
+  CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
+  #ACI_SUBNET: 'subnet-aci-dev1'
+  ACI_VNET: 'vnet-dev1'
+  #IDENTITY_RESOURCE_ID: /subscriptions/856c8385-8e8f-44c2-a98b-6be88601ad26/resourcegroups/rg-dev1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aci-deployer-identity
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore, Build, Publish
+        run: |
+          dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
+          dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
+          dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish_output
+
+      - name: Zip published output
+        run: zip -r ${{ env.ZIP_NAME }} publish_output
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sampleapp-api
+          path: ${{ env.ZIP_NAME }}
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sampleapp-api
+          path: ./artifact
+
+      - name: Deploy to Dev via ACI
+        uses: ./.github/actions/deploy-via-aci
+        with:
+          app-service-name: api-sampleapp-dev1
+          github-run-id: ${{ github.run_id }}
+          environment: dev
+
+  deploy-prod:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+    steps:
+      - name: Wait for approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.token }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sampleapp-api
+          path: ./artifact
+
+      - name: Deploy to Prod via ACI
+        uses: ./.github/actions/deploy-via-aci
+        with:
+          app-service-name: api-sampleapp-prod1
+          github-run-id: ${{ github.run_id }}
+          environment: prod

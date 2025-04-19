@@ -72,7 +72,7 @@ jobs:
       #     name: deploy-script
       #     path: .github/workflows/script/deploy_script.sh
 
-  deploy-via-aci:
+  deploy-dev-via-aci:
     needs: build-and-package
     runs-on: ubuntu-latest
     # name: Deploy via ACI
