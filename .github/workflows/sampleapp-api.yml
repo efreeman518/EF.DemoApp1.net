@@ -103,6 +103,9 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ github.token }}
+          approvers: efreeman518  # <-- Replace with actual GitHub usernames
+          minimum-approvals: 1
+          exclude-workflow-initiator-as-approver: false
       
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
