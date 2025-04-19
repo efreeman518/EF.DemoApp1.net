@@ -133,7 +133,7 @@ runs:
         done
 
         echo "Final container logs:"
-        az container logs --resource-group $${{ inputs.resource-group }} --name $ACI_NAME
+        az container logs --resource-group ${{ inputs.resource-group }} --name $ACI_NAME
 
         if [[ "$STATUS" != "Succeeded" ]]; then
           echo "Timeout reached - deployment did not complete"
