@@ -7,8 +7,17 @@ inputs:
   github-run-id:
     description: 'GitHub Run ID for uniqueness'
     required: true
-  environment:
-    description: 'Target environment (dev, test, stage, prod)'
+  # environment:
+  #   description: 'Target environment (dev, test, stage, prod)'
+  #   required: true
+  client-id:
+    description: 'caller client-id'
+    required: true
+  tenant-id:
+    description: 'caller tenant-id'
+    required: true
+  subscription-id:
+    description: 'caller subscription-id'
     required: true
 
 runs:
@@ -17,9 +26,9 @@ runs:
     - name: Azure Login with OIDC
       uses: azure/login@v2
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        client-id: ${{ inputs.client-id }}
+        tenant-id: ${{ inputs.tenant-id }}
+        subscription-id: ${{ inputs.subscription-id }}
 
     - name: Create temporary storage account & container
       shell: bash
