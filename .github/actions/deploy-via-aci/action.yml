@@ -1,5 +1,6 @@
 name: 'Deploy via ACI'
 description: 'Deploy zip artifact to App Service via ACI'
+
 inputs:
   # app-service-name:
   #   description: 'Name of the deployment target Azure App Service'
@@ -7,9 +8,21 @@ inputs:
   github-run-id:
     description: 'GitHub Run ID for uniqueness'
     required: true
-  # environment:
-  #   description: 'Target environment (dev, test, stage, prod)'
-  #   required: true
+  environment:
+    description: 'Target environment (dev, test, stage, prod)'
+    required: true
+  resource-group:
+    description: 'Resource group for the deployment'
+    required: true
+  identity-resource-id:
+    description: 'Resource ID (mamanged identity id) for ACI'
+    required: true
+  aci-vnet: 
+    description: 'VNET for ACI deployment'
+    required: true
+  aci-subnet:
+    description: 'Subnet for ACI deployment'
+    required: true
   client-id:
     description: 'caller client-id'
     required: true
@@ -43,12 +56,12 @@ runs:
 
         az storage account create \
           --name $STORAGE_ACCOUNT \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group ${{ inputs.resource-group }} \
           --location $REGION \
           --sku Standard_LRS \
           --kind StorageV2
 
-        CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group ${{ env.RESOURCE_GROUP }} --query connectionString -o tsv)
+        CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group ${{ inputs.resource-group }} --query connectionString -o tsv)
 
         az storage container create --name deploy --connection-string "$CONNECTION_STRING"
 
@@ -70,26 +83,31 @@ runs:
 
     - name: Deploy via ACI
       shell: bash
+      env:
+        REGION: 'eastus2'
+        ACI_MEMORY: 2
+        ACI_CPU: 1
+        CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
       run: |
-        ACI_NAME=aci-${{ inputs.environment }}-${{ inputs.github-run-id }}
+        ACI_NAME=aci-${{ inputs.github-run-id }}
 
         az container create \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group ${{ inputs.resource-group }} \
           --name $ACI_NAME \
           --os-type Linux \
           --image $CONTAINER_IMAGE \
-          --vnet $ACI_VNET \
-          --subnet ${{ env.ACI_SUBNET }} \
+          --vnet ${{ inputs.aci-vnet }} \
+          --subnet ${{ inputs.aci-subnet }} \
           --cpu $ACI_CPU \
           --memory $ACI_MEMORY \
           --location $REGION \
           --restart-policy Never \
-          --assign-identity ${{ env.IDENTITY_RESOURCE_ID }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && az webapp deploy --resource-group \"${{ env.RESOURCE_GROUP }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"$ZIP_NAME\" --type zip --restart true'"
+          --assign-identity ${{ inputs.identity-resource-id }} \
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"$ZIP_NAME\" --type zip --restart true'"
 
         for i in {1..30}; do
           STATUS=$(az container show \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --resource-group ${{ inputs.resource-group }} \
             --name $ACI_NAME \
             --query "instanceView.state" \
             --output tsv)
@@ -101,7 +119,7 @@ runs:
             break
           elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
             echo "Deployment failed. Logs:"
-            az container logs --resource-group "${{ env.RESOURCE_GROUP }}" --name "$ACI_NAME"
+            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
             exit 1
           fi
 
@@ -109,7 +127,7 @@ runs:
         done
 
         echo "Final container logs:"
-        az container logs --resource-group ${{ env.RESOURCE_GROUP }} --name $ACI_NAME
+        az container logs --resource-group $${{ inputs.resource-group }} --name $ACI_NAME
 
         if [[ "$STATUS" != "Succeeded" ]]; then
           echo "Timeout reached - deployment did not complete"
@@ -117,11 +135,11 @@ runs:
         fi
 
         az container delete \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group $${{ inputs.resource-group }} \
           --name $ACI_NAME \
           --yes || echo "ACI cleanup failed"
 
         az storage account delete \
           --name $STORAGE_ACCOUNT \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group $${{ inputs.resource-group }} \
           --yes || echo "Storage account cleanup failed"
