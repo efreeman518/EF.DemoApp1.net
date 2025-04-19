@@ -3,6 +3,11 @@ name: Build and Deploy SampleApp.Api
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
 
 permissions:
   id-token: write
