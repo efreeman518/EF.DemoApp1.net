@@ -18,11 +18,11 @@ env:
   #RESOURCE_GROUP: 'rg-dev1'
   REGION: 'eastus2'
   ZIP_NAME: 'sampleapp-api.zip'
-  ACI_MEMORY: 2
-  ACI_CPU: 1
-  CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
-  #ACI_SUBNET: 'subnet-aci-dev1'
-  ACI_VNET: 'vnet-dev1'
+  # ACI_MEMORY: 2
+  # ACI_CPU: 1
+  # CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
+  # ACI_SUBNET: 'subnet-aci-dev1'
+  # ACI_VNET: 'vnet-dev1'
   #IDENTITY_RESOURCE_ID: /subscriptions/856c8385-8e8f-44c2-a98b-6be88601ad26/resourcegroups/rg-dev1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aci-deployer-identity
 
 jobs:
@@ -66,6 +66,15 @@ jobs:
         with:
           name: sampleapp-api
           path: ./artifact
+      
+      - name: debug
+        run: |
+          echo "github-run-id=${{ github.run_id }}"
+          echo "environment=${{ github.event.inputs.environment }}"
+          echo "RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}"
+          echo "ACI_VNET=${{ env.ACI_VNET }}"
+          echo "ACI_SUBNET=${{ env.ACI_SUBNET }}"
+          echo "IDENTITY_RESOURCE_ID=${{ env.IDENTITY_RESOURCE_ID }}"
 
       - name: Deploy to Dev via ACI
         uses: ./.github/actions/deploy-via-aci

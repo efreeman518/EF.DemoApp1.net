@@ -46,10 +46,10 @@ runs:
     - name: Create temporary storage account & container
       shell: bash
       run: |
+        # Generate a unique storage account name (lowercase, alphanumeric)
         # STORAGE_ACCOUNT="stgtmp${{ inputs.github-run-id }}$RANDOM"
         # STORAGE_ACCOUNT=$(echo $STORAGE_ACCOUNT | tr '[:upper:]' '[:lower:]')
         # echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
-        # Generate a unique storage account name (lowercase, alphanumeric)
         STORAGE_ACCOUNT="stgtmp${{ inputs.github-run-id }}$(openssl rand -hex 3 | tr -dc 'a-z0-9')"
         STORAGE_ACCOUNT=$(echo "$STORAGE_ACCOUNT" | tr '[:upper:]' '[:lower:]' | cut -c 1-24)  # Storage account names must be 3-24 chars
         echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
