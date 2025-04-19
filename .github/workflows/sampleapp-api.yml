@@ -81,7 +81,7 @@ jobs:
         with:
           github-run-id: ${{ github.run_id }}
           environment: ${{ github.event.inputs.environment }}
-          resource-group: ${{ env.RESOURCE_GROUP 
+          resource-group: ${{ env.RESOURCE_GROUP }}
           region: ${{ env.REGION }}
           identity-resource-id: ${{ env.IDENTITY_RESOURCE_ID }}
           aci-vnet: ${{ env.ACI_VNET }}
