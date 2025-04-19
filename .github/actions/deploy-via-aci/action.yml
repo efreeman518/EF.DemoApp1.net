@@ -26,6 +26,9 @@ inputs:
   aci-subnet:
     description: 'Subnet for ACI deployment'
     required: true
+  app-service-name:
+    description: 'Name of the deployment target Azure App Service'
+    required: true
   client-id:
     description: 'caller client-id'
     required: true
