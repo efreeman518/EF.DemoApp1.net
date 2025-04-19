@@ -15,9 +15,9 @@ permissions:
 
 env:
   DOTNET_VERSION: '9.x'
-  #RESOURCE_GROUP: 'rg-dev1'
   REGION: 'eastus2'
   ZIP_NAME: 'sampleapp-api.zip'
+  RESOURCE_GROUP: 'rg-dev1'
   # ACI_MEMORY: 2
   # ACI_CPU: 1
   # CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
@@ -70,10 +70,10 @@ jobs:
         run: |
           echo "github-run-id=${{ github.run_id }}"
           echo "environment=${{ github.event.inputs.environment }}"
-          echo "RESOURCE_GROUP=${{ env.RESOURCE_GROUP }}"
-          echo "IDENTITY_RESOURCE_ID=${{ env.IDENTITY_RESOURCE_ID }}"
-          echo "ACI_VNET=${{ env.ACI_VNET }}"
-          echo "ACI_SUBNET=${{ env.ACI_SUBNET }}"
+          echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}"
+          echo "IDENTITY_RESOURCE_ID=${{ secrets.IDENTITY_RESOURCE_ID }}"
+          echo "ACI_VNET=${{ secrets.ACI_VNET }}"
+          echo "ACI_SUBNET=${{ secrets.ACI_SUBNET }}"
           
 
       - name: Deploy to Dev via ACI
@@ -81,11 +81,11 @@ jobs:
         with:
           github-run-id: ${{ github.run_id }}
           environment: ${{ github.event.inputs.environment }}
-          resource-group: ${{ env.RESOURCE_GROUP }}
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
           region: ${{ env.REGION }}
-          identity-resource-id: ${{ env.IDENTITY_RESOURCE_ID }}
-          aci-vnet: ${{ env.ACI_VNET }}
-          aci-subnet: ${{ env.ACI_SUBNET }}
+          identity-resource-id: ${{ secrets.IDENTITY_RESOURCE_ID }}
+          aci-vnet: ${{ secrets.ACI_VNET }}
+          aci-subnet: ${{ secrets.ACI_SUBNET }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
