@@ -141,11 +141,11 @@ runs:
         fi
 
         az container delete \
-          --resource-group $${{ inputs.resource-group }} \
+          --resource-group ${{ inputs.resource-group }} \
           --name $ACI_NAME \
           --yes || echo "ACI cleanup failed"
 
         az storage account delete \
           --name $STORAGE_ACCOUNT \
-          --resource-group $${{ inputs.resource-group }} \
+          --resource-group ${{ inputs.resource-group }} \
           --yes || echo "Storage account cleanup failed"
