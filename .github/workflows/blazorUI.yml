@@ -81,4 +81,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
           app_location: "./publish/wwwroot"
+          deployment_action: "upload" #needed for workflow_dispatch trigger; on push or PRs should automatically detect
           
