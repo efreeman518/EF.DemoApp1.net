@@ -88,6 +88,13 @@ jobs:
           name: artifact
           path: artifact.zip
 
+      #test
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          path: ./artifact
+
   # deploy-dev:
   #   needs: build
   #   runs-on: ubuntu-latest
