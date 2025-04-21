@@ -28,6 +28,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: dev  
     steps:
       - name: Checkout repo for build
         uses: actions/checkout@v4
@@ -75,7 +77,7 @@ jobs:
 
       - name: Zip published output (only if tests passed)
         #if: steps.unit-tests-step.outcome == 'success'
-        run: zip -r ${{ var.APP_SERVICE_NAME_API }}.zip publish_output
+        run: zip -r ${{ env.APP_SERVICE_NAME_API }}.zip publish_output
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)

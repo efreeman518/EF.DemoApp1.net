@@ -25,25 +25,25 @@ jobs:
     outputs:
       artifact-name: sampleappui1-build-artifact
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
       
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
         working-directory: ./SampleApp.UI1
-        run: dotnet publish -c Release -o published --nologo 
+        run: dotnet publish -c Release -o publish --nologo 
       
       - name: Zip artifact
-        run: zip -r sampleappui1.zip ./SampleApp.UI1/published/wwwroot
+        run: zip -r sampleappui1.zip ./SampleApp.UI1/publish/wwwroot
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sampleappui1
           path: sampleappui1.zip
