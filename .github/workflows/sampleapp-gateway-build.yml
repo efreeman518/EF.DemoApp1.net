@@ -9,14 +9,14 @@ on:
   #     - main
 
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select environment
-        required: true
-        options:
-          - dev
-          - prod
+    # inputs:
+    #   environment:
+    #     type: choice
+    #     description: Select environment
+    #     required: true
+    #     options:
+    #       - dev
+    #       - prod
 
 env:
   DOTNET_VERSION: '9.x'
@@ -38,11 +38,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore ./SampleApp.Gateway/SampleApp.Gateway.csproj
-
-      - name: Build
-        run: dotnet build ./SampleApp.Gateway/SampleApp.Gateway.csproj --configuration Release --no-restore
+      - name: Restore  & build
+        run: |
+          dotnet restore ./SampleApp.Gateway/SampleApp.Gateway.csproj
+          dotnet build ./SampleApp.Gateway/SampleApp.Gateway.csproj --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish ./SampleApp.Gateway/SampleApp.Gateway.csproj -c Release -o publish

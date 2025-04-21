@@ -6,14 +6,14 @@ on:
   #     - main
 
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select environment
-        required: true
-        options:
-          - dev
-          - prod
+    # inputs:
+    #   environment:
+    #     type: choice
+    #     description: Select environment
+    #     required: true
+    #     options:
+    #       - dev
+    #       - prod
 
 jobs:
   build:
@@ -34,10 +34,12 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Build with dotnet
-        working-directory: ./SampleApp.UI1
-        run: dotnet publish -c Release -o publish --nologo 
-      
+      - name: Restore, build, and publish
+        run: |
+          dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
+          dotnet build ./SampleApp.UI1/SampleApp.UI1.csproj --configuration Release --no-restore
+          dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o ./SampleApp.UI1/publish --no-build --nologo
+
       - name: Zip artifact
         run: zip -r sampleappui1.zip ./SampleApp.UI1/publish/wwwroot
       

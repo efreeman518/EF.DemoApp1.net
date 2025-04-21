@@ -6,14 +6,14 @@ on:
   #     - main
 
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select environment
-        required: true
-        options:
-          - dev
-          - prod
+    # inputs:
+    #   environment:
+    #     type: choice
+    #     description: Select environment
+    #     required: true
+    #     options:
+    #       - dev
+    #       - prod
 
 permissions:
   id-token: write
@@ -28,7 +28,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: dev  
+      name: ${{ github.event.inputs.environment }}  #
     steps:
       - name: Checkout repo for build
         uses: actions/checkout@v4
@@ -49,25 +49,24 @@ jobs:
           dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
           dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
 
-      - name: Run Unit Tests
-        id: unit-tests-step
-        run: |
-          dotnet test ./Test.Unit/Test.Unit.csproj \
-            --configuration Release \
-            --logger "trx;LogFileName=unit_results.trx" \
-            --results-directory ./Test.Unit/TestResults
-      
-      - name: Convert TRX to HTML
-        run: |
-          dotnet tool install --global trx2html
-          trx2html ./Test.Unit/TestResults/unit_results.trx ./Test.Unit/TestResults/test_results.html
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Upload Test Report
-        if: always()
+      - name: Run Tests
+        run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx"
+
+      - name: Generate HTML report
+        run: |
+          reportgenerator \
+            -reports:./Test.Unit/TestResults/unit_results.trx \
+            -targetdir:./Test.Unit/TestResults/report \
+            -reporttypes:Html
+
+      - name: Upload HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: ./Test.Unit/TestResults
+          name: test-results-html
+          path: ./Test.Unit/TestResults/report
 
       - name: Publish (only if tests passed)
         #if: steps.unit-tests-step.outcome == 'success'
