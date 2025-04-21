@@ -78,29 +78,21 @@ jobs:
       #   run: ls -R site
 
       #not needed until static web app deployments support OIDC
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-        # These are created manually in Github repo secrets (manual EntraID appreg for deployment with OIDC federated credentials))
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Upload to Azure Static Web App
-        run: |
-          az staticwebapp upload \
-            --name ${{ env.AZURE_STATIC_WEBAPP_NAME }} \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --source site/wwwroot
+      # - name: Azure Login (OIDC)
+      #   uses: azure/login@v2
+      #   with:
+      #   # These are created manually in Github repo secrets (manual EntraID appreg for deployment with OIDC federated credentials))
+      #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       #deployment_action: upload
       #does not yet support federated OIDC credentials
-      # - name: Deploy to Azure Static Web App
-      #   uses: azure/static-web-apps-deploy@v1.0.0
-      #   with:
-      #     azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
-      #     app_location: site
-      #     app_artifact_location: "site/wwwroot"
-      #     api_location: ""  # Leave blank if you don’t have an API
+      - name: Deploy to Azure Static Web App
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          app_location: site
+          app_artifact_location: "site/wwwroot"
           
           
