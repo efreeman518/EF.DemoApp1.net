@@ -70,6 +70,9 @@ jobs:
         run: |
           echo "deployment token = ${{ secrets.DEPLOYMENT_TOKEN }}"
           echo "environment=${{ github.event.inputs.environment }}"
+      
+      - name: List contents of site folder
+        run: ls -R site
 
       #not needed until static web app deployments support OIDC
       # - name: Azure Login (OIDC)
@@ -80,11 +83,12 @@ jobs:
       #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
       #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      #deployment_action: upload
       #does not yet support federated OIDC credentials
       - name: Deploy to Azure Static Web App
         uses: azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
           app_location: site
-          deployment_action: upload
+          
           
