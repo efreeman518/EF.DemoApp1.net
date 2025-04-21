@@ -1,58 +1,173 @@
-name: Azure Static Web Apps CI/CD
+name: Deploy SampleApp.UI1
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Build SampleApp.UI1"]
+    types:
+      - completed
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+  check_build:
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
-    permissions:
-       id-token: write
-       contents: read
+    outputs:
+      build_success: ${{ steps.check_build_status.outputs.build_success }}
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Check build status
+        id: check_build_status
+        uses: actions/github-script@v6
         with:
-          submodules: true
-          lfs: false
-      - name: Install OIDC Client from Core Package
+          script: |
+            const workflowRun = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            
+            if (workflowRun.data.conclusion !== 'success') {
+              core.setFailed('The build did not succeed');
+              return {build_success: false};
+            }
+            return {build_success: true};
+          result-encoding: string
+
+  deploy_dev:
+    needs: check_build
+    if: needs.check_build.outputs.build_success == 'true'
+    runs-on: ubuntu-latest
+    name: Deploy to Dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: sampleappui1
+      
+      - name: Unzip artifact
+        run: unzip sampleappui1.zip -d wwwroot
+      
+      - name: Install OIDC Client
         run: npm install @actions/core@1.6.0 @actions/http-client
+      
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
-           script: |
-               const coredemo = require('@actions/core')
-               return await coredemo.getIDToken()
-           result-encoding: string
-      - name: Build And Deploy
-        id: builddeploy
+          script: |
+            const coredemo = require('@actions/core')
+            return await coredemo.getIDToken()
+          result-encoding: string
+      
+      - name: Deploy to Dev
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "./SampleApp.UI1" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "wwwroot" # Built app content directory - optional
+          app_location: "wwwroot"
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          ###### End of Repository/Build Configurations ######
+          output_location: "wwwroot" # Built app content directory - optional
+          environment_name: "dev"
 
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+  deploy_prod:
+    needs: deploy_dev
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
+    name: Deploy to Prod
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Close Pull Request
-        id: closepullrequest
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: sampleappui1
+      
+      - name: Unzip artifact
+        run: unzip sampleappui1.zip -d wwwroot
+      
+      - name: Install OIDC Client
+        run: npm install @actions/core@1.6.0 @actions/http-client
+      
+      - name: Get Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+          script: |
+            const coredemo = require('@actions/core')
+            return await coredemo.getIDToken()
+          result-encoding: string
+      
+      # - name: Wait for manual approval
+      #   uses: trstringer/manual-approval@v1
+      #   with:
+      #     secret: ${{ github.token }}
+      #     approvers: <YOUR_TEAM_MEMBERS_HERE>
+      #     minimum-approvals: 1
+      
+      - name: Deploy to Prod
         uses: Azure/static-web-apps-deploy@v1
         with:
-          action: "close"
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F_PROD }}
+          action: "upload"
+          app_location: "wwwroot"
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          environment_name: "prod"
+
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     types: [opened, synchronize, reopened, closed]
+#     branches:
+#       - main
+
+# jobs:
+#   build_and_deploy_job:
+#     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+#     runs-on: ubuntu-latest
+#     name: Build and Deploy Job
+#     permissions:
+#        id-token: write
+#        contents: read
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#           lfs: false
+#       - name: Install OIDC Client from Core Package
+#         run: npm install @actions/core@1.6.0 @actions/http-client
+#       - name: Get Id Token
+#         uses: actions/github-script@v6
+#         id: idtoken
+#         with:
+#            script: |
+#                const coredemo = require('@actions/core')
+#                return await coredemo.getIDToken()
+#            result-encoding: string
+#       - name: Build And Deploy
+#         id: builddeploy
+#         uses: Azure/static-web-apps-deploy@v1
+#         with:
+#           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
+#           action: "upload"
+#           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+#           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+#           app_location: "./SampleApp.UI1" # App source code path
+#           api_location: "" # Api source code path - optional
+#           output_location: "wwwroot" # Built app content directory - optional
+#           github_id_token: ${{ steps.idtoken.outputs.result }}
+#           ###### End of Repository/Build Configurations ######
+
+#   close_pull_request_job:
+#     if: github.event_name == 'pull_request' && github.event.action == 'closed'
+#     runs-on: ubuntu-latest
+#     name: Close Pull Request Job
+#     steps:
+#       - name: Close Pull Request
+#         id: closepullrequest
+#         uses: Azure/static-web-apps-deploy@v1
+#         with:
+#           action: "close"

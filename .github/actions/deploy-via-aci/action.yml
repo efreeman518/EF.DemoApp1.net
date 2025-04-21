@@ -42,6 +42,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.app-service-name }}
+        path: ./artifact
+
     - name: Azure Login with OIDC
       uses: azure/login@v2
       with:

@@ -62,7 +62,6 @@ jobs:
   #         path: ${{ env.ZIP_NAME }}
 
   deploy-dev:
-    needs: build
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -95,7 +94,7 @@ jobs:
           identity-resource-id: ${{ vars.IDENTITY_RESOURCE_ID }}
           aci-vnet: ${{ vars.ACI_VNET }}
           aci-subnet: ${{ vars.ACI_SUBNET }}
-          app-service-name: ${{ vars.APP_SERVICE_NAME }}
+          app-service-name: ${{ vars.APP_SERVICE_NAME_API }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -117,11 +116,11 @@ jobs:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
 
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: sampleapp-api
-          path: ./artifact
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: sampleapp-api
+      #     path: ./artifact
 
       - name: Deploy to Prod via ACI
         uses: ./.github/actions/deploy-via-aci

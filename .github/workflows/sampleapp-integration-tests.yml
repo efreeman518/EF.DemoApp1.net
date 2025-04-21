@@ -1,0 +1,52 @@
+name: Run Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      testProjects:
+        description: "Select test projects to run"
+        required: true
+        type: choice
+        options:
+          - Test.Integration/Test.Integration.csproj
+          - Test.Endpoints/Test.Endpoints.csproj
+        default: Test.Integration/Test.Integration.csproj
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Install trx2html
+        run: dotnet tool install --global trx2html
+
+      - name: Run selected test project
+        id: run-tests
+        continue-on-error: true
+        run: |
+          mkdir -p ./TestResults
+          proj="${{ github.event.inputs.testProjects }}"
+          name=$(basename "$proj" .csproj)
+          dotnet test "$proj" \
+            --no-build --configuration Release \
+            --logger "trx;LogFileName=${name}.trx" \
+            --results-directory ./TestResults
+          trx2html ./TestResults/${name}.trx ./TestResults/${name}.html
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-results
+          path: ./TestResults

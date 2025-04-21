@@ -2,9 +2,9 @@
 name: Build SampleApp.Api
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
   workflow_dispatch:
     inputs:
@@ -23,7 +23,6 @@ permissions:
 env:
   DOTNET_VERSION: '9.x'
   REGION: 'eastus2'
-  ZIP_NAME: 'sampleapp-api.zip'
   RESOURCE_GROUP: 'rg-dev1'
 
 jobs:
@@ -38,13 +37,19 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # - name: Restore & Build
+      #   run: |
+      #     dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
+      #     dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
+
+      #build full solution including test projects
       - name: Restore & Build
         run: |
-          dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
-          dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
+          dotnet restore 
+          dotnet build --configuration Release --no-restore
 
       - name: Run Unit Tests
-        id: tests
+        id: unit-tests-step
         run: |
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --no-build \
@@ -63,22 +68,22 @@ jobs:
           name: test-results
           path: ./TestResults
 
-      - name: Publish
-        #if: steps.tests.outcome == 'success'
+      - name: Publish (only if tests passed)
+        #if: steps.unit-tests-step.outcome == 'success'
         run: | 
           dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish_output
 
-      - name: Zip published output
-        #if: steps.tests.outcome == 'success'
-        run: zip -r ${{ env.ZIP_NAME }} publish_output
+      - name: Zip published output (only if tests passed)
+        #if: steps.unit-tests-step.outcome == 'success'
+        run: zip -r ${{ var.APP_SERVICE_NAME_API }}.zip publish_output
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)
-        #if: steps.tests.outcome == 'success'
+        #if: steps.unit-tests-step.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: sampleapp-api
-          path: ${{ env.ZIP_NAME }}
+          path: ${{ var.APP_SERVICE_NAME_API }}.zip
 
   # deploy-dev:
   #   needs: build
