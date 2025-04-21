@@ -68,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sampleappgateway-artifact
-          path: publish
+          path: ./publish
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2

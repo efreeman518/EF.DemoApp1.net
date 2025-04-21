@@ -1,4 +1,3 @@
-#promote artifact through environments
 name: Build SampleApp.Api
 
 on:
@@ -47,28 +46,28 @@ jobs:
       #build full solution including test projects
       - name: Restore & Build
         run: |
-          dotnet restore 
-          dotnet build --configuration Release --no-restore
+          dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
+          dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
 
       - name: Run Unit Tests
         id: unit-tests-step
         run: |
           dotnet test ./Test.Unit/Test.Unit.csproj \
-            --no-build \
+            --configuration Release \
             --logger "trx;LogFileName=unit_results.trx" \
-            --results-directory ./TestResults
+            --results-directory ./Test.Unit/TestResults
       
       - name: Convert TRX to HTML
         run: |
           dotnet tool install --global trx2html
-          trx2html ./TestResults/test_results.trx ./TestResults/test_results.html
+          trx2html ./Test.Unit/TestResults/unit_results.trx ./Test.Unit/TestResults/test_results.html
 
       - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ./TestResults
+          path: ./Test.Unit/TestResults
 
       - name: Publish (only if tests passed)
         #if: steps.unit-tests-step.outcome == 'success'
@@ -77,7 +76,7 @@ jobs:
 
       - name: Zip published output (only if tests passed)
         #if: steps.unit-tests-step.outcome == 'success'
-        run: zip -r ${{ env.APP_SERVICE_NAME_API }}.zip publish_output
+        run: zip -r ${{ vars.APP_SERVICE_NAME_API }}.zip publish_output
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)

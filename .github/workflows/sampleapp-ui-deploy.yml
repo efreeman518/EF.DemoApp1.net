@@ -32,8 +32,8 @@ jobs:
   #         result-encoding: string
 
   deploy_dev:
-    needs: check_build
-    if: needs.check_build.outputs.build_success == 'true'
+    # needs: check_build
+    # if: needs.check_build.outputs.build_success == 'true'
     runs-on: ubuntu-latest
     name: Deploy to Dev
     permissions:
