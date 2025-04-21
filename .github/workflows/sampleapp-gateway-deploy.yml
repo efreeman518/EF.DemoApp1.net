@@ -67,8 +67,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: sampleappgatewayartifact
-          path: .
+          name: sampleappgateway-artifact
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -101,7 +100,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download build artifact
+      - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
           name: sampleappgateway-artifact

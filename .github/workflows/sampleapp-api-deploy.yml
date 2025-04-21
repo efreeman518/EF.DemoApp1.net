@@ -68,7 +68,7 @@ jobs:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
 
-      - name: Download artifact
+      - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
           name: sampleapp-api

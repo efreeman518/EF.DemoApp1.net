@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sampleapp-api
-          path: ${{ var.APP_SERVICE_NAME_API }}.zip
+          path: ${{ vars.APP_SERVICE_NAME_API }}.zip
 
   # deploy-dev:
   #   needs: build
