@@ -81,4 +81,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
           app_location: site
+          deployment_action: upload
           
