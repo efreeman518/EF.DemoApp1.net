@@ -52,7 +52,8 @@ jobs:
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Run Tests
+      - name: Run unit tests
+        id: unit-tests-step
         run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx"
 
       - name: Generate HTML report
@@ -69,21 +70,21 @@ jobs:
           path: ./Test.Unit/TestResults/report
 
       - name: Publish (only if tests passed)
-        #if: steps.unit-tests-step.outcome == 'success'
+        if: steps.unit-tests-step.outcome == 'success'
         run: | 
-          dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish_output
+          dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish 
 
       - name: Zip published output (only if tests passed)
-        #if: steps.unit-tests-step.outcome == 'success'
-        run: zip -r ${{ vars.APP_SERVICE_NAME_API }}.zip publish_output
+        if: steps.unit-tests-step.outcome == 'success'
+        run: zip -r artifact.zip publish
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)
-        #if: steps.unit-tests-step.outcome == 'success'
+        if: steps.unit-tests-step.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: sampleapp-api
-          path: ${{ vars.APP_SERVICE_NAME_API }}.zip
+          name: artifact
+          path: artifact.zip
 
   # deploy-dev:
   #   needs: build

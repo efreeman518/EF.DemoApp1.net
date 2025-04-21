@@ -45,7 +45,7 @@ runs:
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
-        name: ${{ inputs.app-service-name }}
+        name: artifact
         path: ./artifact
 
     - name: Azure Login with OIDC

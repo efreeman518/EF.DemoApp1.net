@@ -38,7 +38,7 @@ jobs:
         run: |
           dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
           dotnet build ./SampleApp.UI1/SampleApp.UI1.csproj --configuration Release --no-restore
-          dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o ./SampleApp.UI1/publish --no-build --nologo
+          dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-build --nologo
 
       - name: Zip artifact
         run: zip -r sampleappui1.zip ./SampleApp.UI1/publish/wwwroot
@@ -46,8 +46,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sampleappui1
-          path: sampleappui1.zip
+          name: artifact
+          path: artifact.zip
 
 
 

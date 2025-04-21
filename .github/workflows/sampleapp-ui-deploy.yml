@@ -43,7 +43,7 @@ jobs:
       - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
-          name: sampleappui1
+          name: artifact
           path: ./artifact
       
       - name: Unzip artifact
@@ -82,7 +82,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: sampleappui1
+          name: artifact
+          path: ./artifact
       
       - name: Unzip artifact
         run: unzip sampleappui1.zip -d wwwroot
