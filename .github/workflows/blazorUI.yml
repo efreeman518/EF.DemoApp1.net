@@ -66,6 +66,11 @@ jobs:
           name: sampleappui1-artifact
           path: site
  
+      - name: debug
+        run: |
+          echo "deployment token = ${{ secrets.DEPLOYMENT_TOKEN }}"
+          echo "environment=${{ github.event.inputs.environment }}"
+
       #not needed until static web app deployments support OIDC
       # - name: Azure Login (OIDC)
       #   uses: azure/login@v2
