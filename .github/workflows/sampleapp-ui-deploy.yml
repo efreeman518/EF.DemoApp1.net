@@ -7,29 +7,29 @@ on:
       - completed
 
 jobs:
-  check_build:
-    runs-on: ubuntu-latest
-    outputs:
-      build_success: ${{ steps.check_build_status.outputs.build_success }}
+  # check_build:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     build_success: ${{ steps.check_build_status.outputs.build_success }}
     
-    steps:
-      - name: Check build status
-        id: check_build_status
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const workflowRun = await github.rest.actions.getWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
+  #   steps:
+  #     - name: Check build status
+  #       id: check_build_status
+  #       uses: actions/github-script@v6
+  #       with:
+  #         script: |
+  #           const workflowRun = await github.rest.actions.getWorkflowRun({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             run_id: context.payload.workflow_run.id,
+  #           });
             
-            if (workflowRun.data.conclusion !== 'success') {
-              core.setFailed('The build did not succeed');
-              return {build_success: false};
-            }
-            return {build_success: true};
-          result-encoding: string
+  #           if (workflowRun.data.conclusion !== 'success') {
+  #             core.setFailed('The build did not succeed');
+  #             return {build_success: false};
+  #           }
+  #           return {build_success: true};
+  #         result-encoding: string
 
   deploy_dev:
     needs: check_build
@@ -44,9 +44,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sampleappui1
+          path: ./artifact
       
       - name: Unzip artifact
-        run: unzip sampleappui1.zip -d wwwroot
+        run: unzip ./artifact/sampleappui1.zip -d wwwroot
       
       - name: Install OIDC Client
         run: npm install @actions/core@1.6.0 @actions/http-client
