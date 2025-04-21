@@ -102,7 +102,7 @@ jobs:
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ github.token }}
+          secret: ${{ secrets.MANUAL_APPROVAL_PAT }} #must use PAT for user-owned repos; org-owned repos possibly can use ${{ github.token }}
           approvers: efreeman518  # <-- Replace with actual GitHub usernames
           minimum-approvals: 1
           exclude-workflow-initiator-as-approver: false
