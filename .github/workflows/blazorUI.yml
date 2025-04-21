@@ -10,9 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        type: choice
+        description: Select environment
         required: true
-        default: 'dev'
+        options:
+          - dev
+          - prod
 
 env:
   DOTNET_VERSION: '9.x'
@@ -88,7 +91,7 @@ jobs:
       - name: Deploy to Azure Static Web App
         uses: azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: 'b743bc83e0d3f240a90f675aaa0bdc43a4b29d895d385812a17d136bfeaffff706-6e516091-f0eb-4c2d-8571-9d422983d58100f0014066c9ac0f'
           app_location: site
           app_artifact_location: "site/wwwroot"
           api_location: ""  # Leave blank if you don’t have an API
