@@ -100,13 +100,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     steps:
-      - name: Wait for approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.MANUAL_APPROVAL_PAT }} #must use PAT for user-owned repos (Repo Issues & Workflows access); org-owned repos possibly can use ${{ github.token }}
-          approvers: efreeman518  # <-- Replace with actual GitHub usernames
-          minimum-approvals: 1
-          exclude-workflow-initiator-as-approver: false
+      # Not needed if using Github Environments with required reviewers
+      # - name: Wait for approval
+      #   uses: trstringer/manual-approval@v1
+      #   with:
+      #     secret: ${{ secrets.MANUAL_APPROVAL_PAT }} #must use PAT for user-owned repos (Repo Issues & Workflows access); org-owned repos possibly can use ${{ github.token }}
+      #     approvers: efreeman518  # <-- Replace with actual GitHub usernames
+      #     minimum-approvals: 1
+      #     exclude-workflow-initiator-as-approver: false
       
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
