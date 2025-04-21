@@ -84,6 +84,7 @@ jobs:
         with:
           name: artifact
           path: ./artifact
+          run-id: ${{ github.event.workflow_run.id }}
       
       - name: Unzip artifact
         run: unzip sampleappui1.zip -d wwwroot

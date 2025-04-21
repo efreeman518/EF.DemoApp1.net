@@ -38,7 +38,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore  & build
+      - name: Restore & build
         run: |
           dotnet restore ./SampleApp.Gateway/SampleApp.Gateway.csproj
           dotnet build ./SampleApp.Gateway/SampleApp.Gateway.csproj --configuration Release --no-restore

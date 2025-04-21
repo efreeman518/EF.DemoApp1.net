@@ -19,41 +19,7 @@ on:
           - dev
           - prod
 
-# env:
-#   DOTNET_VERSION: '9.x'
-#   AZURE_WEBAPP_NAME: 'api-gateway-dev1'
-#   AZURE_RESOURCE_GROUP: 'rg-dev1'
-
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: ${{ env.DOTNET_VERSION }}
-
-  #     - name: Restore dependencies
-  #       run: dotnet restore ./SampleApp.Gateway/SampleApp.Gateway.csproj
-
-  #     - name: Build
-  #       run: dotnet build ./SampleApp.Gateway/SampleApp.Gateway.csproj --configuration Release --no-restore
-
-  #     - name: Publish
-  #       run: dotnet publish ./SampleApp.Gateway/SampleApp.Gateway.csproj -c Release -o publish
-
-  #     - name: Upload build artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: sampleappgateway-artifact
-  #         path: publish
-
   deploy-dev:
     runs-on: ubuntu-latest
     environment:
@@ -69,6 +35,7 @@ jobs:
         with:
           name: artifact
           path: ./artifact
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
