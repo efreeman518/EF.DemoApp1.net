@@ -85,6 +85,8 @@ jobs:
           name: artifact
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }} 
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
       
       - name: Unzip artifact
         run: unzip sampleappui1.zip -d wwwroot

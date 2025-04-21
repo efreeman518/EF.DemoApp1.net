@@ -35,7 +35,9 @@ jobs:
         with:
           name: artifact
           path: ./artifact
-          run-id: ${{ github.event.workflow_run.conclusion.run-id }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }} 
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
