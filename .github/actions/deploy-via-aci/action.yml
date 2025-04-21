@@ -47,7 +47,7 @@ runs:
       with:
         name: artifact
         path: ./artifact
-        run-id: ${{ github.event.workflow_run.id }}
+        run-id: ${{ github.event.workflow_run.conclusion.run-id }}
 
     - name: Azure Login with OIDC
       uses: azure/login@v2

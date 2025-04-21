@@ -41,7 +41,7 @@ jobs:
           dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-build --nologo
 
       - name: Zip artifact
-        run: zip -r sampleappui1.zip publish/wwwroot
+        run: zip -r artifact.zip publish/wwwroot
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4

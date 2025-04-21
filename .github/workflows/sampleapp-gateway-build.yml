@@ -26,6 +26,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     permissions:
       contents: read
 

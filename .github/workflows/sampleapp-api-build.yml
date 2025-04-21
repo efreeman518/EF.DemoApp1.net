@@ -27,6 +27,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     environment:
       name: ${{ github.event.inputs.environment }}  #
     steps:
