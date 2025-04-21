@@ -74,22 +74,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Install Azure CLI Static Web Apps extension
-        run: az extension add --name 'webapp'
-
-      - name: Deploy using Azure CLI
-        run: |
-          az staticwebapp upload \
-            --name ${{ env.AZURE_STATIC_WEBAPP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --source ./publish/wwwroot
-
-      #does not yet support federated OIDC credentials, so install az extension and as staticwebapp upload
-      # - name: Deploy to Azure Static Web App
-      #   id: deploy-to-webapp
-      #   uses: azure/static-web-apps-deploy@v1
-      #   with:
-      #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
-      #     slot-name: 'Production'
-      #     package: .
+      #does not yet support federated OIDC credentials
+      - name: Deploy to Azure Static Web App
+        id: deploy-to-webapp
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          app-name: ${{ env.AZURE_STATIC_WEBAPP_NAME }}
+          slot-name: 'Production'
+          package: .
           
