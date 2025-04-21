@@ -1,0 +1,196 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy SampleApp.Api to Azure Web App - api-sampleapp-dev1
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  DOTNET_VERSION: '9.x'
+  RESOURCE_GROUP: 'rg-dev1'
+  APP_SERVICE_NAME: api-sampleapp-dev1
+  ACI_NAME: aci-temp-deploy-${{ github.run_id }} # Unique name per run
+  ACI_SUBNET: subnet-aci-dev1
+  ACI_VNET: vnet-dev1
+  IDENTITY_RESOURCE_ID: /subscriptions/856c8385-8e8f-44c2-a98b-6be88601ad26/resourcegroups/rg-dev1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aci-deployer-identity
+  CONTAINER_IMAGE: mcr.microsoft.com/azure-cli:latest #efreeman518/aci-deployer:latest #hub.docker.com
+  CONTAINER_SUBNET_ID: /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-dev1/providers/Microsoft.Network/virtualNetworks/vnet-dev1/subnets/subnet-aci-dev1
+  REGION: eastus2  # Change as needed
+  ZIP_NAME: sampleapp-api.zip
+  ACI_MEMORY: 2
+  ACI_CPU: 1
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
+
+      - name: Build
+        run: dotnet build ./SampleApp.Api/SampleApp.Api.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish SampleApp.Api/SampleApp.Api.csproj -c Release -o publish_output
+
+      - name: Zip published output
+        run: zip -r ${{ env.ZIP_NAME }} publish_output
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sampleapp-api
+          path: ${{ env.ZIP_NAME }}
+
+      # - name: Upload deploy script
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: deploy-script
+      #     path: .github/workflows/script/deploy_script.sh
+
+  deploy-dev-via-aci:
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    # name: Deploy via ACI
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sampleapp-api
+          path: ./artifact
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create temporary storage account & container
+        run: |
+          STORAGE_ACCOUNT="stgtmpdeploy$RANDOM"
+          echo "STORAGE_ACCOUNT=$STORAGE_ACCOUNT" >> $GITHUB_ENV
+
+          az storage account create \
+            --name $STORAGE_ACCOUNT \
+            --resource-group $RESOURCE_GROUP \
+            --location $REGION \
+            --sku Standard_LRS \
+            --kind StorageV2
+
+          CONNECTION_STRING=$(az storage account show-connection-string --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --query connectionString -o tsv)
+
+          az storage container create --name deploy --connection-string "$CONNECTION_STRING"
+
+          az storage blob upload \
+            --connection-string "$CONNECTION_STRING" \
+            --container-name deploy \
+            --file ./artifact/${{ env.ZIP_NAME }} \
+            --name ${{ env.ZIP_NAME }}
+
+      - name: Deploy via ACI 
+        run: |
+          # Generate SAS token for the zip file
+          SAS_TOKEN=$(az storage blob generate-sas \
+            --account-name $STORAGE_ACCOUNT \
+            --container-name deploy \
+            --name $ZIP_NAME \
+            --permissions r \
+            --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
+            --output tsv)
+
+          ZIP_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}"
+          echo "ZIP_URL=$ZIP_URL"
+
+          # Create and run ACI with deployment command
+          # && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path /app --type zip --restart true
+          az container create \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --os-type Linux \
+            --image $CONTAINER_IMAGE \
+            --vnet $ACI_VNET \
+            --subnet $ACI_SUBNET \
+            --cpu $ACI_CPU \
+            --memory $ACI_MEMORY \
+            --location $REGION \
+            --restart-policy Never \
+            --assign-identity $IDENTITY_RESOURCE_ID \
+            --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"$ZIP_NAME\" && az webapp deploy --resource-group \"$RESOURCE_GROUP\" --name \"$APP_SERVICE_NAME\" --src-path \"$ZIP_NAME\" --type zip --restart true'"
+
+      - name: Wait for completion
+        run: |
+          echo "Waiting for ACI to complete..."
+          for i in {1..30}; do
+            STATUS=$(az container show \
+              --resource-group $RESOURCE_GROUP \
+              --name $ACI_NAME \
+              --query "instanceView.state" \
+              --output tsv)
+
+            echo "Status: $STATUS"
+
+            if [[ "$STATUS" == "Succeeded" ]]; then
+              echo "Deployment completed successfully"
+              break
+            elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+              echo "Deployment failed. Logs:"
+              az container logs --resource-group "$RESOURCE_GROUP" --name "$ACI_NAME"
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          # Get logs regardless of status
+          echo "Final container logs:"
+          az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+
+          # Fail if not succeeded
+          if [[ "$STATUS" != "Succeeded" ]]; then
+            echo "Timeout reached - deployment did not complete"
+            exit 1
+          fi
+
+      - name: Cleanup resources
+        if: always()
+        run: |
+          # Delete ACI
+          az container delete \
+            --resource-group $RESOURCE_GROUP \
+            --name $ACI_NAME \
+            --yes || echo "ACI cleanup failed"
+
+          # Delete storage account
+          az storage account delete \
+            --name $STORAGE_ACCOUNT \
+            --resource-group $RESOURCE_GROUP \
+            --yes || echo "Storage account cleanup failed"

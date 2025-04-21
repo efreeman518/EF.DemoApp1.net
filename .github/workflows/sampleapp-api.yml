@@ -49,6 +49,7 @@ jobs:
       - name: Zip published output
         run: zip -r ${{ env.ZIP_NAME }} publish_output
 
+        #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -102,7 +103,7 @@ jobs:
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ secrets.MANUAL_APPROVAL_PAT }} #must use PAT for user-owned repos; org-owned repos possibly can use ${{ github.token }}
+          secret: ${{ secrets.MANUAL_APPROVAL_PAT }} #must use PAT for user-owned repos (Repo Issues & Workflows access); org-owned repos possibly can use ${{ github.token }}
           approvers: efreeman518  # <-- Replace with actual GitHub usernames
           minimum-approvals: 1
           exclude-workflow-initiator-as-approver: false

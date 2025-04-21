@@ -1,0 +1,95 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy SampleApp.Gateway to Azure Web App - api-gateway-dev1
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+
+env:
+  DOTNET_VERSION: '9.x'
+  AZURE_STATIC_WEBAPP_NAME: 'blazorui-sampleapp-dev1'
+  AZURE_RESOURCE_GROUP: 'rg-dev1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
+
+      - name: Build
+        run: dotnet build ./SampleApp.UI1/SampleApp.UI1.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sampleappui1-artifact
+          path: publish
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: ${{ github.event.inputs.environment }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sampleappui1-artifact
+          path: .
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+        # These are created manually in Github repo secrets (manual EntraID appreg for deployment with OIDC federated credentials))
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install Azure CLI Static Web Apps extension
+        run: az extension add --name 'webapp'
+
+      - name: Deploy using Azure CLI
+        run: |
+          az staticwebapp upload \
+            --name ${{ env.AZURE_STATIC_WEBAPP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --source ./publish/wwwroot
+
+      #does not yet support federated OIDC credentials, so install az extension and as staticwebapp upload
+      # - name: Deploy to Azure Static Web App
+      #   id: deploy-to-webapp
+      #   uses: azure/static-web-apps-deploy@v1
+      #   with:
+      #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+      #     slot-name: 'Production'
+      #     package: .
+          
