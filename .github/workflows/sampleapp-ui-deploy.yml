@@ -93,7 +93,7 @@ jobs:
           #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
       
       - name: Unzip artifact
-        run: unzip ./artifact.zip -d wwwroot
+        run: unzip artifact/artifact.zip -d wwwroot
       
       - name: Install OIDC Client
         run: npm install @actions/core@1.6.0 @actions/http-client
