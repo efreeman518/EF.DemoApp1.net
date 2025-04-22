@@ -40,6 +40,15 @@ jobs:
             return await coredemo.getIDToken()
           result-encoding: string
       
+      #debug
+      - name: List files (Debug)
+        run: ls -R wwwroot
+
+      - name: Validate wwwroot Structure
+        run: |
+          [ -f wwwroot/index.html ] || (echo "index.html missing!" && exit 1)
+          [ -d wwwroot/_framework ] || (echo "_framework folder missing!" && exit 1)
+
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
       - name: Deploy to Dev
         uses: Azure/static-web-apps-deploy@v1
@@ -51,7 +60,8 @@ jobs:
           skip_api_build: true
           app_location: "wwwroot"
           api_location: ""
-          output_location: "wwwroot" # Built app content directory - optional
+          verbose: true 
+          #output_location: "wwwroot" # Built app content directory - optional
           #github_id_token: ${{ steps.idtoken.outputs.result }}
           #deployment_environment: dev
           #environment_name: "dev"
