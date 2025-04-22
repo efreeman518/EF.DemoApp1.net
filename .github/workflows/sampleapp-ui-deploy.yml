@@ -56,6 +56,10 @@ jobs:
       #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
       #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
       #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
 
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
       - name: Deploy Dev Step
@@ -66,7 +70,7 @@ jobs:
           action: "upload"
           skip_app_build: true
           skip_api_build: true
-          app_location: "./wwwroot/"
+          app_location: "wwwroot/"
           api_location: ""
 
   deploy_prod:
