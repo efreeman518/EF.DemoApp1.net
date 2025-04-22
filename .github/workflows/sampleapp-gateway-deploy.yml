@@ -35,15 +35,16 @@ jobs:
           echo "github.event.workflow_run.id = ${{ github.event.workflow_run.id }}" 
           echo "github.repository = ${{ github.repository }}"
           echo "secrets.GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}"
-                
+          echo "github.event.inputs.environment = ${{ github.event.inputs.environment }}"
+          echo "steps.deploy-to-webapp.outputs.webapp-url = ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: artifact
           path: ./artifact
-          run-id: ${{ github.event.workflow_run.id }}
-          repository: ${{ github.repository }} 
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          #run-id: ${{ github.event.workflow_run.id }}
+          #repository: ${{ github.repository }} 
+          #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
