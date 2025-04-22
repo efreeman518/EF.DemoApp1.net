@@ -32,10 +32,11 @@ jobs:
   #         result-encoding: string
 
   deploy_dev:
+    name: Deploy to Dev
     # needs: check_build
     # if: needs.check_build.outputs.build_success == 'true'
+    environment: dev
     runs-on: ubuntu-latest
-    name: Deploy to Dev
     permissions:
       id-token: write
       contents: read
@@ -46,7 +47,6 @@ jobs:
           name: artifact
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
-          repository: ${{ github.repository }} 
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
       - name: Unzip artifact
