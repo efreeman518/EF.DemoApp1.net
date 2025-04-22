@@ -7,30 +7,6 @@ on:
       - completed
 
 jobs:
-  # check_build:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     build_success: ${{ steps.check_build_status.outputs.build_success }}
-    
-  #   steps:
-  #     - name: Check build status
-  #       id: check_build_status
-  #       uses: actions/github-script@v6
-  #       with:
-  #         script: |
-  #           const workflowRun = await github.rest.actions.getWorkflowRun({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             run_id: context.payload.workflow_run.id,
-  #           });
-            
-  #           if (workflowRun.data.conclusion !== 'success') {
-  #             core.setFailed('The build did not succeed');
-  #             return {build_success: false};
-  #           }
-  #           return {build_success: true};
-  #         result-encoding: string
-
   deploy_dev:
     name: Deploy to Dev
     # needs: check_build
@@ -68,12 +44,12 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
-          #azure_static_web_apps_api_token: "bc4b810fd460008d055a94e59c824e070443282930f07fcfa30b6c41680f3f4106-c521757a-9c57-428a-894e-a125a9d1f4b900f06230b8907a0f"
-          #github_id_token: ${{ steps.idtoken.outputs.result }}
           action: "upload"
           app_location: "wwwroot"
-          #output_location: "wwwroot" # Built app content directory - optional
-          deployment_environment: dev
+          api_location: ""
+          output_location: "wwwroot" # Built app content directory - optional
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          #deployment_environment: dev
           #environment_name: "dev"
 
   deploy_prod:
@@ -97,17 +73,17 @@ jobs:
       - name: Unzip artifact
         run: unzip artifact/artifact.zip -d wwwroot
       
-      - name: Install OIDC Client
-        run: npm install @actions/core@1.6.0 @actions/http-client
+      # - name: Install OIDC Client
+      #   run: npm install @actions/core@1.6.0 @actions/http-client
       
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
-        with:
-          script: |
-            const coredemo = require('@actions/core')
-            return await coredemo.getIDToken()
-          result-encoding: string
+      # - name: Get Id Token
+      #   uses: actions/github-script@v6
+      #   id: idtoken
+      #   with:
+      #     script: |
+      #       const coredemo = require('@actions/core')
+      #       return await coredemo.getIDToken()
+      #     result-encoding: string
       
       # - name: Wait for manual approval
       #   uses: trstringer/manual-approval@v1
