@@ -8,6 +8,9 @@ inputs:
   github-run-id:
     description: 'GitHub Run ID for uniqueness'
     required: true
+  github-token:
+    description: 'GitHub token for accessing artifacts'
+    required: true
   environment:
     description: 'Target environment (dev, test, stage, prod)'
     required: true
