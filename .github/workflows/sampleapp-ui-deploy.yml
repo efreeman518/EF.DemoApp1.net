@@ -28,17 +28,17 @@ jobs:
       - name: Unzip artifact
         run: unzip ./artifact/artifact.zip -d wwwroot
       
-      - name: Install OIDC Client
-        run: npm install @actions/core@1.6.0 @actions/http-client
+      # - name: Install OIDC Client
+      #   run: npm install @actions/core@1.6.0 @actions/http-client
       
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
-        with:
-          script: |
-            const coredemo = require('@actions/core')
-            return await coredemo.getIDToken()
-          result-encoding: string
+      # - name: Get Id Token
+      #   uses: actions/github-script@v6
+      #   id: idtoken
+      #   with:
+      #     script: |
+      #       const coredemo = require('@actions/core')
+      #       return await coredemo.getIDToken()
+      #     result-encoding: string
       
       #debug
       - name: List files (Debug)
@@ -55,7 +55,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
           action: "upload"
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          #repo_token: ${{ secrets.GITHUB_TOKEN }}
           skip_app_build: true
           skip_api_build: true
           app_location: "wwwroot"
