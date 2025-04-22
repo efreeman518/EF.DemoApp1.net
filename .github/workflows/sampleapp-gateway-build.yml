@@ -60,9 +60,9 @@ jobs:
         with:
           name: artifact
           path: ./artifact
-          run-id: ${{ github.event.workflow_run.id }}
-          repository: ${{ github.repository }} 
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          #run-id: ${{ github.event.workflow_run.id }}
+          #repository: ${{ github.repository }} 
+          #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
   # deploy:
   #   runs-on: ubuntu-latest
   #   needs: build
