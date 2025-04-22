@@ -1,4 +1,4 @@
-name: Deploy SampleApp.UI1
+﻿name: Deploy SampleApp.UI1
 
 on:
   workflow_run:
@@ -9,15 +9,13 @@ on:
 jobs:
   deploy_dev:
     name: Deploy to Dev
-    # needs: check_build
-    # if: needs.check_build.outputs.build_success == 'true'
     environment: dev
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     steps:
-      - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run � not "the latest" in general.
+      - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
           name: artifact
@@ -27,19 +25,7 @@ jobs:
 
       - name: Unzip artifact
         run: unzip ./artifact/artifact.zip -d wwwroot
-      
-      # - name: Install OIDC Client
-      #   run: npm install @actions/core@1.6.0 @actions/http-client
-      
-      # - name: Get Id Token
-      #   uses: actions/github-script@v6
-      #   id: idtoken
-      #   with:
-      #     script: |
-      #       const coredemo = require('@actions/core')
-      #       return await coredemo.getIDToken()
-      #     result-encoding: string
-      
+
       #debug
       - name: List files (Debug)
         run: ls -R wwwroot
@@ -53,18 +39,13 @@ jobs:
       - name: Deploy to Dev
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
+          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
           action: "upload"
-          #repo_token: ${{ secrets.GITHUB_TOKEN }}
           skip_app_build: true
           skip_api_build: true
           app_location: "wwwroot"
           api_location: ""
           verbose: true 
-          #output_location: "wwwroot" # Built app content directory - optional
-          #github_id_token: ${{ steps.idtoken.outputs.result }}
-          #deployment_environment: dev
-          #environment_name: "dev"
 
   deploy_prod:
     environment: prod
@@ -84,6 +65,10 @@ jobs:
           repository: ${{ github.repository }} 
           #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
       
+      - name: Check if artifact.zip exists
+        run: |
+          [ -f ./artifact/artifact.zip ] || (echo "❌ artifact.zip not found!" && exit 1)
+
       - name: Unzip artifact
         run: unzip artifact/artifact.zip -d wwwroot
       
@@ -109,10 +94,10 @@ jobs:
       - name: Deploy to Prod
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F_PROD }}
+          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
           action: "upload"
           app_location: "wwwroot"
-          github_id_token: ${{ steps.idtoken.outputs.result }}
+          #github_id_token: ${{ steps.idtoken.outputs.result }}
           environment_name: "prod"
 
 
@@ -152,7 +137,7 @@ jobs:
 #         id: builddeploy
 #         uses: Azure/static-web-apps-deploy@v1
 #         with:
-#           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_0B8907A0F }}
+#           azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
 #           action: "upload"
 #           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
 #           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig

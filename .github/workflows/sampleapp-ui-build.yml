@@ -36,9 +36,10 @@ jobs:
 
       - name: Restore, build, and publish
         run: |
-          dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
-          dotnet build ./SampleApp.UI1/SampleApp.UI1.csproj --configuration Release --no-restore
-          dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-build --nologo
+          # dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
+          # dotnet build ./SampleApp.UI1/SampleApp.UI1.csproj --configuration Release --no-restore
+          # dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-build --nologo
+          dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish
 
       - name: Zip artifact
         run: | 
