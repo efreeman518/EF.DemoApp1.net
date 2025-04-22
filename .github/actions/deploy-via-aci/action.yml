@@ -11,6 +11,9 @@ inputs:
   github-token:
     description: 'GitHub token for accessing artifacts'
     required: true
+  artifact-path:
+    description: 'Path to the downloaded artifact to be deployed'
+    required: true
   environment:
     description: 'Target environment (dev, test, stage, prod)'
     required: true
@@ -45,14 +48,14 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: artifact
-        path: ./artifact
-        run-id: ${{ inputs.github-run-id }}
-        #repository: ${{ github.repository }} 
-        github-token: ${{ inputs.github-token }} # Use GITHUB_TOKEN for the current repo
+    # - name: Download artifact
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: artifact
+    #     path: ./artifact
+    #     run-id: ${{ inputs.github-run-id }}
+    #     #repository: ${{ github.repository }} 
+    #     github-token: ${{ inputs.github-token }} # Use GITHUB_TOKEN for the current repo
 
     - name: Azure Login with OIDC
       uses: azure/login@v2
@@ -86,18 +89,18 @@ runs:
         az storage blob upload \
           --connection-string "$CONNECTION_STRING" \
           --container-name deploy \
-          --file ./artifact/${ZIP_NAME} \
-          --name ${ZIP_NAME}
+          --file ./artifact/artifact.zip \
+          --name artifact.zip
 
         SAS_TOKEN=$(az storage blob generate-sas \
           --account-name $STORAGE_ACCOUNT \
           --container-name deploy \
-          --name ${ZIP_NAME} \
+          --name artifact.zip \
           --permissions r \
           --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
           --output tsv)
 
-        echo "ZIP_URL=https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/${ZIP_NAME}?${SAS_TOKEN}" >> $GITHUB_ENV
+        echo "ZIP_URL=https://${STORAGE_ACCOUNT}.blob.core.windows.net/deploy/artifact.zip?${SAS_TOKEN}" >> $GITHUB_ENV
 
     - name: Deploy via ACI
       shell: bash

@@ -68,11 +68,14 @@ jobs:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
 
-      # - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: artifact
-      #     path: ./artifact
+        # download here and pass in to action
+        # actions/download-artifact cannot be used inside composite actions if you're trying to access artifacts from another workflow run (via run-id and repository)
+      - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          path: ./artifact
+          run-id: ${{ github.event.workflow_run.id }}
       
       - name: debug
         run: |
@@ -89,6 +92,7 @@ jobs:
         with:
           github-run-id: ${{ github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          artifact-path: ./artifact
           environment: dev
           resource-group: ${{ vars.RESOURCE_GROUP }}
           region: ${{ env.REGION }}
