@@ -96,7 +96,7 @@ jobs:
           artifact-path: ./artifact
           environment: dev
           resource-group: ${{ vars.RESOURCE_GROUP }}
-          region: ${{ env.REGION }}
+          region: ${{ vars.REGION }}
           identity-resource-id: ${{ vars.IDENTITY_RESOURCE_ID }}
           aci-vnet: ${{ vars.ACI_VNET }}
           aci-subnet: ${{ vars.ACI_SUBNET }}
