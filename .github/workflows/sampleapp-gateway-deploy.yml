@@ -37,6 +37,7 @@ jobs:
           echo "secrets.GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}"
           echo "github.event.inputs.environment = ${{ github.event.inputs.environment }}"
           echo "steps.deploy-to-webapp.outputs.webapp-url = ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
+          echo "vars.APP_SERVICE_NAME_GATEWAY = ${{ vars.APP_SERVICE_NAME_GATEWAY }}"
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
