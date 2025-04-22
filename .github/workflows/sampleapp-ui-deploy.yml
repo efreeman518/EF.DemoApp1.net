@@ -8,13 +8,15 @@ on:
 
 jobs:
   deploy_dev:
-    name: Deploy to Dev
+    name: Deploy Dev Job
     environment: dev
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     steps:
+      
+
       - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
@@ -22,6 +24,10 @@ jobs:
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+
+      - name: Check if artifact.zip exists
+        run: |
+          [ -f ./artifact/artifact.zip ] || (echo "❌ artifact.zip not found!" && exit 1)
 
       - name: Unzip artifact
         run: unzip ./artifact/artifact.zip -d wwwroot
@@ -34,9 +40,20 @@ jobs:
         run: |
           [ -f wwwroot/index.html ] || (echo "index.html missing!" && exit 1)
           [ -d wwwroot/_framework ] || (echo "_framework folder missing!" && exit 1)
+      
+      - name: Validate deployment token exists
+        run: |
+          if [ -z "${DEPLOYMENT_TOKEN}" ]; then
+            echo "❌ Deployment token is missing or empty!"
+            exit 1
+          else
+            echo "✅ Deployment token is set."
+          fi
+        env:
+          DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
 
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
-      - name: Deploy to Dev
+      - name: Deploy Dev Step
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
@@ -45,13 +62,12 @@ jobs:
           skip_api_build: true
           app_location: "wwwroot"
           api_location: ""
-          verbose: true 
 
   deploy_prod:
     environment: prod
     needs: deploy_dev
     runs-on: ubuntu-latest
-    name: Deploy to Prod
+    name: Deploy Prod Job
     permissions:
       id-token: write
       contents: read
@@ -91,7 +107,7 @@ jobs:
       #     approvers: <YOUR_TEAM_MEMBERS_HERE>
       #     minimum-approvals: 1
       
-      - name: Deploy to Prod
+      - name: Deploy Prod Step
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
