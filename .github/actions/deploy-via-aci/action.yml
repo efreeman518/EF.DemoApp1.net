@@ -48,7 +48,7 @@ runs:
         name: artifact
         path: ./artifact
         run-id: ${{ inputs.github-run-id }}
-        repository: ${{ github.repository }} 
+        #repository: ${{ github.repository }} 
         github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
     - name: Azure Login with OIDC
