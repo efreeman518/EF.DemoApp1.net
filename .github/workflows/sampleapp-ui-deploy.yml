@@ -62,11 +62,11 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integration (optional)
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integration (issues, optional)
           action: "upload"
           skip_app_build: true
           skip_api_build: true
-          app_location: "./wwwroot"
+          app_location: "./wwwroot/"
           api_location: ""
 
   deploy_prod:
