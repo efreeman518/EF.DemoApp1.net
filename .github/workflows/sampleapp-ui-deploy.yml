@@ -40,6 +40,7 @@ jobs:
             return await coredemo.getIDToken()
           result-encoding: string
       
+      #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
       - name: Deploy to Dev
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -50,8 +51,8 @@ jobs:
           skip_api_build: true
           app_location: "wwwroot"
           api_location: ""
-          #output_location: "wwwroot" # Built app content directory - optional
-          github_id_token: ${{ steps.idtoken.outputs.result }}
+          output_location: "wwwroot" # Built app content directory - optional
+          #github_id_token: ${{ steps.idtoken.outputs.result }}
           #deployment_environment: dev
           #environment_name: "dev"
 
