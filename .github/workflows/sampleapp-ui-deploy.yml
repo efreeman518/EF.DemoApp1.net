@@ -15,8 +15,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-      
-
       - name: Download build artifact #The deploy script downloads the artifact from the specific triggering build run — not "the latest" in general.
         uses: actions/download-artifact@v4
         with:
@@ -33,8 +31,8 @@ jobs:
         run: unzip ./artifact/artifact.zip -d wwwroot
 
       #debug
-      - name: List files (Debug)
-        run: ls -R wwwroot
+      # - name: List files (Debug)
+      #   run: ls -R wwwroot
 
       - name: Validate wwwroot Structure
         run: |
@@ -52,16 +50,23 @@ jobs:
         env:
           DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
 
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
       - name: Deploy Dev Step
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          #azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
           action: "upload"
           skip_app_build: true
           skip_api_build: true
           app_location: "wwwroot"
-          api_location: ""
+          #api_location: ""
 
   deploy_prod:
     environment: prod
