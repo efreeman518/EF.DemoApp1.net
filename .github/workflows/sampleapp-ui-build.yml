@@ -41,7 +41,11 @@ jobs:
           dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-build --nologo
 
       - name: Zip artifact
-        run: zip -r artifact.zip publish/wwwroot
+        run: | 
+          #zip -r artifact.zip publish/wwwroot
+          cd publish/wwwroot  # Move into the wwwroot directory
+          zip -r ../../artifact.zip .  # Zip all files inside (not the folder)
+          cd ../..  # Return to the original directory
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
