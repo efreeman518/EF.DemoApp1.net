@@ -76,6 +76,7 @@ jobs:
           name: artifact
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
       
       - name: debug
         run: |
