@@ -73,7 +73,7 @@ jobs:
           action: "upload"
           app_location: "wwwroot"
           #output_location: "wwwroot" # Built app content directory - optional
-          deployment_environment: production
+          deployment_environment: dev
           #environment_name: "dev"
 
   deploy_prod:
