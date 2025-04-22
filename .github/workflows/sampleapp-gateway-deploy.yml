@@ -9,22 +9,20 @@ on:
     types:
       - completed
 
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select environment
-        required: true
-        options:
-          - dev
-          - prod
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       type: choice
+  #       description: Select environment
+  #       required: true
+  #       options:
+  #         - dev
+  #         - prod
 
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.event.inputs.environment }}
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    environment: dev
     permissions:
       id-token: write
       contents: read
@@ -43,9 +41,9 @@ jobs:
         with:
           name: artifact
           path: ./artifact
-          #run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id }}
           #repository: ${{ github.repository }} 
-          #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -70,9 +68,7 @@ jobs:
   deploy-prod:
     needs: deploy-dev
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.event.inputs.environment }}
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    environment: prod
     permissions:
       id-token: write
       contents: read
