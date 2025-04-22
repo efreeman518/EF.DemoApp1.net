@@ -45,9 +45,11 @@ jobs:
         with:
           name: artifact
           path: ./artifact
-      
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }} 
+
       - name: Unzip artifact
-        run: unzip ./artifact/sampleappui1.zip -d wwwroot
+        run: unzip ./artifact.zip -d wwwroot
       
       - name: Install OIDC Client
         run: npm install @actions/core@1.6.0 @actions/http-client
@@ -86,10 +88,10 @@ jobs:
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }} 
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
       
       - name: Unzip artifact
-        run: unzip sampleappui1.zip -d wwwroot
+        run: unzip artifact.zip -d wwwroot
       
       - name: Install OIDC Client
         run: npm install @actions/core@1.6.0 @actions/http-client

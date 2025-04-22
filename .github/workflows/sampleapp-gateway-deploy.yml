@@ -37,7 +37,7 @@ jobs:
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }} 
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          #github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -55,7 +55,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: ${{ vars.APP_SERVICE_NAME_GATEWAY }}
           slot-name: 'Production'
           package: ./artifact
 
