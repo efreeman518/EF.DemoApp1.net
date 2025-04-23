@@ -37,14 +37,6 @@ jobs:
           echo "steps.deploy-to-webapp.outputs.webapp-url = ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
           echo "vars.APP_SERVICE_NAME_GATEWAY = ${{ vars.APP_SERVICE_NAME_GATEWAY }}"
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: artifact
-          path: ./artifact
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
-
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
@@ -53,11 +45,22 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          path: .
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+
+      - name: List contents for debug
+        run: unzip -l artifact.zip
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.APP_SERVICE_NAME_UI }}
-          package: ./artifact/artifact.zip
+          package: artifact.zip
 
   deploy-prod:
     needs: deploy-dev
