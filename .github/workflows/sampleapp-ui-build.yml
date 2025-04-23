@@ -42,7 +42,7 @@ jobs:
         run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
 
       - name: Publish (includes build)
-        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
+        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore --p:BlazorCacheBootResources=true
       
       - name: Zip published wwwroot
         run: |

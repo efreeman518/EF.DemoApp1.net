@@ -53,18 +53,31 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
-      - name: List .zip contents for debug
-        run: unzip -l ./artifact/artifact.zip
+      # - name: List .zip contents for debug
+      #   run: unzip -l ./artifact/artifact.zip
 
-      - name: Extract artifact.zip
+      - name: Extract artifact.zip & replace settings
         run: |
           mkdir deploy
           unzip ./artifact/artifact.zip -d deploy
-
-      - name: List contents of deploy folder for debug
+      
+      - name: Remove dev config from deploy
         run: |
-          echo "Listing files in ./deploy:"
-          ls -R ./deploy
+          rm -f ./deploy/wwwroot/appsettings.Development.json
+
+      - name: Replace environment specific appsettings.json placeholders
+        run: |
+          if [ ! -f ./deploy/wwwroot/appsettings.json ]; then
+            echo "appsettings.json not found in deploy/wwwroot"; exit 1;
+          fi
+          sed -i 's|__SETTINGS_AZUREB2C_CLIENTID__|${{ vars.SETTINGS_AZUREB2C_CLIENTID }}|g' "./deploy/wwwroot/appsettings.json"
+          sed -i 's|__SETTINGS_GATEWAY_BASEURL__|${{ vars.SETTINGS_GATEWAY_BASEURL }}|g' "./deploy/wwwroot/appsettings.json"
+          sed -i 's|__SETTINGS_GATEWAY_SCOPE1__|${{ vars.SETTINGS_GATEWAY_SCOPE1 }}|g' "./deploy/wwwroot/appsettings.json"
+
+      # - name: List contents of deploy folder for debug
+      #   run: |
+      #     echo "Listing files in ./deploy:"
+      #     ls -R ./deploy
 
       - name: Upload to Azure Storage (using OIDC)
         run: |
@@ -74,6 +87,17 @@ jobs:
             --source ./deploy \
             --overwrite \
             --auth-mode login
+            #--only-show-errors
+
+      #Purge CDN
+      # - name: Purge Azure CDN endpoint cache
+      #   run: |
+      #     az cdn endpoint purge \
+      #       --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+      #       --profile-name ${{ vars.CDN_PROFILE_NAME }} \
+      #       --name ${{ vars.CDN_ENDPOINT_NAME }} \
+      #       --content-paths '/*' \
+      #       --only-show-errors
 
   deploy-prod:
     needs: deploy-dev
