@@ -49,20 +49,31 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: artifact
-          path: .
+          path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
-      - name: List contents for debug
-        run: unzip -l artifact.zip
+      - name: List .zip contents for debug
+        run: unzip -l ./artifact/artifact.zip
 
-      - name: Deploy to Azure Web App via AZ CLI
+      - name: Extract artifact.zip
         run: |
-          az webapp deploy \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --name ${{ vars.APP_SERVICE_NAME_UI }} \
-            --src-path artifact.zip \
-            --type zip
+          mkdir deploy
+          unzip ./artifact/artifact.zip -d deploy
+
+      - name: List contents of deploy folder for debug
+        run: |
+          echo "Listing files in ./deploy:"
+          ls -R ./deploy
+
+      - name: Upload to Azure Storage (using OIDC)
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
+            --destination \$web \
+            --source ./deploy \
+            --overwrite \
+            --auth-mode login
 
   deploy-prod:
     needs: deploy-dev
@@ -89,10 +100,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ vars.APP_SERVICE_NAME_UI }}
-          slot-name: 'Production'
-          package: ./artifact/artifact.zip
+      - name: Upload to Azure Storage (using OIDC)
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
+            --destination \$web \
+            --source ./deploy \
+            --overwrite \
+            --auth-mode login
