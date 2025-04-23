@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build SampleApp.Gateway
+name: Build SampleApp.UI
 
 on:
   # push:
@@ -37,13 +37,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-     
-      - name: Restore 
-        run: dotnet restore ./SampleApp.Gateway/SampleApp.Gateway.csproj
+
+      - name: Restore
+        run: dotnet restore ./SampleApp.UI/SampleApp.UI.csproj
 
       - name: Publish (includes build)
-        run: dotnet publish ./SampleApp.Gateway/SampleApp.Gateway.csproj -c Release -o publish --no-restore
-        
+        run: dotnet publish ./SampleApp.UI/SampleApp.UI.csproj -c Release -o publish --no-restore
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

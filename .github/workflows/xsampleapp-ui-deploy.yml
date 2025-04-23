@@ -1,4 +1,4 @@
-﻿name: Deploy SampleApp.UI1
+﻿name: Deprecated Deploy SampleApp.UI1
 
 on:
   workflow_run:

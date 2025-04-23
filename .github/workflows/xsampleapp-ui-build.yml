@@ -1,4 +1,4 @@
-name: Build SampleApp.UI1
+name: Deprecated Build SampleApp.UI1
 
 on:
   # push:
