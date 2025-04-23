@@ -49,7 +49,7 @@ jobs:
 
       - name: Run unit tests
         id: unit-tests-step
-        run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx" --no-build --no-restore
+        run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx" 
 
       - name: Generate HTML report
         run: |
