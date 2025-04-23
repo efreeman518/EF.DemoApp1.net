@@ -43,13 +43,13 @@ jobs:
 
       - name: Remove environment-only config files
         run: |
-          rm -f ./SampleApp.UI1/wwwroot/appsettings.Deployment.json
+          rm -f ./SampleApp.UI1/wwwroot/appsettings.Development.json
 
       - name: Replace environment-specific appsettings.json placeholders
         run: |
-          sed -i 's|__SETTINGS_AZUREB2C_CLIENTID__|${{ vars.SETTINGS_AZUREB2C_CLIENTID }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
-          sed -i 's|__SETTINGS_GATEWAY_BASEURL__|${{ vars.SETTINGS_GATEWAY_BASEURL }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
-          sed -i 's|__SETTINGS_GATEWAY_SCOPE1__|${{ vars.SETTINGS_GATEWAY_SCOPE1 }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i "s#__SETTINGS_AZUREB2C_CLIENTID__#${{ vars.SETTINGS_AZUREB2C_CLIENTID }}#g" ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i "s#__SETTINGS_GATEWAY_BASEURL__#${{ vars.SETTINGS_GATEWAY_BASEURL }}#g" ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i "s#__SETTINGS_GATEWAY_SCOPE1__#${{ vars.SETTINGS_GATEWAY_SCOPE1 }}#g" ./SampleApp.UI1/wwwroot/appsettings.json
 
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore

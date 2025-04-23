@@ -56,7 +56,7 @@ jobs:
       # - name: List .zip contents for debug
       #   run: unzip -l ./artifact/artifact.zip
 
-      - name: Extract artifact.zip & replace settings
+      - name: Extract artifact.zip
         run: |
           mkdir deploy
           unzip ./artifact/artifact.zip -d deploy
