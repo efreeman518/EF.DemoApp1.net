@@ -44,6 +44,10 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore --p:BlazorCacheBootResources=true
       
+      - name: Remove Development config before packaging
+        run: |
+          rm -f ./publish/wwwroot/appsettings.Development.json
+
       - name: Zip published wwwroot
         run: |
           cd publish/wwwroot
