@@ -56,11 +56,13 @@ jobs:
       - name: List contents for debug
         run: unzip -l artifact.zip
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ vars.APP_SERVICE_NAME_UI }}
-          package: artifact.zip
+      - name: Deploy to Azure Web App via AZ CLI
+        run: |
+          az webapp deploy \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name ${{ vars.APP_SERVICE_NAME_UI }} \
+            --src-path artifact.zip \
+            --type zip
 
   deploy-prod:
     needs: deploy-dev
