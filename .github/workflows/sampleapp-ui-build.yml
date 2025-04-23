@@ -43,6 +43,14 @@ jobs:
 
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
+      
+      - name: Zip wwwroot contents
+        run: |
+          mkdir deploy
+          cp -r publish/wwwroot/* deploy/
+          cd deploy
+          zip -r ../artifact.zip .
+          cd ..
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

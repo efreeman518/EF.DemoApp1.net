@@ -54,12 +54,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.APP_SERVICE_NAME_UI }}
-          slot-name: 'Production'
-          package: ./artifact
+          package: artifact.zip
 
   deploy-prod:
     needs: deploy-dev
