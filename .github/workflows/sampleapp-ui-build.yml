@@ -24,6 +24,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: dev
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     permissions:
@@ -45,18 +46,19 @@ jobs:
         run: |
           rm -f ./SampleApp.UI1/wwwroot/appsettings.Development.json
 
-      - name: Debug - echo out config values
+      - name: Replace appsettings.json placeholders
+        env:
+          CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
+          BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
+          SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
         run: |
-          echo "ClientId: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}"
-          echo "BaseUrl: ${{ vars.SETTINGS_GATEWAY_BASEURL }}"
-          echo "Scope: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}"
+          sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./SampleApp.UI1/wwwroot/appsettings.json
 
-      - name: Replace environment-specific appsettings.json placeholders
-        run: |
-          sed -i 's/__SETTINGS_AZUREB2C_CLIENTID__/${{ vars.SETTINGS_AZUREB2C_CLIENTID }}/g' ./SampleApp.UI1/wwwroot/appsettings.json
-          sed -i 's/__SETTINGS_GATEWAY_BASEURL__/${{ vars.SETTINGS_GATEWAY_BASEURL }}/g' ./SampleApp.UI1/wwwroot/appsettings.json
-          sed -i 's/__SETTINGS_GATEWAY_SCOPE1__/${{ vars.SETTINGS_GATEWAY_SCOPE1 }}/g' ./SampleApp.UI1/wwwroot/appsettings.json
-
+      #debug
+      - name: Output substituted config
+        run: cat ./SampleApp.UI1/wwwroot/appsettings.json
 
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
