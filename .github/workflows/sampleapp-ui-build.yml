@@ -39,10 +39,10 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore
-        run: dotnet restore ./SampleApp.UI/SampleApp.UI.csproj
+        run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
 
       - name: Publish (includes build)
-        run: dotnet publish ./SampleApp.UI/SampleApp.UI.csproj -c Release -o publish --no-restore
+        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
