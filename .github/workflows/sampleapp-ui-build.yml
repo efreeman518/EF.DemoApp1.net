@@ -41,12 +41,18 @@ jobs:
       - name: Restore
         run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
 
-      - name: Publish (includes build)
-        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore --p:BlazorCacheBootResources=true
-      
-      - name: Remove Development config before packaging
+      - name: Remove environment-only config files
         run: |
-          rm -f ./publish/wwwroot/appsettings.Development.json
+          rm -f ./SampleApp.UI1/wwwroot/appsettings.Deployment.json
+
+      - name: Replace environment-specific appsettings.json placeholders
+        run: |
+          sed -i 's|__SETTINGS_AZUREB2C_CLIENTID__|${{ vars.SETTINGS_AZUREB2C_CLIENTID }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i 's|__SETTINGS_GATEWAY_BASEURL__|${{ vars.SETTINGS_GATEWAY_BASEURL }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
+          sed -i 's|__SETTINGS_GATEWAY_SCOPE1__|${{ vars.SETTINGS_GATEWAY_SCOPE1 }}|g' ./SampleApp.UI1/wwwroot/appsettings.json
+
+      - name: Publish (includes build)
+        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
       - name: Zip published wwwroot
         run: |

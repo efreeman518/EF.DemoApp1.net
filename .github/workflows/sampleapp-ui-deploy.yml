@@ -61,15 +61,6 @@ jobs:
           mkdir deploy
           unzip ./artifact/artifact.zip -d deploy
 
-      - name: Replace environment specific appsettings.json placeholders
-        run: |
-          if [ ! -f ./deploy/appsettings.json ]; then
-            echo "appsettings.json not found in deploy/wwwroot"; exit 1;
-          fi
-          sed -i 's|__SETTINGS_AZUREB2C_CLIENTID__|${{ vars.SETTINGS_AZUREB2C_CLIENTID }}|g' "./deploy/appsettings.json"
-          sed -i 's|__SETTINGS_GATEWAY_BASEURL__|${{ vars.SETTINGS_GATEWAY_BASEURL }}|g' "./deploy/appsettings.json"
-          sed -i 's|__SETTINGS_GATEWAY_SCOPE1__|${{ vars.SETTINGS_GATEWAY_SCOPE1 }}|g' "./deploy/appsettings.json"
-
       # - name: List contents of deploy folder for debug
       #   run: |
       #     echo "Listing files in ./deploy:"
