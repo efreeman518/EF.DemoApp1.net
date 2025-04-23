@@ -44,10 +44,13 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
       
-      - name: Zip wwwroot contents
+      - name: Prepare deploy folder
         run: |
           mkdir deploy
           cp -r publish/wwwroot/* deploy/
+
+      - name: Zip the contents
+        run: |
           cd deploy
           zip -r ../artifact.zip .
           cd ..
