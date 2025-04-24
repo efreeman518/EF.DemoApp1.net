@@ -63,16 +63,16 @@ jobs:
         run: |
           cd publish/wwwroot
           # Delete all appsettings.*.json files except appsettings.json
-          find . -type f \( -name 'appsettings.*.json' ! -name 'appsettings.json' \) -delete
+          find . -type f -name 'appsettings.*.json' -delete
 
           # Delete compressed versions
-          find . -type f \( -name 'appsettings.*.json.gz' \) -delete
-          find . -type f \( -name 'appsettings.*.json.br' \) -delete
+          find . -type f -name 'appsettings.*.json.gz' -delete
+          find . -type f -name 'appsettings.*.json.br' -delete
 
           # Optional: Also remove from _framework if present
-          find ./_framework -type f \( -name 'appsettings.*.json*' ! -name 'appsettings.json' \) -delete
-          find ./_framework -type f \( -name 'appsettings.*.json.gz' \) -delete
-          find ./_framework -type f \( -name 'appsettings.*.json.br' \) -delete
+          find ./_framework -type f -name 'appsettings.*.json*' -delete
+          find ./_framework -type f -name 'appsettings.*.json.gz'  -delete
+          find ./_framework -type f -name 'appsettings.*.json.br'  -delete
 
           # rm -f ./SampleApp.UI1/wwwroot/appsettings.Development.json
           # # Delete appsettings.Development.json.br and appsettings.Development.json.gz
