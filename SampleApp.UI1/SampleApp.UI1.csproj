@@ -32,9 +32,9 @@
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
-  <!-- Blazor publish doesn't consider appsettings.json so force it-->
+  <!-- Blazor publish doesn't consider appsettings.json so force it
   <Target Name="CopyAppSettingsToWwwroot" AfterTargets="Publish">
     <Copy SourceFiles="wwwroot\appsettings.json" DestinationFolder="$(PublishDir)wwwroot\" />
   </Target>
-
+  -->
 </Project>

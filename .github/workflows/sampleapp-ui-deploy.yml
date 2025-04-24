@@ -53,13 +53,23 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
 
-      # - name: List .zip contents for debug
-      #   run: unzip -l ./artifact/artifact.zip
+      - name: List .zip contents for debug
+        run: unzip -l ./artifact/artifact.zip
 
       - name: Extract artifact.zip
         run: |
           mkdir deploy
           unzip ./artifact/artifact.zip -d deploy
+
+      - name: Replace appsettings.json placeholders
+        env:
+          CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
+          BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
+          SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
+        run: |
+          sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./deploy/appsettings.json
+          sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./deploy/appsettings.json
+          sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./deploy/appsettings.json
 
       # - name: List contents of deploy folder for debug
       #   run: |
