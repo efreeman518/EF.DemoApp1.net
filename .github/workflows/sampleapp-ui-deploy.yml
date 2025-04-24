@@ -91,7 +91,7 @@ jobs:
         env:
           SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
         run: |
-          swa deploy ./deploy --deployment-token $SWA_CLI_DEPLOYMENT_TOKEN
+          swa deploy ./deploy --deployment-token 8c8bbb0b19ba3e5317baa775bef87bbb9c24c4b7e1405cf0909c551e55e82d2706-29555ba1-80ad-4afc-a398-49a21a8bca4b00f10200d69a4a0f
 
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
