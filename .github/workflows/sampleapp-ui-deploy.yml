@@ -84,24 +84,26 @@ jobs:
       #   run: |
       #     echo "SWA_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}"
 
-      - name: Install SWA CLI
-        run: npm install -g @azure/static-web-apps-cli
+      #Attempt to deploy using SWA CLI - same errors Bad Request from swa
+      # - name: Install SWA CLI
+      #   run: npm install -g @azure/static-web-apps-cli
 
-      - name: Deploy using SWA CLI
-        env:
-          SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-        run: |
-          swa deploy ./deploy --deployment-token 8c8bbb0b19ba3e5317baa775bef87bbb9c24c4b7e1405cf0909c551e55e82d2706-29555ba1-80ad-4afc-a398-49a21a8bca4b00f10200d69a4a0f --env Production
+      # - name: Deploy using SWA CLI
+      #   env:
+      #     SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+      #   run: |
+      #     swa deploy ./deploy --deployment-token ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }} --env Production --verbose --no-cache
 
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
-      # - name: Deploy to Azure Static Web Apps
-      #   uses: Azure/static-web-apps-deploy@v1
-      #   with:
-      #     azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-      #     action: "upload"
-      #     skip_app_build: true
-      #     app_location: "./deploy"  # Ensure this points to the folder containing the static files
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          #azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}  # For issues, PRs; GitHub Actions automatically uses the OIDC token.
+          action: "upload"
+          skip_app_build: true
+          app_location: "./deploy"  # Ensure this points to the folder containing the static files
 
 
       #Azure blob storage hosting
