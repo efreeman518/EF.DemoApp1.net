@@ -90,6 +90,10 @@ jobs:
       #     app_location: "deploy"
 
       #Azure static web apps hosting (using az CLI and OIDC)
+      - name: Install/Update Static Web Apps CLI extension
+        run: |
+          az extension add --name staticwebapp --upgrade
+
       - name: Deploy to Azure Static Web App (using az CLI and OIDC)
         run: |
           az staticwebapp upload \
