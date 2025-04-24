@@ -79,19 +79,24 @@ jobs:
       #     echo "Listing files in ./deploy:"
       #     ls -R ./deploy
 
-      #Azure static web apps hosting
+      #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-          #repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integration (issues, optional)
-          action: "upload"
-          skip_app_build: true
-          #skip_api_build: true
-          app_location: "deploy"
-          #api_location: ""
-          #output_location: "wwwroot"
+      # - name: Deploy to Azure Static Web Apps
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+      #     action: "upload"
+      #     skip_app_build: true
+      #     app_location: "deploy"
+
+      #Azure static web apps hosting (using az CLI and OIDC)
+      - name: Deploy to Azure Static Web App (using az CLI and OIDC)
+        run: |
+          az staticwebapp upload \
+            --name ${{ vars.UI_STATICWEBAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --source ./deploy \
+            --verbose
 
       #Azure blob storage hosting
       # - name: Upload to Azure Storage (using OIDC)
