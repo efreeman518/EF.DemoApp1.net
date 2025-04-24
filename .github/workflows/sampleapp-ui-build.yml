@@ -42,8 +42,26 @@ jobs:
       - name: Restore
         run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
 
-      - name: Remove environment-only and compressed config files
+      # - name: Replace appsettings.json placeholders
+      #   env:
+      #     CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
+      #     BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
+      #     SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
+      #   run: |
+      #     sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./SampleApp.UI1/wwwroot/appsettings.json
+      #     sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./SampleApp.UI1/wwwroot/appsettings.json
+      #     sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./SampleApp.UI1/wwwroot/appsettings.json
+
+      #debug
+      - name: Debug output substituted config
+        run: cat ./SampleApp.UI1/wwwroot/appsettings.json
+
+      - name: Publish (includes build)
+        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
+
+      - name: Remove environment-only and compressed config files, leaving then only appsettings.json for transform in the deploy job
         run: |
+          cd publish/wwwroot
           # Delete all appsettings.*.json files except appsettings.json
           find . -type f \( -name 'appsettings.*.json' ! -name 'appsettings.json' \) -delete
 
@@ -64,22 +82,7 @@ jobs:
           # rm -f ./_framework/appsettings.Development.json.br
           # rm -f ./_framework/appsettings.Development.json.gz
 
-      # - name: Replace appsettings.json placeholders
-      #   env:
-      #     CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
-      #     BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
-      #     SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
-      #   run: |
-      #     sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./SampleApp.UI1/wwwroot/appsettings.json
-      #     sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./SampleApp.UI1/wwwroot/appsettings.json
-      #     sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./SampleApp.UI1/wwwroot/appsettings.json
-
-      #debug
-      - name: Debug output substituted config
-        run: cat ./SampleApp.UI1/wwwroot/appsettings.json
-
-      - name: Publish (includes build)
-        run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
+          cd ../..
 
       - name: Zip published wwwroot
         run: |
