@@ -52,10 +52,6 @@ jobs:
       #     sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./SampleApp.UI1/wwwroot/appsettings.json
       #     sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./SampleApp.UI1/wwwroot/appsettings.json
 
-      #debug
-      - name: Debug output substituted config
-        run: cat ./SampleApp.UI1/wwwroot/appsettings.json
-
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 

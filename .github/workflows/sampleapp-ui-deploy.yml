@@ -71,6 +71,9 @@ jobs:
           sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./deploy/appsettings.json
           sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./deploy/appsettings.json
 
+      #debug
+      - name: Show output substituted config
+        run: cat ./deploy/appsettings.json
       # - name: List contents of deploy folder for debug
       #   run: |
       #     echo "Listing files in ./deploy:"
