@@ -66,10 +66,12 @@ jobs:
           CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
           BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
           SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
+          REDIRECTURI: ${{ vars.SETTINGS_AZUREB2C_REDIRECTURI }}
         run: |
           sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./deploy/appsettings.json
           sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./deploy/appsettings.json
           sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./deploy/appsettings.json
+          sed -i "s|__SETTINGS_AZUREB2C_REDIRECTURI__|$REDIRECTURI|g" ./deploy/appsettings.json
 
       #debug
       - name: Show output substituted config
@@ -85,31 +87,31 @@ jobs:
       #     echo "SWA_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}"
 
       #Another attempt
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
-        with:
-           script: |
-               const coredemo = require('@actions/core')
-               return await coredemo.getIDToken()
-           result-encoding: string
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          #azure_static_web_apps_api_token: 160affb89155b46cbebe33ddb1bd8f61c98c8648ce6405697b2c8363ddd0248306-1375ab0d-4172-414f-b6a0-1908abfc602600f10200d69a4a0f
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          skip_app_build: true
-          app_location: "./deploy" # App source code path
-          api_location: "" # Api source code path - optional
-          #output_location: "dist/angular-basic" # Built app content directory - optional
-          #production_branch: "dev"
-          github_id_token: ${{ steps.idtoken.outputs.result }}
-          ###### End of Repository/Build Configurations ######
+      # - name: Install OIDC Client from Core Package
+      #   run: npm install @actions/core@1.6.0 @actions/http-client
+      # - name: Get Id Token
+      #   uses: actions/github-script@v6
+      #   id: idtoken
+      #   with:
+      #      script: |
+      #          const coredemo = require('@actions/core')
+      #          return await coredemo.getIDToken()
+      #      result-encoding: string
+      # - name: Build And Deploy
+      #   id: builddeploy
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     #azure_static_web_apps_api_token: 160affb89155b46cbebe33ddb1bd8f61c98c8648ce6405697b2c8363ddd0248306-1375ab0d-4172-414f-b6a0-1908abfc602600f10200d69a4a0f
+      #     action: "upload"
+      #     ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+      #     # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+      #     skip_app_build: true
+      #     app_location: "./deploy" # App source code path
+      #     api_location: "" # Api source code path - optional
+      #     #output_location: "dist/angular-basic" # Built app content directory - optional
+      #     #production_branch: "dev"
+      #     github_id_token: ${{ steps.idtoken.outputs.result }}
+      #     ###### End of Repository/Build Configurations ######
 
       #Attempt to deploy using SWA CLI - same errors Bad Request from swa
       # - name: Install SWA CLI
@@ -134,15 +136,15 @@ jobs:
 
 
       #Azure blob storage hosting
-      # - name: Upload to Azure Storage (using OIDC)
-      #   run: |
-      #     az storage blob upload-batch \
-      #       --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
-      #       --destination \$web \
-      #       --source ./deploy \
-      #       --overwrite \
-      #       --auth-mode login
-      #       #--only-show-errors
+      - name: Upload to Azure Storage (using OIDC)
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
+            --destination \$web \
+            --source ./deploy \
+            --overwrite \
+            --auth-mode login
+            #--only-show-errors
 
 
   deploy-prod:

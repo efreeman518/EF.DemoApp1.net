@@ -1,6 +1,6 @@
 html, body {
     background-color: #222;
-    color: aliceblue;
+/*    color: aliceblue;*/
     font-family: Arial, sans-serif;
 }
 
@@ -95,7 +95,7 @@ code {
 
 /* custom */
 .background-light {
-    background: linear-gradient(to bottom, #cfd2ff, #ab9dd2);
+    background: linear-gradient(to bottom, #cfe8f3, #c3baea);
 }
 .background-dark {
     background: linear-gradient(to bottom, #010d36, #1e0057);
