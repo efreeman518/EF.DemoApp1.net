@@ -57,28 +57,29 @@ jobs:
 
       - name: Remove environment-only and compressed config files, leaving then only appsettings.json for transform in the deploy job
         run: |
-          cd publish/wwwroot
-          # Delete all appsettings.*.json files except appsettings.json
-          find . -type f -name 'appsettings.*.json' -delete
+          # cd publish/wwwroot
+          # # Delete all appsettings.*.json files except appsettings.json
+          # find . -type f -name 'appsettings.*.json' -delete
 
-          # Delete compressed versions
-          find . -type f -name 'appsettings.*.json.gz' -delete
-          find . -type f -name 'appsettings.*.json.br' -delete
+          # # Delete compressed versions
+          # find . -type f -name 'appsettings.*.json.gz' -delete
+          # find . -type f -name 'appsettings.*.json.br' -delete
 
-          # Optional: Also remove from _framework if present
-          find ./_framework -type f -name 'appsettings.*.json*' -delete
-          find ./_framework -type f -name 'appsettings.*.json.gz'  -delete
-          find ./_framework -type f -name 'appsettings.*.json.br'  -delete
-
-          # rm -f ./SampleApp.UI1/wwwroot/appsettings.Development.json
-          # # Delete appsettings.Development.json.br and appsettings.Development.json.gz
-          # rm -f appsettings.Development.json.br
-          # rm -f appsettings.Development.json.gz
           # # Optional: Also remove from _framework if present
-          # rm -f ./_framework/appsettings.Development.json.br
-          # rm -f ./_framework/appsettings.Development.json.gz
+          # find ./_framework -type f -name 'appsettings.*.json*' -delete
+          # find ./_framework -type f -name 'appsettings.*.json.gz'  -delete
+          # find ./_framework -type f -name 'appsettings.*.json.br'  -delete
 
-          cd ../..
+          rm -f publish/wwwroot/appsettings.*.json
+          # Delete appsettings.Development.json.br and appsettings.Development.json.gz
+          rm -f publish/wwwroot/appsettings.*.json.gz
+          rm -f publish/wwwroot/appsettings.*.json.br
+          # Optional: Also remove from _framework if present
+          rm -f publish/wwwroot/_framework/appsettings.*.json*
+          rm -f publish/wwwroot/_framework/appsettings.*.json.gz
+          rm -f publish/wwwroot/_framework/appsettings.*.json.br
+
+          # cd ../..
 
       - name: Zip published wwwroot
         run: |
