@@ -74,33 +74,23 @@ jobs:
       #debug
       - name: Show output substituted config
         run: cat ./deploy/appsettings.json
-      # - name: List contents of deploy folder for debug
-      #   run: |
-      #     echo "Listing files in ./deploy:"
-      #     ls -R ./deploy
+
+      - name: List contents of deploy folder for debug
+        run: |
+          echo "Listing files in ./deploy:"
+          ls -R ./deploy
 
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
-      # - name: Deploy to Azure Static Web Apps
-      #   uses: Azure/static-web-apps-deploy@v1
-      #   with:
-      #     azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-      #     action: "upload"
-      #     skip_app_build: true
-      #     app_location: "deploy"
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          action: "upload"
+          skip_app_build: true
+          app_location: "./deploy"  # Ensure this points to the folder containing the static files
+          output_location: "wwwroot"  # Make sure this matches where your built output (e.g., Blazor's wwwroot) is located
 
-      #Azure static web apps hosting (using az CLI and OIDC)
-      - name: Install/Update Static Web Apps CLI extension
-        run: |
-          az extension add --name staticwebapp --upgrade
-
-      - name: Deploy to Azure Static Web App (using az CLI and OIDC)
-        run: |
-          az staticwebapp upload \
-            --name ${{ vars.UI_STATICWEBAPP_NAME }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --source ./deploy \
-            --verbose
 
       #Azure blob storage hosting
       # - name: Upload to Azure Storage (using OIDC)
