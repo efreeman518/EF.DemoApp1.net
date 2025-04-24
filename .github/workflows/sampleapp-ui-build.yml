@@ -55,7 +55,7 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
-      - name: Remove environment-only and compressed config files, leaving then only appsettings.json for transform in the deploy job
+      - name: Remove environment-only and compressed config files, leaving only appsettings.json for transform in the deploy job
         run: |
           # cd publish/wwwroot
           # # Delete all appsettings.*.json files except appsettings.json
@@ -70,11 +70,15 @@ jobs:
           # find ./_framework -type f -name 'appsettings.*.json.gz'  -delete
           # find ./_framework -type f -name 'appsettings.*.json.br'  -delete
 
+          #delete compressed appsettings versions
+          rm -f ./publish/wwwroot/appsettings.json.gz
+          rm -f ./publish/wwwroot/appsettings.json.br
+          rm -f ./publish/wwwroot/_framework/appsettings.json.gz
+          rm -f ./publish/wwwroot/_framework/appsettings.json.br
+          #delete environment based appsettings files
           rm -f ./publish/wwwroot/appsettings.*.json
-          # Delete appsettings.Development.json.br and appsettings.Development.json.gz
           rm -f ./publish/wwwroot/appsettings.*.json.gz
           rm -f ./publish/wwwroot/appsettings.*.json.br
-          # Optional: Also remove from _framework if present
           rm -f ./publish/wwwroot/_framework/appsettings.*.json*
           rm -f ./publish/wwwroot/_framework/appsettings.*.json.gz
           rm -f ./publish/wwwroot/_framework/appsettings.*.json.br
