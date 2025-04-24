@@ -42,34 +42,11 @@ jobs:
       - name: Restore
         run: dotnet restore ./SampleApp.UI1/SampleApp.UI1.csproj
 
-      # - name: Replace appsettings.json placeholders
-      #   env:
-      #     CLIENTID: ${{ vars.SETTINGS_AZUREB2C_CLIENTID }}
-      #     BASEURL: ${{ vars.SETTINGS_GATEWAY_BASEURL }}
-      #     SCOPE1: ${{ vars.SETTINGS_GATEWAY_SCOPE1 }}
-      #   run: |
-      #     sed -i "s|__SETTINGS_AZUREB2C_CLIENTID__|$CLIENTID|g" ./SampleApp.UI1/wwwroot/appsettings.json
-      #     sed -i "s|__SETTINGS_GATEWAY_BASEURL__|$BASEURL|g" ./SampleApp.UI1/wwwroot/appsettings.json
-      #     sed -i "s|__SETTINGS_GATEWAY_SCOPE1__|$SCOPE1|g" ./SampleApp.UI1/wwwroot/appsettings.json
-
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
-      - name: Remove environment-only and compressed config files, leaving only appsettings.json for transform in the deploy job
+      - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
         run: |
-          # cd publish/wwwroot
-          # # Delete all appsettings.*.json files except appsettings.json
-          # find . -type f -name 'appsettings.*.json' -delete
-
-          # # Delete compressed versions
-          # find . -type f -name 'appsettings.*.json.gz' -delete
-          # find . -type f -name 'appsettings.*.json.br' -delete
-
-          # # Optional: Also remove from _framework if present
-          # find ./_framework -type f -name 'appsettings.*.json*' -delete
-          # find ./_framework -type f -name 'appsettings.*.json.gz'  -delete
-          # find ./_framework -type f -name 'appsettings.*.json.br'  -delete
-
           #delete compressed appsettings versions
           rm -f ./publish/wwwroot/appsettings.json.gz
           rm -f ./publish/wwwroot/appsettings.json.br

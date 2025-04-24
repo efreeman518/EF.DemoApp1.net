@@ -51,7 +51,7 @@ jobs:
           name: artifact
           path: ./artifact
           run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo - GitHub OIDC
 
       - name: List .zip contents for debug
         run: unzip -l ./artifact/artifact.zip
@@ -79,25 +79,31 @@ jobs:
       #     echo "Listing files in ./deploy:"
       #     ls -R ./deploy
 
-      - name: Upload to Azure Storage (using OIDC)
-        run: |
-          az storage blob upload-batch \
-            --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
-            --destination \$web \
-            --source ./deploy \
-            --overwrite \
-            --auth-mode login
-            #--only-show-errors
+      #Azure static web apps hosting
+      #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          #repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integration (issues, optional)
+          action: "upload"
+          skip_app_build: true
+          #skip_api_build: true
+          app_location: "deploy"
+          #api_location: ""
+          #output_location: "wwwroot"
 
-      #Purge CDN
-      # - name: Purge Azure CDN endpoint cache
+      #Azure blob storage hosting
+      # - name: Upload to Azure Storage (using OIDC)
       #   run: |
-      #     az cdn endpoint purge \
-      #       --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
-      #       --profile-name ${{ vars.CDN_PROFILE_NAME }} \
-      #       --name ${{ vars.CDN_ENDPOINT_NAME }} \
-      #       --content-paths '/*' \
-      #       --only-show-errors
+      #     az storage blob upload-batch \
+      #       --account-name ${{ vars.UI_HOST_STORAGE_ACCOUNT_NAME }} \
+      #       --destination \$web \
+      #       --source ./deploy \
+      #       --overwrite \
+      #       --auth-mode login
+      #       #--only-show-errors
+
 
   deploy-prod:
     needs: deploy-dev
@@ -124,6 +130,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      #Azure blob storage hosting
       - name: Upload to Azure Storage (using OIDC)
         run: |
           az storage blob upload-batch \
