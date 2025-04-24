@@ -85,11 +85,10 @@ jobs:
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: \"${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}\"
           action: "upload"
           skip_app_build: true
           app_location: "./deploy"  # Ensure this points to the folder containing the static files
-          output_location: "wwwroot"  # Make sure this matches where your built output (e.g., Blazor's wwwroot) is located
 
 
       #Azure blob storage hosting
