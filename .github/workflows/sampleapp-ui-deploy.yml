@@ -80,12 +80,16 @@ jobs:
           echo "Listing files in ./deploy:"
           ls -R ./deploy
 
+      - name: Echo the swa deploy token
+        run: |
+          echo "SWA_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}"
+
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: \"${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}\"
+          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
           action: "upload"
           skip_app_build: true
           app_location: "./deploy"  # Ensure this points to the folder containing the static files
