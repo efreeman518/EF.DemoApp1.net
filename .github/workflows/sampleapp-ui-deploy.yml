@@ -75,24 +75,33 @@ jobs:
       - name: Show output substituted config
         run: cat ./deploy/appsettings.json
 
-      - name: List contents of deploy folder for debug
-        run: |
-          echo "Listing files in ./deploy:"
-          ls -R ./deploy
+      # - name: List contents of deploy folder for debug
+      #   run: |
+      #     echo "Listing files in ./deploy:"
+      #     ls -R ./deploy
 
-      - name: Echo the swa deploy token
+      # - name: Echo the swa deploy token
+      #   run: |
+      #     echo "SWA_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}"
+
+      - name: Install SWA CLI
+        run: npm install -g @azure/static-web-apps-cli
+
+      - name: Deploy using SWA CLI
+        env:
+          SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
         run: |
-          echo "SWA_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}"
+          swa deploy ./deploy --deployment-token $SWA_CLI_DEPLOYMENT_TOKEN --env dev
 
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
-          action: "upload"
-          skip_app_build: true
-          app_location: "./deploy"  # Ensure this points to the folder containing the static files
+      # - name: Deploy to Azure Static Web Apps
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
+      #     action: "upload"
+      #     skip_app_build: true
+      #     app_location: "./deploy"  # Ensure this points to the folder containing the static files
 
 
       #Azure blob storage hosting
