@@ -53,8 +53,8 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo - GitHub OIDC
 
-      - name: List .zip contents for debug
-        run: unzip -l ./artifact/artifact.zip
+      # - name: List .zip contents for debug
+      #   run: unzip -l ./artifact/artifact.zip
 
       - name: Extract artifact.zip
         run: |
@@ -91,7 +91,7 @@ jobs:
         env:
           SWA_CLI_DEPLOYMENT_TOKEN: ${{ secrets.UI_STATICWEBAPP_DEPLOYMENT_TOKEN }}
         run: |
-          swa deploy ./deploy --deployment-token $SWA_CLI_DEPLOYMENT_TOKEN --env dev
+          swa deploy ./deploy --deployment-token $SWA_CLI_DEPLOYMENT_TOKEN
 
       #Azure static web apps hosting (using static webap deployment token)
       #https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration?tabs=identity&pivots=github-actions#build-and-deploy
