@@ -11,6 +11,8 @@ using SampleApp.Bootstrapper;
 var builder = WebApplication.CreateBuilder(args);
 var appName = builder.Configuration.GetValue<string>("AppName");
 
+var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]!;
+
 //static logger factory setup - for startup
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 {

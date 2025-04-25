@@ -1,10 +1,10 @@
 --enable managed identity sql login
-CREATE USER [managed-identity-name] FROM EXTERNAL PROVIDER;
-ALTER ROLE db_datareader ADD MEMBER [managed-identity-name];
-ALTER ROLE db_datawriter ADD MEMBER [managed-identity-name];
---ALTER ROLE db_ddladmin ADD MEMBER [managed-identity-name];
-grant VIEW ANY COLUMN MASTER KEY DEFINITION to [managed-identity-name]
-grant VIEW ANY COLUMN ENCRYPTION KEY DEFINITION to [managed-identity-name]
+CREATE USER [EntraGroupName/managed-identity-name] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [EntraGroupName/managed-identity-name];
+ALTER ROLE db_datawriter ADD MEMBER EntraGroupName/[managed-identity-name];
+--ALTER ROLE db_ddladmin ADD MEMBER [EntraGroupName/managed-identity-name];
+grant VIEW ANY COLUMN MASTER KEY DEFINITION to [EntraGroupName/managed-identity-name]
+grant VIEW ANY COLUMN ENCRYPTION KEY DEFINITION to [EntraGroupName/managed-identity-name]
 
 
 USE [targetDB]; 
