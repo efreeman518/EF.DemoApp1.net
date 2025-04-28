@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
@@ -17,10 +18,12 @@ var appInsightsConnectionString = builder.Configuration["ApplicationInsights:Con
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 {
     logBuilder.SetMinimumLevel(LogLevel.Information);
-    logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
-            configureApplicationInsightsLoggerOptions: (options) => { });
     logBuilder.AddConsole();
+    logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+    {
+        config.ConnectionString = appInsightsConnectionString;
+    },
+    configureApplicationInsightsLoggerOptions: (options) => { });
 });
 
 //startup logger
@@ -34,9 +37,20 @@ try
     loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
     builder.Logging
         .ClearProviders()
-        .AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
-            configureApplicationInsightsLoggerOptions: (options) => { });
+        .AddOpenTelemetry(options =>
+        {
+            options.IncludeFormattedMessage = true;
+            options.IncludeScopes = true;
+            options.AddAzureMonitorLogExporter(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
+        });
+    //old way to add app insights logging
+    //.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+    //    config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
+    //    configureApplicationInsightsLoggerOptions: (options) => { });
+
     if (builder.Environment.IsDevelopment())
     {
         builder.Logging.AddConsole();
@@ -109,20 +123,8 @@ try
     loggerStartup.LogInformation("{AppName} - Running startup tasks.", appName);
     await app.RunStartupTasks();
 
-    //static logger factory setup - re-configure for application static logging
-    StaticLogging.CreateStaticLoggerFactory(logBuilder =>
-    {
-        logBuilder.SetMinimumLevel(LogLevel.Information);
-        logBuilder.ClearProviders();
-        logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-                config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
-                configureApplicationInsightsLoggerOptions: (options) => { });
-        if (builder.Environment.IsDevelopment())
-        {
-            logBuilder.AddConsole();
-            logBuilder.AddDebug();
-        }
-    });
+    //static logger factory setup - re-configure for application static logging using the DI logger factory
+    StaticLogging.SetStaticLoggerFactory(app.Services.GetRequiredService<ILoggerFactory>());
 
     loggerStartup.LogInformation("{AppName} {Environment} - Running app.", appName, env);
 

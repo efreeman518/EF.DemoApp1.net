@@ -1,4 +1,6 @@
 using SampleApp.Bootstrapper;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 
 const string SERVICE_NAME = "Worker.Scheduler";
 
@@ -24,6 +26,15 @@ try
             logging.ClearProviders();
             logging.AddApplicationInsights();
 
+            logging.AddOpenTelemetry(options =>
+            {
+                options.AddConsoleExporter();
+                options.AddAzureMonitorLogExporter(options =>
+                {
+                    options.ConnectionString = hostContext.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+                });
+            });
+
             if (hostContext.HostingEnvironment.IsDevelopment())
             {
                 logging.AddConsole();
@@ -43,7 +54,7 @@ try
                 .RegisterInfrastructureServices(config)
                 //domain services
                 .RegisterDomainServices(config)
-                //app servives
+                //app services
                 .RegisterApplicationServices(config)
                 //background services
                 .RegisterBackgroundServices(config);

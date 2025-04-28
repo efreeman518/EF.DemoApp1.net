@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Functions;
 using Functions.Infrastructure;
 using Microsoft.Azure.Functions.Worker;
@@ -6,8 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
 using Package.Infrastructure.Host;
 using SampleApp.Bootstrapper;
+
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
@@ -17,17 +20,22 @@ using SampleApp.Bootstrapper;
 
 const string SERVICE_NAME = "Functions v4/net8";
 
-ILogger<Program> loggerStartup;
-using var loggerFactory = LoggerFactory.Create(builder =>
-{
-    builder.SetMinimumLevel(LogLevel.Information);
-    builder.AddConsole();
-    //builder.AddApplicationInsights();
-});
-loggerStartup = loggerFactory.CreateLogger<Program>();
+ILogger<Program> loggerStartup = null!; 
+
+
 
 try
 {
+    using var loggerFactory = LoggerFactory.Create(builder =>
+    {
+        builder.SetMinimumLevel(LogLevel.Information);
+        builder.AddConsole();
+        //builder.AddApplicationInsights();
+    });
+
+    // Assign loggerStartup after loggerFactory is created
+    loggerStartup = loggerFactory.CreateLogger<Program>();
+
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
     var host = Host.CreateDefaultBuilder(args)
@@ -89,22 +97,12 @@ try
                         options.Rules.Remove(toRemove);
                     }
                 });
-            //needed for logging to app insights?
-            //.AddLogging(builder =>
-            //{
-            //    builder.AddApplicationInsights(configTelem =>
-            //    {
-            //        configTelem.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-            //    },
-            //    options => { });
-            //})
-
-
+ 
             //domain services
             services.RegisterDomainServices(config)
                //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
                .RegisterInfrastructureServices(config)
-                //app servives
+                //app services
                 .RegisterApplicationServices(config)
                 //BackgroundTaskQueue needed by other services
                 .RegisterBackgroundServices(config)
@@ -123,6 +121,15 @@ try
             // Make sure the configuration of the appsettings.json file is picked up.
             //https://github.com/devops-circle/Azure-Functions-Logging-Tests/blob/master/Func.Isolated.Net7.With.AI/Program.cs
             logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+            // OpenTelemetry logging
+            logging.AddOpenTelemetry(options =>
+            {
+                options.AddConsoleExporter(); // Optional for local debugging
+                options.AddAzureMonitorLogExporter(options =>
+                {
+                    options.ConnectionString = hostingContext.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+                });
+            });
         })
         .Build();
 
@@ -131,9 +138,9 @@ try
 }
 catch (Exception ex)
 {
-    loggerStartup.LogCritical(ex, "{ServiceName} - Host terminated unexpectedly.", SERVICE_NAME);
+    loggerStartup?.LogCritical(ex, "{ServiceName} - Host terminated unexpectedly.", SERVICE_NAME);
 }
 finally
 {
-    loggerStartup.LogInformation("{ServiceName} - Ending application.", SERVICE_NAME);
+    loggerStartup?.LogInformation("{ServiceName} - Ending application.", SERVICE_NAME);
 }

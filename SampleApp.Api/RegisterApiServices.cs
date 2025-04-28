@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Model;
 using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using CorrelationId.DependencyInjection;
 using FluentValidation;
 using Infrastructure.Data;
@@ -8,6 +9,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Identity.Web;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
@@ -33,10 +37,36 @@ internal static class IServiceCollectionExtensions
     public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
-        services.AddOpenTelemetry().UseAzureMonitor(options =>
-        {
-            options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-        });
+        var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService("SampleApi"))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
+                    .AddAzureMonitorTraceExporter(options =>
+                    {
+                        options.ConnectionString = appInsightsConnectionString;
+                    });
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddAzureMonitorMetricExporter(options =>
+                    {
+                        options.ConnectionString = appInsightsConnectionString;
+                    });
+            });
+
+        //.UseAzureMonitor(options =>
+        //{
+        //    options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
+        //});
 
         //api versioning
         var apiVersioningBuilder = services.AddApiVersioning(options =>

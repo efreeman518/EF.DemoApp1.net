@@ -11,7 +11,7 @@ public static class StaticLogging
     private static ILoggerFactory _factory = new LoggerFactory();
 
     /// <summary>
-    /// Each call re-creates the static logger factory; 
+    /// Early phase: Create temporary LoggerFactory (before DI is available)
     /// </summary>
     /// <param name="configure">Configure the static application logger factory</param>
     /// <returns></returns>
@@ -21,6 +21,15 @@ public static class StaticLogging
         {
             configure?.Invoke(builder);
         });
+        return _factory;
+    }
+
+    /// <summary>
+    /// Later phase:  Set the static logger factory to an externally created factory (e.g., from dependency injection).
+    /// </summary>
+    public static ILoggerFactory SetStaticLoggerFactory(ILoggerFactory loggerFactory)
+    {
+        _factory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         return _factory;
     }
 
