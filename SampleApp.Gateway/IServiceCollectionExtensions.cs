@@ -31,7 +31,7 @@ public static class IServiceCollectionExtensions
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("https://localhost:7124") // Adjust to your Blazor app's address
+                policy.WithOrigins(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!) // Adjust to your Blazor app's address
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials(); //does not work with AllowAnyOrigin()
@@ -40,7 +40,7 @@ public static class IServiceCollectionExtensions
         });
 
         //Auth
-        string configSectionName = "Gateway-AzureAdB2C"; //AzureAdB2C / EntraID
+        string configSectionName = "Gateway_AzureAdB2C"; //AzureAdB2C / EntraID
         var configSection = config.GetSection(configSectionName);
         if (configSection.GetChildren().Any())
         {

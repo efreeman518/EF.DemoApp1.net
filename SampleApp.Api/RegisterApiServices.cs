@@ -107,7 +107,7 @@ internal static class IServiceCollectionExtensions
         });
 
         //Auth
-        string configSectionName = "Api1-EntraID";
+        string configSectionName = "Api1_EntraID";
         var configSection = config.GetSection(configSectionName);
         if (configSection.GetChildren().Any())
         {
