@@ -89,16 +89,16 @@ try
 
     //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
     //user secrets are only available when running locally
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Configuration.AddUserSecrets<Program>();
-    }
+    //if (builder.Environment.IsDevelopment())
+    //{
+    //    builder.Configuration.AddUserSecrets<Program>();
+    //}
 
     //Custom configuration provider - from DB
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
     //builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(1, 0, 0));
 
-    //Data Protection - use blobstorage (key file) and keyvault; server farm/instances will all use the same keys
+    //Data Protection - use blob storage (key file) and AKV; server farm/instances will all use the same keys
     //register here since credential has been configured
     //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
     string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file

@@ -3,6 +3,7 @@ using Azure.Monitor.OpenTelemetry.Exporter;
 using Functions;
 using Functions.Infrastructure;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,7 +20,7 @@ using SampleApp.Bootstrapper;
 ///
 
 const string SERVICE_NAME = "FunctionsApp";
-ILogger<Program> loggerStartup = null!; 
+ILogger<Program> loggerStartup = null!;
 
 try
 {
@@ -32,79 +33,79 @@ try
 
     // Assign loggerStartup after loggerFactory is created
     loggerStartup = loggerFactory.CreateLogger<Program>();
-
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
-    var host = Host.CreateDefaultBuilder(args)
-        .ConfigureAppConfiguration((hostContext, builder) =>
+    var builder = FunctionsApplication.CreateBuilder(args);
+    builder.Configuration.AddJsonFile("appsettings.json", optional: true);
+    var config = builder.Configuration;
+    // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
+    // adds environment variables into configuration enabling overrides by azure configuration settings.
+    config.AddJsonFile("appsettings.json", optional: true);
+    //set up DefaultAzureCredential for subsequent use in configuration providers
+    //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
+    var credentialOptions = new DefaultAzureCredentialOptions();
+    //Specifies the client id of a user assigned ManagedIdentity. 
+    string? credOptionsManagedIdentity = config.GetValue<string?>("ManagedIdentityClientId", null);
+    if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
+    //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
+    string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
+    if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
+    var credential = new DefaultAzureCredential(credentialOptions);
+
+    var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
+    string? endpoint;
+
+    //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string (? - doesn't work with managed identity & endpoint)
+    var appConfig = config.GetSection("AzureAppConfig");
+    if (appConfig != null)
+    {
+        endpoint = appConfig.GetValue<string>("Endpoint");
+        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
+    }
+
+    //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
+    //endpoint = config.GetValue<string>("KeyVaultEndpoint");
+    //if (!string.IsNullOrEmpty(endpoint))
+    //{
+    //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
+    //    builder.AddAzureKeyVault(new Uri(endpoint), credential);
+    //}
+
+    //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
+    //user secrets are only available when running locally
+    if (builder.Environment.IsDevelopment())
+    {
+        config.AddUserSecrets<Program>();
+    }
+
+    // Logging and OpenTelemetry
+    builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+    builder.Logging.AddOpenTelemetry(options =>
+    {
+        options.AddConsoleExporter();
+        options.AddAzureMonitorLogExporter(options =>
         {
-            // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
-            // adds environment variables into configuration enabling overrides by azure configuration settings.
-            builder.AddJsonFile("appsettings.json", optional: true);
-            var config = builder.Build();
+            options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+        });
+    });
 
-            //set up DefaultAzureCredential for subsequent use in configuration providers
-            //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
-            var credentialOptions = new DefaultAzureCredentialOptions();
-            //Specifies the client id of a user assigned ManagedIdentity. 
-            string? credOptionsManagedIdentity = config.GetValue<string?>("ManagedIdentityClientId", null);
-            if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
-            //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
-            string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
-            if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
-            var credential = new DefaultAzureCredential(credentialOptions);
-
-            var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
-            string? endpoint;
-
-            //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string (? - doesn't work with managed identity & endpoint)
-            var appConfig = config.GetSection("AzureAppConfig");
-            if (appConfig != null)
-            {
-                endpoint = appConfig.GetValue<string>("Endpoint");
-                loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-                builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
-            }
-
-            //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
-            //endpoint = config.GetValue<string>("KeyVaultEndpoint");
-            //if (!string.IsNullOrEmpty(endpoint))
-            //{
-            //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
-            //    builder.AddAzureKeyVault(new Uri(endpoint), credential);
-            //}
-
-            //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
-            //user secrets are only available when running locally
-            if (hostContext.HostingEnvironment.IsDevelopment())
-            {
-                builder.AddUserSecrets<Program>();
-            }
-
-        })
-        //?? .ConfigureServices(async (hostContext, services) =>
-        .ConfigureServices((hostContext, services) =>
+    // Application Insights
+    builder.Services
+        .AddApplicationInsightsTelemetryWorkerService(builder.Configuration)
+        .ConfigureFunctionsApplicationInsights()
+        .Configure<LoggerFilterOptions>(options =>
         {
-            var config = hostContext.Configuration;
+            var aiProvider = options.Rules.FirstOrDefault(rule =>
+                rule.ProviderName == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
 
-            services
-                //app insights telemetry logging for non-http service
-                //https://github.com/devops-circle/Azure-Functions-Logging-Tests/blob/master/Func.Isolated.Net7.With.AI/Program.cs
-                .AddApplicationInsightsTelemetryWorkerService(config)
-                .ConfigureFunctionsApplicationInsights()
-                .Configure<LoggerFilterOptions>(options =>
-                {
-                    var toRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
-                        == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+            if (aiProvider is not null)
+                options.Rules.Remove(aiProvider);
+        });
 
-                    if (toRemove is not null)
-                    {
-                        options.Rules.Remove(toRemove);
-                    }
-                });
- 
-            //domain services
-            services.RegisterDomainServices(config)
+    //domain services
+    builder.Services
+        .RegisterDomainServices(config)
                //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
                .RegisterInfrastructureServices(config)
                 //app services
@@ -115,31 +116,14 @@ try
                 .AddTransient<IDatabaseService, DatabaseService>()
                 //Configuration, enables injecting IOptions<>
                 .Configure<Settings1>(config.GetSection("Settings1"));
-        })
-        .ConfigureFunctionsWorkerDefaults(builder =>
-        {
-            builder
-                .UseMiddleware<GlobalExceptionHandler>();
-        })
-        .ConfigureLogging((hostingContext, logging) =>
-        {
-            // Make sure the configuration of the appsettings.json file is picked up.
-            //https://github.com/devops-circle/Azure-Functions-Logging-Tests/blob/master/Func.Isolated.Net7.With.AI/Program.cs
-            logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-            // OpenTelemetry logging
-            logging.AddOpenTelemetry(options =>
-            {
-                options.AddConsoleExporter(); // Optional for local debugging
-                options.AddAzureMonitorLogExporter(options =>
-                {
-                    options.ConnectionString = hostingContext.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
-                });
-            });
-        })
-        .Build();
 
-    await host.RunStartupTasks();
-    await host.RunAsync();
+    // Register middleware
+    builder.UseMiddleware<GlobalExceptionHandler>();
+
+    var app = builder.Build();
+
+    await app.RunStartupTasks();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {

@@ -13,7 +13,7 @@ var services = builder.Services;
 var config = builder.Configuration;
 var appName = config.GetValue<string>("AppName");
 var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
-var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]!;
+var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
 
 //static logger factory setup - for startup
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
@@ -42,7 +42,7 @@ try
             options.IncludeScopes = true;
             options.AddAzureMonitorLogExporter(options =>
             {
-                options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]!;
+                options.ConnectionString = config["ApplicationInsights:ConnectionString"]!;
             });
         });
     //old way
@@ -60,10 +60,10 @@ try
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
     var credentialOptions = new DefaultAzureCredentialOptions();
     //Specifies the client id of a user assigned ManagedIdentity. 
-    string? credOptionsManagedIdentity = builder.Configuration.GetValue<string?>("ManagedIdentityClientId", null);
+    string? credOptionsManagedIdentity = config.GetValue<string?>("ManagedIdentityClientId", null);
     if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
     //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
-    string? credOptionsTenantId = builder.Configuration.GetValue<string?>("SharedTokenCacheTenantId", null);
+    string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
@@ -71,7 +71,7 @@ try
     string? endpoint;
 
     //Azure AppConfig
-    var appConfig = builder.Configuration.GetSection("AzureAppConfig");
+    var appConfig = config.GetSection("AzureAppConfig");
     if (appConfig.GetChildren().Any())
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
@@ -98,8 +98,8 @@ try
     //Data Protection - use blob storage (key file) and AKV; server farm/instances will all use the same keys
     //register here since credential has been configured
     //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
-    string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
-    string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
+    string? dataProtectionKeysFileUrl = config.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
+    string? dataProtectionEncryptionKeyUrl = config.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
     {
         loggerStartup.LogInformation("{AppName} env:{Environment} - Configure Data Protection.", appName, env);
@@ -111,10 +111,7 @@ try
     //register services
     services.RegisterServices(config, loggerStartup);
 
-    var app = builder.Build();
-
-    //configure pipeline
-    app.ConfigurePipeline();
+    var app = builder.Build().ConfigurePipeline();
 
     await app.RunAsync();
 }

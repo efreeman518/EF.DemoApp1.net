@@ -10,7 +10,7 @@ public class FunctionBlobTrigger(ILogger<FunctionBlobTrigger> logger, IConfigura
     IOptions<Settings1> settings, IDatabaseService dbService)
 {
     /// <summary>
-    /// large blobs - dont want the fileContent as string
+    /// large blobs - don't want the fileContent as string
     /// If all (default) 5 tries fail, Azure Functions adds a message to a Storage queue named webjobs-blobtrigger-poison
     /// </summary>
     /// <param name="fileContent"></param>
