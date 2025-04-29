@@ -142,7 +142,7 @@ runs:
                 break
             elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
                 echo "Deployment failed. Logs:"
-                az container logs --resource-group "rg-dev1" --name "$ACI_NAME"
+                az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
                 exit 1
             fi
 

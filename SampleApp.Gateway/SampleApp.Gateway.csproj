@@ -24,6 +24,7 @@
     <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Auth\Package.Infrastructure.Auth.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Host\Package.Infrastructure.Host.csproj" />
   </ItemGroup>
 
 </Project>

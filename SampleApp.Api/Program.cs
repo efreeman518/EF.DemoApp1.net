@@ -10,8 +10,8 @@ using SampleApp.Bootstrapper;
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
 //- logging gets Console
 var builder = WebApplication.CreateBuilder(args);
-var appName = builder.Configuration.GetValue<string>("AppName");
-
+var appName = builder.Configuration.GetValue<string>("AppName")!;
+var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]!;
 
 //static logger factory setup - for startup
@@ -29,8 +29,6 @@ StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 //startup logger
 ILogger<Program> loggerStartup = StaticLogging.CreateLogger<Program>();
 loggerStartup.LogInformation("{AppName} - Startup.", appName);
-
-var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
 try
 {
@@ -77,16 +75,17 @@ try
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+            appName, "Shared");
     }
 
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
-    endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
-    if (!string.IsNullOrEmpty(endpoint))
-    {
-        loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", appName, endpoint);
-        builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
-    }
+    //endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
+    //if (!string.IsNullOrEmpty(endpoint))
+    //{
+    //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", appName, endpoint);
+    //    builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
+    //}
 
     //Custom configuration provider - from DB
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
