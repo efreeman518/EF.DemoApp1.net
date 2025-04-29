@@ -76,11 +76,26 @@ try
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             "Gateway", "Shared");
     }
 
-    //Data Protection - use blobstorage (key file) and keyvault; server farm/instances will all use the same keys
+    //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
+    //endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
+    //if (!string.IsNullOrEmpty(endpoint))
+    //{
+    //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", appName, endpoint);
+    //    builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
+    //}
+
+    //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
+    //user secrets are only available when running locally
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Configuration.AddUserSecrets<Program>();
+    }
+
+    //Data Protection - use blob storage (key file) and AKV; server farm/instances will all use the same keys
     //register here since credential has been configured
     //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
     string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file

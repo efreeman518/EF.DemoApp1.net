@@ -16,13 +16,10 @@ using SampleApp.Bootstrapper;
 /// https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide
 /// retries - https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-error-pages?tabs=fixed-delay%2Cin-process&pivots=programming-language-csharp#retries
 /// </summary>
-/// 
+///
 
-const string SERVICE_NAME = "Functions v4/net8";
-
+const string SERVICE_NAME = "FunctionsApp";
 ILogger<Program> loggerStartup = null!; 
-
-
 
 try
 {
@@ -66,16 +63,24 @@ try
             {
                 endpoint = appConfig.GetValue<string>("Endpoint");
                 loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-                builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
+                builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
             }
 
             //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
-            endpoint = config.GetValue<string>("KeyVaultEndpoint");
-            if (!string.IsNullOrEmpty(endpoint))
+            //endpoint = config.GetValue<string>("KeyVaultEndpoint");
+            //if (!string.IsNullOrEmpty(endpoint))
+            //{
+            //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
+            //    builder.AddAzureKeyVault(new Uri(endpoint), credential);
+            //}
+
+            //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
+            //user secrets are only available when running locally
+            if (hostContext.HostingEnvironment.IsDevelopment())
             {
-                loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", SERVICE_NAME, endpoint);
-                builder.AddAzureKeyVault(new Uri(endpoint), credential);
+                builder.AddUserSecrets<Program>();
             }
+
         })
         //?? .ConfigureServices(async (hostContext, services) =>
         .ConfigureServices((hostContext, services) =>

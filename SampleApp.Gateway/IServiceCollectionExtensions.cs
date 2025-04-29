@@ -31,7 +31,7 @@ public static class IServiceCollectionExtensions
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins(config.GetValue<string>("SampleApiRestClientSettings:BaseUrl")!) // Adjust to your Blazor app's address
+                policy.WithOrigins(config.GetValue<string>("UI:BaseUrl")!) // Adjust to your UI's address
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials(); //does not work with AllowAnyOrigin()

@@ -75,7 +75,7 @@ try
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>("Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             appName, "Shared");
     }
 
@@ -86,6 +86,13 @@ try
     //    loggerStartup.LogInformation("{AppName} - Add KeyVault {Endpoint} Configuration", appName, endpoint);
     //    builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
     //}
+
+    //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
+    //user secrets are only available when running locally
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Configuration.AddUserSecrets<Program>();
+    }
 
     //Custom configuration provider - from DB
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";

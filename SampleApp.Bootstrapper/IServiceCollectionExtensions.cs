@@ -131,7 +131,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
         //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
-        //middleware triggers on http request, not background service scope
+        //middleware triggers on http request (not a background service scope)
         if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
         {
             services.AddAzureAppConfiguration();
