@@ -36,6 +36,8 @@ try
     loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
 
     var builder = FunctionsApplication.CreateBuilder(args);
+    builder.ConfigureFunctionsWebApplication();
+
     builder.Configuration.AddJsonFile("appsettings.json", optional: true);
     var config = builder.Configuration;
     // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
@@ -55,13 +57,14 @@ try
     var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
     string? endpoint;
 
-    //Azure AppConfig - Microsoft.Azure.AppConfiguration.Functions.Worker requires connection string (? - doesn't work with managed identity & endpoint)
+    //Azure AppConfig
     var appConfig = config.GetSection("AzureAppConfig");
-    if (appConfig != null)
+    if (appConfig.GetChildren().Any())
     {
         endpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)));
+        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+            "SampleApi", "Shared");
     }
 
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
@@ -74,10 +77,10 @@ try
 
     //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
     //user secrets are only available when running locally
-    if (builder.Environment.IsDevelopment())
-    {
-        config.AddUserSecrets<Program>();
-    }
+    //if (builder.Environment.IsDevelopment())
+    //{
+    config.AddUserSecrets<Program>();
+    //}
 
     // Logging and OpenTelemetry
     builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
@@ -103,19 +106,19 @@ try
                 options.Rules.Remove(aiProvider);
         });
 
-    //domain services
     builder.Services
+        //domain services
         .RegisterDomainServices(config)
-               //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
-               .RegisterInfrastructureServices(config)
-                //app services
-                .RegisterApplicationServices(config)
-                //BackgroundTaskQueue needed by other services
-                .RegisterBackgroundServices(config)
-                //Function app specific registrations
-                .AddTransient<IDatabaseService, DatabaseService>()
-                //Configuration, enables injecting IOptions<>
-                .Configure<Settings1>(config.GetSection("Settings1"));
+        //infrastructure - caches, DbContexts, repos, external service proxies, startup tasks
+        .RegisterInfrastructureServices(config)
+        //app services
+        .RegisterApplicationServices(config)
+        //BackgroundTaskQueue needed by other services
+        .RegisterBackgroundServices(config)
+        //Function app specific registrations
+        .AddTransient<IDatabaseService, DatabaseService>()
+        //Configuration, enables injecting IOptions<>
+        .Configure<Settings1>(config.GetSection("Settings1"));
 
     // Register middleware
     builder.UseMiddleware<GlobalExceptionHandler>();

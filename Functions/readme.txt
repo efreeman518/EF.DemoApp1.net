@@ -1,6 +1,8 @@
-﻿Azure Functions local runtime startup looks only at local.settings.host (not config built in code at startup)
+﻿Install latest Azure Functions Core Tools
+https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp
 
-As of this time, the Azure Functions runtime v4/net6-isolated & v3/net5-isolated, in Azure, does not pick up a user-assigned managed identity.
+Azure Functions local runtime startup looks only at local.settings.host (not config built in code at startup)
+
 Create a system-assigned managed identity for the function app service, 
 and add to groups that get RBAC access to azure resources (dev-keyvault-read, dev-appconfig-read, etc)
 
