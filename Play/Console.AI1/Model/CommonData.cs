@@ -24,7 +24,7 @@ public class Item
     [VectorStoreRecordData]
     public List<CommonEnum> EnumList { get; set; } = [];
 
-    [VectorStoreRecordVector(384, DistanceFunction.CosineSimilarity)]
+    [VectorStoreRecordVector(Dimensions:384, DistanceFunction = DistanceFunction.CosineSimilarity)]
     public ReadOnlyMemory<float> Vector { get; set; }
 
 }
