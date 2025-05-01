@@ -266,7 +266,7 @@ public static class IServiceCollectionExtensions
             else
             {
                 var options = new DefaultAzureCredentialOptions();
-                //if (localEnviroment)
+                //if (localEnvironment)
                 //{
                 //    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
                 //    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
@@ -338,8 +338,8 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ReadUncommittedInterceptor>();
 
         //Database 
-        var trxnDBconnectionString = config.GetConnectionString("TodoDbContextTrxn");
-        if (string.IsNullOrEmpty(trxnDBconnectionString) || trxnDBconnectionString == "UseInMemoryDatabase")
+        var trxnDBConnectionString = config.GetConnectionString("TodoDbContextTrxn");
+        if (string.IsNullOrEmpty(trxnDBConnectionString) || trxnDBConnectionString == "UseInMemoryDatabase")
         {
             //multiple in memory DbContexts use the same DB
             //InMemory for dev; requires Microsoft.EntityFrameworkCore.InMemory
@@ -367,9 +367,9 @@ public static class IServiceCollectionExtensions
             //sp is not scoped for the DbContextPool, so we can't use it to get the auditInterceptor
             services.AddDbContext<TodoDbContextTrxn>((sp, options) =>
             {
-                if (trxnDBconnectionString.Contains("database.windows.net"))
+                if (trxnDBConnectionString.Contains("database.windows.net"))
                 {
-                    options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
+                    options.UseAzureSql(trxnDBConnectionString, azureSqlOptionsAction: sqlOptions =>
                     {
                         sqlOptions.UseCompatibilityLevel(160);
                         //retry strategy does not support user initiated transactions 
@@ -381,7 +381,7 @@ public static class IServiceCollectionExtensions
                 }
                 else
                 {
-                    options.UseSqlServer(trxnDBconnectionString,
+                    options.UseSqlServer(trxnDBConnectionString,
                         sqlServerOptionsAction: sqlOptions =>
                         {
                             sqlOptions.UseCompatibilityLevel(160);
@@ -398,14 +398,14 @@ public static class IServiceCollectionExtensions
                     .AddInterceptors(auditInterceptor);
             });
 
-            var queryDBconnectionString = config.GetConnectionString("TodoDbContextQuery");
-            if (queryDBconnectionString != null)
+            var queryDBConnectionString = config.GetConnectionString("TodoDbContextQuery");
+            if (queryDBConnectionString != null)
             {
                 services.AddDbContext<TodoDbContextQuery>((sp, options) =>
                 {
-                    if (queryDBconnectionString.Contains("database.windows.net"))
+                    if (queryDBConnectionString.Contains("database.windows.net"))
                     {
-                        options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
+                        options.UseAzureSql(trxnDBConnectionString, azureSqlOptionsAction: sqlOptions =>
                         {
                             sqlOptions.UseCompatibilityLevel(160);
                             sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
@@ -421,7 +421,7 @@ public static class IServiceCollectionExtensions
                     }
                     else
                     {
-                        options.UseSqlServer(queryDBconnectionString,
+                        options.UseSqlServer(queryDBConnectionString,
                             //retry strategy does not support user initiated transactions 
                             sqlServerOptionsAction: sqlOptions =>
                             {
@@ -617,10 +617,10 @@ public static class IServiceCollectionExtensions
         }
 
         //external SampleAppApi
-        var sampleApiconfigSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
-        if (sampleApiconfigSection.GetChildren().Any())
+        var sampleApiConfigSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
+        if (sampleApiConfigSection.GetChildren().Any())
         {
-            services.Configure<SampleApiRestClientSettings>(sampleApiconfigSection);
+            services.Configure<SampleApiRestClientSettings>(sampleApiConfigSection);
 
             services.AddScoped(provider =>
             {

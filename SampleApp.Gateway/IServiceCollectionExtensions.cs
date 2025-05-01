@@ -28,7 +28,7 @@ public static class IServiceCollectionExtensions
         //    options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         //});
 
-        string corsConfigSectionName = "Cors";
+        string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
         if (corsConfigSection.GetChildren().Any())
         {

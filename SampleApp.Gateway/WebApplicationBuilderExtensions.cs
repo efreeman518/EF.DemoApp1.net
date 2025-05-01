@@ -9,7 +9,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseHttpsRedirection();
 
         //Cors
-        string corsConfigSectionName = "Cors";
+        string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = app.Configuration.GetSection(corsConfigSectionName);
         if (corsConfigSection.GetChildren().Any())
         {

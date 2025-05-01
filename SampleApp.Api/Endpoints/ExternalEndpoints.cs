@@ -28,12 +28,12 @@ public static class ExternalEndpoints
             .Produces<TodoItemDto>().ProducesValidationProblem().ProducesProblem(500);
         group.MapDelete("/{id:guid}", Delete)
             .Produces(204).ProducesValidationProblem().ProducesProblem(500);
-        group.MapGet("/getuser", GetUser)
-            .Produces<object?>().ProducesProblem(500);
-        group.MapGet("/getuserclaims", GetUserClaims)
-            .Produces<object?>().ProducesProblem(500);
-        group.MapGet("/getauthheader", GetAuthHeader)
-            .Produces<object?>().ProducesProblem(500);
+        //group.MapGet("/getuser", GetUser)
+        //    .Produces<object?>().ProducesProblem(500);
+        //group.MapGet("/getuserclaims", GetUserClaims)
+        //    .Produces<object?>().ProducesProblem(500);
+        //group.MapGet("/getauthheader", GetAuthHeader)
+        //    .Produces<object?>().ProducesProblem(500);
     }
 
     private static async Task<IResult> GetPage1(ISampleApiRestClient apiClient, int pageSize = 10, int pageIndex = 1)
@@ -85,18 +85,18 @@ public static class ExternalEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> GetUser(ISampleApiRestClient apiClient)
-    {
-        return TypedResults.Ok(await apiClient.GetUserAsync());
-    }
+    //private static async Task<IResult> GetUser(ISampleApiRestClient apiClient)
+    //{
+    //    return TypedResults.Ok(await apiClient.GetUserAsync());
+    //}
 
-    private static async Task<IResult> GetUserClaims(ISampleApiRestClient apiClient)
-    {
-        return TypedResults.Ok(await apiClient.GetUserClaimsAsync());
-    }
+    //private static async Task<IResult> GetUserClaims(ISampleApiRestClient apiClient)
+    //{
+    //    return TypedResults.Ok(await apiClient.GetUserClaimsAsync());
+    //}
 
-    private static async Task<IResult> GetAuthHeader(ISampleApiRestClient apiClient)
-    {
-        return TypedResults.Ok(await apiClient.GetAuthHeaderAsync());
-    }
+    //private static async Task<IResult> GetAuthHeader(ISampleApiRestClient apiClient)
+    //{
+    //    return TypedResults.Ok(await apiClient.GetAuthHeaderAsync());
+    //}
 }

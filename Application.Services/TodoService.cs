@@ -14,7 +14,7 @@ using AppConstants = Application.Contracts.Constants.Constants;
 namespace Application.Services;
 
 public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServiceSettings> settings,
-    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, ISampleApiRestClient sampleApiRestClient, IBackgroundTaskQueue taskQueue)
+    ITodoRepositoryTrxn repoTrxn, ITodoRepositoryQuery repoQuery, IBackgroundTaskQueue taskQueue)
     : ServiceBase(logger), ITodoService
 {
     public async Task<PagedResponse<TodoItemDto>> SearchAsync(SearchRequest<TodoItemSearchFilter> request, CancellationToken cancellationToken = default)
@@ -148,9 +148,9 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
     }
 
     //external API call
-    public async Task<Result<PagedResponse<TodoItemDto>?>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
-    {
-        logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
-        return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex, cancellationToken);
-    }
+    //public async Task<Result<PagedResponse<TodoItemDto>?>> GetPageExternalAsync(int pageSize = 10, int pageIndex = 0, CancellationToken cancellationToken = default)
+    //{
+    //    logger.InfoLog($"GetPageExternalAsync - pageSize:{pageSize} pageIndex:{pageIndex}");
+    //    return await sampleApiRestClient.GetPageAsync(pageSize, pageIndex, cancellationToken);
+    //}
 }
