@@ -12,14 +12,16 @@
   <PropertyGroup>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <None Include="wwwroot\appsettings.Development.json">
+    <Content Update="wwwroot\appsettings.Development.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\appsettings.json">
+      <ExcludeFromPublish>true</ExcludeFromPublish>
+    </Content>
+    <Content Update="wwwroot\appsettings.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+      <ExcludeFromPublish>true</ExcludeFromPublish>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

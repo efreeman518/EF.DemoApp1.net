@@ -45,12 +45,6 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
-      - name: Copy appsettings.json 
-        run: cp SampleApp.UI1/wwwroot/appsettings.json publish/appsettings.json
-
-      - name: List publish folder contents
-        run: ls -R publish
-
       # - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
       #   run: |
       #     #delete compressed appsettings versions
@@ -62,11 +56,15 @@ jobs:
       #     rm -f ./publish/wwwroot/appsettings.*.json
       #     rm -f ./publish/wwwroot/appsettings.*.json.gz
       #     rm -f ./publish/wwwroot/appsettings.*.json.br
-      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json*
+      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json
       #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.gz
       #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.br
 
-          # cd ../..
+      - name: Copy appsettings.json 
+        run: cp ./SampleApp.UI1/wwwroot/appsettings.json publish/wwwroot/appsettings.json
+
+      # - name: List publish folder contents
+      #   run: ls -R publish
 
       - name: Zip published wwwroot
         run: |
