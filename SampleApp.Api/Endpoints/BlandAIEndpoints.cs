@@ -36,7 +36,7 @@ public static class BlandAIEndpoints
 
     }
 
-    private static async Task<IResult> SendCall(IBlandAIRestClient client, IOptions<SendCallSettings> settings)
+    private static async Task<IResult> SendCall([FromServices] IBlandAIRestClient client, [FromServices] IOptions<SendCallSettings> settings)
     {
         var request = new SendCallRequest
         {
@@ -76,7 +76,7 @@ public static class BlandAIEndpoints
         return TypedResults.Ok(callResponse);
     }
 
-    private static async Task<IResult> AnalyzeCall(string callId, IBlandAIRestClient client)
+    private static async Task<IResult> AnalyzeCall(string callId, [FromServices] IBlandAIRestClient client)
     {
         var request = new AnalyzeCallRequest
         {
@@ -93,7 +93,7 @@ public static class BlandAIEndpoints
         return TypedResults.Ok(callResponse);
     }
 
-    private static async Task<IResult> CallDetails(string callId, IBlandAIRestClient client)
+    private static async Task<IResult> CallDetails(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CallDetailsAsync(callId);
         var callResponse = result.Match(
@@ -102,7 +102,7 @@ public static class BlandAIEndpoints
         return TypedResults.Ok(callResponse);
     }
 
-    private static async Task<IResult> CorrectedTranscript(string callId, IBlandAIRestClient client)
+    private static async Task<IResult> CorrectedTranscript(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CorrectedTranscriptAsync(callId);
         var callResponse = result.Match(
@@ -111,7 +111,7 @@ public static class BlandAIEndpoints
         return TypedResults.Ok(callResponse);
     }
 
-    private static async Task<IResult> CallEmotion(string callId, IBlandAIRestClient client)
+    private static async Task<IResult> CallEmotion(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CallEmotionsAsync(new CallEmotionRequest { CallId = callId });
         var callResponse = result.Match(
@@ -126,7 +126,7 @@ public static class BlandAIEndpoints
         public string? Token { get; set; }
     }
 
-    private static async Task<IResult> GetBlandWebClientConfig(IBlandAIRestClient client)
+    private static async Task<IResult> GetBlandWebClientConfig([FromServices] IBlandAIRestClient client)
     {
         var request = new AgentRequest
         {
@@ -146,7 +146,7 @@ public static class BlandAIEndpoints
         return TypedResults.Ok(new AgentConfigResponse { AgentId = agentResponse.AgentId, Token = tokenResponse.Token });
     }
 
-    private static IResult Webhook1(HttpContext httpContext, IOptions<BlandAISettings> blandAISettings, [FromBody] JsonElement body) //someData item)
+    private static IResult Webhook1(HttpContext httpContext, [FromServices] IOptions<BlandAISettings> blandAISettings, [FromBody] JsonElement body) //someData item)
     {
         //verify webhook signature
         //Retrieve the signature from the request headers

@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
+using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Common.Contracts;
@@ -39,25 +40,25 @@ public static class TodoItemEndpoints
             .WithSummary("Delete a TodoItem");
     }
 
-    private static async Task<IResult> Search(ITodoService todoService, SearchRequest<TodoItemSearchFilter> request)
+    private static async Task<IResult> Search([FromServices] ITodoService todoService, [FromBody] SearchRequest<TodoItemSearchFilter> request)
     {
         var items = await todoService.SearchAsync(request);
         return TypedResults.Ok(items);
     }
 
-    private static async Task<IResult> GetPage1(ITodoService todoService, int pageSize = 10, int pageIndex = 1)
+    private static async Task<IResult> GetPage1([FromServices] ITodoService todoService, int pageSize = 10, int pageIndex = 1)
     {
         var items = await todoService.GetPageAsync(pageSize, pageIndex);
         return TypedResults.Ok(items);
     }
 
-    private static async Task<IResult> GetPage1_1(ITodoService todoService, int pageSize = 20, int pageIndex = 1)
+    private static async Task<IResult> GetPage1_1([FromServices] ITodoService todoService, int pageSize = 20, int pageIndex = 1)
     {
         var items = await todoService.GetPageAsync(pageSize, pageIndex);
         return TypedResults.Ok(items);
     }
 
-    private static async Task<IResult> GetById(ITodoService todoService, Guid id)
+    private static async Task<IResult> GetById([FromServices] ITodoService todoService, Guid id)
     {
         var option = await todoService.GetItemAsync(id);
         return option.Match<IResult>(
@@ -65,7 +66,7 @@ public static class TodoItemEndpoints
             None: () => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse("Not Found", message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound)));
     }
 
-    private static async Task<IResult> Create(HttpContext httpContext, ITodoService todoService, TodoItemDto todoItemDto)
+    private static async Task<IResult> Create(HttpContext httpContext, [FromServices] ITodoService todoService, [FromBody] TodoItemDto todoItemDto)
     {
         var result = await todoService.CreateItemAsync(todoItemDto);
         return result.Match<IResult>(
@@ -74,7 +75,7 @@ public static class TodoItemEndpoints
         );
     }
 
-    private static async Task<IResult> Update(HttpContext httpContext, ITodoService todoService, Guid id, TodoItemDto todoItem)
+    private static async Task<IResult> Update(HttpContext httpContext, [FromServices] ITodoService todoService, Guid id, [FromBody] TodoItemDto todoItem)
     {
         if (todoItem.Id != null && todoItem.Id != id)
         {
@@ -88,7 +89,7 @@ public static class TodoItemEndpoints
         );
     }
 
-    private static async Task<IResult> Delete(ITodoService todoService, Guid id)
+    private static async Task<IResult> Delete([FromServices] ITodoService todoService, Guid id)
     {
         await todoService.DeleteItemAsync(id);
         return Results.NoContent();

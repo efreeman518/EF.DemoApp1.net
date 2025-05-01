@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
+using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 using Package.Infrastructure.AspNetCore.Filters;
 using AppConstants = Application.Contracts.Constants.Constants;
@@ -36,19 +37,19 @@ public static class ExternalEndpoints
         //    .Produces<object?>().ProducesProblem(500);
     }
 
-    private static async Task<IResult> GetPage1(ISampleApiRestClient apiClient, int pageSize = 10, int pageIndex = 1)
+    private static async Task<IResult> GetPage1([FromServices] ISampleApiRestClient apiClient, int pageSize = 10, int pageIndex = 1)
     {
         var items = await apiClient.GetPageAsync(pageSize, pageIndex);
         return TypedResults.Ok(items);
     }
 
-    private static async Task<IResult> GetPage1_1(ISampleApiRestClient apiClient, int pageSize = 20, int pageIndex = 1)
+    private static async Task<IResult> GetPage1_1([FromServices] ISampleApiRestClient apiClient, int pageSize = 20, int pageIndex = 1)
     {
         var items = await apiClient.GetPageAsync(pageSize, pageIndex);
         return TypedResults.Ok(items);
     }
 
-    private static async Task<IResult> GetById(ISampleApiRestClient apiClient, Guid id)
+    private static async Task<IResult> GetById([FromServices] ISampleApiRestClient apiClient, Guid id)
     {
         var todoItem = await apiClient.GetItemAsync(id);
         return (todoItem != null)
@@ -56,7 +57,7 @@ public static class ExternalEndpoints
            : TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound));
     }
 
-    private static async Task<IResult> Create(HttpContext httpContext, ISampleApiRestClient apiClient, TodoItemDto todoItemDto)
+    private static async Task<IResult> Create(HttpContext httpContext, [FromServices] ISampleApiRestClient apiClient, [FromBody] TodoItemDto todoItemDto)
     {
         var result = await apiClient.SaveItemAsync(todoItemDto);
         return result.Match<IResult>(
@@ -65,7 +66,7 @@ public static class ExternalEndpoints
             );
     }
 
-    private static async Task<IResult> Update(HttpContext httpContext, ISampleApiRestClient apiClient, Guid id, TodoItemDto todoItem)
+    private static async Task<IResult> Update(HttpContext httpContext, [FromServices] ISampleApiRestClient apiClient, Guid id, [FromBody] TodoItemDto todoItem)
     {
         //validator?
         if (todoItem.Id != null && todoItem.Id != id)
@@ -79,7 +80,7 @@ public static class ExternalEndpoints
             err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace)));
     }
 
-    private static async Task<IResult> Delete(ISampleApiRestClient apiClient, Guid id)
+    private static async Task<IResult> Delete([FromServices] ISampleApiRestClient apiClient, Guid id)
     {
         await apiClient.DeleteItemAsync(id);
         return Results.NoContent();

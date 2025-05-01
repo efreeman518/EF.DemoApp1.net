@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Contracts.Services;
+using Microsoft.AspNetCore.Mvc;
 using Package.Infrastructure.AspNetCore;
 
 namespace SampleApp.Api.Endpoints;
@@ -18,7 +19,7 @@ public static class AssistantEndpoints
             .WithSummary("Submit a chat message and expect a response.");
     }
 
-    private static async Task<IResult> AppendMessage(HttpContext httpContext, IJobAssistantOrchestrator assistantService, AssistantRequest request)
+    private static async Task<IResult> AppendMessage(HttpContext httpContext, [FromServices] IJobAssistantOrchestrator assistantService, [FromBody] AssistantRequest request)
     {
         var result = await assistantService.AssistantRunAsync(request);
         return result.Match<IResult>(
