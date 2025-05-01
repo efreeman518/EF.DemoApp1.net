@@ -70,7 +70,9 @@ jobs:
 
       - name: Zip published output (only if tests passed)
         if: steps.unit-tests-step.outcome == 'success'
-        run: zip -r artifact.zip publish
+        run: |
+          cd publish
+          zip -r ../artifact.zip .
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)
