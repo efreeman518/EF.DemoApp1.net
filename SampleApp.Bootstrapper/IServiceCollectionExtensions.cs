@@ -337,7 +337,7 @@ public static class IServiceCollectionExtensions
         //EF-sql repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
-        
+
         //register EF interceptors
         services.AddScoped<AuditInterceptor>();
         services.AddScoped<ReadUncommittedInterceptor>();
@@ -359,7 +359,9 @@ public static class IServiceCollectionExtensions
 
             services
                 .AddDbContext<TodoDbContextQuery>((sp, opt) =>
-                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot));
+                {
+                    opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot);
+                });
         }
         else
         {
@@ -573,8 +575,8 @@ public static class IServiceCollectionExtensions
                     services.AddSingleton<KernelPluginCollection>((serviceProvider) =>
                         [
                             KernelPluginFactory.CreateFromObject(serviceProvider.GetRequiredService<JobSearchPlugin>()),
-                            //KernelPluginFactory.CreateFromObject(serviceProvider.GetRequiredService<MemorySearchPlugin>()),
-                            //KernelPluginFactory.CreateFromObject(new MemoryPlugin(memory)) //Microsoft.KernelMemory.SemanticKernelPlugin
+                        //KernelPluginFactory.CreateFromObject(serviceProvider.GetRequiredService<MemorySearchPlugin>()),
+                        //KernelPluginFactory.CreateFromObject(new MemoryPlugin(memory)) //Microsoft.KernelMemory.SemanticKernelPlugin
                         ]
                     );
 
