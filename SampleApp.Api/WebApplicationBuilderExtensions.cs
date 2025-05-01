@@ -68,7 +68,7 @@ public static partial class WebApplicationBuilderExtensions
                 parameter = generatedOperation.Parameters[1];
                 parameter.Description = $"External service scope .default";
                 return generatedOperation;
-            }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredetnial (Managed identity, env vars, VS logged in user, etc.");
+            }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredential (Managed identity, env vars, VS logged in user, etc.");
 
             //.net9 //openapi/v1.json
             app.MapOpenApi();
