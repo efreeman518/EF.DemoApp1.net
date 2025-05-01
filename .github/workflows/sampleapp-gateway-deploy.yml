@@ -61,6 +61,10 @@ jobs:
           slot-name: 'Production'
           package: ./artifact
 
+      - name: Restart Azure App Service
+        run: |
+          az webapp restart --name ${{ vars.APP_SERVICE_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }}
+
   deploy-prod:
     needs: deploy-dev
     runs-on: ubuntu-latest

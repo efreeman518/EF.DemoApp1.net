@@ -90,6 +90,7 @@ public static partial class WebApplicationBuilderExtensions
         //app.UseSomeMiddleware();
 
         //endpoints
+        app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
         //app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();

@@ -22,6 +22,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseAuthorization();
 
         //endpoints
+        app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
 
         //helpful for debugging

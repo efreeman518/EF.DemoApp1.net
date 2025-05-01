@@ -109,27 +109,6 @@ runs:
           --assign-identity ${{ inputs.identity-resource-id }} \
           --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true'"
 
-        # for i in {1..30}; do
-        #   STATUS=$(az container show \
-        #     --resource-group ${{ inputs.resource-group }} \
-        #     --name $ACI_NAME \
-        #     --query "instanceView.state" \
-        #     --output tsv)
-
-        #   echo "Status: $STATUS"
-
-        #   if [[ "$STATUS" == "Succeeded" ]]; then
-        #     echo "Deployment completed successfully"
-        #     break
-        #   elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-        #     echo "Deployment failed. Logs:"
-        #     az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
-        #     exit 1
-        #   fi
-
-        #   sleep 10
-        # done
-
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
 
