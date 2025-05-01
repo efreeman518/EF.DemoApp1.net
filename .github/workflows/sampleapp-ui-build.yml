@@ -46,7 +46,7 @@ jobs:
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
       - name: Copy appsettings.json to publish/wwwroot
-        run: cp SampleApp.UI1/wwwroot/appsettings.json SampleApp.UI1/publish/wwwroot/appsettings.json
+        run: cp SampleApp.UI1/wwwroot/appsettings.json SampleApp.UI1/publish/appsettings.json
 
       # - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
       #   run: |
