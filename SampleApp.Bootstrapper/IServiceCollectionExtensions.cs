@@ -337,8 +337,10 @@ public static class IServiceCollectionExtensions
         //EF-sql repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
-
+        
+        //register EF interceptors
         services.AddScoped<AuditInterceptor>();
+        services.AddScoped<ReadUncommittedInterceptor>();
 
         //Database 
         var trxnDBconnectionString = config.GetConnectionString("TodoDbContextTrxn");
@@ -368,7 +370,6 @@ public static class IServiceCollectionExtensions
             //sp is not scoped for the DbContextPool, so we can't use it to get the auditInterceptor
             services.AddDbContext<TodoDbContextTrxn>((sp, options) =>
             {
-                var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
                 if (trxnDBconnectionString.Contains("database.windows.net"))
                 {
                     options.UseAzureSql(trxnDBconnectionString, azureSqlOptionsAction: sqlOptions =>
@@ -394,15 +395,16 @@ public static class IServiceCollectionExtensions
                             //sqlOptions.UseRelationalNulls(true);
                         });
                 }
+                var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
                 options
-                .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
-                .AddInterceptors(auditInterceptor);
+                    .UseExceptionProcessor() //useable exceptions - https://github.com/Giorgi/EntityFramework.Exceptions
+                    .AddInterceptors(auditInterceptor);
             });
 
             var queryDBconnectionString = config.GetConnectionString("TodoDbContextQuery");
             if (queryDBconnectionString != null)
             {
-                services.AddDbContext<TodoDbContextQuery>(options =>
+                services.AddDbContext<TodoDbContextQuery>((sp, options) =>
                 {
                     if (queryDBconnectionString.Contains("database.windows.net"))
                     {
@@ -439,6 +441,8 @@ public static class IServiceCollectionExtensions
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
                     }
+                    var noLockInterceptor = sp.GetRequiredService<ReadUncommittedInterceptor>();
+                    options.AddInterceptors(noLockInterceptor);
                 });
             }
 

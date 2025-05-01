@@ -12,6 +12,15 @@
   <PropertyGroup>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="wwwroot\appsettings.Development.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\appsettings.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
@@ -32,9 +41,4 @@
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
-  <!-- Blazor publish doesn't consider appsettings.json so force it
-  <Target Name="CopyAppSettingsToWwwroot" AfterTargets="Publish">
-    <Copy SourceFiles="wwwroot\appsettings.json" DestinationFolder="$(PublishDir)wwwroot\" />
-  </Target>
-  -->
 </Project>

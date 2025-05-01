@@ -79,6 +79,13 @@ try
             appName, "Shared");
     }
 
+    //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
+    //user secrets are only available when running locally
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Configuration.AddUserSecrets<Program>();
+    }
+
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)
     //endpoint = builder.Configuration.GetValue<string>("KeyVaultEndpoint");
     //if (!string.IsNullOrEmpty(endpoint))

@@ -45,20 +45,23 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
-      - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
-        run: |
-          #delete compressed appsettings versions
-          rm -f ./publish/wwwroot/appsettings.json.gz
-          rm -f ./publish/wwwroot/appsettings.json.br
-          rm -f ./publish/wwwroot/_framework/appsettings.json.gz
-          rm -f ./publish/wwwroot/_framework/appsettings.json.br
-          #delete environment based appsettings files
-          rm -f ./publish/wwwroot/appsettings.*.json
-          rm -f ./publish/wwwroot/appsettings.*.json.gz
-          rm -f ./publish/wwwroot/appsettings.*.json.br
-          rm -f ./publish/wwwroot/_framework/appsettings.*.json*
-          rm -f ./publish/wwwroot/_framework/appsettings.*.json.gz
-          rm -f ./publish/wwwroot/_framework/appsettings.*.json.br
+      - name: Copy appsettings.json to publish/wwwroot
+        run: cp SampleApp.UI1/wwwroot/appsettings.json SampleApp.UI1/publish/wwwroot/appsettings.json
+
+      # - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
+      #   run: |
+      #     #delete compressed appsettings versions
+      #     rm -f ./publish/wwwroot/appsettings.json.gz
+      #     rm -f ./publish/wwwroot/appsettings.json.br
+      #     rm -f ./publish/wwwroot/_framework/appsettings.json.gz
+      #     rm -f ./publish/wwwroot/_framework/appsettings.json.br
+      #     #delete environment based appsettings files
+      #     rm -f ./publish/wwwroot/appsettings.*.json
+      #     rm -f ./publish/wwwroot/appsettings.*.json.gz
+      #     rm -f ./publish/wwwroot/appsettings.*.json.br
+      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json*
+      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.gz
+      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.br
 
           # cd ../..
 

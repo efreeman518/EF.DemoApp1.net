@@ -12,6 +12,27 @@ using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+using (var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+{
+    // Load base config
+    var baseStream = await http.GetStreamAsync("appsettings.json");
+    builder.Configuration.AddJsonStream(baseStream);
+
+    // Optionally override with environment config
+    if (builder.HostEnvironment.IsDevelopment())
+    {
+        try
+        {
+            var devStream = await http.GetStreamAsync("appsettings.Development.json");
+            builder.Configuration.AddJsonStream(devStream);
+        }
+        catch
+        {
+            Console.WriteLine("Development config not found, skipping override.");
+        }
+    }
+}
+
 //AZURE AD B2C AUTHENTICATION
 //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standalone-with-azure-active-directory-b2c?view=aspnetcore-9.0
 //https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows?pivots=b2c-user-flow
