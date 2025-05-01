@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Package.Infrastructure.AzureOpenAI.Chat;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
 using System.Text.Json;
@@ -50,7 +49,7 @@ public static class BlandAIEndpoints
             //4)Describe your resting pain level on a scale of 1 - 10 ? 5)Describe your pain level climbing stairs 1 - 10 ?
             //6)Are you male or female ? 7)What is your current age ? 8)What is your favorite color ? 9)Feedback on this call?
 
-           Task = @"You are Betty, an AI assistant from {{company}} calling {{name}}, get answers to the following questions: 
+            Task = @"You are Betty, an AI assistant from {{company}} calling {{name}}, get answers to the following questions: 
                 1)What is your profession? 2)What are your areas of expertise? 3)What is your availability by days and work hours? 
                 4)How soon can you start?, 5)What time of the day do you normally jump to warp speed?, 6)Favorite color?, 7)Gender (male or female)?, 8)Current Age? 9)Feedback on this call
             ",

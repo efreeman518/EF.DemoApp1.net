@@ -92,7 +92,11 @@ builder.Services.AddScoped(provider =>
 
 //SampleAppGateway client - Refit
 builder.Services.AddRefitClient<ISampleAppClient>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["SampleAppGateway:BaseUrl"]!))
+    .ConfigureHttpClient(c =>
+    {
+        c.BaseAddress = new Uri(builder.Configuration["SampleAppGateway:BaseUrl"]!);
+        c.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString()); //create a correlation id to track the request
+    })
     .AddHttpMessageHandler<ApiAuthHandler>()
     .ConfigureHttpClient((sp, client) =>
     {

@@ -9,8 +9,6 @@ using Application.Services.JobSK.Plugins;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
-using CorrelationId.Abstractions;
-using CorrelationId.HttpClient;
 using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
@@ -294,10 +292,7 @@ public static class IServiceCollectionExtensions
         services.AddScoped<IRequestContext<string>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
-
-            //https://github.com/stevejgordon/CorrelationId/wiki
-            var correlationId = provider.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
-                ?? Guid.NewGuid().ToString();
+            var correlationId = httpContext?.Request.Headers["X-Correlation-ID"].FirstOrDefault() ?? Guid.NewGuid().ToString();
 
             //Background services will not have an http context
             if (httpContext == null)
@@ -712,11 +707,11 @@ public static class IServiceCollectionExtensions
 
 
             //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
-            if (hasHttpContext)
-            {
-                httpClientBuilder.AddCorrelationIdForwarding();
-                httpClientBuilder.AddHeaderPropagation();
-            }
+            //if (hasHttpContext)
+            //{
+            //    httpClientBuilder.AddCorrelationIdForwarding();
+            //    httpClientBuilder.AddHeaderPropagation();
+            //}
         }
 
         //OpenAI chat service

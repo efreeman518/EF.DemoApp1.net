@@ -1,8 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Asp.Versioning;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Monitor.OpenTelemetry.Exporter;
-using CorrelationId.DependencyInjection;
 using FluentValidation;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +10,7 @@ using Microsoft.Identity.Web;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Grpc;
@@ -32,9 +31,9 @@ internal static class IServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
-    /// <param name="logger"></param>
+    /// <param name="loggerStartup"></param>
     /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
@@ -63,6 +62,7 @@ internal static class IServiceCollectionExtensions
                     });
             });
 
+        //?not needed - already in OpenTelemetry
         //.UseAzureMonitor(options =>
         //{
         //    options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
@@ -77,51 +77,41 @@ internal static class IServiceCollectionExtensions
             options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         });
 
-        //header propagation - implement here since integration testing breaks when there is no existing http request, so no headers to propagate
-        services.AddHeaderPropagation();
-        //.AddHeaderPropagation(options =>
-        //{
-        //    options.Headers.Add("x-request-id");
-        //    options.Headers.Add("x-correlation-id");
-        //    options.Headers.Add("x-username-etc");
-        //}); 
-        //.AddCorrelationIdForwarding();
-
-        //https://github.com/stevejgordon/CorrelationId/wiki
-        services.AddDefaultCorrelationId(options =>
+        string corsConfigSectionName = "Cors";
+        var corsConfigSection = config.GetSection(corsConfigSectionName);
+        if (corsConfigSection.GetChildren().Any())
         {
-            options.AddToLoggingScope = true;
-            options.UpdateTraceIdentifier = true; //ASP.NET Core TraceIdentifier 
-        });
-
-        services.AddCors(opt =>
-        {
-            opt.AddPolicy(name: "AllowSpecific", options =>
+            var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
+            loggerStartup.LogInformation("Configure CORS - {PolicyName}", policyName);
+            services.AddCors(options =>
             {
-                options.AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-                //.AllowCredentials(); //does not work with AllowAnyOrigin()
-                //.SetIsOriginAllowed(origin => true) // replaces .AllowAnyOrigin() and allows any origin with AllowAnyOrigin()
+                options.AddPolicy(policyName, builder =>
+                {
+                    var origins = corsConfigSection.GetSection("AllowedOrigins").Get<string[]>();
+                    builder.WithOrigins(origins!)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); //does not work with AllowAnyOrigin()
+                });
             });
-        });
+        }
 
         //Auth
-        string configSectionName = "Api1_EntraID";
-        var configSection = config.GetSection(configSectionName);
+        string authConfigSectionName = "Api1_EntraID";
+        var configSection = config.GetSection(authConfigSectionName);
         if (configSection.GetChildren().Any())
         {
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
 
-            logger.LogInformation("Configure auth - {ConfigSectionName}", configSectionName);
+            loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddMicrosoftIdentityWebApi(config.GetSection(configSectionName));
+            .AddMicrosoftIdentityWebApi(config.GetSection(authConfigSectionName));
 
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-web-api-call-api-app-configuration?tabs=aspnetcore
             //.EnableTokenAcquisitionToCallDownstreamApi() 
@@ -159,11 +149,13 @@ internal static class IServiceCollectionExtensions
         //global unhandled exception handler
         services.AddExceptionHandler<DefaultExceptionHandler>();
 
+        //this should be deprecated with net10 minimal api validation
         //if needed
         //services.AddScoped<IValidatorDiscovery, ValidatorDiscovery>();
         services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
 
-        services.AddControllers();
+        //controllers?
+        //services.AddControllers();
 
         //convenient for model validation; built in IHostEnvironmentExtensions.BuildProblemDetailsResponse
         services.AddProblemDetails(options =>
@@ -230,7 +222,14 @@ internal static class IServiceCollectionExtensions
             .AddDbContextCheck<TodoDbContextQuery>("TodoDbContextQuery", tags: healthCheckTagsFullDb)
             .AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
 
-        //Todo - for http clients previously registered in infrastructure services, add header propagation here since it only applies at runtime when an http context is present
+        //for http clients previously registered in infrastructure services, add header propagation here since it only applies at runtime when an http context is present
+        services.AddHeaderPropagation(options =>
+        {
+            options.Headers.Add("X-Correlation-ID");
+        });
+        //generate correlation ID if not present
+        services.AddHttpContextAccessor();
+        services.AddTransient<IStartupFilter, CorrelationIdStartupFilter>();
 
         return services;
     }

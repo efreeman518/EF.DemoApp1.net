@@ -6,10 +6,16 @@ public static partial class WebApplicationBuilderExtensions
 {
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
-        //var config = app.Configuration;
-
         app.UseHttpsRedirection();
-        app.UseCors();
+
+        //Cors
+        string corsConfigSectionName = "Cors";
+        var corsConfigSection = app.Configuration.GetSection(corsConfigSectionName);
+        if (corsConfigSection.GetChildren().Any())
+        {
+            var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
+            app.UseCors(policyName);
+        }
 
         app.UseRouting();
         app.UseAuthentication();

@@ -10,9 +10,12 @@ using SampleApp.Bootstrapper;
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
 //- logging gets Console
 var builder = WebApplication.CreateBuilder(args);
-var appName = builder.Configuration.GetValue<string>("AppName")!;
-var env = builder.Configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
-var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]!;
+var config = builder.Configuration;
+var services = builder.Services;
+var appName = config.GetValue<string>("AppName")!;
+var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
+// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-9.0
+var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined";
 
 //static logger factory setup - for startup
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
@@ -28,11 +31,11 @@ StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 
 //startup logger
 ILogger<Program> loggerStartup = StaticLogging.CreateLogger<Program>();
-loggerStartup.LogInformation("{AppName} - Startup.", appName);
+loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env);
 
 try
 {
-    loggerStartup.LogInformation("{AppName} - Configure app logging.", appName);
+    loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
     builder.Logging
         .ClearProviders()
         .AddOpenTelemetry(options =>
@@ -59,23 +62,20 @@ try
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
     var credentialOptions = new DefaultAzureCredentialOptions();
     //Specifies the client id of a user assigned ManagedIdentity. 
-    string? credOptionsManagedIdentity = builder.Configuration.GetValue<string?>("ManagedIdentityClientId", null);
+    string? credOptionsManagedIdentity = config.GetValue<string?>("ManagedIdentityClientId", null);
     if (credOptionsManagedIdentity != null) credentialOptions.ManagedIdentityClientId = credOptionsManagedIdentity;
     //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
-    string? credOptionsTenantId = builder.Configuration.GetValue<string?>("SharedTokenCacheTenantId", null);
+    string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
-    //configuration
-    string? endpoint;
-
     //Azure AppConfig
-    var appConfig = builder.Configuration.GetSection("AzureAppConfig");
+    var appConfig = config.GetSection("AzureAppConfig");
     if (appConfig.GetChildren().Any())
     {
-        endpoint = appConfig.GetValue<string>("Endpoint");
-        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+        var appConfigEndpoint = appConfig.GetValue<string>("Endpoint");
+        loggerStartup.LogInformation("{AppName} {Environment} - Add Azure App Configuration {Endpoint}", appName, env, appConfigEndpoint);
+        builder.AddAzureAppConfiguration(appConfigEndpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             appName, "Shared");
     }
 
@@ -94,13 +94,6 @@ try
     //    builder.Configuration.AddAzureKeyVault(new Uri(endpoint), credential);
     //}
 
-    //load user secrets here which will override all previous (appsettings.json, env vars, Azure App Config, etc)
-    //user secrets are only available when running locally
-    //if (builder.Environment.IsDevelopment())
-    //{
-    //    builder.Configuration.AddUserSecrets<Program>();
-    //}
-
     //Custom configuration provider - from DB
     //var connectionString = builder.Configuration.GetConnectionString("TodoDbContextQuery") ?? "";
     //builder.Configuration.AddDatabaseSource(connectionString, new TimeSpan(1, 0, 0));
@@ -108,19 +101,18 @@ try
     //Data Protection - use blob storage (key file) and AKV; server farm/instances will all use the same keys
     //register here since credential has been configured
     //https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
-    string? dataProtectionKeysFileUrl = builder.Configuration.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
-    string? dataProtectionEncryptionKeyUrl = builder.Configuration.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
+    string? dataProtectionKeysFileUrl = config.GetValue<string?>("DataProtectionKeysFileUrl", null); //blob key file
+    string? dataProtectionEncryptionKeyUrl = config.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
     {
-        loggerStartup.LogInformation("{AppName} - Configure Data Protection.", appName);
-        builder.Services.AddDataProtection()
+        loggerStartup.LogInformation("{AppName} {Environment} - Configure Data Protection.", appName, env);
+        services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(new Uri(dataProtectionKeysFileUrl), credential)
             .ProtectKeysWithAzureKeyVault(new Uri(dataProtectionEncryptionKeyUrl), credential);
     }
 
-    loggerStartup.LogInformation("{AppName} - Register services.", appName);
-    var config = builder.Configuration;
-    builder.Services
+    loggerStartup.LogInformation("{AppName} {Environment} - Register services.", appName, env);
+    services
         //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
         .RegisterInfrastructureServices(config, true)
         //domain services
@@ -133,7 +125,7 @@ try
         .RegisterApiServices(config, loggerStartup);
 
     var app = builder.Build().ConfigurePipeline();
-    loggerStartup.LogInformation("{AppName} - Running startup tasks.", appName);
+    loggerStartup.LogInformation("{AppName} {Environment} - Running startup tasks.", appName, env);
     await app.RunStartupTasks();
 
     //static logger factory setup - re-configure for application static logging using the DI logger factory

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using System.Net.Http.Headers;
 using Yarp.ReverseProxy.Transforms;
@@ -27,36 +28,41 @@ public static class IServiceCollectionExtensions
         //    options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         //});
 
-        loggerStartup.LogInformation("Configure CORS: {Origin}", config.GetValue<string>("UI:BaseUrl"));   
-        
-        services.AddCors(options =>
+        string corsConfigSectionName = "Cors";
+        var corsConfigSection = config.GetSection(corsConfigSectionName);
+        if (corsConfigSection.GetChildren().Any())
         {
-            options.AddDefaultPolicy(policy =>
+            var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
+            loggerStartup.LogInformation("Configure CORS - {PolicyName}", policyName);
+            services.AddCors(options =>
             {
-                policy.WithOrigins(config.GetValue<string>("UI:BaseUrl")!) // Adjust to your UI's address
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials(); //does not work with AllowAnyOrigin()
-                                         //.SetIsOriginAllowed(origin => true) // replaces .AllowAnyOrigin() and allows any origin with AllowAnyOrigin()
+                options.AddPolicy(policyName, builder =>
+                {
+                    var origins = corsConfigSection.GetSection("AllowedOrigins").Get<string[]>();
+                    builder.WithOrigins(origins!)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); //does not work with AllowAnyOrigin()
+                });
             });
-        });
+        }
 
         //Auth
-        string configSectionName = "Gateway_AzureAdB2C"; //AzureAdB2C / EntraID
-        var configSection = config.GetSection(configSectionName);
+        string authConfigSectionName = "Gateway_AzureAdB2C"; //AzureAdB2C / EntraID
+        var configSection = config.GetSection(authConfigSectionName);
         if (configSection.GetChildren().Any())
         {
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
             //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
             //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
 
-            loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", configSectionName);
+            loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddMicrosoftIdentityWebApi(config.GetSection(configSectionName));
+            .AddMicrosoftIdentityWebApi(config.GetSection(authConfigSectionName));
 
             //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-web-api-call-api-app-configuration?tabs=aspnetcore
             //.EnableTokenAcquisitionToCallDownstreamApi() 
@@ -114,21 +120,29 @@ public static class IServiceCollectionExtensions
                 var clusterId = context.Cluster?.ClusterId;
                 if (string.IsNullOrEmpty(clusterId)) return;
 
-
-                //if (!string.IsNullOrEmpty(token))
-                //{
                 context.AddRequestTransform(async context =>
                 {
+                    //add token auth header
                     var token = await tokenService.GetAccessTokenAsync(clusterId);
-
-                    // Remove the existing Authorization header (if any)
-                    context.ProxyRequest.Headers.Authorization = null;
                     context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                    //return ValueTask.CompletedTask;
+
+                    //add correlation id header if present in request
+                    var httpContext = context.HttpContext;
+                    if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
+                    {
+                        context.ProxyRequest.Headers.TryAddWithoutValidation("X-Correlation-ID", (string?)correlationId);
+                    }
                 });
-                //}
             });
 
+        //propagate headers to downstream services (e.g. correlation id)
+        services.AddHeaderPropagation(options =>
+        {
+            options.Headers.Add("X-Correlation-ID");
+        });
+        //generate correlation ID if not present
+        services.AddHttpContextAccessor();
+        services.AddTransient<IStartupFilter, CorrelationIdStartupFilter>();
 
         //if (config.GetValue("OpenApiSettings:Enable", false))
         //{

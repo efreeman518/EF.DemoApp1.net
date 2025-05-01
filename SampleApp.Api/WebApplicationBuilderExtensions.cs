@@ -1,5 +1,4 @@
-﻿using CorrelationId;
-using LazyCache;
+﻿using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore.HealthChecks;
@@ -43,7 +42,14 @@ public static partial class WebApplicationBuilderExtensions
         //global error handler
         //app.UseExceptionHandler(); ?? not needed, handled by services.AddExceptionHandler<DefaultExceptionHandler>();
 
-        app.UseCors("AllowSpecific");
+        //Cors
+        string corsConfigSectionName = "Cors";
+        var corsConfigSection = config.GetSection(corsConfigSectionName);
+        if (corsConfigSection.GetChildren().Any())
+        {
+            var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
+            app.UseCors(policyName);
+        }
 
         //before auth so it will render without auth
         //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/openapi?view=aspnetcore-8.0
@@ -77,15 +83,15 @@ public static partial class WebApplicationBuilderExtensions
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
-        app.UseHeaderPropagation();
+        //app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
+        //app.UseHeaderPropagation();
 
         //any other middleware
         //app.UseSomeMiddleware();
 
         //endpoints
         app.MapHealthChecks();
-        app.MapControllers(); //.RequireAuthorization();
+        //app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
 
         //api versioning

@@ -52,7 +52,7 @@ public class Original
     public string? CId { get; set; }
 }
 
-public class CorrectedTranscript 
+public class CorrectedTranscript
 {
     [JsonPropertyName("corrected")]
     public List<Corrected> Corrected { get; set; } = null!;

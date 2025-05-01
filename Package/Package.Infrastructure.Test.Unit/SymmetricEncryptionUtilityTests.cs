@@ -6,7 +6,7 @@ namespace Package.Infrastructure.Test.Unit;
 [TestClass]
 public class SymmetricEncryptionUtilityTests
 {
-    
+
     [TestMethod]
     public void Encrypt_Decrypt_Success()
     {

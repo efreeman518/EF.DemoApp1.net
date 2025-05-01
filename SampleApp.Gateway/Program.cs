@@ -4,16 +4,18 @@ using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Gateway;
+using System.Net;
 
 //CreateBuilder defaults:
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
 //- logging gets Console
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
 var config = builder.Configuration;
+var services = builder.Services;
 var appName = config.GetValue<string>("AppName");
-var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
 var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
+// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-9.0
+var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined";
 
 //static logger factory setup - for startup
 StaticLogging.CreateStaticLoggerFactory(logBuilder =>
@@ -29,11 +31,11 @@ StaticLogging.CreateStaticLoggerFactory(logBuilder =>
 
 //startup logger
 ILogger<Program> loggerStartup = StaticLogging.CreateLogger<Program>();
-loggerStartup.LogInformation("{AppName} env:{Environment} - Startup.", appName, env);
+loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env);
 
 try
 {
-    loggerStartup.LogInformation("{AppName} env:{Environment} - Configure app logging.", appName, env);
+    loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
     builder.Logging
         .ClearProviders()
         .AddOpenTelemetry(options =>
@@ -42,7 +44,7 @@ try
             options.IncludeScopes = true;
             options.AddAzureMonitorLogExporter(options =>
             {
-                options.ConnectionString = config["ApplicationInsights:ConnectionString"]!;
+                options.ConnectionString = appInsightsConnectionString;
             });
         });
     //old way
@@ -67,16 +69,13 @@ try
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
-    //configuration
-    string? endpoint;
-
     //Azure AppConfig
     var appConfig = config.GetSection("AzureAppConfig");
     if (appConfig.GetChildren().Any())
     {
-        endpoint = appConfig.GetValue<string>("Endpoint");
-        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", appName, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+        var appConfigEndpoint = appConfig.GetValue<string>("Endpoint");
+        loggerStartup.LogInformation("{AppName} {Environment} - Add Azure App Configuration {Endpoint}", appName, env, appConfigEndpoint);
+        builder.AddAzureAppConfiguration(appConfigEndpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             "Gateway", "Shared");
     }
 
@@ -102,7 +101,7 @@ try
     string? dataProtectionEncryptionKeyUrl = config.GetValue<string?>("DataProtectionEncryptionKeyUrl", null); //vault encryption key
     if (!string.IsNullOrEmpty(dataProtectionKeysFileUrl) && !string.IsNullOrEmpty(dataProtectionEncryptionKeyUrl))
     {
-        loggerStartup.LogInformation("{AppName} env:{Environment} - Configure Data Protection.", appName, env);
+        loggerStartup.LogInformation("{AppName} {Environment} - Configure Data Protection.", appName, env);
         builder.Services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(new Uri(dataProtectionKeysFileUrl), credential)
             .ProtectKeysWithAzureKeyVault(new Uri(dataProtectionEncryptionKeyUrl), credential);
@@ -117,11 +116,11 @@ try
 }
 catch (Exception ex)
 {
-    loggerStartup.LogCritical(ex, "{AppName} env:{Environment} - Host terminated unexpectedly.", appName, env);
+    loggerStartup.LogCritical(ex, "{AppName} {Environment} - Host terminated unexpectedly.", appName, env);
 }
 finally
 {
-    loggerStartup.LogInformation("{AppName} env:{Environment} - Ending application.", appName, env);
+    loggerStartup.LogInformation("{AppName} {Environment} - Ending application.", appName, env);
 }
 
 

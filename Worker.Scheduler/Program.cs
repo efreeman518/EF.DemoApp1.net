@@ -1,6 +1,6 @@
-using SampleApp.Bootstrapper;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
+using SampleApp.Bootstrapper;
 
 const string SERVICE_NAME = "Worker.Scheduler";
 

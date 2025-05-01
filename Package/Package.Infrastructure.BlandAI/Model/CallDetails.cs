@@ -23,7 +23,7 @@ public class CallDetails
     public double? CallLength { get; set; }
 
     [JsonPropertyName("batch_id")]
-    public string? BatchId { get; set; } 
+    public string? BatchId { get; set; }
 
     [JsonPropertyName("to")]
     public string To { get; set; } = null!;
