@@ -27,6 +27,8 @@ public static class IServiceCollectionExtensions
         //    options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
         //});
 
+        loggerStartup.LogInformation("Configure CORS: {Origin}", config.GetValue<string>("UI:BaseUrl"));   
+        
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>

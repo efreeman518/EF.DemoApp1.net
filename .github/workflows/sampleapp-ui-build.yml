@@ -64,9 +64,6 @@ jobs:
       - name: Copy appsettings.json after publish
         run: cp ./SampleApp.UI1/wwwroot/appsettings.json publish/wwwroot/appsettings.json
 
-      # - name: List publish folder contents
-      #   run: ls -R publish
-
       - name: Zip published wwwroot
         run: |
           cd publish/wwwroot
