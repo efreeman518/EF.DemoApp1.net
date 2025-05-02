@@ -131,7 +131,7 @@ runs:
 
         while true; do
             STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-            #LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" || true)
+            LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" || true)
 
             echo "Current Status: $STATUS"
             # echo "Logs: $LOGS"
