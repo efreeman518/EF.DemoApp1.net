@@ -24,8 +24,9 @@ permissions:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
+    environment: dev # This is the environment name in GitHub
     env:
-      environment: dev 
+      ENVIRONMENT_NAME: ${{ job.environment.name }} # This is the real GitHub environment
     steps:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
@@ -43,7 +44,7 @@ jobs:
       - name: debug
         run: |
           echo "github-run-id=${{ github.run_id }}"
-          echo "environment=${{ env.environment }}"
+          echo "environment=$ENVIRONMENT_NAME"
           echo "RESOURCE_GROUP=${{ vars.RESOURCE_GROUP }}"
           echo "IDENTITY_RESOURCE_ID=${{ vars.IDENTITY_RESOURCE_ID }}"
           echo "ACI_VNET=${{ vars.ACI_VNET }}"
@@ -55,7 +56,7 @@ jobs:
           github-run-id: ${{ github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
           artifact-path: ./artifact
-          environment: ${{ env.environment }}
+          environment: $ENVIRONMENT_NAME
           resource-group: ${{ vars.RESOURCE_GROUP }}
           region: ${{ vars.REGION }}
           identity-resource-id: ${{ vars.IDENTITY_RESOURCE_ID }}
