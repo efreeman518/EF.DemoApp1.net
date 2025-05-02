@@ -107,7 +107,7 @@ runs:
           --location  ${{ inputs.region }} \
           --restart-policy Never \
           --assign-identity ${{ inputs.identity-resource-id }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true'"
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart false'"
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
@@ -143,6 +143,11 @@ runs:
           echo "Timeout reached - deployment did not complete"
           exit 1
         fi
+
+        echo "Restarting App Service after successful deployment..."
+        az webapp restart \
+          --resource-group "${{ inputs.resource-group }}" \
+          --name "${{ inputs.app-service-name }}"
 
         az container delete \
           --resource-group ${{ inputs.resource-group }} \
