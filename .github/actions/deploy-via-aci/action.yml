@@ -112,6 +112,11 @@ runs:
 
         trap cleanup EXIT
 
+        # Start log streaming in background
+        az container logs --resource-group "rg-dev1" --name "$ACI_NAME" --follow > deployment.log &
+        LOGS_PID=$!
+        trap "kill $LOGS_PID 2>/dev/null" EXIT
+
         az container create \
           --resource-group ${{ inputs.resource-group }} \
           --name $ACI_NAME \
@@ -124,55 +129,57 @@ runs:
           --location  ${{ inputs.region }} \
           --restart-policy Never \
           --assign-identity ${{ inputs.identity-resource-id }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && if az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart false; then echo \"DEPLOYMENT_SUCCESS\" && exit 0; else exit 1; fi'"
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true && echo \"DEPLOYMENT_COMPLETED\" && exit 0 || (echo \"DEPLOYMENT_FAILED\" && exit 1)'"
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
+        DEPLOYMENT_SUCCESS=false
 
         while true; do
-            STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-            LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" || true)
-
-            echo "Current Status: $STATUS"
-            echo "Logs: $LOGS"
-
-            if [[ "$LOGS" == *"DEPLOYMENT_SUCCESS"* ]]; then
-                echo "Deployment succeeded"
-                exit 0
+            # Check logs for success/failure markers
+            if grep -q "DEPLOYMENT_COMPLETED" deployment.log || grep -q "Deployment successful" deployment.log; then
+                echo "Deployment success detected in logs"
+                DEPLOYMENT_SUCCESS=true
+                break
             fi
-
-            if [[ "$LOGS" == *"Deployment successful"* ]]; then
-                echo "Found success message in logs"
-                exit 0
-            fi
-
-            if [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-                echo "Deployment failed. Logs:"
-                az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
+    
+            if grep -q "DEPLOYMENT_FAILED" deployment.log; then
+                echo "Deployment failure detected in logs"
                 exit 1
             fi
 
+            # Check container status as secondary check
+            STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
+            echo "Container Status: $STATUS"
+    
+            if [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+                echo "Container failed or stopped"
+                exit 1
+            fi
+
+            # Timeout check
             CURRENT_TIME=$(date +%s)
             ELAPSED=$((CURRENT_TIME - START_TIME))
-
             if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
-                echo "Timeout reached - deployment did not complete"
+                echo "Timeout reached - last 100 lines of logs:"
+                tail -n 100 deployment.log
                 exit 1
             fi
 
             sleep 10
         done
+
+        if $DEPLOYMENT_SUCCESS; then
+            echo "Restarting App Service after successful deployment..."
+            az webapp restart --resource-group "${{ inputs.resource-group }}" --name "${{ inputs.app-service-name }}"
+            exit 0
+        else
+            exit 1
+        fi
         
         # Print final logs
-        az container logs --resource-group "rg-dev1" --name "$ACI_NAME" > logs.txt || true
+        az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
         cat logs.txt
-
-        # Optional: grep out the final exit code
-        EXIT_CODE=$(grep "Finished with exit code" logs.txt | tail -n1 | awk '{print $NF}')
-        if [[ "$EXIT_CODE" != "0" ]]; then
-          echo "Deployment failed with exit code $EXIT_CODE"
-          exit "$EXIT_CODE"
-        fi
 
         echo "Final container logs:"
         az container logs --resource-group ${{ inputs.resource-group }} --name $ACI_NAME
