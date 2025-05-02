@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Gateway;
-using System.Net;
 
 //CreateBuilder defaults:
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
@@ -12,7 +11,7 @@ using System.Net;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var services = builder.Services;
-var appName = config.GetValue<string>("AppName");
+var appName = config.GetValue<string>("AppName")!;
 var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
 // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-9.0
 var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined";
@@ -47,10 +46,6 @@ try
                 options.ConnectionString = appInsightsConnectionString;
             });
         });
-    //old way
-    //.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-    //    config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
-    //    configureApplicationInsightsLoggerOptions: (options) => { });
 
     if (builder.Environment.IsDevelopment())
     {
@@ -76,7 +71,7 @@ try
         var appConfigEndpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} {Environment} - Add Azure App Configuration {Endpoint}", appName, env, appConfigEndpoint);
         builder.AddAzureAppConfiguration(appConfigEndpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
-            "Gateway", "Shared");
+            appName, "Shared");
     }
 
     //Azure Key Vault - load AKV direct (not through Azure AppConfig or App Service-Configuration-AppSettings)

@@ -1,7 +1,10 @@
-﻿using Azure.Monitor.OpenTelemetry.AspNetCore;
+﻿using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using System.Net.Http.Headers;
@@ -13,11 +16,40 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
-        //Application Insights telemetry for http services (for logging telemetry directly to AI)
-        services.AddOpenTelemetry().UseAzureMonitor(options =>
+        //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
+        //middleware triggers on http request (not a background service scope)
+        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
         {
-            options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-        });
+            services.AddAzureAppConfiguration();
+        }
+
+        //Application Insights telemetry for http services (for logging telemetry directly to AI)
+        var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService("SampleApi"))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
+                    .AddAzureMonitorTraceExporter(options =>
+                    {
+                        options.ConnectionString = appInsightsConnectionString;
+                    });
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddAzureMonitorMetricExporter(options =>
+                    {
+                        options.ConnectionString = appInsightsConnectionString;
+                    });
+            });
+
 
         //api versioning
         //var apiVersioningBuilder = services.AddApiVersioning(options =>

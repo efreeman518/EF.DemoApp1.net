@@ -13,7 +13,7 @@ public static class AssistantEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //auth, version, output cache, etc. can be applied to specific enpoints if needed
+        //auth, version, output cache, etc. can be applied to specific endpoints if needed
         group.MapPost("/", AppendMessage)
             .Produces<AssistantResponse>(StatusCodes.Status200OK).ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Submit a chat message and expect a response.");

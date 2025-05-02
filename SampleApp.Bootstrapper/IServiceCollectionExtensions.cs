@@ -110,7 +110,7 @@ public static class IServiceCollectionExtensions
         var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
         if (jobSearchOrchestratorConfigSection.GetChildren().Any())
         {
-            //Semanitc Kernel service wrapper (not an Azure Client but a wrapper that uses it)
+            //Semantic Kernel service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<IJobSearchOrchestrator, JobSearchOrchestrator>();
             services.Configure<JobSearchOrchestratorSettings>(jobSearchOrchestratorConfigSection);
         }
@@ -205,7 +205,7 @@ public static class IServiceCollectionExtensions
                     else
                     {
                         var options = new DefaultAzureCredentialOptions();
-                        //if (localEnviroment)
+                        //if (localEnvironment)
                         //{
                         //    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
                         //    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)

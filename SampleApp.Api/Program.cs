@@ -122,7 +122,7 @@ try
         //background services
         .RegisterBackgroundServices(config)
         //api services - controllers, versioning, health checks, openapidoc, telemetry
-        .RegisterApiServices(config, loggerStartup);
+        .RegisterApiServices(config, loggerStartup, appName);
 
     var app = builder.Build().ConfigurePipeline();
     loggerStartup.LogInformation("{AppName} {Environment} - Running startup tasks.", appName, env);

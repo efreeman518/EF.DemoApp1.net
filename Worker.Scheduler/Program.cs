@@ -3,9 +3,8 @@ using OpenTelemetry.Logs;
 using SampleApp.Bootstrapper;
 
 const string SERVICE_NAME = "Worker.Scheduler";
-
-//logging for initialization
 ILogger<Program> loggerStartup;
+
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
     builder.SetMinimumLevel(LogLevel.Information);

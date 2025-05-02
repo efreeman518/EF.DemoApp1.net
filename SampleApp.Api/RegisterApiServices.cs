@@ -33,13 +33,13 @@ internal static class IServiceCollectionExtensions
     /// <param name="config"></param>
     /// <param name="loggerStartup"></param>
     /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup, string serviceName)
     {
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService("SampleApi"))
+            .ConfigureResource(resource => resource.AddService(serviceName))
             .WithTracing(tracing =>
             {
                 tracing
@@ -61,12 +61,6 @@ internal static class IServiceCollectionExtensions
                         options.ConnectionString = appInsightsConnectionString;
                     });
             });
-
-        //?not needed - already in OpenTelemetry
-        //.UseAzureMonitor(options =>
-        //{
-        //    options.ConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
-        //});
 
         //api versioning
         var apiVersioningBuilder = services.AddApiVersioning(options =>

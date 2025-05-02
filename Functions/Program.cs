@@ -2,13 +2,15 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Functions;
 using Functions.Infrastructure;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Bootstrapper;
 
@@ -24,25 +26,33 @@ ILogger<Program> loggerStartup = null!;
 
 try
 {
-    using var loggerFactory = LoggerFactory.Create(builder =>
-    {
-        builder.SetMinimumLevel(LogLevel.Information);
-        builder.AddConsole();
-        //builder.AddApplicationInsights();
-    });
-
-    // Assign loggerStartup after loggerFactory is created
-    loggerStartup = loggerFactory.CreateLogger<Program>();
-    loggerStartup.LogInformation("{ServiceName} - Startup.", SERVICE_NAME);
-
     var builder = FunctionsApplication.CreateBuilder(args);
-    builder.ConfigureFunctionsWebApplication();
-
-    builder.Configuration.AddJsonFile("appsettings.json", optional: true);
-    var config = builder.Configuration;
     // NOTE: It's important to add json config sources before the call to ConfigureFunctionsWorkerDefaults as this
     // adds environment variables into configuration enabling overrides by azure configuration settings.
-    config.AddJsonFile("appsettings.json", optional: true);
+    builder.Configuration.AddJsonFile("appsettings.json", optional: true);
+    var config = builder.Configuration;
+    var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
+    var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined";
+
+    //static logger factory setup - for startup
+    StaticLogging.CreateStaticLoggerFactory(logBuilder =>
+    {
+        logBuilder.SetMinimumLevel(LogLevel.Information);
+        logBuilder.AddConsole();
+        logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+        {
+            config.ConnectionString = appInsightsConnectionString;
+        },
+        configureApplicationInsightsLoggerOptions: (options) => { });
+    });
+
+    //startup logger
+    loggerStartup = StaticLogging.CreateLogger<Program>();
+    loggerStartup.LogInformation("{AppName} {Environment} - Startup.", SERVICE_NAME, env);
+
+    //required for HTTP triggers
+    builder.ConfigureFunctionsWebApplication(); 
+
     //set up DefaultAzureCredential for subsequent use in configuration providers
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
     var credentialOptions = new DefaultAzureCredentialOptions();
@@ -54,16 +64,13 @@ try
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
     var credential = new DefaultAzureCredential(credentialOptions);
 
-    var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? "Development";
-    string? endpoint;
-
     //Azure AppConfig
     var appConfig = config.GetSection("AzureAppConfig");
     if (appConfig.GetChildren().Any())
     {
-        endpoint = appConfig.GetValue<string>("Endpoint");
-        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, endpoint, env);
-        builder.AddAzureAppConfiguration(endpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
+        var appConfigEndpoint = appConfig.GetValue<string>("Endpoint");
+        loggerStartup.LogInformation("{AppName} - Add Azure App Configuration {Endpoint} {Environment}", SERVICE_NAME, appConfigEndpoint, env);
+        builder.AddAzureAppConfiguration(appConfigEndpoint!, credential, env, appConfig.GetValue<string>($"{SERVICE_NAME}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             "SampleApi", "Shared");
     }
 
@@ -82,29 +89,42 @@ try
     config.AddUserSecrets<Program>();
     //}
 
-    // Logging and OpenTelemetry
-    builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
-    builder.Logging.AddOpenTelemetry(options =>
+    // Logs (ILogger)
+    builder.Logging.ClearProviders();
+    builder.Logging.AddOpenTelemetry(logging =>
     {
-        options.AddConsoleExporter();
-        options.AddAzureMonitorLogExporter(options =>
+        logging.IncludeFormattedMessage = true;
+        logging.IncludeScopes = true;
+        logging.AddAzureMonitorLogExporter(options =>
         {
-            options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+            options.ConnectionString = appInsightsConnectionString;
         });
     });
 
-    // Application Insights
-    builder.Services
-        .AddApplicationInsightsTelemetryWorkerService(builder.Configuration)
-        .ConfigureFunctionsApplicationInsights()
-        .Configure<LoggerFilterOptions>(options =>
+    // Traces + Metrics
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(configure => configure.AddService(SERVICE_NAME))
+        .WithTracing(tracing =>
         {
-            var aiProvider = options.Rules.FirstOrDefault(rule =>
-                rule.ProviderName == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-
-            if (aiProvider is not null)
-                options.Rules.Remove(aiProvider);
+            tracing
+                .AddHttpClientInstrumentation()
+                .AddSource(SERVICE_NAME) // optional for manual spans
+                .AddAzureMonitorTraceExporter(options =>
+                {
+                    options.ConnectionString = appInsightsConnectionString;
+                });
+        })
+        .WithMetrics(metrics =>
+        {
+            metrics
+                .AddRuntimeInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddAzureMonitorMetricExporter(options =>
+                {
+                    options.ConnectionString = appInsightsConnectionString;
+                });
         });
+
 
     builder.Services
         //domain services
