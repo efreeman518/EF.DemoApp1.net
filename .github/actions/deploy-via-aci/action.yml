@@ -177,27 +177,34 @@ runs:
 
         echo "Polling for container status..."
 
+        SUCCESS_LOG="Deployment successful"
+
         while true; do
-          STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-          echo "Current Status: $STATUS"
+            LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME")
 
-          if [[ "$STATUS" == "Succeeded" ]]; then
-            echo "Deployment succeeded."
-            break
-          elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-            echo "Deployment failed or stopped. Fetching logs:"
-            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
-            break  # Still break here; cleanup will happen via trap
-          fi
+            echo "$LOGS" | grep -q "$SUCCESS_LOG"
+            if [[ $? -eq 0 ]]; then
+                echo "Deployment confirmed via log output."
+                break
+            fi
 
-          CURRENT_TIME=$(date +%s)
-          if (( CURRENT_TIME - START_TIME > TIMEOUT_LIMIT )); then
-            echo "Deployment timeout. Fetching logs before exit:"
-            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
-            break
-          fi
+            STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
+            echo "Current Status: $STATUS"
 
-          sleep 10
+            if [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+                echo "Deployment failed or stopped. Logs:"
+                echo "$LOGS"
+                break
+            fi
+
+            CURRENT_TIME=$(date +%s)
+            if (( CURRENT_TIME - START_TIME > TIMEOUT_LIMIT )); then
+                echo "Timeout waiting for successful deployment. Logs:"
+                echo "$LOGS"
+                break
+            fi
+
+            sleep 10
         done
 
         # Print final logs
