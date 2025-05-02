@@ -24,7 +24,8 @@ permissions:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
-    environment: dev
+    env:
+      environment: dev 
     steps:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4

@@ -124,14 +124,14 @@ runs:
           --location  ${{ inputs.region }} \
           --restart-policy Never \
           --assign-identity ${{ inputs.identity-resource-id }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && if az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true; then echo \"DEPLOYMENT_SUCCESS\" && exit 0; else exit 1; fi'
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && if az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true; then echo \"DEPLOYMENT_SUCCESS\" && exit 0; else exit 1; fi'"
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
 
         while true; do
             STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-            LOGS=$(az container logs --resource-group "rg-dev1" --name "$ACI_NAME" || true)
+            LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" || true)
 
             echo "Current Status: $STATUS"
             echo "Logs: $LOGS"
@@ -173,9 +173,6 @@ runs:
           echo "Deployment failed with exit code $EXIT_CODE"
           exit "$EXIT_CODE"
         fi
-
-
-
 
         echo "Final container logs:"
         az container logs --resource-group ${{ inputs.resource-group }} --name $ACI_NAME
