@@ -42,7 +42,7 @@ jobs:
       - name: debug
         run: |
           echo "github-run-id=${{ github.run_id }}"
-          echo "environment=${{ github.event.inputs.environment }}"
+          echo "environment=${{ env.environment }}"
           echo "RESOURCE_GROUP=${{ vars.RESOURCE_GROUP }}"
           echo "IDENTITY_RESOURCE_ID=${{ vars.IDENTITY_RESOURCE_ID }}"
           echo "ACI_VNET=${{ vars.ACI_VNET }}"
