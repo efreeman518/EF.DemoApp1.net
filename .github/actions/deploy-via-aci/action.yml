@@ -124,7 +124,7 @@ runs:
           --location  ${{ inputs.region }} \
           --restart-policy Never \
           --assign-identity ${{ inputs.identity-resource-id }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart false && echo Done && exit 0'"
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart false && echo Deployment successful && exit 0'"
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
@@ -208,6 +208,7 @@ runs:
         done
 
         # Print final logs
+        az container logs --resource-group "rg-dev1" --name "$ACI_NAME" > logs.txt || true
         cat logs.txt
 
         # Optional: grep out the final exit code
