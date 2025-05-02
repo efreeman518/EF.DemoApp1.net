@@ -55,7 +55,7 @@ jobs:
           github-run-id: ${{ github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN for the current repo
           artifact-path: ./artifact
-          environment: dev
+          environment: ${{ env.environment }}
           resource-group: ${{ vars.RESOURCE_GROUP }}
           region: ${{ vars.REGION }}
           identity-resource-id: ${{ vars.IDENTITY_RESOURCE_ID }}
