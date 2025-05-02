@@ -93,7 +93,24 @@ runs:
         ACI_CPU: 1
         CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
       run: |
+        set -euo pipefail
+
         ACI_NAME=aci-deploy-${{ inputs.github-run-id }}
+
+        cleanup() {
+          echo "Performing cleanup..."
+          az container delete \
+            --resource-group ${{ inputs.resource-group }} \
+            --name $ACI_NAME \
+            --yes || echo "ACI cleanup failed"
+
+          az storage account delete \
+            --name $STORAGE_ACCOUNT \
+            --resource-group ${{ inputs.resource-group }} \
+            --yes || echo "Storage account cleanup failed"
+        }
+
+        trap cleanup EXIT
 
         az container create \
           --resource-group ${{ inputs.resource-group }} \
@@ -149,12 +166,12 @@ runs:
           --resource-group "${{ inputs.resource-group }}" \
           --name "${{ inputs.app-service-name }}"
 
-        az container delete \
-          --resource-group ${{ inputs.resource-group }} \
-          --name $ACI_NAME \
-          --yes || echo "ACI cleanup failed"
+        # az container delete \
+        #   --resource-group ${{ inputs.resource-group }} \
+        #   --name $ACI_NAME \
+        #   --yes || echo "ACI cleanup failed"
 
-        az storage account delete \
-          --name $STORAGE_ACCOUNT \
-          --resource-group ${{ inputs.resource-group }} \
-          --yes || echo "Storage account cleanup failed"
+        # az storage account delete \
+        #   --name $STORAGE_ACCOUNT \
+        #   --resource-group ${{ inputs.resource-group }} \
+        #   --yes || echo "Storage account cleanup failed"
