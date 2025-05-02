@@ -155,24 +155,49 @@ runs:
 
         echo "Waiting for container to finish (by tailing logs)..."
 
+        # while true; do
+        #     az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
+
+        #     if grep -q "Finished with exit code" logs.txt; then
+        #         echo "Detected container finish line:"
+        #         cat logs.txt | grep "Finished with exit code"
+        #         break
+        #     fi
+
+        #     CURRENT_TIME=$(date +%s)
+        #     ELAPSED=$((CURRENT_TIME - START_TIME))
+
+        #     if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
+        #         echo "Timeout reached while waiting for container to finish"
+        #         exit 1
+        #     fi
+
+        #     sleep 10
+        # done
+
+        echo "Polling for container status..."
+
         while true; do
-            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
+          STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
+          echo "Current Status: $STATUS"
 
-            if grep -q "Finished with exit code" logs.txt; then
-                echo "Detected container finish line:"
-                cat logs.txt | grep "Finished with exit code"
-                break
-            fi
+          if [[ "$STATUS" == "Succeeded" ]]; then
+            echo "Deployment succeeded."
+            break
+          elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+            echo "Deployment failed or stopped. Fetching logs:"
+            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
+            break  # Still break here; cleanup will happen via trap
+          fi
 
-            CURRENT_TIME=$(date +%s)
-            ELAPSED=$((CURRENT_TIME - START_TIME))
+          CURRENT_TIME=$(date +%s)
+          if (( CURRENT_TIME - START_TIME > TIMEOUT_LIMIT )); then
+            echo "Deployment timeout. Fetching logs before exit:"
+            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
+            break
+          fi
 
-            if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
-                echo "Timeout reached while waiting for container to finish"
-                exit 1
-            fi
-
-            sleep 10
+          sleep 10
         done
 
         # Print final logs
