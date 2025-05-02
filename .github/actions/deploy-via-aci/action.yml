@@ -93,7 +93,7 @@ runs:
         ACI_CPU: 1
         CONTAINER_IMAGE: 'mcr.microsoft.com/azure-cli:latest'
       run: |
-        set -euo pipefail
+        set -uo pipefail
 
         ACI_NAME=aci-deploy-${{ inputs.github-run-id }}
 
@@ -124,7 +124,7 @@ runs:
           --location  ${{ inputs.region }} \
           --restart-policy Never \
           --assign-identity ${{ inputs.identity-resource-id }} \
-          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true'"
+          --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true'" || true
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
@@ -135,7 +135,7 @@ runs:
 
             if [[ "$STATUS" == "Succeeded" ]]; then
                 echo "Deployment completed successfully"
-                break
+                exit 0  # Explicit success exit
             elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
                 echo "Deployment failed. Logs:"
                 az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME"
@@ -152,61 +152,7 @@ runs:
 
             sleep 10
         done
-
-        # echo "Waiting for container to finish (by tailing logs)..."
-
-        # while true; do
-        #     az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
-
-        #     if grep -q "Finished with exit code" logs.txt; then
-        #         echo "Detected container finish line:"
-        #         cat logs.txt | grep "Finished with exit code"
-        #         break
-        #     fi
-
-        #     CURRENT_TIME=$(date +%s)
-        #     ELAPSED=$((CURRENT_TIME - START_TIME))
-
-        #     if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
-        #         echo "Timeout reached while waiting for container to finish"
-        #         exit 1
-        #     fi
-
-        #     sleep 10
-        # done
-
-        # echo "Polling for container status..."
-
-        # SUCCESS_LOG="Deployment successful"
-
-        # while true; do
-        #     LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME")
-
-        #     echo "$LOGS" | grep -q "$SUCCESS_LOG"
-        #     if [[ $? -eq 0 ]]; then
-        #         echo "Deployment confirmed via log output."
-        #         break
-        #     fi
-
-        #     STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-        #     echo "Current Status: $STATUS"
-
-        #     if [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
-        #         echo "Deployment failed or stopped. Logs:"
-        #         echo "$LOGS"
-        #         break
-        #     fi
-
-        #     CURRENT_TIME=$(date +%s)
-        #     if (( CURRENT_TIME - START_TIME > TIMEOUT_LIMIT )); then
-        #         echo "Timeout waiting for successful deployment. Logs:"
-        #         echo "$LOGS"
-        #         break
-        #     fi
-
-        #     sleep 10
-        # done
-
+        
         # Print final logs
         az container logs --resource-group "rg-dev1" --name "$ACI_NAME" > logs.txt || true
         cat logs.txt
