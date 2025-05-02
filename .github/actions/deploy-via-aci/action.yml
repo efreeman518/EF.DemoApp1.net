@@ -134,7 +134,7 @@ runs:
             LOGS=$(az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" || true)
 
             echo "Current Status: $STATUS"
-            # echo "Logs: $LOGS"
+            echo "Logs: $LOGS"
 
             if [[ "$LOGS" == *"DEPLOYMENT_SUCCESS"* ]]; then
                 echo "Deployment succeeded"
@@ -182,10 +182,10 @@ runs:
           exit 1
         fi
 
-        echo "Restarting App Service after successful deployment..."
-        az webapp restart \
-          --resource-group "${{ inputs.resource-group }}" \
-          --name "${{ inputs.app-service-name }}"
+        # echo "Restarting App Service after successful deployment..."
+        # az webapp restart \
+        #   --resource-group "${{ inputs.resource-group }}" \
+        #   --name "${{ inputs.app-service-name }}"
 
         # az container delete \
         #   --resource-group ${{ inputs.resource-group }} \
