@@ -24,9 +24,9 @@ permissions:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
-    environment: dev # This is the environment name in GitHub
+    environment: dev # GitHub Environment name
     env:
-      ENVIRONMENT_NAME: ${{ job.environment.name }} # This is the real GitHub environment
+      ENVIRONMENT_NAME: dev # Manually duplicate it here for script use
     steps:
       - name: Checkout repo for access to script actions/deploy-via-aci
         uses: actions/checkout@v4
