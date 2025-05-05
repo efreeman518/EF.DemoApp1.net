@@ -128,13 +128,6 @@ public static class IServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
-        //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
-        //middleware triggers on http request (not a background service scope)
-        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
-        {
-            services.AddAzureAppConfiguration();
-        }
-
         //not needed when using FusionCache or .net HybridCache
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         //https://github.com/alastairtree/LazyCache
@@ -650,7 +643,7 @@ public static class IServiceCollectionExtensions
             //https://devblogs.microsoft.com/dotnet/resilience-and-chaos-engineering/
             //Polly.Core referenced alongside Microsoft.Extensions.Http.Resilience to ensure access to the latest Polly version featuring chaos strategies.
             //Once Microsoft.Extensions.Http.Resilience incorporates the latest Polly.Core, remove Polly.Core
-            //Adding standard resilience to handle the chaos, optinally configure details
+            //Adding standard resilience to handle the chaos, optionally configure details
             httpClientBuilder.AddStandardResilienceHandler().Configure(options =>
             {
                 // Update attempt timeout to 1 second

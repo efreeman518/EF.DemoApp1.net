@@ -76,6 +76,8 @@ try
     {
         var appConfigEndpoint = appConfig.GetValue<string>("Endpoint");
         loggerStartup.LogInformation("{AppName} {Environment} - Add Azure App Configuration {Endpoint}", appName, env, appConfigEndpoint);
+        //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
+        //middleware triggers on http request (not a background service scope)
         builder.AddAzureAppConfiguration(appConfigEndpoint!, credential, env, appConfig.GetValue<string>($"{appName}Sentinel"), appConfig.GetValue("RefreshCacheExpireTimeSpan", new TimeSpan(1, 0, 0)),
             appName, "Shared");
     }

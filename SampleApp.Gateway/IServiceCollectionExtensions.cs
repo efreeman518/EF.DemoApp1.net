@@ -16,13 +16,6 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
-        //this middleware will check the Azure App Config Sentinel for a change which triggers reloading the configuration
-        //middleware triggers on http request (not a background service scope)
-        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
-        {
-            services.AddAzureAppConfiguration();
-        }
-
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 

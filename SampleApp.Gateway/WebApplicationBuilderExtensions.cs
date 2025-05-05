@@ -8,6 +8,14 @@ public static partial class WebApplicationBuilderExtensions
     {
         app.UseHttpsRedirection();
 
+        // Use Azure App Configuration middleware for dynamic configuration refresh.
+        if (app.Configuration.GetValue<string>("AzureAppConfig:Endpoint") != null)
+        {
+            //middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh.
+            //middleware triggers on http request, not background service scope
+            app.UseAzureAppConfiguration();
+        }
+
         //Cors
         string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = app.Configuration.GetSection(corsConfigSectionName);
@@ -33,8 +41,6 @@ public static partial class WebApplicationBuilderExtensions
             {
                 try
                 {
-                    // Disable response buffering to allow ProblemDetails to flow through
-                    //context.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
                     await next();
                 }
                 catch (Exception ex)

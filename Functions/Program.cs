@@ -142,6 +142,7 @@ try
 
     // Register middleware
     builder.UseMiddleware<GlobalExceptionHandler>();
+    builder.UseMiddleware<GlobalLogger>();
 
     var app = builder.Build();
 

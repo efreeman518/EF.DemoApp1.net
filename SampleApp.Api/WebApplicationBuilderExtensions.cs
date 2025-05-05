@@ -59,7 +59,7 @@ public static partial class WebApplicationBuilderExtensions
             var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
             app.MapGet("/getauthtoken", async (HttpContext context, string resourceId, string scope) =>
             {
-                var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
+                var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService()); //LazyCache
                 return await tokenProvider.GetAccessTokenAsync(resourceId, scope);
             }).AllowAnonymous().WithName("GetAuthToken").WithOpenApi(generatedOperation =>
             {

@@ -9,7 +9,7 @@ public class GlobalExceptionHandler : IFunctionsWorkerMiddleware
     {
         // This is added pre-function execution, function will have access to this information
         // in the context.Items dictionary
-        context.Items.Add("middlewareitem", "Hello, from middleware");
+        context.Items.Add("someKey", "someValue");
 
         try
         {
