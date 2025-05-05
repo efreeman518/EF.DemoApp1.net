@@ -335,7 +335,7 @@ public static class IServiceCollectionExtensions
 
         //register EF interceptors
         services.AddScoped<AuditInterceptor>();
-        services.AddScoped<ReadUncommittedInterceptor>();
+        services.AddScoped<ConnectionNoLockInterceptor>();
 
         //Database 
         var trxnDBConnectionString = config.GetConnectionString("TodoDbContextTrxn");
@@ -438,7 +438,7 @@ public static class IServiceCollectionExtensions
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
                     }
-                    var noLockInterceptor = sp.GetRequiredService<ReadUncommittedInterceptor>();
+                    var noLockInterceptor = sp.GetRequiredService<ConnectionNoLockInterceptor>();
                     options.AddInterceptors(noLockInterceptor);
                 });
             }
