@@ -137,6 +137,7 @@ runs:
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
         DEPLOYMENT_SUCCESS=false
+        EXIT_CODE=0
 
         echo "Monitoring deployment progress..."
         while true; do
@@ -151,7 +152,8 @@ runs:
                 echo "Deployment failure detected in logs"
                 echo "=== Last 100 lines of logs ==="
                 tail -n 100 "$LOG_FILE"
-                exit 1
+                EXIT_CODE=1
+                break
             fi
 
             # Check container status as secondary check
@@ -162,7 +164,8 @@ runs:
                 echo "Container failed or stopped unexpectedly"
                 echo "=== Last 100 lines of logs ==="
                 tail -n 100 "$LOG_FILE"
-                exit 1
+                EXIT_CODE=1
+                break
             fi
 
             # Timeout check
@@ -171,7 +174,8 @@ runs:
             if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
                 echo "Timeout reached - last 100 lines of logs:"
                 tail -n 100 deployment.log
-                exit 1
+                EXIT_CODE=1
+                break
             fi
 
             sleep 10
@@ -182,10 +186,10 @@ runs:
             az webapp restart --resource-group "${{ inputs.resource-group }}" --name "${{ inputs.app-service-name }}"
             echo "Final logs:"
             tail -n 100 "$LOG_FILE"
-            exit 0
-        else
-            exit 1
         fi
+
+        # The trap will automatically run cleanup when this script exits
+        exit $EXIT_CODE
         
         # Print final logs
         # az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
