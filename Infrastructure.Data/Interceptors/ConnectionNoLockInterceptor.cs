@@ -16,7 +16,7 @@ public class ConnectionNoLockInterceptor(ILogger<ConnectionNoLockInterceptor> lo
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED";
             cmd.ExecuteNonQuery();
-            _logger.LogDebug("Set READ UNCOMMITTED isolation level for connection");
+            _logger.LogInformation("Set READ UNCOMMITTED isolation level for connection");
         }
         catch (Exception ex)
         {
@@ -36,7 +36,7 @@ public class ConnectionNoLockInterceptor(ILogger<ConnectionNoLockInterceptor> lo
             await using var cmd = connection.CreateCommand();
             cmd.CommandText = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED";
             await cmd.ExecuteNonQueryAsync(cancellationToken);
-            _logger.LogDebug("Set READ UNCOMMITTED isolation level for connection (async)");
+            _logger.LogInformation("Set READ UNCOMMITTED isolation level for connection (async)");
         }
         catch (Exception ex)
         {
