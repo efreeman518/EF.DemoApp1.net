@@ -42,6 +42,7 @@ try
         {
             options.IncludeFormattedMessage = true;
             options.IncludeScopes = true;
+            options.ParseStateValues = true;
             options.AddAzureMonitorLogExporter(options =>
             {
                 options.ConnectionString = appInsightsConnectionString;
