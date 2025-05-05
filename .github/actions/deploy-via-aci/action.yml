@@ -103,27 +103,46 @@ runs:
         cleanup() {
           if [ "$CLEANUP_DONE" = false ]; then
             echo "Performing cleanup..."
+            
             # Kill log streaming if still running
-            if [ -n "$LOGS_PID" ]; then
+            if [ -n "${LOGS_PID-}" ] && ps -p "$LOGS_PID" > /dev/null 2>&1; then
               kill "$LOGS_PID" 2>/dev/null || true
             fi
         
-            # Delete ACI container
-            az container delete \
-              --resource-group ${{ inputs.resource-group }} \
-              --name $ACI_NAME \
-              --yes || echo "ACI cleanup failed"
+            # Delete ACI container if exists
+            if az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "id" -o tsv >/dev/null 2>&1; then
+              echo "Deleting ACI container..."
+              az container delete \
+                --resource-group "${{ inputs.resource-group }}" \
+                --name "$ACI_NAME" \
+                --yes || echo "Warning: ACI deletion failed (may already be deleted)"
+            fi
+
+            # # Delete ACI container
+            # az container delete \
+            #   --resource-group ${{ inputs.resource-group }} \
+            #   --name $ACI_NAME \
+            #   --yes || echo "ACI cleanup failed"
         
-            # Delete storage account
-            az storage account delete \
-              --name $STORAGE_ACCOUNT \
-              --resource-group ${{ inputs.resource-group }} \
-              --yes || echo "Storage account cleanup failed"
+            # Delete storage account if exists
+            if az storage account show --name "$STORAGE_ACCOUNT" --resource-group "${{ inputs.resource-group }}" --query "id" -o tsv >/dev/null 2>&1; then
+              echo "Deleting storage account..."
+              az storage account delete \
+                --name "$STORAGE_ACCOUNT" \
+                --resource-group "${{ inputs.resource-group }}" \
+                --yes || echo "Warning: Storage account deletion failed (may already be deleted)"
+            fi
+            # # Delete storage account
+            # az storage account delete \
+            #   --name $STORAGE_ACCOUNT \
+            #   --resource-group ${{ inputs.resource-group }} \
+            #   --yes || echo "Storage account cleanup failed"
         
             CLEANUP_DONE=true
           fi
         }
 
+        # Ensure cleanup runs on exit
         trap cleanup EXIT
 
         echo "Creating container instance..."
@@ -168,9 +187,9 @@ runs:
             fi
 
             # Check container status as secondary check
-            STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv)
-            echo "Container Status: $STATUS (Elapsed: $(($(date +%s) - START_TIME))s)"
-    
+            STATUS=$(az container show --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --query "instanceView.state" -o tsv 2>/dev/null || echo "NotFound")
+            echo "Container Status: $STATUS (Elapsed: $(($(date +%s) - START_TIME))s)"  
+              
             if [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
                 echo "Container failed or stopped unexpectedly"
                 echo "=== Last 100 lines of logs ==="
