@@ -7,7 +7,7 @@ namespace Package.Infrastructure.Host;
 public static class IHostApplicationBuilderExtensions
 {
     /// <summary>
-    /// Load configuration from Azure App Config
+    /// IHostApplicationBuilder - Load configuration from Azure App Config
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="endpoint"></param>

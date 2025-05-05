@@ -97,18 +97,31 @@ runs:
 
         ACI_NAME=aci-deploy-${{ inputs.github-run-id }}
         LOG_FILE=deployment.log
+        CLEANUP_DONE=false
 
+        # Enhanced cleanup function
         cleanup() {
-          echo "Performing cleanup..."
-          az container delete \
-            --resource-group ${{ inputs.resource-group }} \
-            --name $ACI_NAME \
-            --yes || echo "ACI cleanup failed"
-
-          az storage account delete \
-            --name $STORAGE_ACCOUNT \
-            --resource-group ${{ inputs.resource-group }} \
-            --yes || echo "Storage account cleanup failed"
+          if [ "$CLEANUP_DONE" = false ]; then
+            echo "Performing cleanup..."
+            # Kill log streaming if still running
+            if [ -n "$LOGS_PID" ]; then
+              kill "$LOGS_PID" 2>/dev/null || true
+            fi
+        
+            # Delete ACI container
+            az container delete \
+              --resource-group ${{ inputs.resource-group }} \
+              --name $ACI_NAME \
+              --yes || echo "ACI cleanup failed"
+        
+            # Delete storage account
+            az storage account delete \
+              --name $STORAGE_ACCOUNT \
+              --resource-group ${{ inputs.resource-group }} \
+              --yes || echo "Storage account cleanup failed"
+        
+            CLEANUP_DONE=true
+          fi
         }
 
         trap cleanup EXIT
@@ -132,12 +145,10 @@ runs:
         echo "Starting log streaming..."
         az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --follow > "$LOG_FILE" &
         LOGS_PID=$!
-        trap "kill $LOGS_PID 2>/dev/null" EXIT
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
         DEPLOYMENT_SUCCESS=false
-        EXIT_CODE=0
 
         echo "Monitoring deployment progress..."
         while true; do
@@ -152,8 +163,8 @@ runs:
                 echo "Deployment failure detected in logs"
                 echo "=== Last 100 lines of logs ==="
                 tail -n 100 "$LOG_FILE"
-                EXIT_CODE=1
-                break
+                cleanup
+                exit 1
             fi
 
             # Check container status as secondary check
@@ -164,8 +175,8 @@ runs:
                 echo "Container failed or stopped unexpectedly"
                 echo "=== Last 100 lines of logs ==="
                 tail -n 100 "$LOG_FILE"
-                EXIT_CODE=1
-                break
+                cleanup 
+                exit 1
             fi
 
             # Timeout check
@@ -174,8 +185,8 @@ runs:
             if [[ $ELAPSED -ge $TIMEOUT_LIMIT ]]; then
                 echo "Timeout reached - last 100 lines of logs:"
                 tail -n 100 deployment.log
-                EXIT_CODE=1
-                break
+                cleanup
+                exit 1
             fi
 
             sleep 10
@@ -186,34 +197,6 @@ runs:
             az webapp restart --resource-group "${{ inputs.resource-group }}" --name "${{ inputs.app-service-name }}"
             echo "Final logs:"
             tail -n 100 "$LOG_FILE"
+            cleanup
+            exit 0
         fi
-
-        # The trap will automatically run cleanup when this script exits
-        exit $EXIT_CODE
-        
-        # Print final logs
-        # az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > logs.txt || true
-        # cat logs.txt
-
-        # echo "Final container logs:"
-        # az container logs --resource-group ${{ inputs.resource-group }} --name $ACI_NAME
-
-        # if [[ "$STATUS" != "Succeeded" ]]; then
-        #   echo "Timeout reached - deployment did not complete"
-        #   exit 1
-        # fi
-
-        # echo "Restarting App Service after successful deployment..."
-        # az webapp restart \
-        #   --resource-group "${{ inputs.resource-group }}" \
-        #   --name "${{ inputs.app-service-name }}"
-
-        # az container delete \
-        #   --resource-group ${{ inputs.resource-group }} \
-        #   --name $ACI_NAME \
-        #   --yes || echo "ACI cleanup failed"
-
-        # az storage account delete \
-        #   --name $STORAGE_ACCOUNT \
-        #   --resource-group ${{ inputs.resource-group }} \
-        #   --yes || echo "Storage account cleanup failed"

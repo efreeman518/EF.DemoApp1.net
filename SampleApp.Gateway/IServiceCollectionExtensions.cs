@@ -16,6 +16,12 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
+        //enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
+        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
+        {
+            services.AddAzureAppConfiguration();
+        }
+
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 

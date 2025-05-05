@@ -128,6 +128,12 @@ public static class IServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
+        //enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
+        if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
+        {
+            services.AddAzureAppConfiguration();
+        }
+
         //not needed when using FusionCache or .net HybridCache
         //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
         //https://github.com/alastairtree/LazyCache

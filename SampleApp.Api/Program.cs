@@ -68,6 +68,9 @@ try
     //Specifies the tenant id of the preferred authentication account, to be retrieved from the shared token cache for single sign on authentication with development tools, in the case multiple accounts are found in the shared token.
     string? credOptionsTenantId = config.GetValue<string?>("SharedTokenCacheTenantId", null);
     if (credOptionsTenantId != null) credentialOptions.SharedTokenCacheTenantId = credOptionsTenantId;
+    //reduce MSAL logging noise
+    //credentialOptions.ExcludeInteractiveBrowserCredential = true;
+    //credentialOptions.ExcludeSharedTokenCacheCredential = true;  
     var credential = new DefaultAzureCredential(credentialOptions);
 
     //Azure AppConfig
