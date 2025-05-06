@@ -165,6 +165,20 @@ jobs:
             ${{ env.TEST_RESULTS_DIR }}/*.trx
             ${{ env.TEST_RESULTS_DIR }}/report
           retention-days: 7
+      
+      - name: Get Job ID for this job
+        id: get-job-id
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract job_id from job list
+        id: extract-job-id
+        run: |
+          job_id=$(echo '${{ steps.get-job-id.outputs.data }}' | jq '.jobs[] | select(.name == "${{ github.job }}") | .id')
+          echo "job_id=$job_id" >> $GITHUB_OUTPUT
 
       - name: Set up test summary
         if: always()
@@ -180,7 +194,7 @@ jobs:
           echo "| 📊 Code Coverage | ${{ steps.run-tests.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📦 **Artifacts**" >> $GITHUB_STEP_SUMMARY
-          echo "- [Test Summary](https://github.com/${{ github.repository }}/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Test Summary](https://github.com/${{ github.repository }}/runs/${{ steps.extract-job-id.outputs.job_id }})" >> $GITHUB_STEP_SUMMARY
           echo "- [Download Test Results and HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
