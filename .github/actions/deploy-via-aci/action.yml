@@ -118,12 +118,6 @@ runs:
                 --yes || echo "Warning: ACI deletion failed (may already be deleted)"
             fi
 
-            # # Delete ACI container
-            # az container delete \
-            #   --resource-group ${{ inputs.resource-group }} \
-            #   --name $ACI_NAME \
-            #   --yes || echo "ACI cleanup failed"
-        
             # Delete storage account if exists
             if az storage account show --name "$STORAGE_ACCOUNT" --resource-group "${{ inputs.resource-group }}" --query "id" -o tsv >/dev/null 2>&1; then
               echo "Deleting storage account..."
@@ -132,12 +126,7 @@ runs:
                 --resource-group "${{ inputs.resource-group }}" \
                 --yes || echo "Warning: Storage account deletion failed (may already be deleted)"
             fi
-            # # Delete storage account
-            # az storage account delete \
-            #   --name $STORAGE_ACCOUNT \
-            #   --resource-group ${{ inputs.resource-group }} \
-            #   --yes || echo "Storage account cleanup failed"
-        
+
             CLEANUP_DONE=true
           fi
         }
@@ -210,12 +199,3 @@ runs:
 
             sleep 10
         done
-
-        # if $DEPLOYMENT_SUCCESS; then
-        #     echo "Restarting App Service after successful deployment..."
-        #     az webapp restart --resource-group "${{ inputs.resource-group }}" --name "${{ inputs.app-service-name }}"
-        #     echo "Final logs:"
-        #     tail -n 100 "$LOG_FILE"
-        #     cleanup
-        #     exit 0
-        # fi
