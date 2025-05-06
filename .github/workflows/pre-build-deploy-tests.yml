@@ -99,7 +99,7 @@ jobs:
               --no-build \
               --collect:"XPlat Code Coverage" \
               --settings:coverlet.runsettings \
-              --logger "trx;LogFileName=$TEST_RESULTS_DIR/$project_name-results.trx" \
+              --logger "trx;LogFileName=$project_name-results.trx" \
               --results-directory "$TEST_RESULTS_DIR"
           done
 
