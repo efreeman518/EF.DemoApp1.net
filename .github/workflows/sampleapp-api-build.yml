@@ -64,6 +64,8 @@ jobs:
             /p:CollectCoverage=true \
             /p:CoverletOutput=$GITHUB_WORKSPACE/Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura
+            /p:UseSourceLink=true
+            || { echo 'Test run failed'; exit 1; }
 
       #debug
       - name: Confirm test result file
