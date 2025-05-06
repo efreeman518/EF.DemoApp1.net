@@ -27,7 +27,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.event.inputs.environment }} 
+      name: ${{ github.event.inputs.environment || 'dev' }}  # Default to dev if not specified
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     permissions:

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <!-- Output format (required for ReportGenerator) -->
+          <Format>cobertura</Format>
+          
+          <!-- Exclude test assembly from coverage -->
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+          
+          <!-- Optional: Include/exclude specific files -->
+          <!-- <Include>[SampleApp.*]*</Include> -->
+          <Exclude>[Test.*]*,[*.Tests]*,[xunit.*]*</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+  
+  <!-- Optional: Thresholds for CI failure 
+  <CoverageRunSettings>
+    <MinimumCoverage>10</MinimumCoverage>
+  </CoverageRunSettings>
+  -->
+</RunSettings>
