@@ -60,7 +60,7 @@ jobs:
             --configuration Release \
             --no-build \
             --results-directory $GITHUB_WORKSPACE/Test.Unit/TestResults \
-            --logger "trx;LogFileName=test-results.trx" \
+            --logger:"trx;LogFileName=$GITHUB_WORKSPACE/Test.Unit/TestResults/test-results.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=$GITHUB_WORKSPACE/Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura \
