@@ -17,7 +17,8 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
+  checks: write
 
 env:
   DOTNET_VERSION: '9.x'
@@ -142,12 +143,14 @@ jobs:
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
-        if: always()
         with:
           name: Unit Test Results
-          path: ${{ env.TEST_RESULTS_DIR }}/*.trx
+          path: ./${{ env.TEST_RESULTS_DIR }}/*.trx
           reporter: dotnet-trx
           fail-on-error: false
+          list-suites: all
+          list-tests: all
+          max-annotations: 10
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
