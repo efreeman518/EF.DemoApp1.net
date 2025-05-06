@@ -55,7 +55,7 @@ jobs:
           mkdir -p ./TestResults
 
           # Run tests through solution file with coverage
-          dotnet test ./YourSolution.sln \
+          dotnet test ./EF.SampleApp1.net.sln \
             --configuration Release \
             --collect:"XPlat Code Coverage" \
             --settings:./coverlet.runsettings \
