@@ -60,9 +60,16 @@ jobs:
             --no-build \
             --logger "trx;LogFileName=test-results.trx" \
             --logger:"console;verbosity=detailed" \
+            --results-directory ./Test.Unit/TestResults \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura
+
+      #debug
+      - name: Confirm test result file
+        run: |
+          echo "Looking for test-results.trx..."
+          find ./Test.Unit/TestResults -name "*.trx"
 
       - name: Test Reporter (GitHub Checks UI)
         uses: dorny/test-reporter@v1
