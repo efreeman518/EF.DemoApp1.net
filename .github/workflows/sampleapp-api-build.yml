@@ -55,12 +55,11 @@ jobs:
         id: run-tests
         run: |
           mkdir -p $GITHUB_WORKSPACE/Test.Unit/TestResults
-          dotnet test ./Test.Unit/Test.Unit.csproj \
+          dotnet test $GITHUB_WORKSPACE/Test.Unit/Test.Unit.csproj \
             --configuration Release \
-            #--no-build \
-            --logger "trx;LogFileName=test-results.trx" \
+            --no-build \
             --results-directory $GITHUB_WORKSPACE/Test.Unit/TestResults \
-            --logger:"console;verbosity=detailed" \
+            --logger "trx;LogFileName=test-results.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura
@@ -68,15 +67,15 @@ jobs:
       #debug
       - name: Confirm test result file
         run: |
-          echo "Looking for test-results.trx..."
-          find ./Test.Unit/TestResults -name "*.trx"
+          echo "Listing all files in the TestResults folder"
+          ls -R $GITHUB_WORKSPACE/Test.Unit/TestResults
 
       - name: Test Reporter (GitHub Checks UI)
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Unit Tests
-          path: ./Test.Unit/TestResults/test-results.trx
+          path: $GITHUB_WORKSPACE/Test.Unit/TestResults/test-results.trx
           reporter: dotnet-trx
           path-replace-backslashes: false
           list-suites: all
