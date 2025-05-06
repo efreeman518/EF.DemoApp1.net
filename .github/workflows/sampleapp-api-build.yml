@@ -54,6 +54,7 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
+          mkdir -p ./Test.Unit/TestResults
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
             --no-build \
@@ -70,6 +71,12 @@ jobs:
           name: Unit Tests
           path: ./Test.Unit/TestResults/test-results.trx
           reporter: dotnet-trx
+          path-replace-backslashes: false
+          list-suites: all
+          list-tests: all
+          max-annotations: 10
+          fail-on-error: true
+          fail-on-empty: true
 
       - name: Count MSTest results (basic)
         id: test-count
