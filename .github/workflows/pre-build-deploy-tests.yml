@@ -104,7 +104,7 @@ jobs:
           # Generate reports
           reportgenerator \
             -reports:${{ env.TEST_RESULTS_DIR }}/**/coverage.cobertura.xml \
-            -targetdir:${{ env.TEST_RESULTS_DIR }}/report \
+            -targetdir:${{ env.TEST_RESULTS_DIR }} \
             -reporttypes:Html
 
           # Process combined test results
