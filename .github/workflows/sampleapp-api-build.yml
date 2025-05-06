@@ -57,10 +57,10 @@ jobs:
           mkdir -p ./Test.Unit/TestResults
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
-            --no-build \
+            #--no-build \
             --logger "trx;LogFileName=test-results.trx" \
+            --results-directory $GITHUB_WORKSPACE/Test.Unit/TestResults \
             --logger:"console;verbosity=detailed" \
-            --results-directory ./Test.Unit/TestResults \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura
