@@ -54,59 +54,31 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
-          # Set absolute path to avoid any directory confusion
-          TEST_RESULTS_DIR="$GITHUB_WORKSPACE/Test.Unit/TestResults"
-          rm -rf "$TEST_RESULTS_DIR"
-          mkdir -p "$TEST_RESULTS_DIR/coverage"
+          # Clean previous results
+          rm -rf ./TestResults
+          mkdir -p ./TestResults
 
           # Run with FULL DIAGNOSTIC OUTPUT
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
-            -p:IsTestProject=true \  # FORCE test project recognition
+            --logger "trx;LogFileName=./TestResults/test-results.trx" \
+            --results-directory ./TestResults \
             --no-build \
-            --logger "trx;LogFileName=$TEST_RESULTS_DIR/test-results.trx" \
-            --results-directory "$TEST_RESULTS_DIR" \
-            --diag "$TEST_RESULTS_DIR/diagnostics.log" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutput="$TEST_RESULTS_DIR/coverage/" \
-            /p:CoverletOutputFormat=cobertura \
-            --verbosity detailed
+            --verbosity normal \
+            --blame
 
-          # DEBUG OUTPUT - SHOW ME EVERYTHING
-          echo "=== DIAGNOSTICS DUMP ==="
-          cat "$TEST_RESULTS_DIR/diagnostics.log"
-          echo "=== DIRECTORY TREE ==="
-          tree -a "$TEST_RESULTS_DIR"
-          echo "=== ALL TRX FILES IN REPO ==="
-          find "$GITHUB_WORKSPACE" -name "*.trx" -exec ls -la {} \;
-
-          # FAIL HARD IF STILL NOTHING
-          if [ ! -f "$TEST_RESULTS_DIR/test-results.trx" ]; then
-            echo "##[error]CRITICAL FAILURE: NO TRX FILE GENERATED"
-            echo "##[error]Check test project configuration and build output"
-            exit 1
-          fi
-
-      - name: Upload DIAGNOSTICS as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-diagnostics
-          path: ./Test.Unit/TestResults/diagnostics.log
+          # Verify test results were created
+          echo "Test results directory contents:"
+          ls -la ./TestResults/
+          [ -f "./TestResults/test-results.trx" ] || { echo "##[error]TRX file not created!"; exit 1; 
 
       - name: Test Reporter (GitHub Checks UI)
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Unit Tests
-          path: ./Test.Unit/TestResults/*.trx
+          path: ./TestResults/*.trx
           reporter: dotnet-trx
-          path-replace-backslashes: false
-          list-suites: all
-          list-tests: all
-          max-annotations: 10
-          fail-on-error: false
-          #fail-on-empty: true
 
       - name: Count MSTest results (basic)
         id: test-count
