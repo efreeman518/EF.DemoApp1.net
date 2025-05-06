@@ -63,10 +63,9 @@ jobs:
             --logger "trx;LogFileName=test-results.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=$GITHUB_WORKSPACE/Test.Unit/TestResults/coverage/ \
-            /p:CoverletOutputFormat=cobertura
-            /p:UseSourceLink=true
-          || { echo 'Test run failed'; exit 1; }
-        shell: /usr/bin/bash -e {0}
+            /p:CoverletOutputFormat=cobertura \
+            /p:UseSourceLink=true || { echo 'Test run failed'; exit 1; }
+        shell: bash
         env:
           DOTNET_VERSION: 9.x
           DOTNET_ROOT: /usr/share/dotnet
