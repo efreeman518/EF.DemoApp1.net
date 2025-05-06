@@ -1,9 +1,11 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build SampleApp.UI
 
 on:
+  workflow_run:
+    workflows: ["Pre-build-deploy-tests"]
+    types:
+      - completed
+
   # push:
   #   branches:
   #     - main
@@ -24,7 +26,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev
+    environment:
+      name: ${{ github.event.inputs.environment }} 
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     permissions:
@@ -45,22 +48,6 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.UI1/SampleApp.UI1.csproj -c Release -o publish --no-restore
 
-      # - name: Remove environment-specific and compressed config files, leaving only appsettings.json for transform in the deploy job
-      #   run: |
-      #     #delete compressed appsettings versions
-      #     rm -f ./publish/wwwroot/appsettings.json
-      #     rm -f ./publish/wwwroot/appsettings.json.gz
-      #     rm -f ./publish/wwwroot/appsettings.json.br
-      #     rm -f ./publish/wwwroot/_framework/appsettings.json.gz
-      #     rm -f ./publish/wwwroot/_framework/appsettings.json.br
-      #     #delete environment based appsettings files
-      #     rm -f ./publish/wwwroot/appsettings.*.json
-      #     rm -f ./publish/wwwroot/appsettings.*.json.gz
-      #     rm -f ./publish/wwwroot/appsettings.*.json.br
-      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json
-      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.gz
-      #     rm -f ./publish/wwwroot/_framework/appsettings.*.json.br
-
       - name: Copy appsettings.json after publish
         run: cp ./SampleApp.UI1/wwwroot/appsettings.json publish/wwwroot/appsettings.json
 
@@ -70,6 +57,7 @@ jobs:
           zip -r ../../artifact.zip .
           cd ../..
 
+      #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

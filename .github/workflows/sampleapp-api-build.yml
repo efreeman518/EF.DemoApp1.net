@@ -1,6 +1,11 @@
 ﻿name: Build SampleApp.Api
 
 on:
+  workflow_run:
+    workflows: ["Pre-build-deploy-tests"]
+    types:
+      - completed
+
   # push:
   #   branches:
   #     - main
@@ -15,22 +20,21 @@ on:
     #       - dev
     #       - prod
 
-permissions:
-  id-token: write
-  contents: read
-
 env:
   DOTNET_VERSION: '9.x'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }} 
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
-    environment:
-      name: ${{ github.event.inputs.environment }}  
+    permissions:
+      contents: read
+
     steps:
-      - name: Checkout repo for build
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -38,80 +42,80 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      #build full solution including test projects
-      - name: Restore & Build
-        run: |
-          dotnet restore EF.SampleApp1.net.sln
-          dotnet build EF.SampleApp1.net.sln --configuration Release --no-restore
+      - name: Restore 
+        run: dotnet restore ./SampleApp.Api/SampleApp.Api.csproj
 
-      - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: Publish (includes build)
+        run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish --no-restore
 
-      - name: Run tests with coverage and reporting
-        id: run-tests
-        run: |
-          # Clean previous results
-          rm -rf ./TestResults
-          mkdir -p ./TestResults
+      # - name: Install ReportGenerator
+      #   run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-          # Run tests through solution file with coverage
-          dotnet test ./EF.SampleApp1.net.sln \
-            --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            --settings:./coverlet.runsettings \
-            --logger "trx;LogFileName=./TestResults/test-results.trx" \
-            --results-directory ./TestResults \
-            --verbosity normal \
-            --no-build \
-            --blame
+      # - name: Run tests with coverage and reporting
+      #   id: run-tests
+      #   run: |
+      #     # Clean previous results
+      #     rm -rf ./TestResults
+      #     mkdir -p ./TestResults
 
-          # Process coverage results (assuming OpenCover or Cobertura format)
-          reportgenerator \
-            -reports:./TestResults/*/coverage.cobertura.xml \
-            -targetdir:./TestResults/report \
-            -reporttypes:Html
+      #     # Run tests through solution file with coverage
+      #     dotnet test ./EF.SampleApp1.net.sln \
+      #       --configuration Release \
+      #       --collect:"XPlat Code Coverage" \
+      #       --settings:./coverlet.runsettings \
+      #       --logger "trx;LogFileName=./TestResults/test-results.trx" \
+      #       --results-directory ./TestResults \
+      #       --verbosity normal \
+      #       --no-build \
+      #       --blame
 
-          # Extract test counts from TRX
-          passed=$(grep -oP 'outcome="Passed"' ./TestResults/test-results.trx | wc -l)
-          failed=$(grep -oP 'outcome="Failed"' ./TestResults/test-results.trx | wc -l)
-          echo "passed=$passed" >> $GITHUB_OUTPUT
-          echo "failed=$failed" >> $GITHUB_OUTPUT
+      #     # Process coverage results (assuming OpenCover or Cobertura format)
+      #     reportgenerator \
+      #       -reports:./TestResults/*/coverage.cobertura.xml \
+      #       -targetdir:./TestResults/report \
+      #       -reporttypes:Html
 
-          # Extract coverage percentage
-          coverage_file=$(find ./TestResults -name coverage.cobertura.xml | head -1)
-          total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
-          total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
-          percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/($total_possible+0.000001))*100}")
-          echo "percentage=$percent" >> $GITHUB_OUTPUT
+      #     # Extract test counts from TRX
+      #     passed=$(grep -oP 'outcome="Passed"' ./TestResults/test-results.trx | wc -l)
+      #     failed=$(grep -oP 'outcome="Failed"' ./TestResults/test-results.trx | wc -l)
+      #     echo "passed=$passed" >> $GITHUB_OUTPUT
+      #     echo "failed=$failed" >> $GITHUB_OUTPUT
 
-      - name: Test Reporter (GitHub Checks UI)
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Unit Tests
-          path: ./TestResults/*.trx
-          reporter: dotnet-trx
+      #     # Extract coverage percentage
+      #     coverage_file=$(find ./TestResults -name coverage.cobertura.xml | head -1)
+      #     total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+      #     total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+      #     percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/($total_possible+0.000001))*100}")
+      #     echo "percentage=$percent" >> $GITHUB_OUTPUT
 
-      - name: Write summary to GitHub Actions UI
-        if: always()
-        run: |
-          echo "### 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| ✅ Passed | ${{ steps.run-tests.outputs.passed }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| ❌ Failed | ${{ steps.run-tests.outputs.failed }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 📈 Coverage | ${{ steps.run-tests.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔍 [View HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+      # - name: Test Reporter (GitHub Checks UI)
+      #   uses: dorny/test-reporter@v1
+      #   if: always()
+      #   with:
+      #     name: Unit Tests
+      #     path: ./TestResults/*.trx
+      #     reporter: dotnet-trx
 
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            ./TestResults/test-results.trx
-            ./TestResults/report
+      # - name: Write summary to GitHub Actions UI
+      #   if: always()
+      #   run: |
+      #     echo "### 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+      #     echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+      #     echo "| ✅ Passed | ${{ steps.run-tests.outputs.passed }} |" >> $GITHUB_STEP_SUMMARY
+      #     echo "| ❌ Failed | ${{ steps.run-tests.outputs.failed }} |" >> $GITHUB_STEP_SUMMARY
+      #     echo "| 📈 Coverage | ${{ steps.run-tests.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "🔍 [View HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
+      # - name: Upload test artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: test-results
+      #     path: |
+      #       ./TestResults/test-results.trx
+      #       ./TestResults/report
 
       - name: Publish (only if tests passed)
         if: success()
@@ -125,7 +129,6 @@ jobs:
 
         #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)
-        if: steps.unit-tests-step.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: artifact

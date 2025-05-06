@@ -1,9 +1,11 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build SampleApp.Gateway
 
 on:
+  workflow_run:
+    workflows: ["Pre-build-deploy-tests"]
+    types:
+      - completed
+
   # push:
   #   branches:
   #     - main
@@ -24,6 +26,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }} 
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     permissions:
@@ -44,6 +48,7 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.Gateway/SampleApp.Gateway.csproj -c Release -o publish --no-restore
         
+      #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
