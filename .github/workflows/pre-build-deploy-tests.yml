@@ -145,12 +145,17 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: Unit Test Results
-          path: ${{ env.TEST_RESULTS_DIR }}/*.trx
+          path: '**/*.trx' #${{ env.TEST_RESULTS_DIR }}/*.trx
           reporter: dotnet-trx
           fail-on-error: false
           list-suites: all
           list-tests: all
           max-annotations: 10
+      
+      - name: Debug Test Results Folder
+        run: |
+          echo "Contents of $TEST_RESULTS_DIR:"
+          ls -R "$TEST_RESULTS_DIR"
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
@@ -175,6 +180,7 @@ jobs:
           echo "| 📊 Code Coverage | ${{ steps.run-tests.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📦 **Artifacts**" >> $GITHUB_STEP_SUMMARY
+          echo "- [Test Summary](https://github.com/${{ github.repository }}/runs/${{ github.run_id }})"
           echo "- [Download Test Results and HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
