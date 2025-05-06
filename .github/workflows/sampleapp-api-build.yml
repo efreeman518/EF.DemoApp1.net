@@ -65,7 +65,11 @@ jobs:
             /p:CoverletOutput=$GITHUB_WORKSPACE/Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura
             /p:UseSourceLink=true
-            || { echo 'Test run failed'; exit 1; }
+          || { echo 'Test run failed'; exit 1; }
+        shell: /usr/bin/bash -e {0}
+        env:
+          DOTNET_VERSION: 9.x
+          DOTNET_ROOT: /usr/share/dotnet
 
       #debug
       - name: Confirm test result file
