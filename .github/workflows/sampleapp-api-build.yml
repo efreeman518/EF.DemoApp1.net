@@ -62,6 +62,7 @@ jobs:
           # Run with FULL DIAGNOSTIC OUTPUT
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
+            -p:IsTestProject=true \  # FORCE test project recognition
             --no-build \
             --logger "trx;LogFileName=$TEST_RESULTS_DIR/test-results.trx" \
             --results-directory "$TEST_RESULTS_DIR" \
