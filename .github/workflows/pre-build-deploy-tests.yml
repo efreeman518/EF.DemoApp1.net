@@ -67,9 +67,9 @@ jobs:
       - name: Run tests with coverage
         id: run-tests
         run: |
-          # Clean previous results
-          rm -rf ${{ env.TEST_RESULTS_DIR }}
-          mkdir -p ${{ env.TEST_RESULTS_DIR }}
+          # Clean and create results directory
+          rm -rf "$TEST_RESULTS_DIR"
+          mkdir -p "$TEST_RESULTS_DIR"
 
           # Verify coverlet.runsettings exists
           if [ ! -f "coverlet.runsettings" ]; then
@@ -89,36 +89,44 @@ jobs:
             </RunSettings>' > coverlet.runsettings
           fi
 
-          # Run all specified test projects
-          for project in ${{ env.TEST_PROJECTS }}; do
-            project_name=$(basename $project .csproj)
-            dotnet test $project \
+          # Run tests for each project
+          for project in $TEST_PROJECTS; do
+            project_name=$(basename "$project" .csproj)
+            echo "Running tests for: $project"
+            
+            dotnet test "$project" \
               --configuration Release \
               --no-build \
               --collect:"XPlat Code Coverage" \
               --settings:coverlet.runsettings \
-              --logger "trx;LogFileName=${{ env.TEST_RESULTS_DIR }}/$project_name-results.trx" \
-              --results-directory ${{ env.TEST_RESULTS_DIR }}
+              --logger "trx;LogFileName=$TEST_RESULTS_DIR/$project_name-results.trx" \
+              --results-directory "$TEST_RESULTS_DIR"
           done
 
-          # Generate reports
+          # Verify test results exist
+          if [ -z "$(ls -A "$TEST_RESULTS_DIR"/*.trx 2>/dev/null)" ]; then
+            echo "##[error] No test results found in $TEST_RESULTS_DIR"
+            exit 1
+          fi
+
+          # Generate coverage report
           reportgenerator \
-            -reports:${{ env.TEST_RESULTS_DIR }}/**/coverage.cobertura.xml \
-            -targetdir:${{ env.TEST_RESULTS_DIR }} \
+            -reports:"$TEST_RESULTS_DIR"/**/coverage.cobertura.xml \
+            -targetdir:"$TEST_RESULTS_DIR"/report \
             -reporttypes:Html
 
-          # Process combined test results
+          # Process test results
           total_passed=0
           total_failed=0
-          for trx in ${{ env.TEST_RESULTS_DIR }}/*.trx; do
+          for trx in "$TEST_RESULTS_DIR"/*.trx; do
             passed=$(grep -oP 'outcome="Passed"' "$trx" | wc -l)
             failed=$(grep -oP 'outcome="Failed"' "$trx" | wc -l)
             total_passed=$((total_passed + passed))
             total_failed=$((total_failed + failed))
           done
 
-          # Process coverage
-          coverage_file=$(find $TEST_RESULTS_DIR -name coverage.cobertura.xml | head -1)
+          # Process coverage data
+          coverage_file=$(find "$TEST_RESULTS_DIR" -name coverage.cobertura.xml | head -1)
           if [ -f "$coverage_file" ]; then
             total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
             total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
