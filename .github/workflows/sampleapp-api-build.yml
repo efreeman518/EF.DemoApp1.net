@@ -63,7 +63,6 @@ jobs:
             --configuration Release \
             --logger "trx;LogFileName=./TestResults/test-results.trx" \
             --results-directory ./TestResults \
-            --no-build \
             --verbosity normal \
             --blame
 
