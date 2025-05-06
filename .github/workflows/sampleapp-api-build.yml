@@ -28,7 +28,7 @@ jobs:
     outputs:
       build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
     environment:
-      name: ${{ github.event.inputs.environment }}  #
+      name: ${{ github.event.inputs.environment }}  
     steps:
       - name: Checkout repo for build
         uses: actions/checkout@v4
@@ -54,18 +54,16 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
-          mkdir -p $GITHUB_WORKSPACE/Test.Unit/TestResults
-          mkdir -p $GITHUB_WORKSPACE/Test.Unit/TestResults/coverage
-          dotnet test $GITHUB_WORKSPACE/Test.Unit/Test.Unit.csproj \
+          mkdir -p ./Test.Unit/TestResults/coverage
+          dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
             --no-build \
-            --results-directory $GITHUB_WORKSPACE/Test.Unit/TestResults \
-            --logger:"trx;LogFileName=$GITHUB_WORKSPACE/Test.Unit/TestResults/test-results.trx" \
+            --results-directory ./Test.Unit/TestResults \
+            --logger "trx;LogFileName=./Test.Unit/TestResults/test-results.trx" \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=$GITHUB_WORKSPACE/Test.Unit/TestResults/coverage/ \
+            /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
             /p:CoverletOutputFormat=cobertura \
             /p:UseSourceLink=true || { echo 'Test run failed'; exit 1; }
-        shell: bash
         env:
           DOTNET_VERSION: 9.x
           DOTNET_ROOT: /usr/share/dotnet
@@ -81,7 +79,7 @@ jobs:
         if: always()
         with:
           name: Unit Tests
-          path: $GITHUB_WORKSPACE/Test.Unit/TestResults/test-results.trx
+          path: ./Test.Unit/TestResults/test-results.trx
           reporter: dotnet-trx
           path-replace-backslashes: false
           list-suites: all
