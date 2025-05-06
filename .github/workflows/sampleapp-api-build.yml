@@ -54,34 +54,44 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
-          # Clean previous test results
-          rm -rf ./Test.Unit/TestResults
-          mkdir -p ./Test.Unit/TestResults
+          # Set absolute path to avoid any directory confusion
+          TEST_RESULTS_DIR="$GITHUB_WORKSPACE/Test.Unit/TestResults"
+          rm -rf "$TEST_RESULTS_DIR"
+          mkdir -p "$TEST_RESULTS_DIR/coverage"
 
-          # Run tests with EXPLICIT trx logger
-          mkdir -p ./Test.Unit/TestResults/coverage
+          # Run with FULL DIAGNOSTIC OUTPUT
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
             --no-build \
-            --logger:"trx;LogFileName=test-results.trx" \
-            --results-directory ./Test.Unit/TestResults \
+            --logger "trx;LogFileName=$TEST_RESULTS_DIR/test-results.trx" \
+            --results-directory "$TEST_RESULTS_DIR" \
+            --diag "$TEST_RESULTS_DIR/diagnostics.log" \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
-            /p:CoverletOutputFormat=cobertura
-        
-          # DEBUG: Show EXACTLY what was generated
-          echo "DEBUG - TestResults directory contents:"
-          ls -la ./Test.Unit/TestResults/
-          echo "---"
-          find ./Test.Unit/TestResults -type f
-    
-          # Verify trx exists or DIE
-          if [ ! -f "./Test.Unit/TestResults/test-results.trx" ]; then
-            echo "##[error]EMERGENCY: TRX FILE STILL NOT FOUND AFTER EXPLICIT REQUEST"
-            echo "##[error]Last resort - checking for ANY trx files:"
-            find . -name "*.trx"
+            /p:CoverletOutput="$TEST_RESULTS_DIR/coverage/" \
+            /p:CoverletOutputFormat=cobertura \
+            --verbosity detailed
+
+          # DEBUG OUTPUT - SHOW ME EVERYTHING
+          echo "=== DIAGNOSTICS DUMP ==="
+          cat "$TEST_RESULTS_DIR/diagnostics.log"
+          echo "=== DIRECTORY TREE ==="
+          tree -a "$TEST_RESULTS_DIR"
+          echo "=== ALL TRX FILES IN REPO ==="
+          find "$GITHUB_WORKSPACE" -name "*.trx" -exec ls -la {} \;
+
+          # FAIL HARD IF STILL NOTHING
+          if [ ! -f "$TEST_RESULTS_DIR/test-results.trx" ]; then
+            echo "##[error]CRITICAL FAILURE: NO TRX FILE GENERATED"
+            echo "##[error]Check test project configuration and build output"
             exit 1
           fi
+
+      - name: Upload DIAGNOSTICS as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics
+          path: ./Test.Unit/TestResults/diagnostics.log
 
       - name: Test Reporter (GitHub Checks UI)
         uses: dorny/test-reporter@v1
