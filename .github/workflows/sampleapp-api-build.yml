@@ -1,4 +1,4 @@
-name: Build SampleApp.Api
+﻿name: Build SampleApp.Api
 
 on:
   # push:
@@ -47,14 +47,71 @@ jobs:
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Run unit tests
-        id: unit-tests-step
-        run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx" 
+      # - name: Run unit tests
+      #   id: unit-tests-step
+      #   run: dotnet test ./Test.Unit/Test.Unit.csproj --logger "trx;LogFileName=unit_results.trx" 
+
+      - name: Run unit tests with coverage
+        id: run-tests
+        run: |
+          dotnet test ./Test.Unit/Test.Unit.csproj \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger:"console;verbosity=detailed" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
+            /p:CoverletOutputFormat=cobertura
+
+      - name: Test Reporter (GitHub Checks UI)
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Tests
+          path: ./Test.Unit/TestResults/test-results.trx
+          reporter: dotnet-trx
+
+      - name: Count MSTest results (basic)
+        id: test-count
+        run: |
+          passed=$(grep -oP 'outcome="Passed"' ./Test.Unit/TestResults/test-results.trx | wc -l)
+          failed=$(grep -oP 'outcome="Failed"' ./Test.Unit/TestResults/test-results.trx | wc -l)
+          echo "passed=$passed" >> $GITHUB_OUTPUT
+          echo "failed=$failed" >> $GITHUB_OUTPUT
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          coverage_file="./Test.Unit/TestResults/coverage/coverage.cobertura.xml"
+          total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+          total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+          if [ "$total_possible" -eq 0 ]; then
+            percent=0
+          else
+            percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/$total_possible)*100}")
+          fi
+          echo "percentage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Write summary to GitHub Actions UI
+        if: always()
+        run: |
+          echo "### ✅ Unit Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Project: **Test.Unit**" >> $GITHUB_STEP_SUMMARY
+          echo "- Result: **${{ steps.run-tests.outcome }}**" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Tests Passed | ${{ steps.test-count.outputs.passed }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ❌ Tests Failed | ${{ steps.test-count.outputs.failed }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📈 Coverage | ${{ steps.coverage.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [🔍 View HTML Report Artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate HTML report
         run: |
           reportgenerator \
-            -reports:./Test.Unit/TestResults/unit_results.trx \
+            # -reports:./Test.Unit/TestResults/unit_results.trx \
+            -reports:./Test.Unit/TestResults/coverage/coverage.cobertura.xml \
             -targetdir:./Test.Unit/TestResults/report \
             -reporttypes:Html
 
@@ -64,8 +121,18 @@ jobs:
           name: test-results-html
           path: ./Test.Unit/TestResults/report
 
+      - name: Upload raw trx result
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-trx
+          path: ./Test.Unit/TestResults/test-results.trx
+
+      # - name: Publish (only if tests passed)
+      #   if: steps.unit-tests-step.outcome == 'success'
+      #   run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish --no-build
+
       - name: Publish (only if tests passed)
-        if: steps.unit-tests-step.outcome == 'success'
+        if: success()
         run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish --no-build
 
       - name: Zip published output (only if tests passed)
