@@ -54,20 +54,34 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
+          # Clean previous test results
+          rm -rf ./Test.Unit/TestResults
+          mkdir -p ./Test.Unit/TestResults
+
+          # Run tests with EXPLICIT trx logger
           mkdir -p ./Test.Unit/TestResults/coverage
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
             --no-build \
+            --logger:"trx;LogFileName=test-results.trx" \
             --results-directory ./Test.Unit/TestResults \
-            --logger "trx;LogFileName=./Test.Unit/TestResults/test-results.trx" \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./Test.Unit/TestResults/coverage/ \
-            /p:CoverletOutputFormat=cobertura \
-            /p:UseSourceLink=true || { echo 'Test run failed'; exit 1; }
+            /p:CoverletOutputFormat=cobertura
         
-          # Immediately verify the file exists
-          echo "Checking test results file exists..."
-          ls -la ./Test.Unit/TestResults/test-results.trx || echo "##[error]Test results file not found!"
+          # DEBUG: Show EXACTLY what was generated
+          echo "DEBUG - TestResults directory contents:"
+          ls -la ./Test.Unit/TestResults/
+          echo "---"
+          find ./Test.Unit/TestResults -type f
+    
+          # Verify trx exists or DIE
+          if [ ! -f "./Test.Unit/TestResults/test-results.trx" ]; then
+            echo "##[error]EMERGENCY: TRX FILE STILL NOT FOUND AFTER EXPLICIT REQUEST"
+            echo "##[error]Last resort - checking for ANY trx files:"
+            find . -name "*.trx"
+            exit 1
+          fi
 
       - name: Test Reporter (GitHub Checks UI)
         uses: dorny/test-reporter@v1
