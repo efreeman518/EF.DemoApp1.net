@@ -118,10 +118,15 @@ jobs:
           done
 
           # Process coverage
-          coverage_file=$(find ${{ env.TEST_RESULTS_DIR }} -name coverage.cobertura.xml | head -1)
-          total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
-          total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
-          percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/($total_possible+0.000001))*100}")
+          coverage_file=$(find $TEST_RESULTS_DIR -name coverage.cobertura.xml | head -1)
+          if [ -f "$coverage_file" ]; then
+            total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+            total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
+            percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/($total_possible+0.000001))*100}")
+          else
+            percent=0
+            echo "##[warning] No coverage file found"
+          fi
 
           echo "passed=$total_passed" >> $GITHUB_OUTPUT
           echo "failed=$total_failed" >> $GITHUB_OUTPUT
