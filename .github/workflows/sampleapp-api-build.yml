@@ -54,7 +54,7 @@ jobs:
       - name: Run unit tests with coverage
         id: run-tests
         run: |
-          mkdir -p ./Test.Unit/TestResults
+          mkdir -p $GITHUB_WORKSPACE/Test.Unit/TestResults
           dotnet test ./Test.Unit/Test.Unit.csproj \
             --configuration Release \
             #--no-build \
