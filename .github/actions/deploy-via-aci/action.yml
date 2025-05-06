@@ -149,11 +149,6 @@ runs:
           --assign-identity ${{ inputs.identity-resource-id }} \
           --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && if az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true; then echo \"DEPLOYMENT_COMPLETED\" && exit 0; else echo \"DEPLOYMENT_FAILED\" && exit 1; fi'"
 
-        # Start log streaming after container creation
-        # echo "Starting log streaming..."
-        # az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --follow > "$LOG_FILE" &
-        # LOGS_PID=$!
-
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
         DEPLOYMENT_SUCCESS=false
