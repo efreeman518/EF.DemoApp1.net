@@ -48,13 +48,12 @@ jobs:
       - name: Publish (includes build)
         run: dotnet publish ./SampleApp.Api/SampleApp.Api.csproj -c Release -o publish --no-restore
 
-      - name: Zip published output (only if tests passed)
-        if: steps.unit-tests-step.outcome == 'success'
+      - name: Zip published output 
         run: |
           cd publish
           zip -r ../artifact.zip .
 
-        #default stored for 90 days in GitHub Actions artifact storage
+      #default stored for 90 days in GitHub Actions artifact storage
       - name: Upload artifact (only if tests passed)
         uses: actions/upload-artifact@v4
         with:
