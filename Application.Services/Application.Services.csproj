@@ -13,7 +13,7 @@
   
   <ItemGroup>
     <!-- <PackageReference Include="Azure.AI.OpenAI.Assistants" Version="1.0.0-beta.4" /> -->
-    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.KernelMemory.AI.AzureOpenAI" Version="0.98.250324.1" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.98.250324.1" />

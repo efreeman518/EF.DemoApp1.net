@@ -150,9 +150,9 @@ runs:
           --command-line "/bin/bash -c 'set -x && az login --identity && curl -sSL \"$ZIP_URL\" -o \"artifact.zip\" && if az webapp deploy --resource-group \"${{ inputs.resource-group }}\" --name \"${{ inputs.app-service-name }}\" --src-path \"artifact.zip\" --type zip --restart true; then echo \"DEPLOYMENT_COMPLETED\" && exit 0; else echo \"DEPLOYMENT_FAILED\" && exit 1; fi'"
 
         # Start log streaming after container creation
-        echo "Starting log streaming..."
-        az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --follow > "$LOG_FILE" &
-        LOGS_PID=$!
+        # echo "Starting log streaming..."
+        # az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" --follow > "$LOG_FILE" &
+        # LOGS_PID=$!
 
         TIMEOUT_LIMIT=600  # Increase timeout from default to 10 minutes
         START_TIME=$(date +%s)
@@ -160,6 +160,9 @@ runs:
 
         echo "Monitoring deployment progress..."
         while true; do
+            # Pull latest logs (on-demand)
+            az container logs --resource-group "${{ inputs.resource-group }}" --name "$ACI_NAME" > "$LOG_FILE" || echo "Warning: could not fetch logs"
+
             # Check logs for success/failure markers
             if grep -q "DEPLOYMENT_COMPLETED" "$LOG_FILE" || grep -q "Deployment successful" "$LOG_FILE"; then
                 echo "Deployment success detected in logs"
