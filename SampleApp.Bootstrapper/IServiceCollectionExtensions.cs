@@ -703,14 +703,6 @@ public static class IServiceCollectionExtensions
                        ;
                 });
             }
-
-
-            //needs to be running in an HttpContext; otherwise no headers to propagate (breaks integration tests)
-            //if (hasHttpContext)
-            //{
-            //    httpClientBuilder.AddCorrelationIdForwarding();
-            //    httpClientBuilder.AddHeaderPropagation();
-            //}
         }
 
         //OpenAI chat service
