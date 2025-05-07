@@ -93,6 +93,7 @@ jobs:
 
           # Initialize variables
           any_failed=false
+          test_execution_failed=false
 
           for project in $TEST_PROJECTS; do
             project_name=$(basename "$project" .csproj)
@@ -105,13 +106,28 @@ jobs:
               --settings:coverlet.runsettings \
               --logger "trx;LogFileName=$project_name-results.trx" \
               --results-directory "$TEST_RESULTS_DIR"; then
-              any_failed=true
+              # Check if there are actual test failures in the TRX file
+              trx_file="$TEST_RESULTS_DIR/$project_name-results.trx"
+              if [ -f "$trx_file" ]; then
+                failed_count=$(grep -oP '<UnitTestResult.*outcome="Failed"' "$trx_file" | wc -l)
+                if [ "$failed_count" -gt 0 ]; then
+                  any_failed=true
+                else
+                  # Test host failed but no tests actually failed - this is a problem
+                  test_execution_failed=true
+                fi
+              else
+                test_execution_failed=true
+              fi
             fi
           done
 
-          # Verify test results exist
-          if [ -z "$(ls -A "$TEST_RESULTS_DIR"/*.trx 2>/dev/null)" ]; then
-            echo "##[error] No test results found in $TEST_RESULTS_DIR"
+          # Fail the job if either tests failed or test execution failed
+          if $any_failed; then
+            echo "##[error] There were test failures"
+            exit 1
+          elif $test_execution_failed; then
+            echo "##[error] Test execution failed (possibly crashed)"
             exit 1
           fi
 
