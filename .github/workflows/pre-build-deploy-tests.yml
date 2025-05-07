@@ -91,19 +91,22 @@ jobs:
             </RunSettings>' > coverlet.runsettings
           fi
 
-          # Run tests - capture exit code but continue processing
-          test_exit_code=0
+          # Initialize variables
+          any_failed=false
+
           for project in $TEST_PROJECTS; do
             project_name=$(basename "$project" .csproj)
             echo "Running tests for: $project"
             
-            dotnet test "$project" \
+            if ! dotnet test "$project" \
               --configuration Release \
               --no-build \
               --collect:"XPlat Code Coverage" \
               --settings:coverlet.runsettings \
               --logger "trx;LogFileName=$project_name-results.trx" \
-              --results-directory "$TEST_RESULTS_DIR" || test_exit_code=$?
+              --results-directory "$TEST_RESULTS_DIR"; then
+              any_failed=true
+            fi
           done
 
           # Verify test results exist
@@ -209,9 +212,10 @@ jobs:
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
 
           # Exit with the captured test status
-          if [ $test_exit_code -ne 0 ]; then
-            echo "##[error] There were test failures (exit code $test_exit_code)"
-            exit $test_exit_code
+          # Fail the job if any tests failed
+          if $any_failed; then
+            echo "##[error] There were test failures"
+            exit 1
           fi
 
   deploy-to-pages:
