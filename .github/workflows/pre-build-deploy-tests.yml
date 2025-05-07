@@ -68,6 +68,7 @@ jobs:
 
       - name: Run tests with coverage
         id: run-tests
+        #continue-on-error: true  # allows the step to continue even if tests fail
         run: |
           # Clean and create results directory
           rm -rf "$TEST_RESULTS_DIR"
@@ -91,7 +92,8 @@ jobs:
             </RunSettings>' > coverlet.runsettings
           fi
 
-          # Run tests for each project
+          # Run tests - capture exit code but continue processing
+          test_exit_code=0
           for project in $TEST_PROJECTS; do
             project_name=$(basename "$project" .csproj)
             echo "Running tests for: $project"
@@ -102,7 +104,7 @@ jobs:
               --collect:"XPlat Code Coverage" \
               --settings:coverlet.runsettings \
               --logger "trx;LogFileName=$project_name-results.trx" \
-              --results-directory "$TEST_RESULTS_DIR"
+              --results-directory "$TEST_RESULTS_DIR" || test_exit_code=$?
           done
 
           # Verify test results exist
@@ -144,6 +146,7 @@ jobs:
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
+        if: always()  # ensure it runs even if previous steps fail
         with:
           name: Unit Test Results
           path: '**/*.trx' #${{ env.TEST_RESULTS_DIR }}/*.trx
@@ -185,6 +188,11 @@ jobs:
           REPO_URL="https://$(echo ${{ github.repository }} | sed 's|/|.github.io/|')"
 
           echo "### 🧪 Unit Test Summary" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ steps.run-tests.outputs.failed }} -gt 0 ]; then
+            echo "❌ **There were ${{ steps.run-tests.outputs.failed }} test failures**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **All tests passed**" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "#### Projects Tested" >> $GITHUB_STEP_SUMMARY
           echo "${{ env.TEST_PROJECTS }}" | tr ' ' '\n' | sed 's|^|- |' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -201,10 +209,17 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
 
+          # Exit with the captured test status
+          if [ $test_exit_code -ne 0 ]; then
+            echo "##[error] There were test failures (exit code $test_exit_code)"
+            exit $test_exit_code
+          fi
+
   deploy-to-pages:
     needs: build
+    if: always()  # <-- run even if build fails
+    #if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
