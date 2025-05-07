@@ -12,6 +12,11 @@ public static class TodoItemEndpoints
 {
     private static bool _problemDetailsIncludeStackTrace;
 
+    /// <summary>
+    /// endpoints
+    /// </summary>
+    /// <param name="group"></param>
+    /// <param name="problemDetailsIncludeStackTrace"></param>
     public static void MapTodoItemEndpoints(this IEndpointRouteBuilder group, bool problemDetailsIncludeStackTrace)
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
