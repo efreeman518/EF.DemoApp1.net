@@ -25,6 +25,9 @@ env:
 
 jobs:
   build:
+    # Only run if the upstream workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.event.inputs.environment || 'dev' }}  # Default to dev if not specified

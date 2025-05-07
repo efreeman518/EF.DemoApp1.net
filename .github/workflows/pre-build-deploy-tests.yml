@@ -211,7 +211,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
 
-          # Exit with the captured test status
           # Fail the job if any tests failed
           if $any_failed; then
             echo "##[error] There were test failures"
