@@ -19,6 +19,7 @@ permissions:
   id-token: write
   contents: write
   checks: write
+  pages: write  # Required for GitHub Pages deployment
 
 env:
   DOTNET_VERSION: '9.x'
@@ -196,3 +197,29 @@ jobs:
           echo "- [Download Test Results and HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
+
+  deploy-to-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-results-${{ github.run_number }}
+          path: report-artifact
+
+      - name: Copy HTML report to output folder
+        run: |
+          mkdir -p ./public
+          cp -r report-artifact/report/* ./public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
