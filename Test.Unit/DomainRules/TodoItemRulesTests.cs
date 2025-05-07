@@ -11,7 +11,7 @@ public class TodoItemRulesTests
     [DataRow("asdfg", 6, false)]
     [DataRow("asdfg", 5, true)]
     [DataRow("asdfgsd456yrt", 5, true)]
-    [DataRow("asdfgsd456yrt", 20, true)]
+    [DataRow("asdfgsd456yrt", 20, false)]
     public void NameLengthRule_ReturnsExpected(string name, int nameLength, bool expectedValid)
     {
         var item = new TodoItem(name);
