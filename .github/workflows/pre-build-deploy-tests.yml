@@ -182,6 +182,8 @@ jobs:
       - name: Set up test summary
         if: always()
         run: |
+          REPO_URL="https://$(echo ${{ github.repository }} | sed 's|/|.github.io/|')"
+
           echo "### 🧪 Unit Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "#### Projects Tested" >> $GITHUB_STEP_SUMMARY
           echo "${{ env.TEST_PROJECTS }}" | tr ' ' '\n' | sed 's|^|- |' >> $GITHUB_STEP_SUMMARY
@@ -194,6 +196,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📦 **Artifacts**" >> $GITHUB_STEP_SUMMARY
           echo "- [Test Summary](${{ steps.extract-check-url.outputs.html_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [📄 Coverage Report on GitHub Pages]($REPO_URL)" >> $GITHUB_STEP_SUMMARY
           echo "- [Download Test Results and HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
