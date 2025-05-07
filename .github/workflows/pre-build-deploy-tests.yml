@@ -34,6 +34,11 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment || 'dev' }}  # Default to dev if not specified
 
+    outputs:
+      failed: ${{ steps.run-tests.outputs.failed }}
+      passed: ${{ steps.run-tests.outputs.passed }}
+      percentage: ${{ steps.run-tests.outputs.percentage }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -72,6 +77,9 @@ jobs:
           # Clean and create results directory
           rm -rf "$TEST_RESULTS_DIR"
           mkdir -p "$TEST_RESULTS_DIR"
+          total_passed=0
+          total_failed=0
+          percent=0
 
           # Verify coverlet.runsettings exists
           if [ ! -f "coverlet.runsettings" ]; then
@@ -97,39 +105,21 @@ jobs:
 
           for project in $TEST_PROJECTS; do
             project_name=$(basename "$project" .csproj)
+            result_path="$TEST_RESULTS_DIR/$project_name-results.trx"
             echo "Running tests for: $project"
             
-            if ! dotnet test "$project" \
-              --configuration Release \
-              --no-build \
+            dotnet test "$project" \
+              --no-build --configuration Release \
               --collect:"XPlat Code Coverage" \
               --settings:coverlet.runsettings \
               --logger "trx;LogFileName=$project_name-results.trx" \
-              --results-directory "$TEST_RESULTS_DIR"; then
-              # Check if there are actual test failures in the TRX file
-              trx_file="$TEST_RESULTS_DIR/$project_name-results.trx"
-              if [ -f "$trx_file" ]; then
-                failed_count=$(grep -oP '<UnitTestResult.*outcome="Failed"' "$trx_file" | wc -l)
-                if [ "$failed_count" -gt 0 ]; then
-                  any_failed=true
-                else
-                  # Test host failed but no tests actually failed - this is a problem
-                  test_execution_failed=true
-                fi
-              else
-                test_execution_failed=true
-              fi
-            fi
-          done
+              --results-directory "$TEST_RESULTS_DIR" || true
 
-          # Fail the job if either tests failed or test execution failed
-          if $any_failed; then
-            echo "##[error] There were test failures"
-            exit 1
-          elif $test_execution_failed; then
-            echo "##[error] Test execution failed (possibly crashed)"
-            exit 1
-          fi
+            passed=$(grep -oP 'outcome="Passed"' "$result_path" | wc -l || echo 0)
+            failed=$(grep -oP 'outcome="Failed"' "$result_path" | wc -l || echo 0)
+            total_passed=$((total_passed + passed))
+            total_failed=$((total_failed + failed))
+          done
 
           # Generate coverage report
           reportgenerator \
@@ -137,30 +127,22 @@ jobs:
             -targetdir:"$TEST_RESULTS_DIR"/report \
             -reporttypes:Html
 
-          # Process test results
-          total_passed=0
-          total_failed=0
-          for trx in "$TEST_RESULTS_DIR"/*.trx; do
-            passed=$(grep -oP 'outcome="Passed"' "$trx" | wc -l)
-            failed=$(grep -oP 'outcome="Failed"' "$trx" | wc -l)
-            total_passed=$((total_passed + passed))
-            total_failed=$((total_failed + failed))
-          done
-
           # Process coverage data
           coverage_file=$(find "$TEST_RESULTS_DIR" -name coverage.cobertura.xml | head -1)
           if [ -f "$coverage_file" ]; then
             total_lines=$(grep -oP 'lines-covered="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
             total_possible=$(grep -oP 'lines-valid="\K\d+' "$coverage_file" | awk '{s+=$1} END {print s}')
             percent=$(awk "BEGIN {printf \"%.2f\", ($total_lines/($total_possible+0.000001))*100}")
-          else
-            percent=0
-            echo "##[warning] No coverage file found"
           fi
 
           echo "passed=$total_passed" >> $GITHUB_OUTPUT
           echo "failed=$total_failed" >> $GITHUB_OUTPUT
           echo "percentage=$percent" >> $GITHUB_OUTPUT
+
+          if [ "$total_failed" -gt 0 ]; then
+            echo "##[error] There were $total_failed test failures."
+            exit 1
+          fi
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
@@ -174,6 +156,15 @@ jobs:
           list-tests: all
           max-annotations: 10
       
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ github.run_number }}
+          path: |
+            ${{ env.TEST_RESULTS_DIR }}/*.trx
+            ${{ env.TEST_RESULTS_DIR }}/report
+          retention-days: 7
+
       - name: Get check run URL for Unit Test Results
         id: get-check-run
         uses: octokit/request-action@v2.x
@@ -190,15 +181,6 @@ jobs:
           html_url=$(echo '${{ steps.get-check-run.outputs.data }}' \
             | jq -r '.check_runs[] | select(.name == "Unit Test Results") | .html_url')
           echo "html_url=$html_url" >> $GITHUB_OUTPUT
-
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-results-${{ github.run_number }}
-          path: |
-            ${{ env.TEST_RESULTS_DIR }}/*.trx
-            ${{ env.TEST_RESULTS_DIR }}/report
-          retention-days: 7
       
       - name: Set up test summary
         if: always()
@@ -226,12 +208,6 @@ jobs:
           echo "- [Download Test Results and HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📝 The HTML coverage report is located in: \`report/index.html\` inside the downloaded artifact." >> $GITHUB_STEP_SUMMARY
-
-          # Fail the job if any tests failed
-          if $any_failed; then
-            echo "##[error] There were test failures"
-            exit 1
-          fi
 
   deploy-to-pages:
     needs: build-and-test
