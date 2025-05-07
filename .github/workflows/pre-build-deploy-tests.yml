@@ -27,7 +27,7 @@ env:
   TEST_PROJECTS: 'Test.Unit/Test.Unit.csproj' # Test.Unit2/Test.Unit2.csproj' # Add/remove projects
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     # outputs:
     #   build-run-id: ${{ steps.upload-artifact.outputs.run-id }}
@@ -68,7 +68,6 @@ jobs:
 
       - name: Run tests with coverage
         id: run-tests
-        #continue-on-error: true  # allows the step to continue even if tests fail
         run: |
           # Clean and create results directory
           rm -rf "$TEST_RESULTS_DIR"
@@ -216,9 +215,8 @@ jobs:
           fi
 
   deploy-to-pages:
-    needs: build
-    if: always()  # <-- run even if build fails
-    #if: github.ref == 'refs/heads/main'
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
