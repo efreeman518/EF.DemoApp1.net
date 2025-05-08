@@ -38,34 +38,46 @@ public class FilterActivityProcessor(IEnumerable<string> blockedKeywords) : Base
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions - performance over readability here
         foreach (var @event in activity.Events)
         {
-            if (@event.Name != null && _matcher.ContainsKeyword(@event.Name))
+            // Check event name
+            if (!string.IsNullOrEmpty(@event.Name) && _matcher.ContainsKeyword(@event.Name))
             {
                 activity.IsAllDataRequested = false;
                 return;
+            }
+
+            // Check event tags/attributes
+            foreach (var tag in @event.Tags)
+            {
+                if (CheckTagValue(tag.Value))
+                {
+                    activity.IsAllDataRequested = false;
+                    return;
+                }
             }
         }
 
         foreach (var tag in activity.Tags)
         {
-            if (tag.Value is string tagValue)
+            if (CheckTagValue(tag.Value))
             {
-                // Check tags using the StringMatcher
-                if (_matcher.ContainsKeyword(tagValue))
-                {
-                    activity.IsAllDataRequested = false;
-                    return;
-                }
-            }
-            else if (tag.Value != null)
-            {
-                var tagValue1 = tag.Value.ToString();
-                if (tagValue1 != null && _matcher.ContainsKeyword(tagValue1))
-                {
-                    activity.IsAllDataRequested = false;
-                    return;
-                }
+                activity.IsAllDataRequested = false;
+                return;
             }
         }
 #pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
+    }
+
+    private bool CheckTagValue(object? tagValue)
+    {
+        if (tagValue is string strValue)
+        {
+            return _matcher.ContainsKeyword(strValue);
+        }
+        else if (tagValue != null)
+        {
+            string? stringValue = tagValue.ToString();
+            return stringValue != null && _matcher.ContainsKeyword(stringValue);
+        }
+        return false;
     }
 }

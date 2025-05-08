@@ -49,6 +49,7 @@ internal static class IServiceCollectionExtensions
             .WithTracing(tracing =>
             {
                 tracing
+                    //.SetSampler(new TraceIdRatioBasedSampler(0.1)) // Sample 10% of traces
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
