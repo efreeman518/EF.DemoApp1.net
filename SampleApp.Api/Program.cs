@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.DataProtection;
+using Package.Infrastructure.AspNetCore.Extensions;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Api;
@@ -36,28 +37,32 @@ loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 try
 {
     loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
-    builder.Logging
-        .ClearProviders()
-        .AddOpenTelemetry(options =>
-        {
-            options.IncludeFormattedMessage = true;
-            options.IncludeScopes = true;
-            options.ParseStateValues = true;
-            options.AddAzureMonitorLogExporter(options =>
-            {
-                options.ConnectionString = appInsightsConnectionString;
-            });
-        });
-    //old way to add app insights logging
-    //.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-    //    config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
-    //    configureApplicationInsightsLoggerOptions: (options) => { });
+    builder.Logging.AddConfiguredOpenTelemetryLogging(
+        config.GetSection("Logging:LogLevel"),
+        config["ApplicationInsights:ConnectionString"]!);
 
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
-    }
+    //builder.Logging
+    //    .ClearProviders()
+    //    .AddOpenTelemetry(options =>
+    //    {
+    //        options.IncludeFormattedMessage = true;
+    //        options.IncludeScopes = true;
+    //        options.ParseStateValues = true;
+    //        options.AddAzureMonitorLogExporter(options =>
+    //        {
+    //            options.ConnectionString = appInsightsConnectionString;
+    //        });
+    //    });
+    ////old way to add app insights logging
+    ////.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+    ////    config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
+    ////    configureApplicationInsightsLoggerOptions: (options) => { });
+
+    //if (builder.Environment.IsDevelopment())
+    //{
+    //    builder.Logging.AddConsole();
+    //    builder.Logging.AddDebug();
+    //}
 
     //set up DefaultAzureCredential for subsequent use in configuration providers
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html
