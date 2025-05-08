@@ -11,7 +11,7 @@ public class FilterActivityProcessor2(Predicate<Activity> filter) : BaseProcesso
         if (_filter(activity))
         {
             // Suppress the activity from being exported
-            //activity.SetStatus(ActivityStatusCode.Unset); // Correct way to call SetStatus
+            activity.SetStatus(ActivityStatusCode.Unset); // Correct way to call SetStatus
             activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
             activity.IsAllDataRequested = false;
         }
