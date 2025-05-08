@@ -10,6 +10,7 @@ using Microsoft.Identity.Web;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Package.Infrastructure.AspNetCore.ActivityProcessors;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
@@ -46,6 +47,7 @@ internal static class IServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
+                    .AddProcessor(new MsalFilteringActivityProcessor()) //filter out Msal chatter
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;

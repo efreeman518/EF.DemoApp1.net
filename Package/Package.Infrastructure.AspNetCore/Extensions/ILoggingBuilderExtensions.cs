@@ -1,52 +1,31 @@
-﻿using Azure.Monitor.OpenTelemetry.Exporter;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
 
 namespace Package.Infrastructure.AspNetCore.Extensions;
 public static class OpenTelemetryLoggingExtensions
 {
-    public static ILoggingBuilder AddConfiguredOpenTelemetryLogging(
+    public static ILoggingBuilder AddOpenTelemetryWithConfig(
         this ILoggingBuilder loggingBuilder,
-        IConfigurationSection logLevelSection,
-        string azureMonitorConnectionString)
+        IConfigurationSection loggingSection,
+        Action<OpenTelemetryLoggerOptions>? configureOpenTelemetry = null)
     {
-        var logLevelConfig = logLevelSection
-            .GetChildren()
-            .ToDictionary(
-                s => s.Key,
-                s => Enum.TryParse<LogLevel>(s.Value, out var level) ? level : LogLevel.Information
-            );
-
+        // Clear existing providers if desired
         loggingBuilder.ClearProviders();
 
-        // Apply filtering to the logging system (applies to all providers including OpenTelemetry)
-        loggingBuilder.AddFilter((category, level) =>
-        {
-            if (logLevelConfig.TryGetValue(category!, out var exactLevel))
-                return level >= exactLevel;
+        // Apply log level filters from configuration first
+        loggingBuilder.AddConfiguration(loggingSection);
 
-            foreach (var kvp in logLevelConfig)
-            {
-                if (category!.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
-                    return level >= kvp.Value;
-            }
-
-            if (logLevelConfig.TryGetValue("Default", out var defaultLevel))
-                return level >= defaultLevel;
-
-            return level >= LogLevel.Information;
-        });
-
+        // Configure OpenTelemetry
         loggingBuilder.AddOpenTelemetry(options =>
         {
+            // Default OpenTelemetry configuration
             options.IncludeFormattedMessage = true;
             options.IncludeScopes = true;
             options.ParseStateValues = true;
 
-            options.AddAzureMonitorLogExporter(exporterOptions =>
-            {
-                exporterOptions.ConnectionString = azureMonitorConnectionString;
-            });
+            // Allow additional customization
+            configureOpenTelemetry?.Invoke(options);
         });
 
         return loggingBuilder;
