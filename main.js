@@ -342,9 +342,10 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.AspNetCore",
     "classes": [
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.MsalFilteringActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_MsalFilteringActivityProcessor.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManager", "rp": "Package.Infrastructure.AspNetCore_ChaosManager.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 36, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManagerSettings", "rp": "Package.Infrastructure.AspNetCore_ChaosManagerSettings.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 35, "cal": 35, "tl": 54, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 33, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Filters.CorrelationIdStartupFilter", "rp": "Package.Infrastructure.AspNetCore_CorrelationIdStartupFilter.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Filters.ValidationFilter<T>", "rp": "Package.Infrastructure.AspNetCore_ValidationFilter_1.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 27, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.HealthChecks.GCInfoHealthCheckBuilderExtensions", "rp": "Package.Infrastructure.AspNetCore_GCInfoHealthCheckBuilderExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 68, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -666,12 +667,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Infrastructure.Data", "class": "Infrastructure.Data.SystemSettingsDbContext", "reportPath": "Infrastructure.Data_SystemSettingsDbContext.html", "methodName": "OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)", "methodShortName": "OnModelCreating(...)", "fileIndex": 0, "line": 11,
-    "metrics": [
-      { "value": 156, "exceeded": true },
-      { "value": 12, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "reportPath": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "methodName": "AddConfiguredOpenTelemetryLogging(Microsoft.Extensions.Logging.ILoggingBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String)", "methodShortName": "AddConfiguredOpenTelemetryLogging(...)", "fileIndex": 0, "line": 13,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
