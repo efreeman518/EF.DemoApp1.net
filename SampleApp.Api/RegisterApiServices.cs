@@ -40,9 +40,9 @@ internal static class IServiceCollectionExtensions
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         //filter OpenTelemetry Traces chatter
-        var excludeDisplayNames = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
-        var excludeMessages = config.GetSection("OpenTelemetry:TraceFilter:ExcludeMessagesContaining").Get<string[]>() ?? [];
-        var filterKeywords = excludeDisplayNames.Concat(excludeMessages).ToArray();
+        //var excludeDisplayNames = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
+        //var excludeMessages = config.GetSection("OpenTelemetry:TraceFilter:ExcludeMessagesContaining").Get<string[]>() ?? [];
+        //var filterKeywords = excludeDisplayNames.Concat(excludeMessages).ToArray();
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(serviceName))
@@ -53,7 +53,7 @@ internal static class IServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    .AddProcessor(new FilterActivityProcessor2(activity => activity.Source?.Name?.StartsWith("Microsoft.Identity.Client") == true)) //filter out chatter
+                    .AddProcessor(new FilterActivityProcessor2(activity => activity.Tags.Any(t => t.Value?.Contains("identity", StringComparison.OrdinalIgnoreCase) ?? false))) //filter out chatter
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;

@@ -8,13 +8,6 @@ public class FilterActivityProcessor2(Predicate<Activity> filter) : BaseProcesso
 
     public override void OnEnd(Activity activity)
     {
-        if (activity.DisplayName == "LogMsalAlways") // Try filtering by DisplayName
-        {
-            activity.SetStatus(ActivityStatusCode.Unset);
-            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
-            return;
-        }
-
         if (_filter(activity))
         {
             // Suppress the activity from being exported

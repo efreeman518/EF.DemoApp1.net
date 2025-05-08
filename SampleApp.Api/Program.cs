@@ -38,20 +38,6 @@ loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 
 try
 {
-    Environment.SetEnvironmentVariable("AZURE_SDK_DIAGNOSTICS_LOGGING_ENABLED", "false");
-    Environment.SetEnvironmentVariable("AZURE_IDENTITY_DISABLE_TELEMETRY", "true");
-    Environment.SetEnvironmentVariable("MSAL_TELEMETRY_DISABLED", "true");
-
-    // Store a reference to prevent garbage collection
-    using var listener = new AzureEventSourceListener((eventArgs, message) =>
-    {
-        // Skip MSAL messages completely
-        if (!message.Contains("MSAL", StringComparison.OrdinalIgnoreCase) &&
-            !message.StartsWith("False MSAL", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine($"{eventArgs.Level}: {message}");
-        }
-    }, System.Diagnostics.Tracing.EventLevel.Warning);
 
     loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
     builder.Logging.AddOpenTelemetryWithConfig(config.GetSection("Logging"), options =>
