@@ -342,7 +342,8 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.AspNetCore",
     "classes": [
-      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.MsalFilteringActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_MsalFilteringActivityProcessor.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "cl": 0, "ucl": 17, "cal": 17, "tl": 48, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 26, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManager", "rp": "Package.Infrastructure.AspNetCore_ChaosManager.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 36, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManagerSettings", "rp": "Package.Infrastructure.AspNetCore_ChaosManagerSettings.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 33, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -451,6 +452,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Specification<T>", "rp": "Package.Infrastructure.Common_Specification_1.html", "cl": 3, "ucl": 9, "cal": 12, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.SpecificationExtensions", "rp": "Package.Infrastructure.Common_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 44, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StaticLogging", "rp": "Package.Infrastructure.Common_StaticLogging.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 38, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 26, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.SymmetricEncryptionUtility", "rp": "Package.Infrastructure.Common_SymmetricEncryptionUtility.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 72, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.TypeUtility", "rp": "Package.Infrastructure.Common_TypeUtility.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 16, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.ValidationResult", "rp": "Package.Infrastructure.Common_ValidationResult.html", "cl": 4, "ucl": 12, "cal": 16, "tl": 47, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -634,6 +636,12 @@ var riskHotspots = [
     "metrics": [
       { "value": 240, "exceeded": true },
       { "value": 15, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "reportPath": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "methodName": "OnEnd(System.Diagnostics.Activity)", "methodShortName": "OnEnd(...)", "fileIndex": 0, "line": 15,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "FindTopMatches(System.String,System.Collections.Generic.List`1<System.String>,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean)", "methodShortName": "FindTopMatches(...)", "fileIndex": 0, "line": 72,
