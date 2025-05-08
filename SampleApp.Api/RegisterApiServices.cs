@@ -39,6 +39,9 @@ internal static class IServiceCollectionExtensions
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
+        //filter OpenTelemetry Traces chatter
+        var filterTraceKeywords = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
+
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(serviceName))
             .WithTracing(tracing =>
@@ -47,7 +50,7 @@ internal static class IServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    .AddProcessor(new MsalFilteringActivityProcessor()) //filter out Msal chatter
+                    .AddProcessor(new FilterActivityProcessor(filterTraceKeywords)) //filter out chatter
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;
