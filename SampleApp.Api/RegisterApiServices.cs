@@ -53,7 +53,7 @@ internal static class IServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    .AddProcessor(new FilterActivityProcessor(filterKeywords)) //filter out chatter
+                    //.AddProcessor(new FilterActivityProcessor(filterKeywords)) //filter out chatter
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;
