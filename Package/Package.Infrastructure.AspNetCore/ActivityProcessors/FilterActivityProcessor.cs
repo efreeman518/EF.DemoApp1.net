@@ -8,7 +8,7 @@ namespace Package.Infrastructure.AspNetCore.ActivityProcessors;
 /// </summary>
 public class FilterActivityProcessor(IEnumerable<string> blockedKeywords) : BaseProcessor<Activity>
 {
-    private readonly StringMatcher _matcher = new StringMatcher(blockedKeywords);
+    private readonly StringMatcher _matcher = new(blockedKeywords);
 
     public override void OnEnd(Activity activity)
     {
@@ -21,7 +21,30 @@ public class FilterActivityProcessor(IEnumerable<string> blockedKeywords) : Base
             return;
         }
 
+        // Check message/description if available
+        if (activity.DisplayName != null && _matcher.ContainsKeyword(activity.DisplayName))
+        {
+            activity.IsAllDataRequested = false;
+            return;
+        }
+
+        // Check event name if available
+        if (activity.OperationName != null && _matcher.ContainsKeyword(activity.OperationName))
+        {
+            activity.IsAllDataRequested = false;
+            return;
+        }
+
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions - performance over readability here
+        foreach (var @event in activity.Events)
+        {
+            if (@event.Name != null && _matcher.ContainsKeyword(@event.Name))
+            {
+                activity.IsAllDataRequested = false;
+                return;
+            }
+        }
+
         foreach (var tag in activity.Tags)
         {
             if (tag.Value is string tagValue)

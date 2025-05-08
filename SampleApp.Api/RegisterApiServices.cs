@@ -40,7 +40,9 @@ internal static class IServiceCollectionExtensions
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         //filter OpenTelemetry Traces chatter
-        var filterTraceKeywords = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
+        var excludeDisplayNames = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
+        var excludeMessages = config.GetSection("OpenTelemetry:TraceFilter:ExcludeMessagesContaining").Get<string[]>() ?? [];
+        var filterKeywords = excludeDisplayNames.Concat(excludeMessages).ToArray();
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(serviceName))
@@ -50,7 +52,7 @@ internal static class IServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    .AddProcessor(new FilterActivityProcessor(filterTraceKeywords)) //filter out chatter
+                    .AddProcessor(new FilterActivityProcessor(filterKeywords)) //filter out chatter
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;
