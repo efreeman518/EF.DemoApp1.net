@@ -36,7 +36,7 @@ loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 try
 {
     loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
-    builder.Logging.AddOpenTelemetryWithConfig(config.GetSection("Logging"), appInsightsConnectionString);
+    builder.Logging.AddOpenTelemetryWithConfig(config);
     if (builder.Environment.IsDevelopment())
     {
         builder.Logging.AddConsole();
