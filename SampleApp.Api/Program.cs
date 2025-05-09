@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.AspNetCore.Extensions;
 using Package.Infrastructure.Common;
@@ -36,18 +35,8 @@ loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 
 try
 {
-
     loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
     builder.Logging.AddOpenTelemetryWithConfig(config);
-    //, options =>
-    //{
-    //    options.AddAzureMonitorLogExporter(o =>
-    //    {
-    //        o.ConnectionString = appInsightsConnectionString;
-    //    });
-    //    // Add any additional OpenTelemetry configuration here
-    //});
-
     if (builder.Environment.IsDevelopment())
     {
         builder.Logging.AddConsole();

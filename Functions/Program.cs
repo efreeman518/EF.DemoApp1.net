@@ -51,7 +51,7 @@ try
     loggerStartup.LogInformation("{AppName} {Environment} - Startup.", SERVICE_NAME, env);
 
     //required for HTTP triggers
-    builder.ConfigureFunctionsWebApplication(); 
+    builder.ConfigureFunctionsWebApplication();
 
     //set up DefaultAzureCredential for subsequent use in configuration providers
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Identity/1.8.0/api/Azure.Identity/Azure.Identity.DefaultAzureCredentialOptions.html

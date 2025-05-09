@@ -6,58 +6,83 @@ public static partial class WebApplicationBuilderExtensions
 {
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
-        app.UseHttpsRedirection();
+        ConfigureSecurity(app);
+        ConfigureAzureAppConfiguration(app);
+        ConfigureCors(app);
+        ConfigureMiddleware(app);
+        ConfigureEndpoints(app);
+        ConfigureReverseProxy(app);
 
-        // Use Azure App Configuration middleware for dynamic configuration refresh.
+        return app;
+    }
+
+    private static void ConfigureSecurity(WebApplication app)
+    {
+        app.UseHttpsRedirection();
+    }
+
+    private static void ConfigureAzureAppConfiguration(WebApplication app)
+    {
+        // Use Azure App Configuration middleware for dynamic configuration refresh
         if (app.Configuration.GetValue<string>("AzureAppConfig:Endpoint") != null)
         {
-            //middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh.
-            //middleware triggers on http request, not background service scope
+            // Middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh
+            // Middleware triggers on http request, not background service scope
             app.UseAzureAppConfiguration();
         }
+    }
 
-        //Cors
+    private static void ConfigureCors(WebApplication app)
+    {
         string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = app.Configuration.GetSection(corsConfigSectionName);
+
         if (corsConfigSection.GetChildren().Any())
         {
             var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
             app.UseCors(policyName);
         }
+    }
 
+    private static void ConfigureMiddleware(WebApplication app)
+    {
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+    }
 
-        //endpoints
+    private static void ConfigureEndpoints(WebApplication app)
+    {
         app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
+    }
 
-        //helpful for debugging
-        app.MapReverseProxy(static proxyPipeline =>
+    private static void ConfigureReverseProxy(WebApplication app)
+    {
+        app.MapReverseProxy(proxyPipeline =>
         {
-            // Optionally log errors on the proxy pipeline
-            proxyPipeline.Use(async (context, next) =>
-            {
-                try
-                {
-                    await next();
-                }
-                catch (Exception ex)
-                {
-                    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred during proxy request.");
-                    throw;
-                }
-            });
+            // Add error handling middleware for the proxy pipeline
+            proxyPipeline.Use(AddProxyErrorLogging);
         });
+    }
 
-        return app;
+    private static async Task AddProxyErrorLogging(HttpContext context, Func<Task> next)
+    {
+        try
+        {
+            await next();
+        }
+        catch (Exception ex)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred during proxy request.");
+            throw;
+        }
     }
 
     private static WebApplication MapHealthChecks(this WebApplication app)
     {
-        //for this yarp api (does not forward)
+        // For this YARP API (does not forward)
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
             // Exclude all checks and return a 200 - Ok.

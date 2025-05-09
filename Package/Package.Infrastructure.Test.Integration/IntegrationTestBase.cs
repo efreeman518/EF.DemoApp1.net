@@ -35,339 +35,381 @@ public abstract class IntegrationTestBase
     protected readonly IServiceProvider Services;
     protected readonly ILogger<IntegrationTestBase> Logger;
 
-    //[AssemblyInitialize]
-    //public static void Initialize(TestContext ctx) //ctx required for [AssemblyInitialize] run 
-    //{ }
-
     protected IntegrationTestBase()
     {
-        //Configuration
+        // Configuration
         Config = Utility.BuildConfiguration<IntegrationTestBase>();
 
-        //DI
+        // DI
         ServiceCollection services = new();
 
-        //add logging for integration tests
-        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug());
+        // Configure services
+        RegisterServices(services);
 
-        //queued background service - fire and forget 
+        // Build IServiceProvider for subsequent use finding/injecting services
+        Services = services.BuildServiceProvider();
+
+        Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
+        Logger.Log(LogLevel.Information, "Test Initialized.");
+    }
+
+    private void RegisterServices(ServiceCollection services)
+    {
+        ConfigureLogging(services);
+        ConfigureBackgroundServices(services);
+        ConfigureAzureClients(services, Config);
+        ConfigureRepositories(services, Config);
+        ConfigureCaching(services, Config);
+        ConfigureRequestContext(services);
+        ConfigureExternalServices(services, Config);
+        ConfigureApplicationServices(services);
+    }
+
+    private static void ConfigureLogging(ServiceCollection services)
+    {
+        services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug());
+    }
+
+    private static void ConfigureBackgroundServices(ServiceCollection services)
+    {
+        // Queued background service - fire and forget 
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+    }
 
-        //IConfigurationSection configSection;
-
-        //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
-        //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
-        //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
-        //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.azure.azureclientfactorybuilder?view=azure-dotnet
-        //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Microsoft.Extensions.Azure/1.0.0/index.html
+    private static void ConfigureAzureClients(ServiceCollection services, IConfiguration config)
+    {
         services.AddAzureClients(builder =>
         {
             // Set up any default settings
-            builder.ConfigureDefaults(Config.GetSection("AzureClientDefaults"));
+            builder.ConfigureDefaults(config.GetSection("AzureClientDefaults"));
+
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
-            //Azure storage generating SAS tokens require a StorageSharedKeyCredential or the managed identity to have permissions to create SAS tokens.
-            //StorageSharedKeyCredential storageSharedKeyCredential = new(accountName, accountKey);
-            //https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
-            var blobConfigSection = Config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
-            if (blobConfigSection.GetChildren().Any())
-            {
-                //Ideally use ServiceUri (w/DefaultAzureCredential)
-                builder.AddBlobServiceClient(blobConfigSection).WithName("AzureBlobStorageAccount1");
-            }
+            ConfigureBlobServiceClient(builder, config);
+            ConfigureTableServiceClient(builder, config);
+            ConfigureEventGridPublisherClient(builder, config);
+            ConfigureKeyVaultClients(builder, config, services);
+            ConfigureAzureOpenAIClient(builder, config);
+        });
+    }
 
-            //Table 
-            var tableConfigSection = Config.GetSection("ConnectionStrings:AzureTable1");
-            if (tableConfigSection.GetChildren().Any())
-            {
-                //Ideally use ServiceUri (w/DefaultAzureCredential)
-                builder.AddTableServiceClient(tableConfigSection).WithName("AzureTable1");
-            }
+    private static void ConfigureBlobServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    {
+        var blobConfigSection = config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
+        if (blobConfigSection.GetChildren().Any())
+        {
+            builder.AddBlobServiceClient(blobConfigSection).WithName("AzureBlobStorageAccount1");
+        }
+    }
 
-            //EventGrid Publisher
-            var egpConfigSection = Config.GetSection("EventGridPublisherTopic1");
-            if (egpConfigSection.GetChildren().Any())
-            {
-                //Ideally use TopicEndpoint Uri only (DefaultAzureCredential defined above for all azure clients)
-                builder.AddEventGridPublisherClient(new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
-                    new AzureKeyCredential(egpConfigSection.GetValue<string>("Key")!))
-                .WithName("EventGridPublisherTopic1");
-            }
+    private static void ConfigureTableServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    {
+        var tableConfigSection = config.GetSection("ConnectionStrings:AzureTable1");
+        if (tableConfigSection.GetChildren().Any())
+        {
+            builder.AddTableServiceClient(tableConfigSection).WithName("AzureTable1");
+        }
+    }
 
-            //KeyVault
-            var kvConfigSection = Config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
-            if (kvConfigSection.GetChildren().Any())
-            {
-                var akvUrl = kvConfigSection.GetValue<string>("VaultUrl")!;
-                var name = kvConfigSection.GetValue<string>("KeyVaultClientName")!;
-                builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
-                builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
-                builder.AddCertificateClient(new Uri(akvUrl)).WithName(name);
+    private static void ConfigureEventGridPublisherClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    {
+        var egpConfigSection = config.GetSection("EventGridPublisherTopic1");
+        if (egpConfigSection.GetChildren().Any())
+        {
+            builder.AddEventGridPublisherClient(
+                new Uri(egpConfigSection.GetValue<string>("TopicEndpoint")!),
+                new AzureKeyCredential(egpConfigSection.GetValue<string>("Key")!)
+            ).WithName("EventGridPublisherTopic1");
+        }
+    }
 
-                //Crypto Utility; keyed enables registering several if needed
-                services.AddKeyedSingleton<IKeyVaultCryptoUtility>("SomeCryptoUtil", (sp, _) =>
-                {
-                    var keyClient = sp.GetRequiredService<IAzureClientFactory<KeyClient>>().CreateClient(name);
-                    var cryptoClient = keyClient.GetCryptographyClient(kvConfigSection.GetValue<string>("CryptoKey")!);
-                    return new KeyVaultCryptoUtility(cryptoClient);
-                });
+    private static void ConfigureKeyVaultClients(AzureClientFactoryBuilder builder, IConfiguration config, ServiceCollection services)
+    {
+        var kvConfigSection = config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
+        if (!kvConfigSection.GetChildren().Any())
+        {
+            return;
+        }
 
-                //wrapper for key vault sdks
-                services.Configure<KeyVaultManager1Settings>(kvConfigSection);
-                services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
-            }
+        var akvUrl = kvConfigSection.GetValue<string>("VaultUrl")!;
+        var name = kvConfigSection.GetValue<string>("KeyVaultClientName")!;
 
-            //Azure OpenAI
-            var azureOpenIAConfigSection = Config.GetSection("AzureOpenAI");
-            if (azureOpenIAConfigSection.GetChildren().Any())
-            {
-                AzureOpenAIClient azureOpenAIClient = null!;
+        builder.AddSecretClient(new Uri(akvUrl)).WithName(name);
+        builder.AddKeyClient(new Uri(akvUrl)).WithName(name);
+        builder.AddCertificateClient(new Uri(akvUrl)).WithName(name);
 
-                // Register a custom client factory since this client does not currently have a service registration method
-                builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
-                {
-                    var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
-                    if (!string.IsNullOrEmpty(key))
-                    {
-                        azureOpenAIClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new AzureKeyCredential(key), options);
-                    }
-                    //this throws internally when running local (no network for managed identity check) but subsequent checks succeed; could avoid with defaultAzCredOptions.ExcludeManagedIdentityCredential = true;
-                    azureOpenAIClient = new AzureOpenAIClient(new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!), new DefaultAzureCredential(), options);
-
-                    return azureOpenAIClient;
-                });
-            }
+        // Crypto Utility; keyed enables registering several if needed
+        services.AddKeyedSingleton<IKeyVaultCryptoUtility>("SomeCryptoUtil", (sp, _) =>
+        {
+            var keyClient = sp.GetRequiredService<IAzureClientFactory<KeyClient>>().CreateClient(name);
+            var cryptoClient = keyClient.GetCryptographyClient(kvConfigSection.GetValue<string>("CryptoKey")!);
+            return new KeyVaultCryptoUtility(cryptoClient);
         });
 
-        //BlobRepository
-        var blobRepoConfigSection = Config.GetSection(BlobRepositorySettings1.ConfigSectionName);
+        // Wrapper for key vault SDKs
+        services.Configure<KeyVaultManager1Settings>(kvConfigSection);
+        services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
+    }
+
+    private static void ConfigureAzureOpenAIClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    {
+        var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
+        if (azureOpenIAConfigSection.GetChildren().Any())
+        {
+            // Register a custom client factory since this client does not currently have a service registration method
+            builder.AddClient<AzureOpenAIClient, AzureOpenAIClientOptions>((options, _, _) =>
+            {
+                var key = azureOpenIAConfigSection.GetValue<string?>("Key", null);
+                AzureOpenAIClient azureOpenAIClient;
+
+                if (!string.IsNullOrEmpty(key))
+                {
+                    azureOpenAIClient = new AzureOpenAIClient(
+                        new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!),
+                        new AzureKeyCredential(key),
+                        options
+                    );
+                }
+                else
+                {
+                    azureOpenAIClient = new AzureOpenAIClient(
+                        new Uri(azureOpenIAConfigSection.GetValue<string>("Url")!),
+                        new DefaultAzureCredential(),
+                        options
+                    );
+                }
+
+                return azureOpenAIClient;
+            });
+        }
+    }
+
+    private void ConfigureRepositories(ServiceCollection services, IConfiguration config)
+    {
+        ConfigureBlobRepository(services, config);
+        ConfigureTableRepository(services, config);
+        ConfigureEventGridPublisher(services, config);
+        ConfigureCosmosDb(services, config);
+    }
+
+    private static void ConfigureBlobRepository(ServiceCollection services, IConfiguration config)
+    {
+        var blobRepoConfigSection = config.GetSection(BlobRepositorySettings1.ConfigSectionName);
         if (blobRepoConfigSection.GetChildren().Any())
         {
             services.AddSingleton<IBlobRepository1, BlobRepository1>();
             services.Configure<BlobRepositorySettings1>(blobRepoConfigSection);
         }
+    }
 
-        //TableRepository
-        var tableRepoConfigSection = Config.GetSection(TableRepositorySettings1.ConfigSectionName);
+    private static void ConfigureTableRepository(ServiceCollection services, IConfiguration config)
+    {
+        var tableRepoConfigSection = config.GetSection(TableRepositorySettings1.ConfigSectionName);
         if (tableRepoConfigSection.GetChildren().Any())
         {
             services.AddSingleton<ITableRepository1, TableRepository1>();
             services.Configure<TableRepositorySettings1>(tableRepoConfigSection);
         }
+    }
 
-        //EventGridPublisher
-        var egpConfigSection = Config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
+    private static void ConfigureEventGridPublisher(ServiceCollection services, IConfiguration config)
+    {
+        var egpConfigSection = config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
         if (egpConfigSection.GetChildren().Any())
         {
             services.AddSingleton<IEventGridPublisher1, EventGridPublisher1>();
             services.Configure<EventGridPublisherSettings1>(egpConfigSection);
         }
+    }
 
-        //CosmosDb - CosmosClient is thread-safe. Its recommended to maintain a single instance of CosmosClient per lifetime of the application which enables efficient connection management and performance.
-        var cosmosConnectionString = Config.GetConnectionString("CosmosClient1");
-        if (!string.IsNullOrEmpty(cosmosConnectionString))
+    private static void ConfigureCosmosDb(ServiceCollection services, IConfiguration config)
+    {
+        var cosmosConnectionString = config.GetConnectionString("CosmosClient1");
+        if (string.IsNullOrEmpty(cosmosConnectionString))
         {
-            var cosmosConfigSection = Config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
-            if (cosmosConfigSection.GetChildren().Any())
-            {
-                services.AddTransient<ICosmosDbRepository1, CosmosDbRepository1>();
-                services.Configure<CosmosDbRepositorySettings1>(s =>
-                {
-                    s.CosmosClient = new CosmosClientBuilder(cosmosConnectionString) //(AccountEndpoint, DefualtAzureCredential())
-                                                                                     //.With...options
-                        .Build();
-                    s.CosmosDbId = cosmosConfigSection.GetValue<string>("CosmosDbId")!;
-                });
-            }
+            return;
         }
 
-        //LazyCache.AspNetCore, lightweight wrapper around memorycache; prevent race conditions when multiple threads attempt to refresh empty cache item
-        //https://github.com/alastairtree/LazyCache
-        //services.AddLazyCache();
+        var cosmosConfigSection = config.GetSection(CosmosDbRepositorySettings1.ConfigSectionName);
+        if (cosmosConfigSection.GetChildren().Any())
+        {
+            services.AddTransient<ICosmosDbRepository1, CosmosDbRepository1>();
+            services.Configure<CosmosDbRepositorySettings1>(s =>
+            {
+                s.CosmosClient = new CosmosClientBuilder(cosmosConnectionString).Build();
+                s.CosmosDbId = cosmosConfigSection.GetValue<string>("CosmosDbId")!;
+            });
+        }
+    }
 
-        //Redis distributed cache
-        //cache providers - https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-5.0#multiple-cache-providers
-        //multiple redis instances requires a different pattern - https://stackoverflow.com/questions/71329765/how-to-use-multiple-implementations-of-microsoft-extensions-caching-stackexchang
-        //connectionString = Config.GetConnectionString("Redis1");
-        //if (!string.IsNullOrEmpty(connectionString))
-        //{
-        //    services.AddStackExchangeRedisCache(options =>
-        //    {
-        //        options.Configuration = connectionString;
-        //        options.InstanceName = "redis1";
-        //    });
-        //}
-        //else
-        //{
-        //    services.AddDistributedMemoryCache(); //local server only, not distributed. Helps with tests
-        //}
-
-        //distributed cache manager
-        //services.AddScoped<IDistributedCacheManager, DistributedCacheManager>();
-
-
-        //FusionCache settings
+    private static void ConfigureCaching(ServiceCollection services, IConfiguration config)
+    {
+        // FusionCache settings
         List<CacheSettings> cacheSettings = [];
-        Config.GetSection("CacheSettings").Bind(cacheSettings);
+        config.GetSection("CacheSettings").Bind(cacheSettings);
 
-        //FusionCache supports multiple named instances with different default settings
         foreach (var cacheInstance in cacheSettings)
         {
-            var fcBuilder = services.AddFusionCache(cacheInstance.Name)
-            .WithCysharpMemoryPackSerializer() //FusionCache supports several different serializers (different FusionCache nugets)
+            ConfigureFusionCacheInstance(services, config, cacheInstance);
+        }
+    }
+
+    private static void ConfigureFusionCacheInstance(ServiceCollection services, IConfiguration config, CacheSettings cacheInstance)
+    {
+        var fcBuilder = services.AddFusionCache(cacheInstance.Name)
+            .WithCysharpMemoryPackSerializer()
             .WithCacheKeyPrefix($"{cacheInstance.Name}:")
             .WithDefaultEntryOptions(new FusionCacheEntryOptions()
             {
-                //memory cache duration
                 Duration = TimeSpan.FromMinutes(cacheInstance.DurationMinutes),
-                //distributed cache duration
                 DistributedCacheDuration = TimeSpan.FromMinutes(cacheInstance.DistributedCacheDurationMinutes),
-                //how long to use expired cache value if the factory is unable to provide an updated value
                 FailSafeMaxDuration = TimeSpan.FromMinutes(cacheInstance.FailSafeMaxDurationMinutes),
-                //how long to wait before trying to get a new value from the factory after a fail-safe expiration
                 FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheInstance.FailSafeThrottleDurationMinutes),
-                //allow some jitter in the Duration for variable expirations
                 JitterMaxDuration = TimeSpan.FromSeconds(10),
-                //factory timeout before returning stale value, if fail-safe is enabled and we have a stale value
                 FactorySoftTimeout = TimeSpan.FromSeconds(1),
-                //max allowed for factory even with no stale value to use; something may be wrong with the factory/service
                 FactoryHardTimeout = TimeSpan.FromSeconds(30),
-                //refresh active cache items upon cache retrieval, if getting close to expiration
                 EagerRefreshThreshold = 0.9f
             });
 
-            //using redis for L2 distributed cache & backplane
-            //ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis
-            //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
-            //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
-            //Redis Settings - Data Access Configuration requires the identities to have 'Data Contributor' access policy for subscribing on the backchannel
-            if (!string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
-            {
-                RedisConfiguration redisConfigFusion = new();
-                Config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
-                if (redisConfigFusion.EndpointUrl != null)
-                {
-                    var redisConfigurationOptions = new ConfigurationOptions
-                    {
-                        EndPoints =
-                        {
-                            {
-                                redisConfigFusion.EndpointUrl,
-                                redisConfigFusion.Port
-                            }
-                        },
-                        Ssl = true,
-                        AbortOnConnectFail = false
-                    };
-                    if (cacheInstance.BackplaneChannelName != null)
-                    {
-                        redisConfigurationOptions.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
-                    }
+        ConfigureRedisBackplane(fcBuilder, config, cacheInstance);
+    }
 
-                    if (!string.IsNullOrEmpty(redisConfigFusion.Password))
-                    {
-                        redisConfigurationOptions.Password = redisConfigFusion.Password;
-                    }
-                    else
-                    {
-                        var options = new DefaultAzureCredentialOptions();
-                        //if (localEnviroment)
-                        //{
-                        //    //running local causes errors ManagedIdentityCredential.GetToken was unable to retrieve an access token. Scopes: [ https://cognitiveservices.azure.com/.default ]
-                        //    //Azure.RequestFailedException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)\r\n ---> System.Net.Http.HttpRequestException: A socket operation was attempted to an unreachable network. (169.254.169.254:80)
-                        //    options.ExcludeManagedIdentityCredential = true;
-                        //}
-                        //configure redis with managed identity
-                        _ = Task.Run(() => redisConfigurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential(options))).Result;
-                    }
-
-                    //var redisFCConnectionString = config.GetConnectionString(cacheInstance.RedisConfigurationSection);
-                    //var redisConfigurationOptions = ConfigurationOptions.Parse(redisFCConnectionString!);
-                    //    .ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); //configure redis with managed identity
-
-
-                    //var connectionString = config.GetConnectionString(cacheInstance.RedisName);
-                    fcBuilder
-                        .WithDistributedCache(new RedisCache(new RedisCacheOptions()
-                        {
-                            //Configuration = connectionString,  
-                            ConfigurationOptions = redisConfigurationOptions
-                        }))
-
-                        .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
-                        {
-                            //Configuration = connectionString,
-                            ConfigurationOptions = redisConfigurationOptions
-                        }));
-                }
-            }
-
+    private static void ConfigureRedisBackplane(IFusionCacheBuilder fcBuilder, IConfiguration config, CacheSettings cacheInstance)
+    {
+        if (string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
+        {
+            return;
         }
 
-        //IRequestContext - injected into repositories, cache managers, etc
+        RedisConfiguration redisConfigFusion = new();
+        config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
+
+        if (redisConfigFusion.EndpointUrl == null)
+        {
+            return;
+        }
+
+        var redisConfigurationOptions = CreateRedisConfigurationOptions(redisConfigFusion, cacheInstance);
+
+        fcBuilder
+            .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+            {
+                ConfigurationOptions = redisConfigurationOptions
+            }))
+            .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+            {
+                ConfigurationOptions = redisConfigurationOptions
+            }));
+    }
+
+    private static ConfigurationOptions CreateRedisConfigurationOptions(RedisConfiguration redisConfig, CacheSettings cacheInstance)
+    {
+        var options = new ConfigurationOptions
+        {
+            EndPoints = { { redisConfig.EndpointUrl, redisConfig.Port } },
+            Ssl = true,
+            AbortOnConnectFail = false
+        };
+
+        if (cacheInstance.BackplaneChannelName != null)
+        {
+            options.ChannelPrefix = new RedisChannel(cacheInstance.BackplaneChannelName, RedisChannel.PatternMode.Auto);
+        }
+
+        if (!string.IsNullOrEmpty(redisConfig.Password))
+        {
+            options.Password = redisConfig.Password;
+        }
+        else
+        {
+            var azureCredentialOptions = new DefaultAzureCredentialOptions();
+            _ = Task.Run(() => options.ConfigureForAzureWithTokenCredentialAsync(
+                new DefaultAzureCredential(azureCredentialOptions))).Result;
+        }
+
+        return options;
+    }
+
+    private static void ConfigureRequestContext(ServiceCollection services)
+    {
+        // IRequestContext - injected into repositories, cache managers, etc.
         services.AddScoped<IRequestContext<string>>(provider =>
         {
-            return new RequestContext<string>(Guid.NewGuid().ToString(), "IntegrationTest", "SomeTenantId");
+            return new RequestContext<string>(
+                Guid.NewGuid().ToString(),
+                "IntegrationTest",
+                "SomeTenantId"
+            );
         });
+    }
 
-        //external weather service
-        var weatherConfigSection = Config.GetSection(WeatherServiceSettings.ConfigSectionName);
-        if (weatherConfigSection.GetChildren().Any())
+    private void ConfigureExternalServices(ServiceCollection services, IConfiguration config)
+    {
+        ConfigureWeatherService(services, config);
+        ConfigureOpenAIServices(services, config);
+    }
+
+    private static void ConfigureWeatherService(ServiceCollection services, IConfiguration config)
+    {
+        var weatherConfigSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
+        if (!weatherConfigSection.GetChildren().Any())
         {
-            services.Configure<WeatherServiceSettings>(weatherConfigSection);
-            services.AddScoped<IWeatherService, WeatherService>();
-            services.AddHttpClient<IWeatherService, WeatherService>(client =>
-            {
-                client.BaseAddress = new Uri(Config.GetValue<string>("WeatherServiceSettings:BaseUrl")!);
-                client.DefaultRequestHeaders.Add("X-RapidAPI-Key", Config.GetValue<string>("WeatherServiceSettings:Key")!);
-                client.DefaultRequestHeaders.Add("X-RapidAPI-Host", Config.GetValue<string>("WeatherServiceSettings:Host")!);
-            })
-            //resiliency
-            //.AddPolicyHandler(PollyRetry.GetHttpRetryPolicy())
-            //.AddPolicyHandler(PollyRetry.GetHttpCircuitBreakerPolicy());
-            //Microsoft.Extensions.Http.Resilience - https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience?tabs=dotnet-cli
-            .AddStandardResilienceHandler();
+            return;
         }
 
-        //Azure OpenAI - Some Chat
-        var someChatConfigSection = Config.GetSection(SomeChatSettings.ConfigSectionName);
+        services.Configure<WeatherServiceSettings>(weatherConfigSection);
+        services.AddScoped<IWeatherService, WeatherService>();
+
+        services.AddHttpClient<IWeatherService, WeatherService>(client =>
+        {
+            client.BaseAddress = new Uri(config.GetValue<string>("WeatherServiceSettings:BaseUrl")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Key", config.GetValue<string>("WeatherServiceSettings:Key")!);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Host", config.GetValue<string>("WeatherServiceSettings:Host")!);
+        }).AddStandardResilienceHandler();
+    }
+
+    private static void ConfigureOpenAIServices(ServiceCollection services, IConfiguration config)
+    {
+        ConfigureSomeChatService(services, config);
+        ConfigureSomeAssistantService(services, config);
+        ConfigureOpenAIChatService(services, config);
+    }
+
+    private static void ConfigureSomeChatService(ServiceCollection services, IConfiguration config)
+    {
+        var someChatConfigSection = config.GetSection(SomeChatSettings.ConfigSectionName);
         if (someChatConfigSection.GetChildren().Any())
         {
-            //AzureOpenAI chat service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<ISomeChatService, SomeChatService>();
             services.Configure<SomeChatSettings>(someChatConfigSection);
-
         }
+    }
 
-        //Azure OpenAI - Some Assistant
-        var someAssistantConfigSection = Config.GetSection(SomeAssistantSettings.ConfigSectionName);
+    private static void ConfigureSomeAssistantService(ServiceCollection services, IConfiguration config)
+    {
+        var someAssistantConfigSection = config.GetSection(SomeAssistantSettings.ConfigSectionName);
         if (someAssistantConfigSection.GetChildren().Any())
         {
-            //AzureOpenAI service wrapper (not an Azure Client but a wrapper that uses it)
             services.AddTransient<ISomeAssistantService, SomeAssistantService>();
             services.Configure<SomeAssistantSettings>(someAssistantConfigSection);
         }
+    }
 
-        //OpenAI chat service wrapper
-        var oaiChatConfigSection = Config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
+    private static void ConfigureOpenAIChatService(ServiceCollection services, IConfiguration config)
+    {
+        var oaiChatConfigSection = config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
         if (oaiChatConfigSection.GetChildren().Any())
         {
             services.AddTransient<OpenAI.ChatApi.IChatService, OpenAI.ChatApi.ChatService>();
             services.Configure<OpenAI.ChatApi.ChatServiceSettings>(oaiChatConfigSection);
         }
+    }
 
-        //Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem
+    private static void ConfigureApplicationServices(ServiceCollection services)
+    {
+        // Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem
         services.AddScoped<ISomeScopedService, SomeScopedService>();
-
-        services.AddLogging(configure => configure.AddConsole().AddDebug());
-
-        //build IServiceProvider for subsequent use finding/injecting services
-        Services = services.BuildServiceProvider();
-
-        //LoggerFactory = Services.GetRequiredService<ILoggerFactory>();
-        Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
-        Logger.Log(LogLevel.Information, "Test Initialized.");
     }
 }

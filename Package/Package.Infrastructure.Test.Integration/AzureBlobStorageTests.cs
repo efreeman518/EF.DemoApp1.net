@@ -55,7 +55,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         await _blobRepo.DeleteBlobAsync(containerInfo, blobName, token);
         await _blobRepo.DeleteContainerAsync(containerInfo, token);
 
-        Assert.IsTrue(data == dataDown);
+        Assert.AreEqual(dataDown, data);
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         using Stream downloadStream = await _blobRepo.StartDownloadBlobStreamAsync(sasUri);
         StreamReader reader = new(downloadStream);
         dataDown = await reader.ReadToEndAsync();
-        Assert.IsTrue(data == dataDown);
+        Assert.AreEqual(dataDown, data);
 
         //request delete sas uri
         sasUri = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Delete, DateTimeOffset.UtcNow.AddMinutes(5));

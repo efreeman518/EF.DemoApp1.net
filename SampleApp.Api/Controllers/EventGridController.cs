@@ -57,7 +57,7 @@ public class EventGridController(ILogger<EventGridController> logger) : Controll
         {
             //process the events concurrently - should be fast to return an OK to event grid
             var tasks = events.Select(e => ProcessEventGridEvent(e));
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll([.. tasks]);
 
             return Ok();
         }

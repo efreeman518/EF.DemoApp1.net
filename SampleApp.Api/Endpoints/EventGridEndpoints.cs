@@ -39,7 +39,7 @@ public static class EventGridEndpoints
         {
             //process the events concurrently - should be fast to return an OK to event grid
             var tasks = events.Select(e => ProcessEventGridEvent(logger, e));
-            await Task.WhenAll(tasks.ToArray());
+            await Task.WhenAll([.. tasks]);
             return TypedResults.Ok();
         }
     }

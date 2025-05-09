@@ -53,7 +53,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     {
         //TODO - this will fail if the previous step's todo item does not show on the first page here; need to page through until found
         var found = _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//tbody[@id='todos']/tr/td[contains(text(),'" + _scenarioContext["value"] + "')]")));
-        Assert.IsTrue(found != null);
+        Assert.IsNotNull(found);
     }
 
     [When(@"user clicks the edit button for this item")]
@@ -67,7 +67,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     public void ThenVerifyTheEditAreaShowsTheItem()
     {
         var inputEditName = _waitMax10Seconds!.Until(ExpectedConditions.ElementExists(By.XPath("//input[@id='edit-name']")));
-        Assert.IsTrue(inputEditName.GetDomAttribute("value") == _scenarioContext["value"].ToString());
+        Assert.AreEqual(_scenarioContext["value"].ToString(), inputEditName.GetDomAttribute("value"));
         _scenarioContext["input-edit-name"] = inputEditName;
     }
 
@@ -113,7 +113,6 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
         catch (NoSuchElementException)
         {
             //expected
-            Assert.IsTrue(1 == 1);
         }
     }
 

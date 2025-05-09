@@ -9,6 +9,7 @@ using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using System.Net.Http.Headers;
 using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace SampleApp.Gateway;
 
@@ -16,13 +17,29 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
     {
-        //enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
+        ConfigureAzureAppConfiguration(services, config);
+        ConfigureTelemetry(services, config);
+        ConfigureCors(services, config, loggerStartup);
+        ConfigureAuthentication(services, config, loggerStartup);
+        ConfigureReverseProxy(services, config);
+        ConfigureCorrelationTracking(services);
+        ConfigureHealthChecks(services);
+
+        return services;
+    }
+
+    private static void ConfigureAzureAppConfiguration(IServiceCollection services, IConfiguration config)
+    {
+        // Enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
         if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
         {
             services.AddAzureAppConfiguration();
         }
+    }
 
-        //Application Insights telemetry for http services (for logging telemetry directly to AI)
+    private static void ConfigureTelemetry(IServiceCollection services, IConfiguration config)
+    {
+        // Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         services.AddOpenTelemetry()
@@ -32,7 +49,7 @@ public static class IServiceCollectionExtensions
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
+                    .AddSource("Microsoft.EntityFrameworkCore") // Capture the SQL
                     .AddAzureMonitorTraceExporter(options =>
                     {
                         options.ConnectionString = appInsightsConnectionString;
@@ -48,23 +65,18 @@ public static class IServiceCollectionExtensions
                         options.ConnectionString = appInsightsConnectionString;
                     });
             });
+    }
 
-
-        //api versioning
-        //var apiVersioningBuilder = services.AddApiVersioning(options =>
-        //{
-        //    options.DefaultApiVersion = new ApiVersion(1, 1);
-        //    options.AssumeDefaultVersionWhenUnspecified = true;
-        //    options.ReportApiVersions = true; //response header with supported versions
-        //    options.ApiVersionReader = new UrlSegmentApiVersionReader(); // /v1.1/context/method, can combine multiple versioning approaches
-        //});
-
+    private static void ConfigureCors(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    {
         string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
+
         if (corsConfigSection.GetChildren().Any())
         {
             var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
             loggerStartup.LogInformation("Configure CORS - {PolicyName}", policyName);
+
             services.AddCors(options =>
             {
                 options.AddPolicy(policyName, builder =>
@@ -73,139 +85,121 @@ public static class IServiceCollectionExtensions
                     builder.WithOrigins(origins!)
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials(); //does not work with AllowAnyOrigin()
+                        .AllowCredentials(); // Does not work with AllowAnyOrigin()
                 });
             });
         }
+    }
 
-        //Auth
-        string authConfigSectionName = "Gateway_AzureAdB2C"; //AzureAdB2C / EntraID
+    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    {
+        string authConfigSectionName = "Gateway_AzureAdB2C"; // AzureAdB2C / EntraID
         var configSection = config.GetSection(authConfigSectionName);
-        if (configSection.GetChildren().Any())
+
+        if (!configSection.GetChildren().Any())
         {
-            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles?tabs=aspnetcore
-            //https://andrewlock.net/setting-global-authorization-policies-using-the-defaultpolicy-and-the-fallbackpolicy-in-aspnet-core-3/
-            //https://learn.microsoft.com/en-us/entra/external-id/customers/tutorial-protect-web-api-dotnet-core-build-app
-
-            loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddMicrosoftIdentityWebApi(config.GetSection(authConfigSectionName));
-
-            //https://learn.microsoft.com/en-us/entra/identity-platform/scenario-web-api-call-api-app-configuration?tabs=aspnetcore
-            //.EnableTokenAcquisitionToCallDownstreamApi() 
-            //.AddInMemoryTokenCaches()
-
-            services.AddSingleton<IAuthorizationHandler, RolesOrScopesAuthorizationHandler>();
-
-            //simple role- or claim-based authorization
-            //services.AddAuthorization();
-
-            services.AddAuthorizationBuilder()
-                //require authenticated user globally, except explicit [AllowAnonymous] endpoints  
-                //Fallback Policy for all endpoints that do not have any authorization defined, except explicit [AllowAnonymous] endpoints
-                .SetFallbackPolicy(new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build())
-                //Default Policy for all endpoints that require authorization ([Authorize] authenticated user) already but no other specifics
-                .SetDefaultPolicy(new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build())
-                //define specific roles/scopes policies
-                .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
-                .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
-                .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))
-                .AddPolicy("ScopeOrRolePolicy1", policy => policy.AddRequirements(new RolesOrScopesRequirement(["SomeAccess1"], ["SomeScope1"])))
-                .AddPolicy("ScopeOrRolePolicy2", policy =>
-                {
-                    var defaultRoles = configSection.GetSection("AppPermissions:Default").Get<string[]>();
-                    var defaultScopes = configSection.GetSection("Scopes:Default").Get<string[]>();
-                    policy.AddRequirements(new RolesOrScopesRequirement(defaultRoles, defaultScopes));
-                })
-             ;
+            return;
         }
 
-        //global unhandled exception handler
-        //services.AddExceptionHandler<DefaultExceptionHandler>();
+        loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
-        //services.AddRouting(options => options.LowercaseUrls = true);
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddMicrosoftIdentityWebApi(config.GetSection(authConfigSectionName));
 
-        //DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-        //so if we need to use client/secret (client AAD App Reg), set the env vars
+        services.AddSingleton<IAuthorizationHandler, RolesOrScopesAuthorizationHandler>();
+
+        ConfigureAuthorizationPolicies(services, configSection);
+    }
+
+    private static void ConfigureAuthorizationPolicies(IServiceCollection services, IConfigurationSection configSection)
+    {
+        services.AddAuthorizationBuilder()
+            // Fallback Policy for all endpoints that do not have any authorization defined, except explicit [AllowAnonymous] endpoints
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build())
+            // Default Policy for all endpoints that require authorization ([Authorize] authenticated user) already but no other specifics
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build())
+            // Define specific roles/scopes policies
+            .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
+            .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
+            .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))
+            .AddPolicy("ScopeOrRolePolicy1", policy => policy.AddRequirements(new RolesOrScopesRequirement(["SomeAccess1"], ["SomeScope1"])))
+            .AddPolicy("ScopeOrRolePolicy2", policy =>
+            {
+                var defaultRoles = configSection.GetSection("AppPermissions:Default").Get<string[]>();
+                var defaultScopes = configSection.GetSection("Scopes:Default").Get<string[]>();
+                policy.AddRequirements(new RolesOrScopesRequirement(defaultRoles, defaultScopes));
+            });
+    }
+
+    private static void ConfigureReverseProxy(IServiceCollection services, IConfiguration config)
+    {
+        SetupAzureCredentials(config);
+
+        services.AddSingleton<TokenService>(); // Add TokenService
+
+        services.AddReverseProxy()
+            .LoadFromConfig(config.GetSection("ReverseProxy"))
+            .AddTransforms(ConfigureProxyTransforms);
+    }
+
+    private static void SetupAzureCredentials(IConfiguration config)
+    {
+        // DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
+        // So if we need to use client/secret (client AAD App Reg), set the env vars
         if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
         {
             Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
             Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
             Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
         }
+    }
 
-        services.AddSingleton<TokenService>(); // Add TokenService
-        services.AddReverseProxy()
-            .LoadFromConfig(config.GetSection("ReverseProxy"))
-            .AddTransforms(context =>
+    private static void ConfigureProxyTransforms(TransformBuilderContext context)
+    {
+        var tokenService = context.Services.GetRequiredService<TokenService>();
+        var clusterId = context.Cluster?.ClusterId;
+        if (string.IsNullOrEmpty(clusterId)) return;
+
+        context.AddRequestTransform(async context =>
+        {
+            // Add token auth header
+            var token = await tokenService.GetAccessTokenAsync(clusterId);
+            context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Add correlation id header if present in request
+            var httpContext = context.HttpContext;
+            if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
             {
-                var tokenService = context.Services.GetRequiredService<TokenService>();
-                var clusterId = context.Cluster?.ClusterId;
-                if (string.IsNullOrEmpty(clusterId)) return;
+                context.ProxyRequest.Headers.TryAddWithoutValidation("X-Correlation-ID", (string?)correlationId);
+            }
+        });
+    }
 
-                context.AddRequestTransform(async context =>
-                {
-                    //add token auth header
-                    var token = await tokenService.GetAccessTokenAsync(clusterId);
-                    context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    //add correlation id header if present in request
-                    var httpContext = context.HttpContext;
-                    if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
-                    {
-                        context.ProxyRequest.Headers.TryAddWithoutValidation("X-Correlation-ID", (string?)correlationId);
-                    }
-                });
-            });
-
-        //propagate headers to downstream services (e.g. correlation id)
+    private static void ConfigureCorrelationTracking(IServiceCollection services)
+    {
+        // Propagate headers to downstream services (e.g. correlation id)
         services.AddHeaderPropagation(options =>
         {
             options.Headers.Add("X-Correlation-ID");
         });
-        //generate correlation ID if not present
+
+        // Generate correlation ID if not present
         services.AddHttpContextAccessor();
         services.AddTransient<IStartupFilter, CorrelationIdStartupFilter>();
+    }
 
-        //if (config.GetValue("OpenApiSettings:Enable", false))
-        //{
-        //    //.net9
-        //    //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-9.0&tabs=visual-studio%2Cminimal-apis
-        //    services
-        //        .AddOpenApi("v1")
-        //        .AddOpenApi("v1.1");
-
-        //    apiVersioningBuilder.AddApiExplorer(o =>
-        //    {
-        //        // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-        //        // note: the specified format code will format the version as "'v'major[.minor][-status]"
-        //        o.GroupNameFormat = "'v'VVV";
-
-        //        // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-        //        // can also be used to control the format of the API version in route templates
-        //        o.SubstituteApiVersionInUrl = true;
-        //    });
-        //}
-
-        //HealthChecks - having infrastructure references
-        //search nuget aspnetcore.healthchecks - many prebuilt health checks 
-        //tag full will run when hitting health/full
-
+    private static void ConfigureHealthChecks(IServiceCollection services)
+    {
         services.AddHealthChecks();
-        //    .AddMemoryHealthCheck("memory", tags: ["full", "memory"], thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L));
-        //.AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
-
-        //register http clients to backend services
-
-
-        return services;
+        // Additional health checks can be added here:
+        // .AddMemoryHealthCheck("memory", tags: ["full", "memory"], thresholdInBytes: config.GetValue<long>("MemoryHealthCheckBytesThreshold", 1024L * 1024L * 1024L));
+        // .AddCheck<WeatherServiceHealthCheck>("External Service", tags: healthCheckTagsFullExt);
     }
 }

@@ -17,7 +17,7 @@ public class KernelMemorySearchPlugin(IKernelMemory memory, IJobsApiService jobs
         if (!_loaded)
         {
             var expertises = (await jobsApiService.GetLookupsAsync(cancellationToken)).Expertises;
-            await memory.ImportTextAsync(expertises.SerializeToJson()!, index: "expertises");
+            await memory.ImportTextAsync(expertises.SerializeToJson()!, index: "expertises", cancellationToken: cancellationToken);
             //await memory.ImportDocumentAsync(new Document("docAzure", null, [$"{AppDomain.CurrentDomain.BaseDirectory}\\JobSK\\DigitalTransformation-MSFTvisionforAIintheenterprise.pdf"]),"idxAzureDoc" );
             _loaded = true;
         }

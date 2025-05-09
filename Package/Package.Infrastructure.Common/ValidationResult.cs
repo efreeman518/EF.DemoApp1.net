@@ -31,7 +31,7 @@ public sealed class ValidationResult(bool valid, List<string>? messages = null) 
         return IsValid == vr?.IsValid;
     }
 
-    public bool Equals(ValidationResult? x, ValidationResult? y)
+    public static bool Equals(ValidationResult? x, ValidationResult? y)
     {
         throw new NotImplementedException();
     }

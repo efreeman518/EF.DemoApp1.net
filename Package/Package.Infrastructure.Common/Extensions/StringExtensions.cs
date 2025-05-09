@@ -78,20 +78,19 @@ public static class StringExtensions
         List<string> matches = [];
         if (prirotizeStartMatch)
         {
-            matches.AddRange(list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList());
+            matches.AddRange([.. list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
         }
 
-        matches.AddRange(list.Where(s => s.Contains(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches).ToList());
+        matches.AddRange([.. list.Where(s => s.Contains(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
 
         if (matches.Count < maxMatches)
         {
-            matches.AddRange(list
+            matches.AddRange([.. list
                 .Select(str => new { Str = str, Distance = LevenshteinDistance(target, str, ignoreCase) })
                 .Where(result => result.Distance <= distanceThreshold)
                 .OrderBy(result => result.Distance)
                 .Take(maxMatches - matches.Count)
-                .Select(result => result.Str)
-                .ToList());
+                .Select(result => result.Str)]);
         }
 
         return matches;

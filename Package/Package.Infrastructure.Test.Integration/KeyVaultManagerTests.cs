@@ -58,7 +58,7 @@ public class KeyVaultManagerTests : IntegrationTestBase
         }
         catch (RequestFailedException ex) when (ex.ErrorCode == "SecretNotFound")
         {
-            Assert.IsTrue(ex.ErrorCode == "SecretNotFound");
+            Assert.AreEqual("SecretNotFound", ex.ErrorCode);
         }
     }
 
@@ -81,7 +81,7 @@ public class KeyVaultManagerTests : IntegrationTestBase
         }
         catch (RequestFailedException ex) when (ex.ErrorCode == "KeyNotFound")
         {
-            Assert.IsTrue(ex.ErrorCode == "KeyNotFound");
+            Assert.AreEqual("KeyNotFound", ex.ErrorCode);
         }
     }
 

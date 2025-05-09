@@ -38,7 +38,7 @@ public class ChatSummaryPlugin(IAzureClientFactory<AzureOpenAIClient> clientFact
         //    ["response"] = response
         //});
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         foreach (var message in chatHistory)
         {

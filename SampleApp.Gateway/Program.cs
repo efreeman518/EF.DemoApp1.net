@@ -1,5 +1,4 @@
 ﻿using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.DataProtection;
 using Package.Infrastructure.AspNetCore.Extensions;
 using Package.Infrastructure.Common;

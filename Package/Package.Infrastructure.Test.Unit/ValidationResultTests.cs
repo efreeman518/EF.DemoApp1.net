@@ -15,7 +15,7 @@ public class ValidationResultTests
         var vr = new ValidationResult(valid, [message]);
         Assert.IsNotNull(vr);
         Assert.AreEqual(valid, vr.IsValid);
-        Assert.IsTrue(message == vr.Messages.FirstOrDefault());
+        Assert.AreEqual(vr.Messages.FirstOrDefault(), message);
 
         var vr1 = vr;
         Assert.IsTrue(vr.Equals(vr1)); //ReferenceEquals

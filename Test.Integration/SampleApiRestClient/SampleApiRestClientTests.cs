@@ -78,7 +78,6 @@ public class SampleApiRestClientTests
         Assert.IsNotNull(todoResponse);
 
         if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
-        Assert.IsNotNull(id);
 
         //GET retrieve
         todoResponse = await _svc.GetItemAsync(id);

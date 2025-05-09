@@ -1,4 +1,6 @@
-﻿using LazyCache;
+﻿using Asp.Versioning;
+using Asp.Versioning.Builder;
+using LazyCache;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore.HealthChecks;
@@ -15,13 +17,32 @@ public static partial class WebApplicationBuilderExtensions
     {
         var config = app.Configuration;
 
+        // Configure middleware and services
+        SetupConfiguration(app, config);
+        SetupStaticFiles(app, config);
+        SetupSecurityMiddleware(app, config);
+        SetupOpenApi(app, config);
+
+        // Configure endpoints
+        SetupBasicEndpoints(app);
+        SetupApiVersionedEndpoints(app);
+
+        return app;
+    }
+
+    private static void SetupConfiguration(WebApplication app, IConfiguration config)
+    {
         if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
         {
             //middleware monitors the Azure AppConfig sentinel - a change triggers configuration refresh.
             //middleware triggers on http request, not background service scope
             app.UseAzureAppConfiguration();
         }
+    }
 
+    private static void SetupStaticFiles(WebApplication app, IConfiguration config)
+    {
+        // Configure ChatGPT plugin
         if (config.GetValue("ChatGPT_Plugin:Enable", false))
         {
             app.UseCors("ChatGPT");
@@ -32,17 +53,17 @@ public static partial class WebApplicationBuilderExtensions
             });
         }
 
-        //ChatGPT https not supported
+        // Standard static files
         app.UseHttpsRedirection();
 
         //serve sample html/js UI
         app.UseDefaultFiles(); //default serve files from wwwroot
         app.UseStaticFiles(); //Serve files from wwwroot
+    }
 
-        //global error handler
-        //app.UseExceptionHandler(); ?? not needed, handled by services.AddExceptionHandler<DefaultExceptionHandler>();
-
-        //Cors
+    private static void SetupSecurityMiddleware(WebApplication app, IConfiguration config)
+    {
+        // Configure CORS
         string corsConfigSectionName = "Cors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
         if (corsConfigSection.GetChildren().Any())
@@ -51,109 +72,114 @@ public static partial class WebApplicationBuilderExtensions
             app.UseCors(policyName);
         }
 
-        //before auth so it will render without auth
-        //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/openapi?view=aspnetcore-8.0
-        if (config.GetValue("OpenApiSettings:Enable", false))
-        {
-            //for openapi ui - map gettoken endpoint 
-            var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
-            app.MapGet("/getauthtoken", async (HttpContext context, string resourceId, string scope) =>
-            {
-                var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService()); //LazyCache
-                return await tokenProvider.GetAccessTokenAsync(resourceId, scope);
-            }).AllowAnonymous().WithName("GetAuthToken").WithOpenApi(generatedOperation =>
-            {
-                var parameter = generatedOperation.Parameters[0];
-                parameter.Description = $"External service resourceId {resourceId}";
-                parameter = generatedOperation.Parameters[1];
-                parameter.Description = $"External service scope .default";
-                return generatedOperation;
-            }).WithTags("_Top").WithDescription("Retrieve a token for the resource using the DefaultAzureCredential (Managed identity, env vars, VS logged in user, etc.");
-
-            //.net9 //openapi/v1.json
-            app.MapOpenApi();
-            app.MapScalarApiReference(options =>
-            {
-                options
-                    .WithTitle("SampleApp API")
-                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.AsyncHttp);
-            });
-        }
-
+        // Basic security middleware
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-        //app.UseCorrelationId(); //requres http client service configuration - services.AddHttpClient().AddCorrelationIdForwarding();
-        //app.UseHeaderPropagation();
+    }
 
-        //any other middleware
-        //app.UseSomeMiddleware();
+    private static void SetupOpenApi(WebApplication app, IConfiguration config)
+    {
+        if (!config.GetValue("OpenApiSettings:Enable", false))
+        {
+            return;
+        }
 
-        //endpoints
+        // Auth token endpoint for OpenAPI UI
+        var resourceId = config.GetValue<string>("SampleApiRestClientSettings:ResourceId");
+        app.MapGet("/getauthtoken", async (HttpContext context, string resourceId, string scope) =>
+        {
+            var tokenProvider = new AzureDefaultCredTokenProvider(new CachingService());
+            return await tokenProvider.GetAccessTokenAsync(resourceId, scope);
+        })
+        .AllowAnonymous()
+        .WithName("GetAuthToken")
+        .WithOpenApi(generatedOperation =>
+        {
+            var parameter = generatedOperation.Parameters[0];
+            parameter.Description = $"External service resourceId {resourceId}";
+            parameter = generatedOperation.Parameters[1];
+            parameter.Description = $"External service scope .default";
+            return generatedOperation;
+        })
+        .WithTags("_Top")
+        .WithDescription("Retrieve a token for the resource using DefaultAzureCredential");
+
+        app.MapOpenApi();
+        app.MapScalarApiReference(options =>
+        {
+            options
+                .WithTitle("SampleApp API")
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.AsyncHttp);
+        });
+    }
+
+    private static void SetupBasicEndpoints(WebApplication app)
+    {
         app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
-        //app.MapControllers(); //.RequireAuthorization();
         app.MapGrpcService<TodoGrpcService>();
+    }
 
-        //api versioning
-        var apiVersionSet = app.NewApiVersionSet()
-            .HasApiVersion(new Asp.Versioning.ApiVersion(1, 0))
-            .HasApiVersion(new Asp.Versioning.ApiVersion(1, 1))
+    private static void SetupApiVersionedEndpoints(WebApplication app)
+    {
+        var apiVersionSet = CreateApiVersionSet(app);
+        var includeErrorDetails = !app.Environment.IsProduction();
+
+        MapApiGroups(app, apiVersionSet, includeErrorDetails);
+    }
+
+    private static ApiVersionSet CreateApiVersionSet(WebApplication app)
+    {
+        return app.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(1, 0))
+            .HasApiVersion(new ApiVersion(1, 1))
             .ReportApiVersions()
             .Build();
+    }
 
-        var prodDetailsIncludeStack = !app.Environment.IsProduction();
+    private static void MapApiGroups(WebApplication app, ApiVersionSet apiVersionSet, bool includeErrorDetails)
+    {
+        // TodoItems endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
+            .WithApiVersionSet(apiVersionSet)
+            .MapTodoItemEndpoints(includeErrorDetails);
 
-        //endpoints - todoitems
-        var group = app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapTodoItemEndpoints(prodDetailsIncludeStack);
+        // SK Chat endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/skchat")
+            .WithApiVersionSet(apiVersionSet)
+            .MapChatSKEndpoints(includeErrorDetails);
 
-        //endpoints - skchat
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/skchat")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapChatSKEndpoints(prodDetailsIncludeStack);
+        // Chat endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/chat")
+            .WithApiVersionSet(apiVersionSet)
+            .MapChatEndpoints(includeErrorDetails);
 
-        //endpoints - chat
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/chat")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapChatEndpoints(prodDetailsIncludeStack);
+        // Assistant endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/assistant")
+            .WithApiVersionSet(apiVersionSet)
+            .MapAssistantEndpoints(includeErrorDetails);
 
-        //endpoints - assistant
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/assistant")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapAssistantEndpoints(prodDetailsIncludeStack);
+        // Event Grid endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/eventgrid")
+            .WithApiVersionSet(apiVersionSet)
+            .MapEventGridEndpoints();
 
-        //endpoints - event grid
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/eventgrid")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapEventGridEndpoints();
+        // External endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/external")
+            .WithApiVersionSet(apiVersionSet)
+            .MapExternalEndpoints(includeErrorDetails);
 
-        //endpoints - external
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/external")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapExternalEndpoints(prodDetailsIncludeStack);
-
-        //endpoints - webhook
-        group = app.MapGroup("api1/v{apiVersion:apiVersion}/blandai")
-            .WithApiVersionSet(apiVersionSet);
-        //.RequireAuthorization("policy1", "policy2");
-        group.MapBlandAIEndpoints();
-
-        return app;
+        // BlandAI endpoints
+        app.MapGroup("api1/v{apiVersion:apiVersion}/blandai")
+            .WithApiVersionSet(apiVersionSet)
+            .MapBlandAIEndpoints();
     }
 
     private static WebApplication MapHealthChecks(this WebApplication app)
     {
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
-            // Exclude all checks and return a 200 - Ok.
             Predicate = (_) => false,
         });
         app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
