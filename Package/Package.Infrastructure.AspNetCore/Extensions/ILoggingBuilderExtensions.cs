@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Azure.Monitor.OpenTelemetry.Exporter;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 
@@ -8,6 +9,7 @@ public static class OpenTelemetryLoggingExtensions
     public static ILoggingBuilder AddOpenTelemetryWithConfig(
         this ILoggingBuilder loggingBuilder,
         IConfigurationSection loggingSection,
+        string appInsightsConnectionString,
         Action<OpenTelemetryLoggerOptions>? configureOpenTelemetry = null)
     {
         // Clear existing providers if desired
@@ -23,6 +25,11 @@ public static class OpenTelemetryLoggingExtensions
             options.IncludeFormattedMessage = true;
             options.IncludeScopes = true;
             options.ParseStateValues = true;
+
+            options.AddAzureMonitorLogExporter(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
 
             // Allow additional customization
             configureOpenTelemetry?.Invoke(options);

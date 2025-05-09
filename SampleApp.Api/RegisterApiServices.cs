@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Asp.Versioning;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Azure.Monitor.OpenTelemetry.Exporter;
 using FluentValidation;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +10,6 @@ using Microsoft.Identity.Web;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Package.Infrastructure.AspNetCore.ActivityProcessors;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
@@ -40,11 +38,6 @@ internal static class IServiceCollectionExtensions
         //Application Insights telemetry for http services (for logging telemetry directly to AI)
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
-        //filter OpenTelemetry Traces chatter
-        //var excludeDisplayNames = config.GetSection("OpenTelemetry:TraceFilter:ExcludeDisplayNamesContaining").Get<string[]>() ?? [];
-        //var excludeMessages = config.GetSection("OpenTelemetry:TraceFilter:ExcludeMessagesContaining").Get<string[]>() ?? [];
-        //var filterKeywords = excludeDisplayNames.Concat(excludeMessages).ToArray();
-
         services.AddOpenTelemetry()
             .UseAzureMonitor(options =>
             {
@@ -57,23 +50,7 @@ internal static class IServiceCollectionExtensions
                     //.SetSampler(new TraceIdRatioBasedSampler(0.1)) // Sample 10% of traces
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    //.AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    .AddEntityFrameworkCoreInstrumentation(options =>
-                    {
-                        options.SetDbStatementForText = true; //capture the sql
-                    })
-                    .AddProcessor(new FilterActivityProcessor2(activity =>
-                    {
-                        if (activity.Tags.Any(tag => tag.Key == "EventName" && (tag.Value?.ToString() == "LogMsalInformational" || tag.Value?.ToString() == "LogMsalAlways")))
-                        {
-                            return true;
-                        }
-                        if (activity.Source?.Name?.StartsWith("Azure.Identity") == true)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }));
+                    .AddSource("Microsoft.EntityFrameworkCore"); //capture the sql
                     //.AddAzureMonitorTraceExporter(options =>
                     //{
                     //    options.ConnectionString = appInsightsConnectionString;

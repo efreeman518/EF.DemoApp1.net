@@ -36,15 +36,7 @@ loggerStartup.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 try
 {
     loggerStartup.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
-    builder.Logging.AddOpenTelemetryWithConfig(config.GetSection("Logging"), options =>
-    {
-        options.AddAzureMonitorLogExporter(o =>
-        {
-            o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-        });
-        // Add any additional OpenTelemetry configuration here
-    });
-
+    builder.Logging.AddOpenTelemetryWithConfig(config.GetSection("Logging"), appInsightsConnectionString);
     if (builder.Environment.IsDevelopment())
     {
         builder.Logging.AddConsole();

@@ -2,82 +2,35 @@
 using System.Diagnostics;
 
 namespace Package.Infrastructure.AspNetCore.ActivityProcessors;
-
-/// <summary>
-/// MSAL is super chatty in log traces which does not abide by ILogger filters so squash it with this
-/// </summary>
-public class FilterActivityProcessor(IEnumerable<string> blockedKeywords) : BaseProcessor<Activity>
+public class FilterActivityProcessor(Predicate<Activity> filter) : BaseProcessor<Activity>
 {
-    private readonly StringMatcher _matcher = new(blockedKeywords);
+    private readonly Predicate<Activity> _filter = filter ?? throw new ArgumentNullException(nameof(filter));
+
+    public override void OnStart(Activity activity)
+    {
+        // prevents all exporters from exporting internal activities
+        if (activity.Kind == ActivityKind.Internal)
+        {
+            activity.IsAllDataRequested = false;
+        }
+
+        if (_filter(activity))
+        {
+            // Suppress the activity from being exported
+            activity.SetStatus(ActivityStatusCode.Unset); // Correct way to call SetStatus
+            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+            activity.IsAllDataRequested = false;
+        }
+    }
 
     public override void OnEnd(Activity activity)
     {
-        ReadOnlySpan<char> displayName = activity.DisplayName;
-
-        // Check display name using the StringMatcher
-        if (_matcher.ContainsKeyword(displayName))
+        if (_filter(activity))
         {
+            // Suppress the activity from being exported
+            activity.SetStatus(ActivityStatusCode.Unset); // Correct way to call SetStatus
+            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
             activity.IsAllDataRequested = false;
-            return;
         }
-
-        // Check message/description if available
-        if (activity.DisplayName != null && _matcher.ContainsKeyword(activity.DisplayName))
-        {
-            activity.IsAllDataRequested = false;
-            return;
-        }
-
-        // Check event name if available
-        if (activity.OperationName != null && _matcher.ContainsKeyword(activity.OperationName))
-        {
-            activity.IsAllDataRequested = false;
-            return;
-        }
-
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions - performance over readability here
-        foreach (var @event in activity.Events)
-        {
-            // Check event name
-            if (!string.IsNullOrEmpty(@event.Name) && _matcher.ContainsKeyword(@event.Name))
-            {
-                activity.IsAllDataRequested = false;
-                return;
-            }
-
-            // Check event tags/attributes
-            foreach (var tag in @event.Tags)
-            {
-                if (CheckTagValue(tag.Value))
-                {
-                    activity.IsAllDataRequested = false;
-                    return;
-                }
-            }
-        }
-
-        foreach (var tag in activity.Tags)
-        {
-            if (CheckTagValue(tag.Value))
-            {
-                activity.IsAllDataRequested = false;
-                return;
-            }
-        }
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
-    }
-
-    private bool CheckTagValue(object? tagValue)
-    {
-        if (tagValue is string strValue)
-        {
-            return _matcher.ContainsKeyword(strValue);
-        }
-        else if (tagValue != null)
-        {
-            string? stringValue = tagValue.ToString();
-            return stringValue != null && _matcher.ContainsKeyword(stringValue);
-        }
-        return false;
     }
 }
