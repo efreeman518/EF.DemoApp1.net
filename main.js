@@ -342,12 +342,11 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.AspNetCore",
     "classes": [
-      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "cl": 0, "ucl": 31, "cal": 31, "tl": 83, "cb": 0, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor2", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor2.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 36, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 36, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 58, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManager", "rp": "Package.Infrastructure.AspNetCore_ChaosManager.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 36, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManagerSettings", "rp": "Package.Infrastructure.AspNetCore_ChaosManagerSettings.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 33, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 40, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Filters.CorrelationIdStartupFilter", "rp": "Package.Infrastructure.AspNetCore_CorrelationIdStartupFilter.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Filters.ValidationFilter<T>", "rp": "Package.Infrastructure.AspNetCore_ValidationFilter_1.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 27, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.HealthChecks.GCInfoHealthCheckBuilderExtensions", "rp": "Package.Infrastructure.AspNetCore_GCInfoHealthCheckBuilderExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 68, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -565,12 +564,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 8556, "exceeded": true },
       { "value": 92, "exceeded": true },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "reportPath": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "methodName": "OnEnd(System.Diagnostics.Activity)", "methodShortName": "OnEnd(...)", "fileIndex": 0, "line": 15,
-    "metrics": [
-      { "value": 600, "exceeded": true },
-      { "value": 24, "exceeded": true },
     ]},
   {
     "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "reportPath": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "methodName": "BuildProblemDetailsResponse(System.String,System.String,System.Exception,System.String,System.Boolean,System.Nullable`1<System.Int32>)", "methodShortName": "BuildProblemDetailsResponse(...)", "fileIndex": 0, "line": 26,
@@ -1012,12 +1005,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Infrastructure.Data", "class": "Infrastructure.Data.Interceptors.AuditInterceptor", "reportPath": "Infrastructure.Data_AuditInterceptor.html", "methodName": "SaveChangesFailedAsync()", "methodShortName": "SaveChangesFailedAsync()", "fileIndex": 0, "line": 82,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "reportPath": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "methodName": "CheckTagValue(System.Object)", "methodShortName": "CheckTagValue(...)", "fileIndex": 0, "line": 72,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
