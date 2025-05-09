@@ -279,7 +279,7 @@ var assemblies = [
     "name": "Infrastructure.Configuration",
     "classes": [
       { "name": "Infrastructure.Configuration.ConfigurationBuilderExtensions", "rp": "Infrastructure.Configuration_ConfigurationBuilderExtensions.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 22, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Configuration.DatabaseConfigurationProvider", "rp": "Infrastructure.Configuration_DatabaseConfigurationProvider.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 69, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Configuration.DatabaseConfigurationProvider", "rp": "Infrastructure.Configuration_DatabaseConfigurationProvider.html", "cl": 0, "ucl": 29, "cal": 29, "tl": 68, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Configuration.DatabaseConfigurationRefresher", "rp": "Infrastructure.Configuration_DatabaseConfigurationRefresher.html", "cl": 0, "ucl": 17, "cal": 17, "tl": 72, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Configuration.DatabaseConfigurationSource", "rp": "Infrastructure.Configuration_DatabaseConfigurationSource.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -292,8 +292,8 @@ var assemblies = [
       { "name": "Infrastructure.Data.Configuration.TodoItemConfiguration", "rp": "Infrastructure.Data_TodoItemConfiguration.html", "cl": 18, "ucl": 0, "cal": 18, "tl": 34, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Interceptors.AuditInterceptor", "rp": "Infrastructure.Data_AuditInterceptor.html", "cl": 0, "ucl": 42, "cal": 42, "tl": 99, "cb": 0, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Interceptors.ConnectionNoLockInterceptor", "rp": "Infrastructure.Data_ConnectionNoLockInterceptor.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 48, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.Interceptors.ReadUncommittedInterceptor", "rp": "Infrastructure.Data_ReadUncommittedInterceptor.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 47, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 228, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.Interceptors.ReadUncommittedInterceptor", "rp": "Infrastructure.Data_ReadUncommittedInterceptor.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 40, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 227, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Migrations.TodoDbContextTrxnModelSnapshot", "rp": "Infrastructure.Data_TodoDbContextTrxnModelSnapshot.html", "cl": 0, "ucl": 94, "cal": 94, "tl": 118, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.SystemSettingsDbContext", "rp": "Infrastructure.Data_SystemSettingsDbContext.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 38, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.TodoDbContextBase", "rp": "Infrastructure.Data_TodoDbContextBase.html", "cl": 17, "ucl": 1, "cal": 18, "tl": 89, "cb": 9, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -446,7 +446,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "rp": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "cl": 4, "ucl": 166, "cal": 170, "tl": 264, "cb": 2, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.RegexExtensions", "rp": "Package.Infrastructure.Common_RegexExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 23, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.SerializeExtensions", "rp": "Package.Infrastructure.Common_SerializeExtensions.html", "cl": 13, "ucl": 12, "cal": 25, "tl": 80, "cb": 14, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.StringExtensions", "rp": "Package.Infrastructure.Common_StringExtensions.html", "cl": 0, "ucl": 64, "cal": 64, "tl": 157, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Extensions.StringExtensions", "rp": "Package.Infrastructure.Common_StringExtensions.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 156, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.HashUtility", "rp": "Package.Infrastructure.Common_HashUtility.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 27, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.PredicateBuilder", "rp": "Package.Infrastructure.Common_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Specification<T>", "rp": "Package.Infrastructure.Common_Specification_1.html", "cl": 3, "ucl": 9, "cal": 12, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -520,7 +520,7 @@ var assemblies = [
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "rp": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "cl": 0, "ucl": 467, "cal": 467, "tl": 760, "cb": 0, "tb": 104, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "rp": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "cl": 0, "ucl": 466, "cal": 466, "tl": 815, "cb": 0, "tb": 104, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -560,10 +560,10 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "RegisterInfrastructureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.Boolean)", "methodShortName": "RegisterInfrastructureServices(...)", "fileIndex": 0, "line": 132,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "RegisterRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "RegisterRequestContextServices(...)", "fileIndex": 0, "line": 292,
     "metrics": [
-      { "value": 8556, "exceeded": true },
-      { "value": 92, "exceeded": true },
+      { "value": 930, "exceeded": true },
+      { "value": 30, "exceeded": true },
     ]},
   {
     "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "reportPath": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "methodName": "BuildProblemDetailsResponse(System.String,System.String,System.Exception,System.String,System.Boolean,System.Nullable`1<System.Int32>)", "methodShortName": "BuildProblemDetailsResponse(...)", "fileIndex": 0, "line": 26,
@@ -608,7 +608,7 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "LevenshteinDistance(System.String,System.String,System.Boolean)", "methodShortName": "LevenshteinDistance(...)", "fileIndex": 0, "line": 121,
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "LevenshteinDistance(System.String,System.String,System.Boolean)", "methodShortName": "LevenshteinDistance(...)", "fileIndex": 0, "line": 120,
     "metrics": [
       { "value": 272, "exceeded": true },
       { "value": 16, "exceeded": true },
@@ -764,12 +764,6 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "RegisterApplicationServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)", "methodShortName": "RegisterApplicationServices(...)", "fileIndex": 0, "line": 75,
-    "metrics": [
-      { "value": 110, "exceeded": true },
-      { "value": 10, "exceeded": false },
-    ]},
-  {
     "assembly": "SampleApp.Grpc", "class": "SampleApp.Grpc.Proto.NullableString", "reportPath": "SampleApp.Grpc_NullableString.html", "methodName": "Equals(SampleApp.Grpc.Proto.NullableString)", "methodShortName": "Equals(...)", "fileIndex": 0, "line": 2569,
     "metrics": [
       { "value": 110, "exceeded": true },
@@ -861,6 +855,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Messaging", "class": "Package.Infrastructure.Messaging.ServiceBus.ServiceBusSenderBase", "reportPath": "Package.Infrastructure.Messaging_ServiceBusSenderBase.html", "methodName": "SendBatchAsync()", "methodShortName": "SendBatchAsync()", "fileIndex": 0, "line": 64,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 715,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
