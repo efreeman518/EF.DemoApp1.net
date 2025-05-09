@@ -8,6 +8,12 @@ public class FilterActivityProcessor2(Predicate<Activity> filter) : BaseProcesso
 
     public override void OnStart(Activity activity)
     {
+        // prevents all exporters from exporting internal activities
+        if (activity.Kind == ActivityKind.Internal)
+        {
+            activity.IsAllDataRequested = false;
+        }
+
         if (_filter(activity))
         {
             // Suppress the activity from being exported

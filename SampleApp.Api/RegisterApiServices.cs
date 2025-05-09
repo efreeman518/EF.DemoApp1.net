@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Asp.Versioning;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using FluentValidation;
 using Infrastructure.Data;
@@ -45,46 +46,48 @@ internal static class IServiceCollectionExtensions
         //var filterKeywords = excludeDisplayNames.Concat(excludeMessages).ToArray();
 
         services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(serviceName))
-            .WithTracing(tracing =>
+            .UseAzureMonitor(options =>
             {
-                tracing
+                options.ConnectionString = appInsightsConnectionString;
+            })
+            .ConfigureResource(resource => resource.AddService(serviceName))
+            .WithTracing(builder =>
+            {
+                builder
                     //.SetSampler(new TraceIdRatioBasedSampler(0.1)) // Sample 10% of traces
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("Microsoft.EntityFrameworkCore") //capture the sql
-                    //.AddProcessor(new FilterActivityProcessor2(activity => activity.Tags.Any(t => t.Value?.Contains("identity", StringComparison.OrdinalIgnoreCase) ?? false))) //filter out chatter
+                    //.AddSource("Microsoft.EntityFrameworkCore") //capture the sql
+                    .AddEntityFrameworkCoreInstrumentation(options =>
+                    {
+                        options.SetDbStatementForText = true; //capture the sql
+                    })
                     .AddProcessor(new FilterActivityProcessor2(activity =>
                     {
-                        if (activity.Tags.Any(t => t.Value?.Contains("Msal", StringComparison.OrdinalIgnoreCase) ?? false))
+                        if (activity.Tags.Any(tag => tag.Key == "EventName" && (tag.Value?.ToString() == "LogMsalInformational" || tag.Value?.ToString() == "LogMsalAlways")))
                         {
                             return true;
                         }
-                        if (activity.DisplayName?.Contains("Azure.Identity", StringComparison.OrdinalIgnoreCase) ?? false)
+                        if (activity.Source?.Name?.StartsWith("Azure.Identity") == true)
                         {
                             return true;
                         }
-                        if (activity.Source.Name?.Contains("Azure.Identity", StringComparison.OrdinalIgnoreCase) ?? false)
-                        {
-                            return true;
-                        }
-    
                         return false;
-                    }))
-                    .AddAzureMonitorTraceExporter(options =>
-                    {
-                        options.ConnectionString = appInsightsConnectionString;
-                    });
+                    }));
+                    //.AddAzureMonitorTraceExporter(options =>
+                    //{
+                    //    options.ConnectionString = appInsightsConnectionString;
+                    //});
             })
-            .WithMetrics(metrics =>
+            .WithMetrics(builder =>
             {
-                metrics
+                builder
                     .AddAspNetCoreInstrumentation()
-                    .AddRuntimeInstrumentation()
-                    .AddAzureMonitorMetricExporter(options =>
-                    {
-                        options.ConnectionString = appInsightsConnectionString;
-                    });
+                    .AddRuntimeInstrumentation();
+                    //.AddAzureMonitorMetricExporter(options =>
+                    //{
+                    //    options.ConnectionString = appInsightsConnectionString;
+                    //});
             });
 
         //api versioning
