@@ -185,13 +185,21 @@ public static class IServiceCollectionExtensions
             .WithCacheKeyPrefix($"{cacheInstance.Name}:")
             .WithDefaultEntryOptions(new FusionCacheEntryOptions()
             {
+                //memory cache duration
                 Duration = TimeSpan.FromMinutes(cacheInstance.DurationMinutes),
+                //distributed cache duration
                 DistributedCacheDuration = TimeSpan.FromMinutes(cacheInstance.DistributedCacheDurationMinutes),
+                //how long to use expired cache value if the factory is unable to provide an updated value
                 FailSafeMaxDuration = TimeSpan.FromMinutes(cacheInstance.FailSafeMaxDurationMinutes),
+                //how long to wait before trying to get a new value from the factory after a fail-safe expiration
                 FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheInstance.FailSafeThrottleDurationMinutes),
+                //allow some jitter in the Duration for variable expirations
                 JitterMaxDuration = TimeSpan.FromSeconds(10),
+                //factory timeout before returning stale value, if fail-safe is enabled and we have a stale value
                 FactorySoftTimeout = TimeSpan.FromSeconds(1),
+                //max allowed for factory even with no stale value to use; something may be wrong with the factory/service
                 FactoryHardTimeout = TimeSpan.FromSeconds(30),
+                //refresh active cache items upon cache retrieval, if getting close to expiration
                 EagerRefreshThreshold = 0.9f
             });
 
