@@ -43,6 +43,12 @@ builder.Services.AddMsalAuthentication(options =>
     builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
     options.ProviderOptions.LoginMode = "redirect"; //integrated page, not a popup
 
+    // Dynamically set the redirect URI based on the current environment - overrides config
+    var baseUri = builder.HostEnvironment.BaseAddress.TrimEnd('/');
+    var dynamicRedirectUri = $"{baseUri}/authentication/login-callback";
+    options.ProviderOptions.Authentication.RedirectUri = dynamicRedirectUri;
+    Console.WriteLine($"Setting dynamic redirect URI: {dynamicRedirectUri}");
+
     options.ProviderOptions.DefaultAccessTokenScopes.Add("openid");
     options.ProviderOptions.DefaultAccessTokenScopes.Add("offline_access");
 
