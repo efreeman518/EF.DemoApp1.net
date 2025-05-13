@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
+    <ProjectReference Include="..\Aspire\ServiceDefaults\SampleApp.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.AspNetCore\Package.Infrastructure.AspNetCore.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Grpc\Package.Infrastructure.Grpc.csproj" />

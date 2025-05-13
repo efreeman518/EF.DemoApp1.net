@@ -15,12 +15,12 @@ namespace SampleApp.Gateway;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         ConfigureAzureAppConfiguration(services, config);
         ConfigureTelemetry(services, config);
-        ConfigureCors(services, config, loggerStartup);
-        ConfigureAuthentication(services, config, loggerStartup);
+        ConfigureCors(services, config, logger);
+        ConfigureAuthentication(services, config, logger);
         ConfigureReverseProxy(services, config);
         ConfigureCorrelationTracking(services);
         ConfigureHealthChecks(services);
@@ -43,7 +43,7 @@ public static class IServiceCollectionExtensions
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService("SampleApi"))
+            .ConfigureResource(resource => resource.AddService("Gateway"))
             .WithTracing(tracing =>
             {
                 tracing
@@ -67,7 +67,7 @@ public static class IServiceCollectionExtensions
             });
     }
 
-    private static void ConfigureCors(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    private static void ConfigureCors(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
@@ -75,7 +75,7 @@ public static class IServiceCollectionExtensions
         if (corsConfigSection.GetChildren().Any())
         {
             var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
-            loggerStartup.LogInformation("Configure CORS - {PolicyName}", policyName);
+            logger.LogInformation("Configure CORS - {PolicyName}", policyName);
 
             services.AddCors(options =>
             {
@@ -91,7 +91,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string authConfigSectionName = "Gateway_AzureAdB2C"; // AzureAdB2C / EntraID
         var configSection = config.GetSection(authConfigSectionName);
@@ -101,7 +101,7 @@ public static class IServiceCollectionExtensions
             return;
         }
 
-        loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
+        logger.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
         services.AddAuthentication(options =>
         {
@@ -140,25 +140,12 @@ public static class IServiceCollectionExtensions
 
     private static void ConfigureReverseProxy(IServiceCollection services, IConfiguration config)
     {
-        SetupAzureCredentials(config);
-
         services.AddSingleton<TokenService>(); // Add TokenService
 
         services.AddReverseProxy()
             .LoadFromConfig(config.GetSection("ReverseProxy"))
-            .AddTransforms(ConfigureProxyTransforms);
-    }
-
-    private static void SetupAzureCredentials(IConfiguration config)
-    {
-        // DefaultAzureCredential checks env vars first, then checks other - managed identity, etc
-        // So if we need to use client/secret (client AAD App Reg), set the env vars
-        if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
-        {
-            Environment.SetEnvironmentVariable("AZURE_TENANT_ID", config.GetValue<string>("SampleApiRestClientSettings:TenantId"));
-            Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", config.GetValue<string>("SampleApiRestClientSettings:ClientId"));
-            Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", config.GetValue<string>("SampleApiRestClientSettings:ClientSecret"));
-        }
+            .AddTransforms(ConfigureProxyTransforms)
+            .AddServiceDiscoveryDestinationResolver(); //support aspire service discovery for cluster destination address resolution
     }
 
     private static void ConfigureProxyTransforms(TransformBuilderContext context)

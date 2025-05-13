@@ -65,6 +65,7 @@ internal static class IServiceCollectionExtensions
         var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
         services.AddOpenTelemetry()
+            //applies to all telemetry - traces, metrics, logs
             .UseAzureMonitor(options =>
             {
                 options.ConnectionString = appInsightsConnectionString;

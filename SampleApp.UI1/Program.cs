@@ -12,6 +12,7 @@ using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+//load config
 using (var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
 {
     // Load base config
@@ -28,7 +29,7 @@ using (var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment
         }
         catch
         {
-            Console.WriteLine("Development config not found, skipping override.");
+            Console.WriteLine("Development config not found, skipping.");
         }
     }
 }
@@ -89,6 +90,13 @@ builder.Services.AddScoped(provider =>
     var scopes = builder.Configuration.GetSection("SampleAppGateway:Scopes").Get<string[]>();
     return new ApiAuthHandler(tokenProvider, scopes!);
 });
+
+//aspire
+//builder.Services.ConfigureHttpClientDefaults(http =>
+//{
+//    // Turn on service discovery by default - all http clients will use this
+//    http.AddServiceDiscovery();
+//});
 
 //SampleAppGateway client - Refit
 builder.Services.AddRefitClient<ISampleAppClient>()

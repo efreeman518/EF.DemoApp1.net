@@ -9,6 +9,26 @@
     }
   },
   "profiles": {
+    //aspire
+    "http": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5389",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7389;http://localhost:5389",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+
     "IIS Express": {
       "commandName": "IISExpress",
       //"launchBrowser": true,
@@ -22,6 +42,7 @@
       "dotnetRunMessages": true,
       //"launchBrowser": true,
       //"launchUrl": "scalar/v1.1",
+      // let aspire handle
       "applicationUrl": "https://localhost:7389;http://localhost:5389",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
