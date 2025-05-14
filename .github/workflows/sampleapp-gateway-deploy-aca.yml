@@ -52,7 +52,11 @@ jobs:
           APP_NAME="${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
           RG="${{ vars.RESOURCE_GROUP }}"
 
-          # Get current custom domains
+          #enable the custom-domain command
+          az upgrade --yes
+          az extension add --name containerapp --upgrade --yes
+
+          echo "🔍 Checking if domain $DOMAIN is already bound..."
           BOUND_DOMAINS=$(az containerapp ingress custom-domain list \
             --name "$APP_NAME" \
             --resource-group "$RG" \

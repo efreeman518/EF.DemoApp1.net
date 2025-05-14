@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to Azure Container App
         run: |
           az containerapp update \
-            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_API }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
             --query properties.configuration.ingress.fqdn
