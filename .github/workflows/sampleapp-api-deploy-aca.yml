@@ -44,8 +44,4 @@ jobs:
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
-            --environment ${{ vars.ACA_ENVIRONMENT }} \
-            --ingress internal \
-            --target-port 8080 \
-            --registry-server $REGISTRY \
             --query properties.configuration.ingress.fqdn
