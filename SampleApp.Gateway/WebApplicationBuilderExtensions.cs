@@ -55,6 +55,9 @@ public static partial class WebApplicationBuilderExtensions
     {
         app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
+
+        //aspire
+        app.MapDefaultEndpoints();
     }
 
     private static void ConfigureReverseProxy(WebApplication app)

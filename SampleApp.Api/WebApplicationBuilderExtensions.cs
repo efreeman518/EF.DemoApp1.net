@@ -116,8 +116,13 @@ public static partial class WebApplicationBuilderExtensions
 
     private static void SetupBasicEndpoints(WebApplication app)
     {
+        //aspire
+        app.MapDefaultEndpoints();
+
         app.MapGet("/", () => Results.Json(new { message = "API is running" }));
         app.MapHealthChecks();
+
+        //grpc endpoints
         app.MapGrpcService<TodoGrpcService>();
     }
 

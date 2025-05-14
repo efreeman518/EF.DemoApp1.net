@@ -1,0 +1,75 @@
+﻿name: Deploy SampleApp.Gateway to ACA
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag (e.g., latest or commit SHA)"
+        required: true
+        default: latest
+
+  workflow_run:
+    workflows: ["Build and Push SampleApp.Gateway Container"]
+    types:
+      - completed
+
+env:
+  #RESOURCE_GROUP: rg-dev1
+  #ACA_ENVIRONMENT: aspire-env-dev
+  #CONTAINERAPP_NAME: sampleapp-gateway
+  IMAGE_NAME: sampleapp-gateway
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev #Github env vars
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
+
+    steps:
+      - name: Log in to Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
+            --environment ${{ vars.ACA_ENVIRONMENT }} \
+            --ingress external \
+            --target-port 8080 \
+            --registry-server $REGISTRY \
+            --query properties.configuration.ingress.fqdn
+
+      - name: Ensure custom domain is bound (if needed)
+        run: |
+          DOMAIN="${{ vars.ACA_GATEWAY_DOMAIN_BIND }}"
+          APP_NAME="${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
+          RG="${{ vars.RESOURCE_GROUP }}"
+
+          # Get current custom domains
+          BOUND_DOMAINS=$(az containerapp ingress custom-domain list \
+            --name "$APP_NAME" \
+            --resource-group "$RG" \
+            --query "[].name" \
+            --output tsv)
+
+          if echo "$BOUND_DOMAINS" | grep -q "$DOMAIN"; then
+            echo "✅ Domain $DOMAIN is already bound"
+          else
+            echo "🔄 Binding domain $DOMAIN to $APP_NAME"
+            az containerapp ingress custom-domain bind \
+            --name "$APP_NAME" \
+            --resource-group "$RG" \
+            --domain "$DOMAIN" \
+            --certificate-managed
+          fi

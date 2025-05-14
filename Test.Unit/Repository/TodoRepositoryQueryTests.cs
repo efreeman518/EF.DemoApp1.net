@@ -158,7 +158,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         //InMemory setup & seed
         TodoDbContextQuery db = new InMemoryDbBuilder()
             .SeedDefaultEntityData()
-            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(10)))
+            .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
         var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");

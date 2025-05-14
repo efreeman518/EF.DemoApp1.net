@@ -3,6 +3,10 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 
 namespace Package.Infrastructure.AspNetCore.Extensions;
+
+/// <summary>
+/// aspire handles OpenTelemetry logging configuration for ASP.NET Core applications.
+/// </summary>
 public static class OpenTelemetryLoggingExtensions
 {
     public static ILoggingBuilder AddOpenTelemetryWithConfig(
