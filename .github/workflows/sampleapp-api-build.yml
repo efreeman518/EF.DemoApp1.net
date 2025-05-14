@@ -1,12 +1,12 @@
 ﻿name: Build SampleApp.Api
 
 on:
-  workflow_run:
-    workflows: ["Pre-build-deploy-tests"]
-    types:
-      - completed
-    branches:
-      - main
+  # workflow_run:
+  #   workflows: ["Pre-build-deploy-tests"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - main
 
   # push:
   #   branches:
