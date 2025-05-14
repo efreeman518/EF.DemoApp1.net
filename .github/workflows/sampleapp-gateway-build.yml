@@ -1,10 +1,10 @@
 name: Build SampleApp.Gateway
 
 on:
-  workflow_run:
-    workflows: ["Pre-build-deploy-tests"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Pre-build-deploy-tests"]
+  #   types:
+  #     - completed
 
   # push:
   #   branches:

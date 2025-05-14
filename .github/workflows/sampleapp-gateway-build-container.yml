@@ -42,7 +42,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: ./SampleApp.Gateway
+          context: .
           file: ./SampleApp.Gateway/Dockerfile
           push: true
           tags: |
