@@ -55,30 +55,30 @@ jobs:
             --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
             --query properties.configuration.ingress.fqdn
 
-      - name: Ensure custom domain is bound (if needed)
-        run: |
-          DOMAIN="${{ vars.ACA_GATEWAY_DOMAIN_BIND }}"
-          APP_NAME="${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
-          RG="${{ vars.RESOURCE_GROUP }}"
+      # - name: Ensure custom domain is bound (if needed)
+      #   run: |
+      #     DOMAIN="${{ vars.ACA_GATEWAY_DOMAIN_BIND }}"
+      #     APP_NAME="${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
+      #     RG="${{ vars.RESOURCE_GROUP }}"
 
-          #enable the custom-domain command
-          az upgrade --yes
-          az extension add --name containerapp --upgrade --yes
+      #     #enable the custom-domain command
+      #     az upgrade --yes
+      #     az extension add --name containerapp --upgrade --yes
 
-          echo "🔍 Checking if domain $DOMAIN is already bound..."
-          BOUND_DOMAINS=$(az containerapp ingress custom-domain list \
-            --name "$APP_NAME" \
-            --resource-group "$RG" \
-            --query "[].name" \
-            --output tsv)
+      #     echo "🔍 Checking if domain $DOMAIN is already bound..."
+      #     BOUND_DOMAINS=$(az containerapp ingress custom-domain list \
+      #       --name "$APP_NAME" \
+      #       --resource-group "$RG" \
+      #       --query "[].name" \
+      #       --output tsv)
 
-          if echo "$BOUND_DOMAINS" | grep -q "$DOMAIN"; then
-            echo "✅ Domain $DOMAIN is already bound"
-          else
-            echo "🔄 Binding domain $DOMAIN to $APP_NAME"
-            az containerapp ingress custom-domain bind \
-            --name "$APP_NAME" \
-            --resource-group "$RG" \
-            --domain "$DOMAIN" \
-            --certificate-managed
-          fi
+      #     if echo "$BOUND_DOMAINS" | grep -q "$DOMAIN"; then
+      #       echo "✅ Domain $DOMAIN is already bound"
+      #     else
+      #       echo "🔄 Binding domain $DOMAIN to $APP_NAME"
+      #       az containerapp ingress custom-domain bind \
+      #       --name "$APP_NAME" \
+      #       --resource-group "$RG" \
+      #       --domain "$DOMAIN" \
+      #       --certificate-managed
+      #     fi
