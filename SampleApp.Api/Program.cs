@@ -1,6 +1,5 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
-using Package.Infrastructure.AspNetCore.Extensions;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Api;
@@ -10,31 +9,21 @@ using SampleApp.Bootstrapper;
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
 //- logging gets Console
 var builder = WebApplication.CreateBuilder(args);
-
-builder.AddServiceDefaults(); //aspire
 var config = builder.Configuration;
 var services = builder.Services;
 var appName = config.GetValue<string>("AppName")!;
 var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
 var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined"; // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-9.0
 var credential = CreateAzureCredential(config);
-
-//startup logger
 ILogger<Program> startupLogger = CreateStartupLogger();
 startupLogger.LogInformation("{AppName} {Environment} - Startup.", appName, env);
 
 try
 {
-    startupLogger.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
-    builder.Logging.AddOpenTelemetryWithConfig(config);
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
-    }
+    startupLogger.LogInformation("{AppName} {Environment} - Configure service defaults.", appName, env);
+    builder.AddServiceDefaults(config, appName); //aspire - open telementry (logging, traces, metrics), resilience, service discovery, health checks
 
     LoadConfiguration();
-
     ConfigureDataProtection();
 
     startupLogger.LogInformation("{AppName} {Environment} - Register services.", appName, env);
@@ -59,7 +48,6 @@ try
     StaticLogging.SetStaticLoggerFactory(app.Services.GetRequiredService<ILoggerFactory>());
 
     startupLogger.LogInformation("{AppName} {Environment} - Running app.", appName, env);
-
     await app.RunAsync();
 }
 catch (Exception ex)
@@ -160,6 +148,6 @@ void ConfigureDataProtection()
 /// Program class must be explicitly defined for WebApplicationFactory in Test.Endpoints
 /// </summary>
 #pragma warning disable S1118
-public partial class Program {}
+public partial class Program { }
 #pragma warning restore S1118
 

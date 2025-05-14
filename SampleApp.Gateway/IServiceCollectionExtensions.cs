@@ -1,10 +1,6 @@
-﻿using Azure.Monitor.OpenTelemetry.Exporter;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using System.Net.Http.Headers;
@@ -18,7 +14,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         ConfigureAzureAppConfiguration(services, config);
-        ConfigureTelemetry(services, config);
+        //ConfigureTelemetry(services, config);
         ConfigureCors(services, config, logger);
         ConfigureAuthentication(services, config, logger);
         ConfigureReverseProxy(services, config);
@@ -37,35 +33,35 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void ConfigureTelemetry(IServiceCollection services, IConfiguration config)
-    {
-        // Application Insights telemetry for http services (for logging telemetry directly to AI)
-        var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
+    //private static void ConfigureTelemetry(IServiceCollection services, IConfiguration config)
+    //{
+    //    // Application Insights telemetry for http services (for logging telemetry directly to AI)
+    //    var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
 
-        services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService("Gateway"))
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddSource("Microsoft.EntityFrameworkCore") // Capture the SQL
-                    .AddAzureMonitorTraceExporter(options =>
-                    {
-                        options.ConnectionString = appInsightsConnectionString;
-                    });
-            })
-            .WithMetrics(metrics =>
-            {
-                metrics
-                    .AddAspNetCoreInstrumentation()
-                    .AddRuntimeInstrumentation()
-                    .AddAzureMonitorMetricExporter(options =>
-                    {
-                        options.ConnectionString = appInsightsConnectionString;
-                    });
-            });
-    }
+    //    services.AddOpenTelemetry()
+    //        .ConfigureResource(resource => resource.AddService("Gateway"))
+    //        .WithTracing(tracing =>
+    //        {
+    //            tracing
+    //                .AddAspNetCoreInstrumentation()
+    //                .AddHttpClientInstrumentation()
+    //                .AddSource("Microsoft.EntityFrameworkCore") // Capture the SQL
+    //                .AddAzureMonitorTraceExporter(options =>
+    //                {
+    //                    options.ConnectionString = appInsightsConnectionString;
+    //                });
+    //        })
+    //        .WithMetrics(metrics =>
+    //        {
+    //            metrics
+    //                .AddAspNetCoreInstrumentation()
+    //                .AddRuntimeInstrumentation()
+    //                .AddAzureMonitorMetricExporter(options =>
+    //                {
+    //                    options.ConnectionString = appInsightsConnectionString;
+    //                });
+    //        });
+    //}
 
     private static void ConfigureCors(IServiceCollection services, IConfiguration config, ILogger logger)
     {

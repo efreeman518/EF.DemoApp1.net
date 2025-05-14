@@ -1,10 +1,15 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace Microsoft.Extensions.Hosting;
@@ -14,9 +19,10 @@ namespace Microsoft.Extensions.Hosting;
 // To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
 public static class Extensions
 {
-    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, IConfiguration config, string serviceName,
+        Action<OpenTelemetryLoggerOptions>? configureOpenTelemetry = null) where TBuilder : IHostApplicationBuilder
     {
-        builder.ConfigureOpenTelemetry();
+        builder.ConfigureOpenTelemetryWithConfig(config, serviceName, configureOpenTelemetry);
 
         builder.AddDefaultHealthChecks();
 
@@ -24,31 +30,46 @@ public static class Extensions
 
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
-            // Turn on resilience by default
             http.AddStandardResilienceHandler();
-
-            // Turn on service discovery by default
             http.AddServiceDiscovery();
         });
 
-        // Uncomment the following to restrict the allowed schemes for service discovery.
-        // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
-        // {
-        //     options.AllowedSchemes = ["https"];
-        // });
+        //restrict the allowed schemes for service discovery.
+        builder.Services.Configure<ServiceDiscoveryOptions>(options =>
+        {
+            options.AllowedSchemes = ["https"];
+        });
 
         return builder;
     }
 
-    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    public static TBuilder ConfigureOpenTelemetryWithConfig<TBuilder>(this TBuilder builder, IConfiguration config, string serviceName,
+        Action<OpenTelemetryLoggerOptions>? configureOpenTelemetry = null) where TBuilder : IHostApplicationBuilder
     {
-        builder.Logging.AddOpenTelemetry(logging =>
+        builder.Logging.ClearProviders();
+
+        // Apply log level filters from configuration first
+        builder.Logging.AddConfiguration(config.GetSection("Logging"));
+
+        // Configure OpenTelemetry
+        builder.Logging.AddOpenTelemetry(options =>
         {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
+            options.IncludeFormattedMessage = true;
+            options.IncludeScopes = true;
+
+            // Allow additional customization
+            configureOpenTelemetry?.Invoke(options);
         });
 
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+        }
+
         builder.Services.AddOpenTelemetry()
+
+            .ConfigureResource(resource => resource.AddService(serviceName))
             .WithMetrics(metrics =>
             {
                 metrics.AddAspNetCoreInstrumentation()
@@ -61,7 +82,8 @@ public static class Extensions
                     .AddAspNetCoreInstrumentation()
                     // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
                     //.AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
+                    .AddHttpClientInstrumentation()
+                    .AddSource("Microsoft.EntityFrameworkCore"); // Capture SQL
             });
 
         builder.AddOpenTelemetryExporters();
@@ -78,12 +100,16 @@ public static class Extensions
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
 
-        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //       .UseAzureMonitor();
-        //}
+        // Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
+        var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+        if (!string.IsNullOrEmpty(appInsightsConnectionString))
+        {
+            //applies to all telemetry - traces, metrics, logs
+            builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
+        }
 
         return builder;
     }

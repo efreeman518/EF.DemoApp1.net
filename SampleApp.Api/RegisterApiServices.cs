@@ -1,15 +1,11 @@
 ﻿using Application.Contracts.Model;
 using Asp.Versioning;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FluentValidation;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Identity.Web;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
@@ -35,55 +31,19 @@ internal static class IServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup, string serviceName)
     {
-        AddTelemetry(services, config, serviceName);
-
         var apiVersioningBuilder = AddApiVersioning(services);
-
         AddCorsPolicy(services, config, loggerStartup);
-
         AddAuthentication(services, config, loggerStartup);
-
         AddErrorHandlingAndValidation(services);
-
         AddGrpcServices(services);
-
         services.AddRouting(options => options.LowercaseUrls = true);
-
         AddOpenApiSupport(services, config, apiVersioningBuilder);
-
         AddChatGptPlugin(services, config);
-
         AddHealthChecks(services, config);
-
         AddCorrelationTracking(services);
+        //services.AddControllers();
 
         return services;
-    }
-
-    private static void AddTelemetry(IServiceCollection services, IConfiguration config, string serviceName)
-    {
-        var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
-
-        services.AddOpenTelemetry()
-            //applies to all telemetry - traces, metrics, logs
-            .UseAzureMonitor(options =>
-            {
-                options.ConnectionString = appInsightsConnectionString;
-            })
-            .ConfigureResource(resource => resource.AddService(serviceName))
-            .WithTracing(builder =>
-            {
-                builder
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddSource("Microsoft.EntityFrameworkCore");
-            })
-            .WithMetrics(builder =>
-            {
-                builder
-                    .AddAspNetCoreInstrumentation()
-                    .AddRuntimeInstrumentation();
-            });
     }
 
     private static IApiVersioningBuilder AddApiVersioning(IServiceCollection services)
@@ -164,10 +124,9 @@ internal static class IServiceCollectionExtensions
     private static void AddErrorHandlingAndValidation(IServiceCollection services)
     {
         services.AddExceptionHandler<DefaultExceptionHandler>();
+
         //this should be deprecated with net10 minimal api validation
         services.AddTransient<IValidator<TodoItemDto>, TodoItemDtoValidator>();
-
-        //services.AddControllers();
 
         //convenient for model validation; built in IHostEnvironmentExtensions.BuildProblemDetailsResponse
         services.AddProblemDetails(options =>

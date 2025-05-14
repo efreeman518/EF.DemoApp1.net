@@ -1,6 +1,5 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
-using Package.Infrastructure.AspNetCore.Extensions;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Host;
 using SampleApp.Gateway;
@@ -9,8 +8,6 @@ using SampleApp.Gateway;
 //- config gets 'ASPNETCORE_*' env vars, appsettings.json and appsettings.{Environment}.json, user secrets
 //- logging gets Console
 var builder = WebApplication.CreateBuilder(args);
-
-builder.AddServiceDefaults(); //aspire
 var config = builder.Configuration;
 var services = builder.Services;
 var appName = config.GetValue<string>("AppName")!;
@@ -22,13 +19,8 @@ startupLogger.LogInformation("{AppName} {Environment} - Startup.", appName, env)
 
 try
 {
-    startupLogger.LogInformation("{AppName} {Environment} - Configure app logging.", appName, env);
-    builder.Logging.AddOpenTelemetryWithConfig(config);
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
-    }
+    startupLogger.LogInformation("{AppName} {Environment} - Configure service defaults.", appName, env);
+    builder.AddServiceDefaults(config, appName); //aspire - open telementry (logging, traces, metrics), resilience, service discovery, health checks
 
     LoadConfiguration();
 

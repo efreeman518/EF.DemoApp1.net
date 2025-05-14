@@ -1,8 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var api = builder.AddProject<Projects.SampleApp_Api>("api");
+var api = builder.AddProject<Projects.SampleApp_Api>("aca-sampleapp-api-dev1");
 
-builder.AddProject<Projects.SampleApp_Gateway>("gateway")
+builder.AddProject<Projects.SampleApp_Gateway>("aca-gateway-dev1")
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .WaitFor(api);
