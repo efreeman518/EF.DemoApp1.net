@@ -38,14 +38,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set GHCR registry on container app (private image auth)
-        run: |
-          az containerapp registry set \
-            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --server $REGISTRY \
-            --username $OWNER \
-            --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
+      # - name: Set GHCR registry on container app (private image auth)
+      #   run: |
+      #     az containerapp registry set \
+      #       --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+      #       --resource-group ${{ vars.RESOURCE_GROUP }} \
+      #       --server $REGISTRY \
+      #       --username $OWNER \
+      #       --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
 
       - name: Deploy to Azure Container App
         run: |
