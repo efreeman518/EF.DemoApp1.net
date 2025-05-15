@@ -53,8 +53,11 @@ public static partial class WebApplicationBuilderExtensions
             });
         }
 
-        // Standard static files
-        app.UseHttpsRedirection();
+        // ACA (internal to the container env) doesn't like, but ok for other hosting (local, App Service, etc.)
+        if (config.GetValue("EnforceHttpsRedirection", false))
+        {
+            app.UseHttpsRedirection();
+        }
 
         //serve sample html/js UI
         app.UseDefaultFiles(); //default serve files from wwwroot

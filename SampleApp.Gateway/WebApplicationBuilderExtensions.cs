@@ -18,7 +18,11 @@ public static partial class WebApplicationBuilderExtensions
 
     private static void ConfigureSecurity(WebApplication app)
     {
-        app.UseHttpsRedirection();
+        // ACA (internal to the container env) doesn't like, but ok for other hosting (local, App Service, etc.)
+        if (app.Configuration.GetValue("EnforceHttpsRedirection", false))
+        {
+            app.UseHttpsRedirection();
+        }
     }
 
     private static void ConfigureAzureAppConfiguration(WebApplication app)
