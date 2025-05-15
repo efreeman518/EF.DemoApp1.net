@@ -9,10 +9,11 @@ EXPOSE 8081
 
 
 # This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:9.0-noble AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["SampleApp.Gateway/SampleApp.Gateway.csproj", "SampleApp.Gateway/"]
+COPY ["Aspire/ServiceDefaults/SampleApp.ServiceDefaults.csproj", "Aspire/ServiceDefaults/"]
 COPY ["Package/Package.Infrastructure.AspNetCore/Package.Infrastructure.AspNetCore.csproj", "Package/Package.Infrastructure.AspNetCore/"]
 COPY ["Package/Package.Infrastructure.Auth/Package.Infrastructure.Auth.csproj", "Package/Package.Infrastructure.Auth/"]
 COPY ["Package/Package.Infrastructure.Common/Package.Infrastructure.Common.csproj", "Package/Package.Infrastructure.Common/"]
