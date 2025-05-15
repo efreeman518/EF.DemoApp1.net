@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
+using Package.Infrastructure.Common.Extensions;
 using System.Net.Http.Headers;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
@@ -67,6 +68,9 @@ public static class IServiceCollectionExtensions
         }
 
         logger.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
+
+        //debug
+        logger.LogInformation("Auth Config: {ConfigSection}", configSection.SerializeToJson());
 
         services.AddAuthentication(options =>
         {

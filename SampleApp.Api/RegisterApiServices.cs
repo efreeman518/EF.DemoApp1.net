@@ -9,6 +9,7 @@ using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Handlers;
+using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Grpc;
 using SampleApp.Api.ExceptionHandlers;
 using SampleApp.Bootstrapper.HealthChecks;
@@ -90,6 +91,9 @@ internal static class IServiceCollectionExtensions
             return;
         }
         logger.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
+
+        //debug
+        logger.LogInformation("Auth Config: {ConfigSection}", configSection.SerializeToJson());
 
         services.AddAuthentication(options =>
         {
