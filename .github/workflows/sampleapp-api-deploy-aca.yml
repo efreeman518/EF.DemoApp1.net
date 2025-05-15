@@ -53,4 +53,5 @@ jobs:
             --name ${{ vars.ACA_CONTAINERAPP_NAME_API }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
+            --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn
