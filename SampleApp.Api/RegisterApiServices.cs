@@ -27,16 +27,16 @@ internal static class IServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
-    /// <param name="loggerStartup"></param>
+    /// <param name="logger"></param>
     /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger loggerStartup, string serviceName)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger, string serviceName)
     {
-        var apiVersioningBuilder = AddApiVersioning(services);
-        AddCorsPolicy(services, config, loggerStartup);
-        AddAuthentication(services, config, loggerStartup);
+        AddCorsPolicy(services, config, logger);
+        AddAuthentication(services, config, logger);
         AddErrorHandlingAndValidation(services);
         AddGrpcServices(services);
         services.AddRouting(options => options.LowercaseUrls = true);
+        var apiVersioningBuilder = AddApiVersioning(services);
         AddOpenApiSupport(services, config, apiVersioningBuilder);
         AddChatGptPlugin(services, config);
         AddHealthChecks(services, config);
@@ -57,14 +57,14 @@ internal static class IServiceCollectionExtensions
         });
     }
 
-    private static void AddCorsPolicy(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    private static void AddCorsPolicy(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string corsConfigSectionName = "Cors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
         if (corsConfigSection.GetChildren().Any())
         {
             var policyName = corsConfigSection.GetValue<string>("PolicyName")!;
-            loggerStartup.LogInformation("Configure CORS - {PolicyName}", policyName);
+            logger.LogInformation("Configure CORS - {PolicyName}", policyName);
             services.AddCors(options =>
             {
                 options.AddPolicy(policyName, builder =>
@@ -79,16 +79,17 @@ internal static class IServiceCollectionExtensions
         }
     }
 
-    private static void AddAuthentication(IServiceCollection services, IConfiguration config, ILogger loggerStartup)
+    private static void AddAuthentication(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string authConfigSectionName = "Api1_EntraID";
         var configSection = config.GetSection(authConfigSectionName);
-        if (!configSection.GetChildren().Any())
+        if(!configSection.GetChildren().Any())
         {
+            logger.LogInformation("No Auth Config ({ConfigSectionName}) Found; Auth will not be configured.", authConfigSectionName);
+            services.AddAuthentication();
             return;
         }
-
-        loggerStartup.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
+        logger.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
         services.AddAuthentication(options =>
         {

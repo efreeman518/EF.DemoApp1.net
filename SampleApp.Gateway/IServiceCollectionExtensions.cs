@@ -13,18 +13,17 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
-        ConfigureAzureAppConfiguration(services, config);
-        //ConfigureTelemetry(services, config);
-        ConfigureCors(services, config, logger);
-        ConfigureAuthentication(services, config, logger);
-        ConfigureReverseProxy(services, config);
-        ConfigureCorrelationTracking(services);
-        ConfigureHealthChecks(services);
+        AddAzureAppConfiguration(services, config);
+        AddCors(services, config, logger);
+        AddAuthentication(services, config, logger);
+        AddReverseProxy(services, config);
+        AddCorrelationTracking(services);
+        AddHealthChecks(services);
 
         return services;
     }
 
-    private static void ConfigureAzureAppConfiguration(IServiceCollection services, IConfiguration config)
+    private static void AddAzureAppConfiguration(IServiceCollection services, IConfiguration config)
     {
         // Enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
         if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
@@ -32,38 +31,7 @@ public static class IServiceCollectionExtensions
             services.AddAzureAppConfiguration();
         }
     }
-
-    //private static void ConfigureTelemetry(IServiceCollection services, IConfiguration config)
-    //{
-    //    // Application Insights telemetry for http services (for logging telemetry directly to AI)
-    //    var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"];
-
-    //    services.AddOpenTelemetry()
-    //        .ConfigureResource(resource => resource.AddService("Gateway"))
-    //        .WithTracing(tracing =>
-    //        {
-    //            tracing
-    //                .AddAspNetCoreInstrumentation()
-    //                .AddHttpClientInstrumentation()
-    //                .AddSource("Microsoft.EntityFrameworkCore") // Capture the SQL
-    //                .AddAzureMonitorTraceExporter(options =>
-    //                {
-    //                    options.ConnectionString = appInsightsConnectionString;
-    //                });
-    //        })
-    //        .WithMetrics(metrics =>
-    //        {
-    //            metrics
-    //                .AddAspNetCoreInstrumentation()
-    //                .AddRuntimeInstrumentation()
-    //                .AddAzureMonitorMetricExporter(options =>
-    //                {
-    //                    options.ConnectionString = appInsightsConnectionString;
-    //                });
-    //        });
-    //}
-
-    private static void ConfigureCors(IServiceCollection services, IConfiguration config, ILogger logger)
+    private static void AddCors(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string corsConfigSectionName = "GatewayCors";
         var corsConfigSection = config.GetSection(corsConfigSectionName);
@@ -86,14 +54,15 @@ public static class IServiceCollectionExtensions
             });
         }
     }
-
-    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration config, ILogger logger)
+    private static void AddAuthentication(IServiceCollection services, IConfiguration config, ILogger logger)
     {
         string authConfigSectionName = "Gateway_AzureAdB2C"; // AzureAdB2C / EntraID
         var configSection = config.GetSection(authConfigSectionName);
 
         if (!configSection.GetChildren().Any())
         {
+            logger.LogInformation("No Auth Config ({ConfigSectionName}) Found; Auth will not be configured.", authConfigSectionName);
+            services.AddAuthentication();
             return;
         }
 
@@ -134,7 +103,7 @@ public static class IServiceCollectionExtensions
             });
     }
 
-    private static void ConfigureReverseProxy(IServiceCollection services, IConfiguration config)
+    private static void AddReverseProxy(IServiceCollection services, IConfiguration config)
     {
         services.AddSingleton<TokenService>(); // Add TokenService
 
@@ -165,7 +134,7 @@ public static class IServiceCollectionExtensions
         });
     }
 
-    private static void ConfigureCorrelationTracking(IServiceCollection services)
+    private static void AddCorrelationTracking(IServiceCollection services)
     {
         // Propagate headers to downstream services (e.g. correlation id)
         services.AddHeaderPropagation(options =>
@@ -178,7 +147,7 @@ public static class IServiceCollectionExtensions
         services.AddTransient<IStartupFilter, CorrelationIdStartupFilter>();
     }
 
-    private static void ConfigureHealthChecks(IServiceCollection services)
+    private static void AddHealthChecks(IServiceCollection services)
     {
         services.AddHealthChecks();
         // Additional health checks can be added here:

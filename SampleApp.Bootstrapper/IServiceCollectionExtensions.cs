@@ -138,23 +138,23 @@ public static class IServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
-        RegisterConfigurationServices(services, config);
-        RegisterCachingServices(services, config);
-        RegisterRequestContextServices(services);
-        RegisterInternalServices(services);
-        RegisterDatabaseServices(services, config);
-        RegisterJobsApiServices(services, config);
-        RegisterAzureClientServices(services, config);
-        RegisterChaosServices(services, config);
-        RegisterBlandAIServices(services, config);
-        RegisterSampleApiServices(services, config);
-        RegisterWeatherServices(services, config);
-        RegisterStartupTasks(services);
+        AddConfigurationServices(services, config);
+        AddCachingServices(services, config);
+        AddRequestContextServices(services);
+        AddInternalServices(services);
+        AddDatabaseServices(services, config);
+        AddJobsApiServices(services, config);
+        AddAzureClientServices(services, config);
+        AddChaosServices(services, config);
+        AddBlandAIServices(services, config);
+        AddSampleApiServices(services, config);
+        AddWeatherServices(services, config);
+        AddStartupTasks(services);
 
         return services;
     }
 
-    private static void RegisterConfigurationServices(IServiceCollection services, IConfiguration config)
+    private static void AddConfigurationServices(IServiceCollection services, IConfiguration config)
     {
         //enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
         if (config.GetValue<string>("AzureAppConfig:Endpoint") != null)
@@ -163,7 +163,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterCachingServices(IServiceCollection services, IConfiguration config)
+    private static void AddCachingServices(IServiceCollection services, IConfiguration config)
     {
         // Configure FusionCache
         List<CacheSettings> cacheSettings = [];
@@ -295,7 +295,7 @@ public static class IServiceCollectionExtensions
         return redisConfigurationOptions;
     }
 
-    private static void RegisterRequestContextServices(IServiceCollection services)
+    private static void AddRequestContextServices(IServiceCollection services)
     {
         services.AddScoped<IRequestContext<string>>(provider =>
         {
@@ -330,13 +330,13 @@ public static class IServiceCollectionExtensions
         });
     }
 
-    private static void RegisterInternalServices(IServiceCollection services)
+    private static void AddInternalServices(IServiceCollection services)
     {
         services.AddSingleton<IInternalBroker, InternalBroker>();
         services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
     }
 
-    private static void RegisterDatabaseServices(IServiceCollection services, IConfiguration config)
+    private static void AddDatabaseServices(IServiceCollection services, IConfiguration config)
     {
         // Register repositories
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
@@ -502,7 +502,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterJobsApiServices(IServiceCollection services, IConfiguration config)
+    private static void AddJobsApiServices(IServiceCollection services, IConfiguration config)
     {
         var jobsApiConfigSection = config.GetSection(JobsApiServiceSettings.ConfigSectionName);
         if (jobsApiConfigSection.GetChildren().Any())
@@ -517,7 +517,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterAzureClientServices(IServiceCollection services, IConfiguration config)
+    private static void AddAzureClientServices(IServiceCollection services, IConfiguration config)
     {
         //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
@@ -641,7 +641,7 @@ public static class IServiceCollectionExtensions
         });
     }
 
-    private static void RegisterChaosServices(IServiceCollection services, IConfiguration config)
+    private static void AddChaosServices(IServiceCollection services, IConfiguration config)
     {
         var configSectionChaos = config.GetSection(ChaosManagerSettings.ConfigSectionName);
         if (configSectionChaos.GetChildren().Any() && configSectionChaos.GetValue<bool>("Enabled"))
@@ -652,7 +652,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterBlandAIServices(IServiceCollection services, IConfiguration config)
+    private static void AddBlandAIServices(IServiceCollection services, IConfiguration config)
     {
         var blandAIConfigSection = config.GetSection(BlandAISettings.ConfigSectionName);
         if (!blandAIConfigSection.GetChildren().Any())
@@ -677,7 +677,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterSampleApiServices(IServiceCollection services, IConfiguration config)
+    private static void AddSampleApiServices(IServiceCollection services, IConfiguration config)
     {
         var sampleApiConfigSection = config.GetSection(SampleApiRestClientSettings.ConfigSectionName);
         if (!sampleApiConfigSection.GetChildren().Any())
@@ -781,7 +781,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterWeatherServices(IServiceCollection services, IConfiguration config)
+    private static void AddWeatherServices(IServiceCollection services, IConfiguration config)
     {
         var weatherServiceConfigSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
         if (weatherServiceConfigSection.GetChildren().Any())
@@ -799,7 +799,7 @@ public static class IServiceCollectionExtensions
         }
     }
 
-    private static void RegisterStartupTasks(IServiceCollection services)
+    private static void AddStartupTasks(IServiceCollection services)
     {
         services.AddTransient<IStartupTask, LoadCache>();
     }
