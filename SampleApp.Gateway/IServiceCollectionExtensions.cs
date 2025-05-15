@@ -70,7 +70,8 @@ public static class IServiceCollectionExtensions
         logger.LogInformation("Configure auth - {ConfigSectionName}", authConfigSectionName);
 
         //debug
-        logger.LogInformation("Auth Config: {ConfigSection}", configSection.SerializeToJson());
+        var authConfig = configSection.GetChildren().ToDictionary(cs => cs.Key, cs => cs.Value);
+        logger.LogInformation("Auth Config: {ConfigSection}", authConfig.SerializeToJson());
 
         services.AddAuthentication(options =>
         {
