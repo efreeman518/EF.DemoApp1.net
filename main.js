@@ -560,7 +560,7 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "RegisterRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "RegisterRequestContextServices(...)", "fileIndex": 0, "line": 300,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 300,
     "metrics": [
       { "value": 930, "exceeded": true },
       { "value": 30, "exceeded": true },
