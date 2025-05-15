@@ -54,11 +54,14 @@ ILogger<Program> CreateStartupLogger()
     {
         logBuilder.SetMinimumLevel(LogLevel.Information);
         logBuilder.AddConsole();
-        logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+        if (!string.IsNullOrEmpty(appInsightsConnectionString))
         {
-            config.ConnectionString = appInsightsConnectionString;
-        },
-        configureApplicationInsightsLoggerOptions: (options) => { });
+            logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+            {
+                config.ConnectionString = appInsightsConnectionString;
+            },
+            configureApplicationInsightsLoggerOptions: (options) => { });
+        }
     });
     return StaticLogging.CreateLogger<Program>();
 }
