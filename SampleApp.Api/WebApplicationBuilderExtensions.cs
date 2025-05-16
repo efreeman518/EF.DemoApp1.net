@@ -60,8 +60,8 @@ public static partial class WebApplicationBuilderExtensions
         }
 
         //serve sample html/js UI
-        app.UseDefaultFiles(); //default serve files from wwwroot
-        app.UseStaticFiles(); //Serve files from wwwroot
+        //app.UseDefaultFiles(); //default serve files from wwwroot
+        //app.UseStaticFiles(); //Serve files from wwwroot
     }
 
     private static void SetupSecurityMiddleware(WebApplication app, IConfiguration config)
@@ -150,7 +150,7 @@ public static partial class WebApplicationBuilderExtensions
     {
         // TodoItems endpoints
         app.MapGroup("api1/v{apiVersion:apiVersion}/todoitems")
-            .WithApiVersionSet(apiVersionSet)
+            .WithApiVersionSet(apiVersionSet)//.RequireAuthorization("StandardAccessPolicy1")
             .MapTodoItemEndpoints(includeErrorDetails);
 
         // SK Chat endpoints
@@ -186,10 +186,6 @@ public static partial class WebApplicationBuilderExtensions
 
     private static WebApplication MapHealthChecks(this WebApplication app)
     {
-        app.MapHealthChecks("/health", new HealthCheckOptions()
-        {
-            Predicate = (_) => false,
-        });
         app.MapHealthChecks("/health/full", HealthCheckHelper.BuildHealthCheckOptions("full"));
         app.MapHealthChecks("/health/db", HealthCheckHelper.BuildHealthCheckOptions("db"));
         app.MapHealthChecks("/health/memory", HealthCheckHelper.BuildHealthCheckOptions("memory"));

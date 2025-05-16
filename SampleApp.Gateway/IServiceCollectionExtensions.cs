@@ -95,7 +95,7 @@ public static class IServiceCollectionExtensions
             .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build())
-            // Define specific roles/scopes policies
+            //define policies based on specific roles/scopes, decorate endpoints with [Authorize(Policy = "PolicyName")]
             .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
             .AddPolicy("SomeRolePolicy1", policy => policy.RequireRole("SomeAccess1"))
             .AddPolicy("SomeScopePolicy1", policy => policy.RequireScope("SomeScope1"))

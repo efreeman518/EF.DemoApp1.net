@@ -89,12 +89,7 @@ public static partial class WebApplicationBuilderExtensions
 
     private static WebApplication MapHealthChecks(this WebApplication app)
     {
-        // For this YARP API (does not forward)
-        app.MapHealthChecks("/health", new HealthCheckOptions()
-        {
-            // Exclude all checks and return a 200 - Ok.
-            Predicate = (_) => false,
-        });
+        //custom backend service healthchecks
         return app;
     }
 }
