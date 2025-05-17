@@ -5,6 +5,18 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Make sure the project is packable -->
+    <IsPackable>true</IsPackable>
+
+    <!-- Ensure the build output is included -->
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+
+    <PackageId>Package.Infrastructure.Common.Contracts</PackageId>
+    <Authors>E. Freeman</Authors>
+    <Description>Common Contracts for the infrastructure</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    
   </PropertyGroup>
   
 </Project>
