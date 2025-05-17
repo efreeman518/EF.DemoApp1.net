@@ -38,66 +38,38 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Use GitHub token instead of PAT for authentication
-      - name: Login to GitHub Container Registry with GITHUB_TOKEN
+      # Authenticate to GHCR with GitHub token
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Test image pull with GitHub token
+      # Validate image pull before deployment
+      - name: Validate image pull
         run: |
           TAG="${{ github.event.inputs.tag || github.sha }}"
-          echo "Testing image pull with GitHub token: ghcr.io/$OWNER/$IMAGE_NAME:$TAG"
-          docker pull "ghcr.io/$OWNER/$IMAGE_NAME:$TAG" || echo "Image pull failed but continuing workflow"
-
-      # Update container app to use managed identity with Workload Identity Federation
-      - name: Update container app to use GitHub Workload Identity
+          echo "Validating image pull: ghcr.io/$OWNER/$IMAGE_NAME:$TAG"
+          docker pull "ghcr.io/$OWNER/$IMAGE_NAME:$TAG"
+      
+      # Configure container app registry
+      - name: Set GHCR registry on container app
         run: |
-          echo "Updating container app to use workload identity..."
-          
-          # First, create a system-assigned managed identity for the container app if it doesn't exist
-          az containerapp identity assign \
-            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --system-assigned || echo "Managed identity already assigned"
-          
-          # Get the containerapp's principal ID
-          PRINCIPAL_ID=$(az containerapp identity show \
-            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --query principalId -o tsv)
-          
-          echo "Container App Principal ID: $PRINCIPAL_ID"
-          
-          # Set up registry with GitHub token
           az containerapp registry set \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --server ghcr.io \
+            --server $REGISTRY \
             --username ${{ github.actor }} \
             --password ${{ secrets.GITHUB_TOKEN }}
-          
-          echo "Waiting for registry configuration to propagate..."
-          sleep 30
 
-      - name: Verify registry configuration
-        run: |
-          echo "Verifying registry configuration..."
-          az containerapp registry list \
-            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --output json
-
+      # Deploy the application
       - name: Deploy to Azure Container App
         run: |
           TAG="${{ github.event.inputs.tag || github.sha }}"
-          echo "Deploying with tag: $TAG"
-          
           az containerapp update \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --image "ghcr.io/$OWNER/$IMAGE_NAME:$TAG" \
+            --image "$REGISTRY/$OWNER/$IMAGE_NAME:$TAG" \
             --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn
