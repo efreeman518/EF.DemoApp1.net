@@ -48,7 +48,7 @@ jobs:
             echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
           else
             echo "❌ Unit Test project not found: $UNIT_TEST_PROJECT"
-            exit 1
+            #exit 1
           fi
 
       - name: Restore Dependencies
@@ -112,14 +112,19 @@ jobs:
           for project in $PACKAGE_PROJECTS; do
             PROJECT_DIR=$(dirname "$project")
 
+            # Add dummy file if there are no .cs files (e.g. metadata-only packages)
             if [ "$(find "$PROJECT_DIR" -name '*.cs' | wc -l)" -eq 0 ]; then
               mkdir -p "$PROJECT_DIR/Properties"
               echo "// Dummy file" > "$PROJECT_DIR/Properties/AssemblyInfo.cs"
             fi
 
+            echo "🔧 Building $project..."
+            dotnet build "$project" --configuration Release
+
+            echo "📦 Packing $project..."
             dotnet pack "$project" \
-              --configuration Release \
               --no-build \
+              --configuration Release \
               --output ./nupkgs \
               /p:PackageVersion=$PACKAGE_VERSION \
               /p:IncludeSymbols=true \

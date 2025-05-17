@@ -6,10 +6,5 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <!-- dummy reference to enable nuget packaging-->
-  <ItemGroup>
-    <PackageReference Include="System.Runtime" Version="4.3.1" PrivateAssets="all" />
-  </ItemGroup>
   
 </Project>
