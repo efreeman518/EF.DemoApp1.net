@@ -139,7 +139,7 @@ jobs:
         # Create output directory
         mkdir -p ./nupkgs
         
-        # Pack each Package.* project (already filtered for non-test projects)
+        # Pack each Package.* project (already filtered for non-test projects) 
         for project in $PACKAGE_PROJECTS; do
           echo "Packing project: $project"
           dotnet pack "$project" \
