@@ -101,7 +101,7 @@ jobs:
         else
           MAJOR_VERSION="1"
           MINOR_VERSION="0"
-          # Create version file if it doesn't exist
+          # Create version file if it doesn't exist but don't try to commit it
           echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         fi
         
@@ -110,25 +110,17 @@ jobs:
         if [[ "$COMMIT_MSG" == *"[bump major]"* ]]; then
           MAJOR_VERSION=$((MAJOR_VERSION + 1))
           MINOR_VERSION="0"
-          # Update version file for future runs
-          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         elif [[ "$COMMIT_MSG" == *"[bump minor]"* ]]; then
           MINOR_VERSION=$((MINOR_VERSION + 1))
-          # Update version file for future runs
-          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         fi
         
         # Override with manual inputs if provided
         if [[ "${{ github.event_name }}" == "workflow_dispatch" && ! -z "${{ github.event.inputs.major_version }}" ]]; then
           MAJOR_VERSION="${{ github.event.inputs.major_version }}"
-          # Update version file for future runs
-          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         fi
         
         if [[ "${{ github.event_name }}" == "workflow_dispatch" && ! -z "${{ github.event.inputs.minor_version }}" ]]; then
           MINOR_VERSION="${{ github.event.inputs.minor_version }}"
-          # Update version file for future runs
-          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         fi
         
         # Use github.run_number as patch version
@@ -139,14 +131,8 @@ jobs:
         echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
         echo "Package Version: $VERSION"
         
-        # Commit the version file changes if they happened
-        if [[ "${{ github.event_name }}" != "workflow_dispatch" && (-n "$(git status --porcelain version.txt 2>/dev/null)") ]]; then
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git add version.txt
-          git commit -m "Bump version to $MAJOR_VERSION.$MINOR_VERSION [skip ci]"
-          git push
-        fi
+        # Note: We're not attempting to commit version.txt changes as this will fail
+        # due to branch protection rules
       
     - name: Create NuGet packages
       run: |
