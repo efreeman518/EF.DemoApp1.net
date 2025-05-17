@@ -16,7 +16,11 @@
     <Authors>E. Freeman</Authors>
     <Description>Common Contracts for the infrastructure</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- Add this to ensure the assembly is packed -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Optional, but helps verify packing -->
     
   </PropertyGroup>
-  
+
 </Project>
