@@ -46,12 +46,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      # Validate image pull before deployment
-      - name: Validate image pull
+      # Determine the correct tag to use
+      - name: Determine image tag
+        id: determine_tag
         run: |
-          TAG="${{ github.event.inputs.tag || github.sha }}"
-          echo "Validating image pull: ghcr.io/$OWNER/$IMAGE_NAME:$TAG"
-          docker pull "ghcr.io/$OWNER/$IMAGE_NAME:$TAG"
+          REQUESTED_TAG="${{ github.event.inputs.tag || github.sha }}"
+          echo "Requested tag: $REQUESTED_TAG"
+          
+          # Try to pull the requested tag
+          if docker pull "$REGISTRY/$OWNER/$IMAGE_NAME:$REQUESTED_TAG" &>/dev/null; then
+            echo "Using requested tag: $REQUESTED_TAG"
+            echo "tag=$REQUESTED_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "Requested tag not found, using 'latest' instead"
+            docker pull "$REGISTRY/$OWNER/$IMAGE_NAME:latest"
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
       
       # Configure container app registry
       - name: Set GHCR registry on container app
@@ -66,10 +76,11 @@ jobs:
       # Deploy the application
       - name: Deploy to Azure Container App
         run: |
-          TAG="${{ github.event.inputs.tag || github.sha }}"
+          echo "Deploying image: $REGISTRY/$OWNER/$IMAGE_NAME:${{ steps.determine_tag.outputs.tag }}"
+          
           az containerapp update \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --image "$REGISTRY/$OWNER/$IMAGE_NAME:$TAG" \
+            --image "$REGISTRY/$OWNER/$IMAGE_NAME:${{ steps.determine_tag.outputs.tag }}" \
             --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn
