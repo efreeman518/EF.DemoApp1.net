@@ -1,4 +1,4 @@
-name: Build and Publish NuGet Packages
+﻿name: Build and Publish NuGet Packages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     paths:
       - 'Package/**'
       - '.github/workflows/nuget-publish.yml'
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
     inputs:
       major_version:
         description: 'Major version number'
@@ -20,158 +20,122 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    
+
     permissions:
       packages: write
-      contents: write  # Allow pushing version file changes
-    
+      contents: write  # For committing version file changes, if needed
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Needed for git history
-        
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.x
-        
-    - name: Find Package projects
-      id: find_projects
-      run: |
-        # Find all Package projects excluding test projects
-        PACKAGE_PROJECTS=$(find Package -name "*.csproj" -type f | grep -v "Test" | xargs echo)
-        echo "PACKAGE_PROJECTS=$PACKAGE_PROJECTS" >> $GITHUB_ENV
-        echo "Found Package projects: $PACKAGE_PROJECTS"
-        
-        # Define the specific unit test project path
-        UNIT_TEST_PROJECT="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj"
-        
-        if [ -f "$UNIT_TEST_PROJECT" ]; then
-          echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
-          echo "Found Unit Test project: $UNIT_TEST_PROJECT"
-        else
-          echo "Error: Unit Test project not found at $UNIT_TEST_PROJECT"
-          exit 1
-        fi
-        
-    - name: Restore dependencies
-      run: |
-        # Restore Package projects
-        for project in $PACKAGE_PROJECTS; do
-          echo "Restoring: $project"
-          dotnet restore "$project"
-        done
-        
-        # Restore unit test project
-        echo "Restoring: $UNIT_TEST_PROJECT"
-        dotnet restore "$UNIT_TEST_PROJECT"
-        
-    - name: Build for testing
-      run: |
-        # Build Package projects
-        for project in $PACKAGE_PROJECTS; do
-          echo "Building: $project"
-          dotnet build "$project" --configuration Release --no-restore
-        done
-        
-        # Build unit test project
-        echo "Building: $UNIT_TEST_PROJECT"
-        dotnet build "$UNIT_TEST_PROJECT" --configuration Release --no-restore
-        
-    - name: Run unit tests
-      run: |
-        # Run only the specific Package unit tests
-        echo "Running unit tests: $UNIT_TEST_PROJECT"
-        dotnet test "$UNIT_TEST_PROJECT" --configuration Release --no-build --verbosity normal
-        
-        # If tests fail, exit with an error
-        if [ $? -ne 0 ]; then
-          echo "Unit tests failed. Cancelling build."
-          exit 1
-        fi
-        
-    - name: Set package version
-      id: set_version
-      run: |
-        # Get current version from version.txt or default to 1.0
-        if [ -f "version.txt" ]; then
-          CURRENT_VERSION=$(cat version.txt)
-          MAJOR_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1)
-          MINOR_VERSION=$(echo $CURRENT_VERSION | cut -d. -f2)
-        else
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Discover Projects
+        id: find_projects
+        run: |
+          PACKAGE_PROJECTS=$(find Package -name "*.csproj" -type f | grep -v "Test" | xargs echo)
+          echo "PACKAGE_PROJECTS=$PACKAGE_PROJECTS" >> $GITHUB_ENV
+          echo "Found Package projects: $PACKAGE_PROJECTS"
+
+          UNIT_TEST_PROJECT="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj"
+          if [ -f "$UNIT_TEST_PROJECT" ]; then
+            echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
+          else
+            echo "❌ Unit Test project not found: $UNIT_TEST_PROJECT"
+            exit 1
+          fi
+
+      - name: Restore Dependencies
+        run: |
+          for project in $PACKAGE_PROJECTS; do
+            dotnet restore "$project"
+          done
+          dotnet restore "$UNIT_TEST_PROJECT"
+
+      - name: Build Projects
+        run: |
+          for project in $PACKAGE_PROJECTS; do
+            dotnet build "$project" --configuration Release --no-restore
+          done
+          dotnet build "$UNIT_TEST_PROJECT" --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: |
+          dotnet test "$UNIT_TEST_PROJECT" --configuration Release --no-build --verbosity normal
+
+      - name: Determine Package Version
+        id: set_version
+        run: |
+          # Default version
           MAJOR_VERSION="1"
           MINOR_VERSION="0"
-          # Create version file if it doesn't exist but don't try to commit it
-          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
-        fi
-        
-        # Check commit messages
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        if [[ "$COMMIT_MSG" == *"[bump major]"* ]]; then
-          MAJOR_VERSION=$((MAJOR_VERSION + 1))
-          MINOR_VERSION="0"
-        elif [[ "$COMMIT_MSG" == *"[bump minor]"* ]]; then
-          MINOR_VERSION=$((MINOR_VERSION + 1))
-        fi
-        
-        # Override with manual inputs if provided
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" && ! -z "${{ github.event.inputs.major_version }}" ]]; then
-          MAJOR_VERSION="${{ github.event.inputs.major_version }}"
-        fi
-        
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" && ! -z "${{ github.event.inputs.minor_version }}" ]]; then
-          MINOR_VERSION="${{ github.event.inputs.minor_version }}"
-        fi
-        
-        # Use github.run_number as patch version
-        PATCH_VERSION="${{ github.run_number }}"
-        
-        # Set semantic version
-        VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
-        echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Package Version: $VERSION"
-        
-        # Note: We're not attempting to commit version.txt changes as this will fail
-        # due to branch protection rules
-      
-    - name: Create NuGet packages
-      run: |
-        # Create output directory
-        mkdir -p ./nupkgs
-        
-        # Pack each Package.* project (already filtered for non-test projects)
-        for project in $PACKAGE_PROJECTS; do
-          echo "Packing project: $project"
-          
-          # First check if the project has any content
-          if [ -d "$(dirname "$project")" ] && [ "$(find "$(dirname "$project")" -name "*.cs" | wc -l)" -gt 0 ]; then
-            # Project has content, pack it normally
-            dotnet pack "$project" \
-              --configuration Release \
-              --no-build \
-              --output ./nupkgs \
-              /p:PackageVersion=$PACKAGE_VERSION \
-              /p:IncludeSymbols=true \
-              /p:SymbolPackageFormat=snupkg
-          else
-            # If project really has no content, add a dummy file to prevent packaging error
-            mkdir -p "$(dirname "$project")/Properties"
-            echo "// Auto-generated file to ensure package has content" > "$(dirname "$project")/Properties/AssemblyInfo.cs"
-            
-            dotnet pack "$project" \
-              --configuration Release \
-              --no-build \
-              --output ./nupkgs \
-              /p:PackageVersion=$PACKAGE_VERSION \
-              /p:IncludeSymbols=true \
-              /p:SymbolPackageFormat=snupkg
+
+          if [ -f version.txt ]; then
+            CURRENT_VERSION=$(cat version.txt)
+            MAJOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+            MINOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f2)
           fi
-        done
-        
-    - name: Push NuGet packages to GitHub
-      run: |
-        # Configure NuGet source with GitHub packages
-        dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-        
-        # Push all packages to GitHub packages
-        dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
+
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" == *"[bump major]"* ]]; then
+            MAJOR_VERSION=$((MAJOR_VERSION + 1))
+            MINOR_VERSION=0
+          elif [[ "$COMMIT_MSG" == *"[bump minor]"* ]]; then
+            MINOR_VERSION=$((MINOR_VERSION + 1))
+          fi
+
+          # Override with manual input
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ -n "${{ github.event.inputs.major_version }}" ]]; then
+              MAJOR_VERSION="${{ github.event.inputs.major_version }}"
+            fi
+            if [[ -n "${{ github.event.inputs.minor_version }}" ]]; then
+              MINOR_VERSION="${{ github.event.inputs.minor_version }}"
+            fi
+          fi
+
+          PATCH_VERSION="${{ github.run_number }}"
+          PACKAGE_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+          echo "Package version: $PACKAGE_VERSION"
+
+      - name: Create NuGet Packages
+        run: |
+          mkdir -p ./nupkgs
+
+          for project in $PACKAGE_PROJECTS; do
+            PROJECT_DIR=$(dirname "$project")
+
+            if [ "$(find "$PROJECT_DIR" -name '*.cs' | wc -l)" -eq 0 ]; then
+              mkdir -p "$PROJECT_DIR/Properties"
+              echo "// Dummy file" > "$PROJECT_DIR/Properties/AssemblyInfo.cs"
+            fi
+
+            dotnet pack "$project" \
+              --configuration Release \
+              --no-build \
+              --output ./nupkgs \
+              /p:PackageVersion=$PACKAGE_VERSION \
+              /p:IncludeSymbols=true \
+              /p:SymbolPackageFormat=snupkg
+          done
+
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget add source \
+            --username "${{ github.actor }}" \
+            --password "${{ secrets.GITHUB_TOKEN }}" \
+            --store-password-in-clear-text \
+            --name github \
+            "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+          dotnet nuget push "./nupkgs/*.nupkg" \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --source github \
+            --skip-duplicate
