@@ -31,26 +31,6 @@ jobs:
       packages: read
 
     steps:
-      - name: Echo Environment Variables
-        run: |
-          echo "Environment Variables:"
-          echo "IMAGE_NAME: $IMAGE_NAME"
-          echo "REGISTRY: $REGISTRY"
-          echo "OWNER: $OWNER"
-          echo "GitHub Variables:"
-          echo "github.repository_owner: ${{ github.repository_owner }}"
-          echo "github.sha: ${{ github.sha }}"
-          echo "github.event.inputs.tag: ${{ github.event.inputs.tag }}"
-          echo "GitHub Environment Variables (dev):"
-          echo "ACA_CONTAINERAPP_NAME_GATEWAY: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
-          echo "RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}"
-          
-          # Computed values
-          TAG="${{ github.event.inputs.tag || github.sha }}"
-          echo "Computed TAG: $TAG"
-          echo "Full image reference: $REGISTRY/$OWNER/$IMAGE_NAME:$TAG"
-          echo "Hardcoded image reference: ghcr.io/efreeman518/sampleapp-gateway:$TAG"
-
       - name: Log in to Azure (OIDC)
         uses: azure/login@v2
         with:
@@ -58,48 +38,53 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Debug Container App Registry Info (Before Update)
+      # Test if we can pull the image with the PAT
+      - name: Test PAT by logging into GHCR
         run: |
-          echo "Checking current registry configuration for container app"
-          az containerapp registry list --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }} --output json
+          echo "${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}" | docker login ghcr.io -u $OWNER --password-stdin
+          echo "Docker login successful, testing image pull..."
+          docker pull ghcr.io/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} || echo "Image pull failed but continuing workflow"
 
+      # Remove existing registry configuration
+      - name: Remove existing registry configuration
+        run: |
+          echo "Removing existing registry configuration..."
+          az containerapp registry remove \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --server ghcr.io || echo "No registry to remove or removal failed"
+      
+      # Set registry with explicit wait
       - name: Set GHCR registry on container app (private image auth)
         run: |
-          echo "Setting registry authentication with:"
-          echo "Container App name: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
-          echo "Resource Group: ${{ vars.RESOURCE_GROUP }}"
-          echo "Registry Server: $REGISTRY"
-          echo "Username: $OWNER"
-          echo "PAT: [REDACTED]"
-          
+          echo "Setting new registry authentication..."
           az containerapp registry set \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --server $REGISTRY \
+            --server ghcr.io \
             --username $OWNER \
-            --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
+            --password "${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}"
           
-          echo "Registry configuration set result: $?"
-
-      - name: Debug Container App Registry Info (After Update)
+          echo "Waiting for registry configuration to propagate..."
+          sleep 30
+      
+      - name: Verify registry configuration
         run: |
-          echo "Checking updated registry configuration for container app"
-          az containerapp registry list --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }} --output json
+          echo "Verifying registry configuration..."
+          az containerapp registry list \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --output json
 
       - name: Deploy to Azure Container App
         run: |
           TAG="${{ github.event.inputs.tag || github.sha }}"
-          echo "Deploying container app with:"
-          echo "Container App name: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
-          echo "Resource Group: ${{ vars.RESOURCE_GROUP }}"
-          echo "Image: ghcr.io/efreeman518/sampleapp-gateway:$TAG"
-          echo "Environment Variables: ASPNETCORE_URLS=http://+:8080"
+          echo "Deploying with tag: $TAG"
           
+          # Force image pull with explicit credentials
           az containerapp update \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --image ghcr.io/efreeman518/sampleapp-gateway:$TAG \
+            --image "ghcr.io/$OWNER/$IMAGE_NAME:$TAG" \
             --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn
-          
-          echo "Deployment result: $?"
