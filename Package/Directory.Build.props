@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <!-- Common NuGet package properties -->
+    <Authors>E. Freeman</Authors>
+    <Company>E. Freeman</Company>
+    <Copyright>Copyright © E. Freeman 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/efreeman518/EF.DemoApp1.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/efreeman518/EF.DemoApp1.net</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    
+    <!-- Enable packaging -->
+    <IsPackable>true</IsPackable>
+    
+    <!-- Set deterministic builds -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <!-- Include README.md in the package -->
+    <None Include="$(MSBuildThisFileDirectory)\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+    
+    <!-- Include SourceLink for better debugging experience -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
