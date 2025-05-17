@@ -15,7 +15,7 @@
     <PackageId>Package.Infrastructure.Common.Contracts</PackageId>
     <Authors>E. Freeman</Authors>
     <Description>Common Contracts for the infrastructure</Description>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     
   </PropertyGroup>
   
