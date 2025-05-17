@@ -31,45 +31,75 @@ jobs:
       packages: read
 
     steps:
+      - name: Echo Environment Variables
+        run: |
+          echo "Environment Variables:"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "REGISTRY: $REGISTRY"
+          echo "OWNER: $OWNER"
+          echo "GitHub Variables:"
+          echo "github.repository_owner: ${{ github.repository_owner }}"
+          echo "github.sha: ${{ github.sha }}"
+          echo "github.event.inputs.tag: ${{ github.event.inputs.tag }}"
+          echo "GitHub Environment Variables (dev):"
+          echo "ACA_CONTAINERAPP_NAME_GATEWAY: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
+          echo "RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}"
+          
+          # Computed values
+          TAG="${{ github.event.inputs.tag || github.sha }}"
+          echo "Computed TAG: $TAG"
+          echo "Full image reference: $REGISTRY/$OWNER/$IMAGE_NAME:$TAG"
+          echo "Hardcoded image reference: ghcr.io/efreeman518/sampleapp-gateway:$TAG"
+
       - name: Log in to Azure (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-           
-      - name: Assign AcrPull role to Container App managed identity
+
+      - name: Debug Container App Registry Info (Before Update)
         run: |
-          az role assignment create \
-            --assignee-object-id $(az containerapp show --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }} --query identity.principalId -o tsv) \
-            --role AcrPull \
-            --scope $(az acr show --name yourAcrName --resource-group ${{ vars.RESOURCE_GROUP }} --query id -o tsv)
-            
-      - name: Deploy to Azure Container App with managed identity
+          echo "Checking current registry configuration for container app"
+          az containerapp registry list --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }} --output json
+
+      - name: Set GHCR registry on container app (private image auth)
         run: |
+          echo "Setting registry authentication with:"
+          echo "Container App name: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
+          echo "Resource Group: ${{ vars.RESOURCE_GROUP }}"
+          echo "Registry Server: $REGISTRY"
+          echo "Username: $OWNER"
+          echo "PAT: [REDACTED]"
+          
+          az containerapp registry set \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --server $REGISTRY \
+            --username $OWNER \
+            --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
+          
+          echo "Registry configuration set result: $?"
+
+      - name: Debug Container App Registry Info (After Update)
+        run: |
+          echo "Checking updated registry configuration for container app"
+          az containerapp registry list --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} --resource-group ${{ vars.RESOURCE_GROUP }} --output json
+
+      - name: Deploy to Azure Container App
+        run: |
+          TAG="${{ github.event.inputs.tag || github.sha }}"
+          echo "Deploying container app with:"
+          echo "Container App name: ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }}"
+          echo "Resource Group: ${{ vars.RESOURCE_GROUP }}"
+          echo "Image: ghcr.io/efreeman518/sampleapp-gateway:$TAG"
+          echo "Environment Variables: ASPNETCORE_URLS=http://+:8080"
+          
           az containerapp update \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --image ghcr.io/efreeman518/sampleapp-gateway:latest # yourAcrName.azurecr.io/sampleapp-gateway:${{ github.event.inputs.tag || github.sha }} \
-            --registry-identity system \
+            --image ghcr.io/efreeman518/sampleapp-gateway:$TAG \
             --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn
-
-      # - name: Set GHCR registry on container app (private image auth)
-      #   run: |
-      #     az containerapp registry set \
-      #       --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-      #       --resource-group ${{ vars.RESOURCE_GROUP }} \
-      #       --server $REGISTRY \
-      #       --username $OWNER \
-      #       --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
-
-      # - name: Deploy to Azure Container App
-      #   run: |
-      #     az containerapp update \
-      #       --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-      #       --resource-group ${{ vars.RESOURCE_GROUP }} \
-      #       --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
-      #       --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
-      #       --query properties.configuration.ingress.fqdn
-
+          
+          echo "Deployment result: $?"
