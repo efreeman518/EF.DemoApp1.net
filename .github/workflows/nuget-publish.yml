@@ -139,16 +139,33 @@ jobs:
         # Create output directory
         mkdir -p ./nupkgs
         
-        # Pack each Package.* project (already filtered for non-test projects) 
+        # Pack each Package.* project (already filtered for non-test projects)
         for project in $PACKAGE_PROJECTS; do
           echo "Packing project: $project"
-          dotnet pack "$project" \
-            --configuration Release \
-            --no-build \
-            --output ./nupkgs \
-            /p:PackageVersion=$PACKAGE_VERSION \
-            /p:IncludeSymbols=true \
-            /p:SymbolPackageFormat=snupkg
+          
+          # First check if the project has any content
+          if [ -d "$(dirname "$project")" ] && [ "$(find "$(dirname "$project")" -name "*.cs" | wc -l)" -gt 0 ]; then
+            # Project has content, pack it normally
+            dotnet pack "$project" \
+              --configuration Release \
+              --no-build \
+              --output ./nupkgs \
+              /p:PackageVersion=$PACKAGE_VERSION \
+              /p:IncludeSymbols=true \
+              /p:SymbolPackageFormat=snupkg
+          else
+            # If project really has no content, add a dummy file to prevent packaging error
+            mkdir -p "$(dirname "$project")/Properties"
+            echo "// Auto-generated file to ensure package has content" > "$(dirname "$project")/Properties/AssemblyInfo.cs"
+            
+            dotnet pack "$project" \
+              --configuration Release \
+              --no-build \
+              --output ./nupkgs \
+              /p:PackageVersion=$PACKAGE_VERSION \
+              /p:IncludeSymbols=true \
+              /p:SymbolPackageFormat=snupkg
+          fi
         done
         
     - name: Push NuGet packages to GitHub
