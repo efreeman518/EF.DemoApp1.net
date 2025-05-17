@@ -14,9 +14,6 @@ on:
       - completed
 
 env:
-  #RESOURCE_GROUP: rg-dev1
-  #ACA_ENVIRONMENT: aspire-env-dev
-  #CONTAINERAPP_NAME: api
   IMAGE_NAME: sampleapp-api
   REGISTRY: ghcr.io
   OWNER: ${{ github.repository_owner }}
@@ -38,20 +35,49 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # - name: Set GHCR registry on container app (private image auth)
-      #   run: |
-      #     az containerapp registry set \
-      #       --name ${{ vars.ACA_CONTAINERAPP_NAME_GATEWAY }} \
-      #       --resource-group ${{ vars.RESOURCE_GROUP }} \
-      #       --server $REGISTRY \
-      #       --username $OWNER \
-      #       --password ${{ secrets.PAT_ACA_PULL_GHCR_PRIVATE_IMAGE }}
+      # Authenticate to GHCR with GitHub token
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Determine the correct tag to use
+      - name: Determine image tag
+        id: determine_tag
+        run: |
+          REQUESTED_TAG="${{ github.event.inputs.tag || github.sha }}"
+          echo "Requested tag: $REQUESTED_TAG"
+          
+          # Try to pull the requested tag
+          if docker pull "$REGISTRY/$OWNER/$IMAGE_NAME:$REQUESTED_TAG" &>/dev/null; then
+            echo "Using requested tag: $REQUESTED_TAG"
+            echo "tag=$REQUESTED_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "Requested tag not found, using 'latest' instead"
+            docker pull "$REGISTRY/$OWNER/$IMAGE_NAME:latest"
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+      
+      # Configure container app registry
+      - name: Set GHCR registry on container app
+        run: |
+          az containerapp registry set \
+            --name ${{ vars.ACA_CONTAINERAPP_NAME_API }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --server $REGISTRY \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }}
 
+      # Deploy the application
       - name: Deploy to Azure Container App
         run: |
+          echo "Deploying image: $REGISTRY/$OWNER/$IMAGE_NAME:${{ steps.determine_tag.outputs.tag }}"
+          
           az containerapp update \
             --name ${{ vars.ACA_CONTAINERAPP_NAME_API }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --image $REGISTRY/$OWNER/$IMAGE_NAME:${{ github.event.inputs.tag || github.sha }} \
+            --image "$REGISTRY/$OWNER/$IMAGE_NAME:${{ steps.determine_tag.outputs.tag }}" \
             --set-env-vars "ASPNETCORE_URLS=http://+:8080" \
             --query properties.configuration.ingress.fqdn

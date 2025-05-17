@@ -14,9 +14,6 @@ on:
       - completed
 
 env:
-  #RESOURCE_GROUP: rg-dev1
-  #ACA_ENVIRONMENT: aspire-env-dev
-  #CONTAINERAPP_NAME: sampleapp-gateway
   IMAGE_NAME: sampleapp-gateway
   REGISTRY: ghcr.io
   OWNER: ${{ github.repository_owner }}
