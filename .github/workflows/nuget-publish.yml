@@ -27,18 +27,69 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-      
+      with:
+        fetch-depth: 0  # Needed for git history
+        
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 9.x
+        
+    - name: Find Package projects
+      id: find_projects
+      run: |
+        # Find all Package projects excluding test projects
+        PACKAGE_PROJECTS=$(find Package -name "*.csproj" -type f | grep -v "Test" | xargs echo)
+        echo "PACKAGE_PROJECTS=$PACKAGE_PROJECTS" >> $GITHUB_ENV
+        echo "Found Package projects: $PACKAGE_PROJECTS"
+        
+        # Define the specific unit test project path
+        UNIT_TEST_PROJECT="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj"
+        
+        if [ -f "$UNIT_TEST_PROJECT" ]; then
+          echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
+          echo "Found Unit Test project: $UNIT_TEST_PROJECT"
+        else
+          echo "Error: Unit Test project not found at $UNIT_TEST_PROJECT"
+          exit 1
+        fi
         
     - name: Restore dependencies
-      run: dotnet restore
-      
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-      
+      run: |
+        # Restore Package projects
+        for project in $PACKAGE_PROJECTS; do
+          echo "Restoring: $project"
+          dotnet restore "$project"
+        done
+        
+        # Restore unit test project
+        echo "Restoring: $UNIT_TEST_PROJECT"
+        dotnet restore "$UNIT_TEST_PROJECT"
+        
+    - name: Build for testing
+      run: |
+        # Build Package projects
+        for project in $PACKAGE_PROJECTS; do
+          echo "Building: $project"
+          dotnet build "$project" --configuration Release --no-restore
+        done
+        
+        # Build unit test project
+        echo "Building: $UNIT_TEST_PROJECT"
+        dotnet build "$UNIT_TEST_PROJECT" --configuration Release --no-restore
+        
+    - name: Run unit tests
+      run: |
+        # Run only the specific Package unit tests
+        echo "Running unit tests: $UNIT_TEST_PROJECT"
+        dotnet test "$UNIT_TEST_PROJECT" --configuration Release --no-build --verbosity normal
+        
+        # If tests fail, exit with an error
+        if [ $? -ne 0 ]; then
+          echo "Unit tests failed. Cancelling build."
+          exit 1
+        fi
+        
     - name: Set package version
       id: set_version
       run: |
@@ -50,6 +101,8 @@ jobs:
         else
           MAJOR_VERSION="1"
           MINOR_VERSION="0"
+          # Create version file if it doesn't exist
+          echo "$MAJOR_VERSION.$MINOR_VERSION" > version.txt
         fi
         
         # Check commit messages
@@ -97,14 +150,11 @@ jobs:
       
     - name: Create NuGet packages
       run: |
-        # Find all Package.* directories with .csproj files
-        find Package -name "*.csproj" -type f | while read project; do
-          # Skip test projects
-          if [[ "$project" == *"Test"* ]]; then
-            echo "Skipping test project: $project"
-            continue
-          fi
-          
+        # Create output directory
+        mkdir -p ./nupkgs
+        
+        # Pack each Package.* project (already filtered for non-test projects)
+        for project in $PACKAGE_PROJECTS; do
           echo "Packing project: $project"
           dotnet pack "$project" \
             --configuration Release \
