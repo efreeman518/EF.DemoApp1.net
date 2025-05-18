@@ -6,11 +6,13 @@
 
 <MudText Typo="Typo.h5">Todo Items</MudText>
 <div Class="d-flex flex-grow-1 pa-2">
-    <MudTabs @ref="tabsRef" Rounded="true" KeepPanelsAlive="true">
-        <MudTabPanel Text="@Localizer["Search"]">
+    <MudTabs @ref="tabsRef" Rounded="true" KeepPanelsAlive="true" Class="flex-grow-1">
 
-            <MudPaper>
-                <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerLoad" Filterable="false" RowClick="OnRowClicked">
+        <MudTabPanel Text="@Localizer["Search"]">
+            <MudPaper Class="flex-grow-1">
+                <MudDataGrid @ref="DataGrid" T="TodoItemDto" ServerData="ServerLoad" Filterable="false"
+                             RowClick="OnRowClicked" Height="calc(100vh - 285px)" 
+                             Breakpoint="Breakpoint.Sm" Class="mud-data-grid">
 
                     <ToolBarContent>
                         @* <div class="grid-toolbar-control-wrapper d-flex flex-grow-1 gap-4 pb-2"> *@
@@ -44,10 +46,9 @@
                     </PagerContent>
                 </MudDataGrid>
             </MudPaper>
-
         </MudTabPanel>
-        <MudTabPanel Text="@EditTabLabel">
 
+        <MudTabPanel Text="@EditTabLabel">
             <MudPaper Class="p-4 max-w-md mx-auto" Elevation="4">
                 <MudForm @ref="form" Model="@model">
                     <MudGrid>

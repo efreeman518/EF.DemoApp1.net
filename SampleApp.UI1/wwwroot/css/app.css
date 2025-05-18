@@ -1,7 +1,76 @@
 html, body {
     background-color: #222;
-/*    color: aliceblue;*/
     font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+}
+
+/* mudblazor mods */
+.mud-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.mud-main-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* MudDataGrid fixed header with scrollable body */
+.mud-table-container {
+    overflow: auto;
+    max-height: calc(100vh - 285px); /* Adjust for your layout */
+}
+
+/* Ensure the table head doesn't scroll */
+.mud-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.mud-data-grid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+    .mud-data-grid .mud-toolbar {
+        flex-shrink: 0; /* Prevent toolbar from shrinking */
+    }
+
+    .mud-data-grid .mud-table {
+        flex-grow: 1; /* Allow the table to grow and take available space */
+        overflow: auto; /* Enable scrolling for the table content */
+    }
+
+    .mud-data-grid .mud-table-pagination {
+        overflow: hidden;
+        background-color: #1d0184;
+        border: 1px solid #9a9a9a;
+    }
+
+.mud-table-head .mud-table-cell {
+    background-color: #1d0184;
+    border: 1px solid #9a9a9a;
+}
+
+/* MudDataGrid pager mobile optimizations */
+@media (max-width: 599px) {
+    /* Adjust grid height for mobile to account for taller pager */
+    .mud-data-grid {
+        height: calc(100vh - 165px) !important; /* Additional space for wrapped pager */
+    }
+}
+
+
+.break-word {
+    word-break: break-all; /* break words at arbitrary points */
+    overflow-wrap: anywhere; /* ensures wrapping even without spaces */
+    white-space: normal;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -95,7 +164,7 @@ code {
 
 /* custom */
 .background-light {
-    background: linear-gradient(to bottom, #cfe8f3, #c3baea);
+    background: linear-gradient(to bottom, #afdbfe, #8368ff);
 }
 .background-dark {
     background: linear-gradient(to bottom, #010d36, #1e0057);
