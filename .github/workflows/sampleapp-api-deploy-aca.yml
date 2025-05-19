@@ -68,7 +68,7 @@ jobs:
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --server $REGISTRY \
             --username ${{ github.actor }} \
-            --password ${{ secrets.GITHUB_TOKEN }}
+            --password ${{ secrets.PAT_PACKAGE_READ }}
 
       # Deploy the application
       - name: Deploy to Azure Container App

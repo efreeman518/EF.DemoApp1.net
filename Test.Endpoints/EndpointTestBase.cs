@@ -29,18 +29,16 @@ public abstract class EndpointTestBase
     protected readonly static IConfigurationRoot Config = Utility.BuildConfiguration("appsettings-test.json").AddUserSecrets<Program>().Build();
     protected readonly static IConfigurationSection TestConfigSection = Config.GetSection("TestSettings");
 
-    //protected static readonly IAppCache _appcache = new CachingService();
-
-    //needed for tests to call the in-memory api; authenticated endpoints will need a bearer token
-    //protected static HttpClient HttpClientApi = null!;
-
     protected static async Task<HttpClient> GetHttpClient()
     {
+        //net10 can expose the service on the network - this could be used for UI testing 
+        //UseKestrel();
+        //StartServer();
+
         var scopes = Config.GetSection("SampleApiRestClientSettings:Scopes").Get<string[]>();
 
         //handler takes care of auth
         var handler = new SampleRestApiAuthMessageHandler(scopes!);
-        //var tokenResourceId = Config.GetValue<string?>("SampleApiRestClientSettings:ResourceId");
         var httpClient = await ApiFactoryManager.GetClientAsync<Program>(_testContextName, dbConnectionString: _dbConnectionString, handlers: handler);
         return httpClient;
     }
@@ -69,9 +67,6 @@ public abstract class EndpointTestBase
             await _dbConnection.OpenAsync(cancellationToken);
             await InitializeRespawner();
         }
-
-        //create the http client for the test to hit endpoints; this creates the WAF, in memory api, replaces services, so need the db connection string
-        //HttpClientApi = GetHttpClient(_dbConnectionString);
     }
 
     /// <summary>
