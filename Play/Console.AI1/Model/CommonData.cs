@@ -3,28 +3,28 @@
 namespace Console.AI1.Model;
 public class Item
 {
-    [VectorStoreRecordKey]
+    [VectorStoreKey]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public string Name { get; set; } = null!;
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public string Description { get; set; } = null!;
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public TimeSpan StartTime { get; set; }
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public TimeSpan EndTime { get; set; }
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public CommonEnum EnumValue { get; set; }
 
-    [VectorStoreRecordData]
+    [VectorStoreData]
     public List<CommonEnum> EnumList { get; set; } = [];
 
-    [VectorStoreRecordVector(Dimensions: 384, DistanceFunction = DistanceFunction.CosineSimilarity)]
+    [VectorStoreVector(Dimensions: 384, DistanceFunction = DistanceFunction.CosineSimilarity)]
     public ReadOnlyMemory<float> Vector { get; set; }
 
 }
