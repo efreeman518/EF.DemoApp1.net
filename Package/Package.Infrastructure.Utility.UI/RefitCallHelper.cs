@@ -5,21 +5,43 @@ using System.Text.Json;
 namespace Package.Infrastructure.Utility.UI;
 public static class RefitCallHelper
 {
-    private static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public static async Task<ApiResult<T>> TryApiCallAsync<T>(Func<Task<T>> apiCall)
+    public static async Task<ApiResult<T>> TryApiCallAsync<T>(Func<Task<T>> apiCall, CancellationToken cancellationToken = default)
     {
         try
         {
-            var result = await apiCall();
+            // Create a linked token with timeout
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(30)); // Reasonable timeout
+
+            var result = await Task.Run(async () => await apiCall(), cts.Token);
             return ApiResult<T>.Success(result);
+        }
+        catch (OperationCanceledException)
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.GatewayTimeout,
+                Title = "Request Timeout",
+                Detail = "The request took too long to complete."
+            });
         }
         catch (ApiException ex)
         {
             return ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = "Unexpected Error",
+                Detail = ex.Message
+            });
         }
     }
 
@@ -39,7 +61,7 @@ public static class RefitCallHelper
                 {
                     Status = (int)statusCode,
                     Title = "Unexpected error",
-                    Detail = "Failed to deserialize the error response."
+                    Detail = $"Failed to deserialize the error response. {content ?? ""}"
                 };
         }
         catch

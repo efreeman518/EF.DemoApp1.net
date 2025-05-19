@@ -8,6 +8,6 @@ builder.AddProject<Projects.SampleApp_Gateway>("aca-gateway-dev1")
     .WaitFor(api);
 
 //just launch in aspire for the dashboard even though blazor wasm has no service discovery or other aspire integration
-builder.AddProject<Projects.SampleApp_UI1>("ui1");
+//builder.AddProject<Projects.SampleApp_UI1>("ui1");
 
 await builder.Build().RunAsync();

@@ -354,6 +354,7 @@ public static class IServiceCollectionExtensions
     private static void ConfigureDatabaseContexts(IServiceCollection services, IConfiguration config)
     {
         var trxnDBConnectionString = config.GetConnectionString("TodoDbContextTrxn");
+        var queryDBConnectionString = config.GetConnectionString("TodoDbContextQuery");
 
         if (string.IsNullOrEmpty(trxnDBConnectionString) || trxnDBConnectionString == "UseInMemoryDatabase")
         {
@@ -361,7 +362,7 @@ public static class IServiceCollectionExtensions
         }
         else
         {
-            ConfigureSqlDatabase(services, config, trxnDBConnectionString);
+            ConfigureSqlDatabase(services, trxnDBConnectionString, queryDBConnectionString);
         }
     }
 
@@ -381,7 +382,7 @@ public static class IServiceCollectionExtensions
         });
     }
 
-    private static void ConfigureSqlDatabase(IServiceCollection services, IConfiguration config, string trxnDBConnectionString)
+    private static void ConfigureSqlDatabase(IServiceCollection services, string trxnDBConnectionString, string? queryDBConnectionString)
     {
         //AzureSQL - https://learn.microsoft.com/en-us/ef/core/providers/sql-server/?tabs=dotnet-core-cli
         //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
@@ -396,7 +397,6 @@ public static class IServiceCollectionExtensions
                 .AddInterceptors(auditInterceptor);
         });
 
-        var queryDBConnectionString = config.GetConnectionString("TodoDbContextQuery");
         if (queryDBConnectionString != null)
         {
             services.AddDbContext<TodoDbContextQuery>((sp, options) =>

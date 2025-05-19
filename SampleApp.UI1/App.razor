@@ -1,6 +1,8 @@
 ﻿@using SampleApp.UI1.Components
 @using SampleApp.UI1.Utility
+@using Microsoft.JSInterop
 
+@inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Localization.Locals> Localizer
 @inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
 
@@ -44,3 +46,19 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Handle disconnect/reconnect for WebAssembly
+        // Note: This is more relevant for Blazor Server, but good practice
+        JSRuntime.InvokeVoidAsync("window.addEventListener", "unload", DotNetObjectReference.Create(this));
+    }
+
+    // Handle clean disconnection
+    [JSInvokable]
+    public void OnUnload()
+    {
+        // Clean up resources if needed
+    }
+}
