@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.Builder;
 using LazyCache;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Tokens;

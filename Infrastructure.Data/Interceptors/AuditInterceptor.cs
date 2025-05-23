@@ -49,8 +49,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
                 StartTime = TimeSpan.FromTicks(_startTime),
                 Metadata = entry.State ==
                     EntityState.Modified ? entry.GetEntityChanges(maskedProps).PropertyChanges.SerializeToJson(jsonSerializerOptions) :
-                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) :
-                    null
+                    entry.State == EntityState.Added ? entry.Entity.SerializeToJson(jsonSerializerOptions) : null
             });
         }
 

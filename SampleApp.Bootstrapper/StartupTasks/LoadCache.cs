@@ -6,7 +6,7 @@ using ZiggyCreatures.Caching.Fusion;
 namespace SampleApp.Bootstrapper.StartupTasks;
 public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IFusionCacheProvider cache, ITodoRepositoryQuery repoQuery) : IStartupTask
 {
-    public async Task Execute(CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
         logger.Log(LogLevel.Information, "Startup LoadCache Start");
 

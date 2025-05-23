@@ -13,7 +13,7 @@ public static class IHostExtensions
         //Run each startup task
         foreach (var startupTask in startupTasks)
         {
-            await startupTask.Execute();
+            await startupTask.ExecuteAsync();
         }
     }
 }

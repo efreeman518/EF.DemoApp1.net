@@ -52,7 +52,7 @@ using static Microsoft.KernelMemory.AzureOpenAIConfig;
 
 namespace SampleApp.Bootstrapper;
 
-public static class IServiceCollectionExtensions
+public static class RegisterServices
 {
     //can only be registered once; web application factory can determine if it needs to register, otherwise it will throw an exception
     private static bool _keyStoreProviderRegistered = false;
@@ -139,9 +139,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
     {
         AddConfigurationServices(services, config);
+        AddInternalServices(services);
         AddCachingServices(services, config);
         AddRequestContextServices(services);
-        AddInternalServices(services);
         AddDatabaseServices(services, config);
         AddJobsApiServices(services, config);
         AddAzureClientServices(services, config);
@@ -161,6 +161,12 @@ public static class IServiceCollectionExtensions
         {
             services.AddAzureAppConfiguration();
         }
+    }
+
+    private static void AddInternalServices(IServiceCollection services)
+    {
+        services.AddSingleton<IInternalBroker, InternalBroker>();
+        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
     }
 
     private static void AddCachingServices(IServiceCollection services, IConfiguration config)
@@ -218,7 +224,7 @@ public static class IServiceCollectionExtensions
     {
         if (string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
         {
-            throw new ArgumentException("RedisConfigurationSection cannot be null or empty.", nameof(cacheInstance.RedisConfigurationSection));
+            throw new ArgumentException("RedisConfigurationSection cannot be null or empty.", nameof(config));
         }
 
         RedisConfiguration redisConfigFusion = new();
@@ -328,12 +334,6 @@ public static class IServiceCollectionExtensions
 
             return new RequestContext<string>(correlationId, auditId, tenantId);
         });
-    }
-
-    private static void AddInternalServices(IServiceCollection services)
-    {
-        services.AddSingleton<IInternalBroker, InternalBroker>();
-        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
     }
 
     private static void AddDatabaseServices(IServiceCollection services, IConfiguration config)

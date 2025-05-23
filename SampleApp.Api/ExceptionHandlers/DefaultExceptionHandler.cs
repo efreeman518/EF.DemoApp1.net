@@ -41,23 +41,7 @@ public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> log
             _ => StatusCodes.Status500InternalServerError
         };
 
-        //var problemDetails = new ProblemDetails
-        //{
-        //    Type = exception.GetType().Name,
-        //    Title = "Error",
-        //    Detail = exception.Message,
-        //    Status = httpContext.Response.StatusCode
-        //};
-        //problemDetails.Extensions.Add("traceidentifier", httpContext.TraceIdentifier);
-        //if (hostEnvironment.IsDevelopment())
-        //{
-        //    problemDetails.Extensions.Add("stacktrace", exception.StackTrace);
-        //}
-
         var problemDetails = ProblemDetailsHelper.BuildProblemDetailsResponse(message: exception.Message, exception: exception, traceId: httpContext.TraceIdentifier, includeStackTrace: hostEnvironment.IsDevelopment());
-
-        //await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-        //return true;
 
         return await problemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
