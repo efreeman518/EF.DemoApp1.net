@@ -290,7 +290,7 @@ var assemblies = [
       { "name": "Infrastructure.Data.Configuration.EntityBaseConfiguration<T>", "rp": "Infrastructure.Data_EntityBaseConfiguration_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.SystemSettingConfiguration", "rp": "Infrastructure.Data_SystemSettingConfiguration.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.TodoItemConfiguration", "rp": "Infrastructure.Data_TodoItemConfiguration.html", "cl": 18, "ucl": 0, "cal": 18, "tl": 34, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.Interceptors.AuditInterceptor", "rp": "Infrastructure.Data_AuditInterceptor.html", "cl": 0, "ucl": 42, "cal": 42, "tl": 99, "cb": 0, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.Interceptors.AuditInterceptor", "rp": "Infrastructure.Data_AuditInterceptor.html", "cl": 0, "ucl": 41, "cal": 41, "tl": 98, "cb": 0, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Interceptors.ConnectionNoLockInterceptor", "rp": "Infrastructure.Data_ConnectionNoLockInterceptor.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 48, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Interceptors.ReadUncommittedInterceptor", "rp": "Infrastructure.Data_ReadUncommittedInterceptor.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 40, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 227, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -520,7 +520,7 @@ var assemblies = [
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "rp": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "cl": 0, "ucl": 474, "cal": 474, "tl": 823, "cb": 0, "tb": 104, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 474, "cal": 474, "tl": 823, "cb": 0, "tb": 104, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -560,7 +560,7 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 300,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 306,
     "metrics": [
       { "value": 930, "exceeded": true },
       { "value": 30, "exceeded": true },
@@ -860,7 +860,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.IServiceCollectionExtensions", "reportPath": "SampleApp.Bootstrapper_IServiceCollectionExtensions.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 723,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 723,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1004,7 +1004,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Infrastructure.Data", "class": "Infrastructure.Data.Interceptors.AuditInterceptor", "reportPath": "Infrastructure.Data_AuditInterceptor.html", "methodName": "SaveChangesFailedAsync()", "methodShortName": "SaveChangesFailedAsync()", "fileIndex": 0, "line": 82,
+    "assembly": "Infrastructure.Data", "class": "Infrastructure.Data.Interceptors.AuditInterceptor", "reportPath": "Infrastructure.Data_AuditInterceptor.html", "methodName": "SaveChangesFailedAsync()", "methodShortName": "SaveChangesFailedAsync()", "fileIndex": 0, "line": 81,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
