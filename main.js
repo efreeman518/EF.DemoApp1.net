@@ -236,6 +236,7 @@ var assemblies = [
     "name": "Application.MessageHandlers",
     "classes": [
       { "name": "Application.MessageHandlers.AuditHandler", "rp": "Application.MessageHandlers_AuditHandler.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.MessageHandlers.SomeScopedHandler", "rp": "Application.MessageHandlers_SomeScopedHandler.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Application.Services",
@@ -389,12 +390,16 @@ var assemblies = [
     "classes": [
       { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskQueue.html", "cl": 15, "ucl": 17, "cal": 32, "tl": 120, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 120, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 214, "cb": 0, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 70, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "rp": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 31, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "rp": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "cl": 0, "ucl": 50, "cal": 50, "tl": 94, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronJobBackgroundServiceSettings<T>", "rp": "Package.Infrastructure.BackgroundServices_CronJobBackgroundServiceSettings_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronJobSettings", "rp": "Package.Infrastructure.BackgroundServices_CronJobSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalBroker", "rp": "Package.Infrastructure.BackgroundServices_InternalBroker.html", "cl": 0, "ucl": 43, "cal": 43, "tl": 125, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalBrokerSettings", "rp": "Package.Infrastructure.BackgroundServices_InternalBrokerSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 79, "cal": 79, "tl": 156, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBusSettings", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBusSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ScopedBackgroundService", "rp": "Package.Infrastructure.BackgroundServices_ScopedBackgroundService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 59, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.BlandAI",
@@ -519,7 +524,7 @@ var assemblies = [
     "name": "SampleApp.Bootstrapper",
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 474, "cal": 474, "tl": 823, "cb": 0, "tb": 104, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -560,7 +565,7 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 306,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 307,
     "metrics": [
       { "value": 930, "exceeded": true },
       { "value": 30, "exceeded": true },
@@ -608,6 +613,12 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
+    "metrics": [
+      { "value": 272, "exceeded": true },
+      { "value": 16, "exceeded": true },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "LevenshteinDistance(System.String,System.String,System.Boolean)", "methodShortName": "LevenshteinDistance(...)", "fileIndex": 0, "line": 120,
     "metrics": [
       { "value": 272, "exceeded": true },
@@ -636,6 +647,12 @@ var riskHotspots = [
     "metrics": [
       { "value": 240, "exceeded": true },
       { "value": 15, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 28,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "FindTopMatches(System.String,System.Collections.Generic.List`1<System.String>,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean)", "methodShortName": "FindTopMatches(...)", "fileIndex": 0, "line": 72,
@@ -746,6 +763,12 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "ProcessMessages(Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBusProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus/HandlerInfo>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "ProcessMessages(...)", "fileIndex": 0, "line": 105,
+    "metrics": [
+      { "value": 110, "exceeded": true },
+      { "value": 10, "exceeded": false },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "DebugLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.String)", "methodShortName": "DebugLogExt(...)", "fileIndex": 0, "line": 51,
     "metrics": [
       { "value": 110, "exceeded": true },
@@ -836,6 +859,12 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "DequeueAsync()", "methodShortName": "DequeueAsync()", "fileIndex": 0, "line": 140,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "ErrorLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception,System.String,System.String,System.String)", "methodShortName": "ErrorLogExt(...)", "fileIndex": 0, "line": 235,
     "metrics": [
       { "value": 72, "exceeded": true },
@@ -860,7 +889,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 723,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 724,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1022,7 +1051,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalBroker", "reportPath": "Package.Infrastructure.BackgroundServices_InternalBroker.html", "methodName": "ProcessMessages(Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalBrokerProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBroker.IMessageHandler`1<T>>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "ProcessMessages(...)", "fileIndex": 0, "line": 89,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "methodName": ".ctor(Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue,Microsoft.Extensions.Hosting.IHostApplicationLifetime,Microsoft.Extensions.Logging.ILogger`1<Package.Infrastructure.BackgroundServices.ChannelCompletionService>)", "methodShortName": ".ctor(...)", "fileIndex": 0, "line": 9,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
