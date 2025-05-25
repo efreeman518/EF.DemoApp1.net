@@ -15,7 +15,7 @@ namespace Infrastructure.Data.Interceptors;
 /// <summary>
 /// https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/interceptors
 /// </summary>
-public class AuditInterceptor(IRequestContext<string> requestContext, IInternalBroker msgBroker) : SaveChangesInterceptor
+public class AuditInterceptor(IRequestContext<string> requestContext, IInternalMessageBus msgBus) : SaveChangesInterceptor
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
     private readonly List<AuditEntry> _auditEntries = [];
@@ -68,7 +68,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             }
 
             //publish the audit entries to the internal message broker and let a handler handle them
-            msgBroker.Raise(InternalBrokerProcessMode.Queue, _auditEntries);
+            msgBus.Raise(InternalMessageBusProcessMode.Topic, _auditEntries);
 
         }
 
@@ -90,7 +90,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalB
             }
 
             //publish the audit entries to the internal message broker and let a handler handle them
-            msgBroker.Raise(InternalBrokerProcessMode.Queue, _auditEntries);
+            msgBus.Raise(InternalMessageBusProcessMode.Queue, _auditEntries);
         }
 
         await base.SaveChangesFailedAsync(eventData, cancellationToken);

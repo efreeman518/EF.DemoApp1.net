@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-
-namespace SampleApp.Gateway;
+﻿namespace SampleApp.Gateway;
 
 public static partial class WebApplicationBuilderExtensions
 {

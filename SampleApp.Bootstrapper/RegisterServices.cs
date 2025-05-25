@@ -165,8 +165,9 @@ public static class RegisterServices
 
     private static void AddInternalServices(IServiceCollection services)
     {
-        services.AddSingleton<IInternalBroker, InternalBroker>();
+        services.AddSingleton<IInternalMessageBus, InternalMessageBus>();
         services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
+        services.AddScoped<IMessageHandler<AuditEntry>, SomeScopedHandler>();
     }
 
     private static void AddCachingServices(IServiceCollection services, IConfiguration config)
@@ -807,8 +808,7 @@ public static class RegisterServices
     public static IServiceCollection RegisterBackgroundServices(this IServiceCollection services, IConfiguration config)
     {
         //background task
-        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-        services.AddHostedService<BackgroundTaskService>();
+        services.AddChannelBackgroundTaskQueue();
 
         //scheduler
         var configSection = config.GetSection(CronServiceSettings.ConfigSectionName);

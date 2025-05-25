@@ -5,9 +5,9 @@ namespace Application.MessageHandlers;
 
 public class AuditHandler : IMessageHandler<AuditEntry>
 {
-    public async Task HandleAsync(AuditEntry message)
+    public async Task HandleAsync(AuditEntry message, CancellationToken cancellationToken = default)
     {
         //await some work
-        await Task.Delay(2000);
+        await Task.Delay(2000, cancellationToken);
     }
 }

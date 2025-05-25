@@ -84,7 +84,7 @@ internal static class IServiceCollectionExtensions
     {
         string authConfigSectionName = "Api1_EntraID";
         var configSection = config.GetSection(authConfigSectionName);
-        if(!configSection.GetChildren().Any())
+        if (!configSection.GetChildren().Any())
         {
             logger.LogInformation("No Auth Config ({ConfigSectionName}) Found; Auth will not be configured.", authConfigSectionName);
             services.AddAuthentication();

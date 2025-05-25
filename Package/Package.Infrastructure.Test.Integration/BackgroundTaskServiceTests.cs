@@ -135,7 +135,7 @@ public class BackgroundTaskServiceTests : IntegrationTestBase
         q.QueueBackgroundWorkItem(async token =>
         {
             await Task.Delay(2000, token);
-            Logger.LogInformation("Task 2 Done at {Time}", DateTime.UtcNow.TimeOfDay);
+            Logger.LogInformation("Task 2 (which includes a scoped service) Done at {Time}", DateTime.UtcNow.TimeOfDay);
         });
 
         //queue scoped background task3

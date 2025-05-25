@@ -1,5 +1,5 @@
 ﻿namespace Package.Infrastructure.BackgroundServices.InternalMessageBroker;
-public enum InternalBrokerProcessMode
+public enum InternalMessageBusProcessMode
 {
     Queue = 1,
     Topic
