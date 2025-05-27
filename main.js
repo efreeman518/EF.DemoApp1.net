@@ -396,7 +396,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "rp": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "cl": 0, "ucl": 50, "cal": 50, "tl": 94, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronJobBackgroundServiceSettings<T>", "rp": "Package.Infrastructure.BackgroundServices_CronJobBackgroundServiceSettings_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronJobSettings", "rp": "Package.Infrastructure.BackgroundServices_CronJobSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 79, "cal": 79, "tl": 156, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 80, "cal": 80, "tl": 162, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBusSettings", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBusSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ScopedBackgroundService", "rp": "Package.Infrastructure.BackgroundServices_ScopedBackgroundService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 57, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -649,7 +649,7 @@ var riskHotspots = [
       { "value": 15, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 28,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 31,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -763,7 +763,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "ProcessMessages(Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBusProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus/HandlerInfo>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "ProcessMessages(...)", "fileIndex": 0, "line": 105,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "QueueMessageHandlerWork(Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBusProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBroker.InternalMessageBus/HandlerInfo>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "QueueMessageHandlerWork(...)", "fileIndex": 0, "line": 111,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
