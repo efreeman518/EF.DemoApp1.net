@@ -23,7 +23,7 @@ public class TodoServiceTests : DbIntegrationTestBase
     //Some services under test are injected with IBackgroundTaskQueue which runs in a background thread
     //To prevent these tests from terminating prior to background task completion, at the end of the test,
     //we await a TaskCompletionSource that completes from within the last queued workitem at the end of the test.
-    private static readonly BackgroundTaskService _bgTaskService = (BackgroundTaskService)Services.GetRequiredService<IHostedService>();
+    private static readonly ChannelBackgroundTaskService _bgTaskService = (ChannelBackgroundTaskService)Services.GetRequiredService<IHostedService>();
     private static readonly IBackgroundTaskQueue _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
     private static readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 

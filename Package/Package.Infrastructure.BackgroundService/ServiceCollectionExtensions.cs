@@ -26,9 +26,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection</param>
     /// <param name="boundedCapacity">Optional capacity limit for bounded channel</param>
     /// <returns>The service collection for chaining</returns>
-    public static IServiceCollection AddChannelBackgroundTaskQueue(
-        this IServiceCollection services,
-        int? boundedCapacity = null)
+    public static IServiceCollection AddChannelBackgroundTaskQueue(this IServiceCollection services, int? boundedCapacity = null)
     {
         services.AddSingleton<ChannelBackgroundTaskQueue>(sp =>
             new ChannelBackgroundTaskQueue(

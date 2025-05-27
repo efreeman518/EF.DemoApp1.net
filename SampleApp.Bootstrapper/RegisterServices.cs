@@ -72,21 +72,29 @@ public static class RegisterServices
     /// </summary>
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-        RegisterTodoServices(services, config);
-        RegisterJobChatServices(services, config);
-        RegisterJobAssistantServices(services, config);
-        RegisterJobSearchServices(services, config);
+        AddMessageHandlers(services);
+        AddApplicationServices(services, config);
+        AddJobChatServices(services, config);
+        AddJobAssistantServices(services, config);
+        AddJobSearchServices(services, config);
 
         return services;
     }
 
-    private static void RegisterTodoServices(IServiceCollection services, IConfiguration config)
+    private static void AddMessageHandlers(IServiceCollection services)
+    {
+
+        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
+        services.AddScoped<IMessageHandler<AuditEntry>, SomeScopedHandler>();
+    }
+
+    private static void AddApplicationServices(IServiceCollection services, IConfiguration config)
     {
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
     }
 
-    private static void RegisterJobChatServices(IServiceCollection services, IConfiguration config)
+    private static void AddJobChatServices(IServiceCollection services, IConfiguration config)
     {
         var jobChatOrchestratorConfigSection = config.GetSection(JobChatOrchestratorSettings.ConfigSectionName);
         if (jobChatOrchestratorConfigSection.GetChildren().Any())
@@ -104,7 +112,7 @@ public static class RegisterServices
         }
     }
 
-    private static void RegisterJobAssistantServices(IServiceCollection services, IConfiguration config)
+    private static void AddJobAssistantServices(IServiceCollection services, IConfiguration config)
     {
         var jobAssistantOrchestratorConfigSection = config.GetSection(JobAssistantOrchestratorSettings.ConfigSectionName);
         if (jobAssistantOrchestratorConfigSection.GetChildren().Any())
@@ -122,7 +130,7 @@ public static class RegisterServices
         }
     }
 
-    private static void RegisterJobSearchServices(IServiceCollection services, IConfiguration config)
+    private static void AddJobSearchServices(IServiceCollection services, IConfiguration config)
     {
         var jobSearchOrchestratorConfigSection = config.GetSection(JobSearchOrchestratorSettings.ConfigSectionName);
         if (jobSearchOrchestratorConfigSection.GetChildren().Any())
@@ -154,6 +162,11 @@ public static class RegisterServices
         return services;
     }
 
+    private static void AddInternalServices(IServiceCollection services)
+    {
+        services.AddSingleton<IInternalMessageBus, InternalMessageBus>();
+    }
+
     private static void AddConfigurationServices(IServiceCollection services, IConfiguration config)
     {
         //enable config reloading at runtime using Sentinel along with app.UseAzureAppConfiguration();
@@ -161,13 +174,6 @@ public static class RegisterServices
         {
             services.AddAzureAppConfiguration();
         }
-    }
-
-    private static void AddInternalServices(IServiceCollection services)
-    {
-        services.AddSingleton<IInternalMessageBus, InternalMessageBus>();
-        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
-        services.AddScoped<IMessageHandler<AuditEntry>, SomeScopedHandler>();
     }
 
     private static void AddCachingServices(IServiceCollection services, IConfiguration config)
