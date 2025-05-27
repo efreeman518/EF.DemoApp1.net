@@ -20,9 +20,12 @@ public class InternalMessageBus(
 {
     private sealed record HandlerInfo(object Handler, bool RequiresScope);
 
-    // Thread-safe handler registry
+    // Thread-safe handler registry for each event type and its bag of handlers
     private readonly ConcurrentDictionary<Type, ConcurrentBag<HandlerInfo>> _handlers = new();
 
+    /// <summary>
+    /// Call at startup to auto register all the handlers found in the loaded assemblies.
+    /// </summary>
     public void AutoRegisterHandlers()
     {
         var handlerInterfaceType = typeof(IMessageHandler<>);
@@ -89,20 +92,23 @@ public class InternalMessageBus(
     }
 
     /// <summary>
-    /// Raise event to registered handlers
+    /// Raise event(s) to registered handlers
     /// </summary>
-    public void Raise<T>(InternalMessageBusProcessMode mode, ICollection<T> messages) where T : IMessage
+    public void Publish<T>(InternalMessageBusProcessMode mode, ICollection<T> messages) where T : IMessage
     {
+        logger.LogDebug("Publish Start {Mode} {MessageType}", mode, typeof(T));
+
+        //get the handlers for the message type
         if (!_handlers.TryGetValue(typeof(T), out var bag) || bag.IsEmpty)
             return;
 
         var handlerInfos = bag.ToList();
-        ProcessMessages(mode, handlerInfos, messages);
+        QueueMessageHandlerWork(mode, handlerInfos, messages);
     }
 
-    private void ProcessMessages<T>(InternalMessageBusProcessMode mode, List<HandlerInfo> handlerInfos, ICollection<T> messages) where T : IMessage
+    private void QueueMessageHandlerWork<T>(InternalMessageBusProcessMode mode, List<HandlerInfo> handlerInfos, ICollection<T> messages) where T : IMessage
     {
-        logger.LogDebug("ProcessMessages Start");
+        logger.LogDebug("QueueMessageHandlerWork Start");
 
         if (handlerInfos.Count > 0)
         {
@@ -136,7 +142,7 @@ public class InternalMessageBus(
             }
         }
 
-        logger.LogDebug("ProcessMessages Finish");
+        logger.LogDebug("QueueMessageHandlerWork Finish");
     }
 
     private async Task HandleInternalAsync<T>(IMessageHandler<T> handler, T message, CancellationToken token)

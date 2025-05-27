@@ -68,7 +68,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalM
             }
 
             //publish the audit entries to the internal message broker and let a handler handle them
-            msgBus.Raise(InternalMessageBusProcessMode.Topic, _auditEntries);
+            msgBus.Publish(InternalMessageBusProcessMode.Topic, _auditEntries);
 
         }
 
@@ -90,7 +90,7 @@ public class AuditInterceptor(IRequestContext<string> requestContext, IInternalM
             }
 
             //publish the audit entries to the internal message broker and let a handler handle them
-            msgBus.Raise(InternalMessageBusProcessMode.Queue, _auditEntries);
+            msgBus.Publish(InternalMessageBusProcessMode.Queue, _auditEntries);
         }
 
         await base.SaveChangesFailedAsync(eventData, cancellationToken);

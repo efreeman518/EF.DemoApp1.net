@@ -9,5 +9,5 @@ public interface IInternalMessageBus
 
     void UnregisterMessageHandler<T>(IMessageHandler<T> handler) where T : IMessage;
 
-    void Raise<T>(InternalMessageBusProcessMode mode, ICollection<T> messages) where T : IMessage;
+    void Publish<T>(InternalMessageBusProcessMode mode, ICollection<T> messages) where T : IMessage;
 }
