@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
-using ZLinq;
 
 namespace Infrastructure.Data;
 
@@ -63,8 +62,8 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
 
         // datatype defaults for sql
         // decimal
-        var decimalProperties = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
-            .SelectMany(t => t.GetProperties().AsValueEnumerable())
+        var decimalProperties = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
             .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?))
             .Where(p => p.GetColumnType() == null);
 
@@ -74,8 +73,8 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         }
 
         // dates
-        var dateProperties = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
-            .SelectMany(t => t.GetProperties().AsValueEnumerable())
+        var dateProperties = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
             .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?))
             .Where(p => p.GetColumnType() == null);
 
@@ -85,7 +84,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         }
 
         // query filter - for all entities with ITenantEntity<TTenantIdType> interface
-        var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
+        var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes()
             .Where(entityType => typeof(ITenantEntity<Guid?>).IsAssignableFrom(entityType.ClrType))
             .Select(entityType => entityType.ClrType);
 

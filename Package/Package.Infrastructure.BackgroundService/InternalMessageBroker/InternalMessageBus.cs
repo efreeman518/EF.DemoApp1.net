@@ -45,9 +45,9 @@ public class InternalMessageBus(
             .Select(g => g.First())
             .ToList();
 
-        foreach (var ht in handlerTypes)
+        foreach (var messageType in handlerTypes.Select(ht => ht.MessageType))
         {
-            var closedHandlerType = handlerInterfaceType.MakeGenericType(ht.MessageType);
+            var closedHandlerType = handlerInterfaceType.MakeGenericType(messageType);
 
             // Create a scope for resolving scoped handlers
             using var scope = services.CreateScope();
@@ -57,13 +57,14 @@ public class InternalMessageBus(
             {
                 bool requiresScope = handler!.GetType().GetCustomAttribute<ScopedMessageHandlerAttribute>() != null;
                 var info = new HandlerInfo(handler, requiresScope);
-                var bag = _handlers.GetOrAdd(ht.MessageType, _ => []);
+                var bag = _handlers.GetOrAdd(messageType, _ => []);
                 // Prevent duplicate registration
                 if (!bag.Any(h => h.Handler.GetType() == handler.GetType()))
                     bag.Add(info);
             }
         }
     }
+
 
     /// <summary>
     /// Register a message handler at runtime

@@ -31,6 +31,6 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<TodoDbCont
 
         var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextTrxn>();
         optionsBuilder.UseSqlServer(connString);
-        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "DesignTimeAuditId", TenantId = Guid.NewGuid()  };
+        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "DesignTimeAuditId", TenantId = Guid.NewGuid() };
     }
 }

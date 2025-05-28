@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Data.Common;
 
-namespace Infrastructure.Data.Interceptors;
+namespace Package.Infrastructure.Data.Interceptors;
 public class ReadUncommittedInterceptor(ILogger<ReadUncommittedInterceptor> logger) : DbCommandInterceptor
 {
     public override InterceptionResult<DbDataReader> ReaderExecuting(

@@ -20,7 +20,6 @@
       <PrivateAssets>build; native; contentfiles; analyzers; buildtransitive</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ZLinq" Version="1.4.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Interceptors\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

@@ -9,11 +9,9 @@ using Application.Services.JobSK.Plugins;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
-using Infrastructure.Data.Interceptors;
 using Infrastructure.JobsApi;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
@@ -39,6 +37,8 @@ using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Data;
+using Package.Infrastructure.Data.Interceptors;
 using Polly;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
@@ -86,8 +86,8 @@ public static class RegisterServices
     private static void AddMessageHandlers(IServiceCollection services)
     {
 
-        services.AddSingleton<IMessageHandler<AuditEntry>, AuditHandler>();
-        services.AddScoped<IMessageHandler<AuditEntry>, SomeScopedHandler>();
+        services.AddSingleton<IMessageHandler<AuditEntry<string>>, AuditHandler>();
+        services.AddScoped<IMessageHandler<AuditEntry<string>>, SomeScopedHandler>();
     }
 
     private static void AddApplicationServices(IServiceCollection services, IConfiguration config)
@@ -352,7 +352,7 @@ public static class RegisterServices
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
         // Register EF interceptors; used in PooledDbContextFactory singleton so cannot be scoped
-        services.AddTransient<AuditInterceptor>();
+        services.AddTransient<AuditInterceptor<string, Guid?>>();
         services.AddTransient<ConnectionNoLockInterceptor>();
 
         // Configure database contexts
@@ -381,7 +381,7 @@ public static class RegisterServices
 
         services.AddDbContext<TodoDbContextTrxn>((sp, opt) =>
         {
-            var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
+            var auditInterceptor = sp.GetRequiredService<AuditInterceptor<string, Guid?>>();
             opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot).AddInterceptors(auditInterceptor);
         });
 
@@ -400,25 +400,19 @@ public static class RegisterServices
         services.AddPooledDbContextFactory<TodoDbContextTrxn>((sp, options) =>
         {
             ConfigureTrxnDbContext(options, trxnDBConnectionString);
-            var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
+            var auditInterceptor = sp.GetRequiredService<AuditInterceptor<string, Guid?>>();
             options
                 .UseExceptionProcessor()
                 .AddInterceptors(auditInterceptor);
         });
 
-        //services.AddSingleton<IDbContextFactory<TodoDbContextTrxn>>(sp =>
-        //{
-        //    var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextTrxn>();
-        //    ConfigureTrxnDbContext(optionsBuilder, trxnDBConnectionString);
-        //    var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
-        //    optionsBuilder
-        //        .UseExceptionProcessor()
-        //        .AddInterceptors(auditInterceptor);
+        //services.AddScoped<TodoDbContextTrxnScopedFactory>();
+        //services.AddScoped(sp => sp.GetRequiredService<TodoDbContextTrxnScopedFactory>().CreateDbContext());
 
-        //    return new PooledDbContextFactory<TodoDbContextTrxn>(optionsBuilder.Options);
-        //});
-        services.AddScoped<TodoDbContextTrxnScopedFactory>();
-        services.AddScoped(sp => sp.GetRequiredService<TodoDbContextTrxnScopedFactory>().CreateDbContext());
+        services.AddScoped<DbContextScopedFactory<TodoDbContextTrxn, string, Guid?>>();
+        services.AddScoped(sp => sp.GetRequiredService<DbContextScopedFactory<TodoDbContextTrxn, string, Guid?>>().CreateDbContext());
+
+
 
         if (queryDBConnectionString != null)
         {
@@ -431,19 +425,12 @@ public static class RegisterServices
                     .AddInterceptors(noLockInterceptor);
             });
 
-            //services.AddSingleton<IDbContextFactory<TodoDbContextQuery>>(sp =>
-            //{
-            //    var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextQuery>();
-            //    ConfigureQueryDbContext(optionsBuilder, queryDBConnectionString);
-            //    var noLockInterceptor = sp.GetRequiredService<ConnectionNoLockInterceptor>();
-            //    optionsBuilder
-            //        .UseExceptionProcessor()
-            //        .AddInterceptors(noLockInterceptor);
+            //services.AddScoped<TodoDbContextQueryScopedFactory>();
+            //services.AddScoped(sp => sp.GetRequiredService<TodoDbContextQueryScopedFactory>().CreateDbContext());
 
-            //    return new PooledDbContextFactory<TodoDbContextQuery>(optionsBuilder.Options);
-            //});
-            services.AddScoped<TodoDbContextQueryScopedFactory>();
-            services.AddScoped(sp => sp.GetRequiredService<TodoDbContextQueryScopedFactory>().CreateDbContext());
+            services.AddScoped<DbContextScopedFactory<TodoDbContextQuery, string, Guid?>>();
+            services.AddScoped(sp => sp.GetRequiredService<DbContextScopedFactory<TodoDbContextQuery, string, Guid?>>().CreateDbContext());
+
         }
     }
 

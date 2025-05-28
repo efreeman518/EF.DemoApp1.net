@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Data.Common;
 
-namespace Infrastructure.Data.Interceptors;
+namespace Package.Infrastructure.Data.Interceptors;
 
 /// <summary>
 /// Registered as transient, but since the DbContext is pooled, this interceptor will be created once per DbContext instance.

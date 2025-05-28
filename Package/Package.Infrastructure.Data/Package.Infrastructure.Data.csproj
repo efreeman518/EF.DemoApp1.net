@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
   </ItemGroup>

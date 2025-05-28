@@ -1,13 +1,13 @@
 ﻿namespace Package.Infrastructure.Common.Contracts;
 
-public class AuditEntry() : IMessage
+public class AuditEntry<TAuditIdType>() : IMessage
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
     /// <summary>
     /// User/system/process Id responsible for the activity that caused the audit
     /// </summary>
-    public required string AuditId { get; set; }
+    public required TAuditIdType AuditId { get; set; }
     public required string EntityType { get; set; }
     public required string EntityKey { get; set; }
     public AuditStatus Status { get; set; }

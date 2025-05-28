@@ -4,23 +4,21 @@ using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
 using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Data;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ZLinq;
 
-namespace Infrastructure.Data.Interceptors;
+namespace Package.Infrastructure.Data.Interceptors;
 
 /// <summary>
 /// Registered as transient, but since the DbContext is pooled, this interceptor will be created once per DbContext instance.
 /// https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/interceptors
 /// </summary>
 /// <param name="msgBus"></param>
-public class AuditInterceptor(IInternalMessageBus msgBus) : SaveChangesInterceptor
+public class AuditInterceptor<TAuditIdType, TTenantIdType>(IInternalMessageBus msgBus) : SaveChangesInterceptor
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
-    private readonly List<AuditEntry> _auditEntries = [];
+    private readonly List<AuditEntry<TAuditIdType>> _auditEntries = [];
     private long _startTime;
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
@@ -33,17 +31,17 @@ public class AuditInterceptor(IInternalMessageBus msgBus) : SaveChangesIntercept
 
         _startTime = Stopwatch.GetTimestamp();
 
-        var changedEntries = eventData.Context.ChangeTracker.Entries().AsValueEnumerable()
-            .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
+        var changedEntries = eventData.Context.ChangeTracker.Entries()
+            .Where(x => x.Entity is not AuditEntry<TAuditIdType> && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
 
         foreach (var entry in changedEntries)
         {
             //check props for mask
-            var propInfo = entry.Entity.GetType().GetProperties().AsValueEnumerable();
+            var propInfo = entry.Entity.GetType().GetProperties();
             var maskedProps = propInfo.Where(pi => Attribute.GetCustomAttribute(pi, typeof(MaskAttribute)) != null).Select(pi => pi.Name).ToList();
-            _auditEntries.Add(new AuditEntry
+            _auditEntries.Add(new AuditEntry<TAuditIdType>
             {
-                AuditId = ((TodoDbContextBase)eventData.Context).AuditId,
+                AuditId = ((DbContextBase<TAuditIdType, TTenantIdType>)eventData.Context).AuditId,
                 EntityType = entry.Metadata.DisplayName(), // .Entity.GetType().Name,
                 EntityKey = entry.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
                 Action = entry.State.ToString(),

@@ -6,9 +6,9 @@ using Package.Infrastructure.Common.Contracts;
 namespace Application.MessageHandlers;
 
 [ScopedMessageHandler]
-public class SomeScopedHandler(ITodoRepositoryTrxn repo) : IMessageHandler<AuditEntry>
+public class SomeScopedHandler(ITodoRepositoryTrxn repo) : IMessageHandler<AuditEntry<string>>
 {
-    public async Task HandleAsync(AuditEntry message, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(AuditEntry<string> message, CancellationToken cancellationToken = default)
     {
         //await some work
         _ = repo.GetHashCode();

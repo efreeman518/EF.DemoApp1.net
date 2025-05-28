@@ -192,7 +192,7 @@ public abstract class EndpointTestBase
         {
             optionsBuilder.UseSqlServer(dbSource);
         }
-        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "EndpointTests"};
+        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "EndpointTests" };
     }
 
 }
