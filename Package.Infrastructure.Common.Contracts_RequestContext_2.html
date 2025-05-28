@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE,chrome=1" />
 <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAn1BMVEUAAADCAAAAAAA3yDfUAAA3yDfUAAA8PDzr6+sAAAD4+Pg3yDeQkJDTAADt7e3V1dU3yDdCQkIAAADbMTHUAABBykHUAAA2yDY3yDfr6+vTAAB3diDR0dGYcHDUAAAjhiPSAAA3yDeuAADUAAA3yDf////OCALg9+BLzktBuzRelimzKgv87+/dNTVflSn1/PWz6rO126g5yDlYniy0KgwjJ0TyAAAAI3RSTlMABAj0WD6rJcsN7X1HzMqUJyYW+/X08+bltqSeaVRBOy0cE+citBEAAADBSURBVDjLlczXEoIwFIThJPYGiL0XiL3r+z+bBOJs9JDMuLffP8v+Gxfc6aIyDQVjQcnqnvRDEQwLJYtXpZT+YhDHKIjLbS+OUeT4TjkKi6OwOArq+yeKXD9uDqQQbcOjyCy0e6bTojZSftX+U6zUQ7OuittDu1k0WHqRFfdXQijgjKfF6ZwAikvmKD6OQjmKWUcDigkztm5FZN05nMON9ZcoinlBmTNnAUdBnRbUUbgdBZwWbkcBpwXcVsBtxfjb31j1QB5qeebOAAAAAElFTkSuQmCC" rel="icon" type="image/x-icon" />
-<title>Package.Infrastructure.Common.Contracts.RequestContext&lt;T&gt; - Coverage Report</title>
+<title>Package.Infrastructure.Common.Contracts.RequestContext&lt;T1, T2&gt; - Coverage Report</title>
 <link rel="stylesheet" type="text/css" href="report.css" />
 </head><body><div class="container"><div class="containerleft">
 <h1><a href="index.html" class="back">&lt;</a> Summary</h1>
@@ -17,7 +17,7 @@
 <table>
 <tr>
 <th>Class:</th>
-<td class="limit-width " title="Package.Infrastructure.Common.Contracts.RequestContext&lt;T&gt;">Package.Infrastructure.Common.Contracts.RequestContext&lt;T&gt;</td>
+<td class="limit-width " title="Package.Infrastructure.Common.Contracts.RequestContext&lt;T1, T2&gt;">Package.Infrastructure.Common.Contracts.RequestContext&lt;T1, T2&gt;</td>
 </tr>
 <tr>
 <th>Assembly:</th>
@@ -53,7 +53,7 @@
 </tr>
 <tr>
 <th>Total lines:</th>
-<td class="limit-width right" title="9">9</td>
+<td class="limit-width right" title="8">8</td>
 </tr>
 <tr>
 <th>Line coverage:</th>
@@ -107,7 +107,7 @@
 </colgroup>
 <thead><tr><th>Method</th><th>Branch coverage <a href="https://en.wikipedia.org/wiki/Code_coverage" target="_blank"><i class="icon-info-circled"></i></a></th><th>Crap Score <a href="https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" target="_blank"><i class="icon-info-circled"></i></a></th><th>Cyclomatic complexity <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity" target="_blank"><i class="icon-info-circled"></i></a></th><th>Line coverage <a href="https://en.wikipedia.org/wiki/Code_coverage" target="_blank"><i class="icon-info-circled"></i></a></th></tr></thead>
 <tbody>
-<tr><td title=".ctor(System.String,TAuditIdType,System.String)"><a href="#file0_line3" class="navigatetohash">.ctor(...)</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
+<tr><td title=".ctor(System.String,TAuditIdType,TTenantIdType)"><a href="#file0_line3" class="navigatetohash">.ctor(...)</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="get_CorrelationId()"><a href="#file0_line5" class="navigatetohash">get_CorrelationId()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 <tr><td title="get_AuditId()"><a href="#file0_line6" class="navigatetohash">get_AuditId()</a></td><td>100%</td><td>1</td><td>1</td><td>100%</td></tr>
 <tr><td title="get_TenantId()"><a href="#file0_line7" class="navigatetohash">get_TenantId()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
@@ -122,21 +122,20 @@
 <tbody>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line1"></a><code>1</code></td><td></td><td class="lightgray"><code>namespace&nbsp;Package.Infrastructure.Common.Contracts;</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line2"></a><code>2</code></td><td></td><td class="lightgray"><code></code></td></tr>
-<tr class="coverableline" title="Covered (40 visits)" data-coverage="{'AllTestMethods': {'VC': '40', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">40</td><td class="rightmargin right"><a id="file0_line3"></a><code>3</code></td><td></td><td class="lightgreen"><code>public&nbsp;class&nbsp;RequestContext&lt;TAuditIdType&gt;(string&nbsp;correlationId,&nbsp;TAuditIdType&nbsp;auditId,&nbsp;string?&nbsp;tenantId&nbsp;=&nbsp;null)&nbsp;:&nbsp;IReques</code></td></tr>
+<tr class="coverableline" title="Covered (40 visits)" data-coverage="{'AllTestMethods': {'VC': '40', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">40</td><td class="rightmargin right"><a id="file0_line3"></a><code>3</code></td><td></td><td class="lightgreen"><code>public&nbsp;class&nbsp;RequestContext&lt;TAuditIdType,&nbsp;TTenantIdType&gt;(string&nbsp;correlationId,&nbsp;TAuditIdType&nbsp;auditId,&nbsp;TTenantIdType?&nbsp;tena</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line4"></a><code>4</code></td><td></td><td class="lightgray"><code>{</code></td></tr>
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line5"></a><code>5</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;CorrelationId&nbsp;=&gt;&nbsp;correlationId;</code></td></tr>
 <tr class="coverableline" title="Covered (12 visits)" data-coverage="{'AllTestMethods': {'VC': '12', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">12</td><td class="rightmargin right"><a id="file0_line6"></a><code>6</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType&nbsp;AuditId&nbsp;=&gt;&nbsp;auditId;</code></td></tr>
-<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line7"></a><code>7</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;string?&nbsp;TenantId&nbsp;=&gt;&nbsp;tenantId;</code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line8"></a><code>8</code></td><td></td><td class="lightgray"><code></code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line9"></a><code>9</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line7"></a><code>7</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TTenantIdType?&nbsp;TenantId&nbsp;=&gt;&nbsp;tenantId;&nbsp;//&nbsp;Nullable&nbsp;to&nbsp;allow&nbsp;for&nbsp;no&nbsp;tenant&nbsp;context</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line8"></a><code>8</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
 </tbody>
 </table>
 </div>
-<div class="footer">Generated by: ReportGenerator 5.4.7.0<br />05/28/2025 - 01:56:05<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
+<div class="footer">Generated by: ReportGenerator 5.4.7.0<br />05/28/2025 - 03:03:00<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
-<a href="#file0_line3" class="navigatetohash percentagebar percentagebar100" title="Line coverage: 100% - .ctor(System.String,TAuditIdType,System.String)"><i class="icon-cube"></i>.ctor(System.String,TAuditIdType,System.String)</a><br />
+<a href="#file0_line3" class="navigatetohash percentagebar percentagebar100" title="Line coverage: 100% - .ctor(System.String,TAuditIdType,TTenantIdType)"><i class="icon-cube"></i>.ctor(System.String,TAuditIdType,TTenantIdType)</a><br />
 <a href="#file0_line5" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_CorrelationId()"><i class="icon-wrench"></i>get_CorrelationId()</a><br />
 <a href="#file0_line6" class="navigatetohash percentagebar percentagebar100" title="Line coverage: 100% - get_AuditId()"><i class="icon-wrench"></i>get_AuditId()</a><br />
 <a href="#file0_line7" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_TenantId()"><i class="icon-wrench"></i>get_TenantId()</a><br />
