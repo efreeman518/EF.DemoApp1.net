@@ -310,7 +310,7 @@ public static class RegisterServices
 
     private static void AddRequestContextServices(IServiceCollection services)
     {
-        services.AddScoped<IRequestContext<string>>(provider =>
+        services.AddScoped<IRequestContext<string, string>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
             var correlationId = httpContext?.Request.Headers["X-Correlation-ID"].FirstOrDefault() ?? Guid.NewGuid().ToString();
@@ -318,7 +318,7 @@ public static class RegisterServices
             // Background services will not have an http context
             if (httpContext == null)
             {
-                return new RequestContext<string>(correlationId, $"BackgroundService-{correlationId}");
+                return new RequestContext<string, string>(correlationId, $"BackgroundService-{correlationId}", null);
             }
 
             var user = httpContext.User;
@@ -334,12 +334,12 @@ public static class RegisterServices
                 ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
                 ?? "NoAuthImplemented";
 
-            // Determine tenantId from token claim or header
+            // Determine tenantId from token claim 
             // Uses the standard Azure AD tenant ID claim
             string? tenantId =
                 user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
 
-            return new RequestContext<string>(correlationId, auditId, tenantId);
+            return new RequestContext<string, string>(correlationId, auditId, tenantId);
         });
     }
 

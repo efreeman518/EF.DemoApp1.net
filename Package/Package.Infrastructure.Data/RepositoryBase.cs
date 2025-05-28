@@ -6,7 +6,21 @@ using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
 
-public abstract class RepositoryBase<TDbContext, TAuditIdType>(TDbContext dbContext, IRequestContext<TAuditIdType> requestContext)
+/// <summary>
+/// Provides a base implementation for repository operations, offering common data access methods such as querying,
+/// creating, updating, and deleting entities. This class is designed to work with a specific <typeparamref
+/// name="TDbContext"/> and supports auditing and multi-tenancy.
+/// </summary>
+/// <remarks>This abstract class provides a foundation for implementing repository patterns in applications that
+/// use Entity Framework Core. It includes methods for common operations such as checking for entity existence,
+/// creating, updating, deleting, and querying entities. It also supports advanced features like optimistic concurrency
+/// handling, projection queries, and streaming results.</remarks>
+/// <typeparam name="TDbContext">The type of the database context, which must inherit from <see cref="DbContextBase"/>.</typeparam>
+/// <typeparam name="TAuditIdType">The type used for audit identifiers, typically representing the user or system performing the operation.</typeparam>
+/// <typeparam name="TTenantIdType">Not used in RepoBase; The type used for tenant identifiers, supporting multi-tenancy scenarios.</typeparam>
+/// <param name="dbContext"></param>
+/// <param name="requestContext"></param>
+public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TDbContext dbContext, IRequestContext<TAuditIdType, TTenantIdType> requestContext)
     : IRepositoryBase where TDbContext : DbContextBase
 {
     protected TDbContext DB => dbContext;

@@ -71,7 +71,7 @@ public class TodoServiceTests : UnitTestBase
             })
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string>(Guid.NewGuid().ToString(), "Test.Unit");
+        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
         _repoTrxn = new TodoRepositoryTrxn(dbTrxn, src);
         _repoQuery = new TodoRepositoryQuery(dbQuery, src); //not used in this test
     }
