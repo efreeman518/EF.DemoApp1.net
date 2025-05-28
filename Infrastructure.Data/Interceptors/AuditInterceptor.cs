@@ -6,16 +6,18 @@ using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data;
 using System.Diagnostics;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ZLinq;
 
 namespace Infrastructure.Data.Interceptors;
 
 /// <summary>
+/// Registered as transient, but since the DbContext is pooled, this interceptor will be created once per DbContext instance.
 /// https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/interceptors
 /// </summary>
-public class AuditInterceptor(IRequestContext<string, string> requestContext, IInternalMessageBus msgBus) : SaveChangesInterceptor
+/// <param name="msgBus"></param>
+public class AuditInterceptor(IInternalMessageBus msgBus) : SaveChangesInterceptor
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
     private readonly List<AuditEntry> _auditEntries = [];
@@ -31,17 +33,17 @@ public class AuditInterceptor(IRequestContext<string, string> requestContext, II
 
         _startTime = Stopwatch.GetTimestamp();
 
-        var changedEntries = eventData.Context.ChangeTracker.Entries()
+        var changedEntries = eventData.Context.ChangeTracker.Entries().AsValueEnumerable()
             .Where(x => x.Entity is not AuditEntry && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
 
         foreach (var entry in changedEntries)
         {
             //check props for mask
-            PropertyInfo[] propInfo = entry.Entity.GetType().GetProperties();
+            var propInfo = entry.Entity.GetType().GetProperties().AsValueEnumerable();
             var maskedProps = propInfo.Where(pi => Attribute.GetCustomAttribute(pi, typeof(MaskAttribute)) != null).Select(pi => pi.Name).ToList();
             _auditEntries.Add(new AuditEntry
             {
-                AuditId = requestContext.AuditId,
+                AuditId = ((TodoDbContextBase)eventData.Context).AuditId,
                 EntityType = entry.Metadata.DisplayName(), // .Entity.GetType().Name,
                 EntityKey = entry.GetPrimaryKeyValues("N/A").SerializeToJson(jsonSerializerOptions, false)!,
                 Action = entry.State.ToString(),
@@ -58,41 +60,58 @@ public class AuditInterceptor(IRequestContext<string, string> requestContext, II
 
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
-        if (_auditEntries.Count > 0)
+        try
         {
-            var elapsed = Stopwatch.GetElapsedTime(_startTime);
-
-            foreach (var auditEntry in _auditEntries)
+            if (_auditEntries.Count > 0)
             {
-                auditEntry.ElapsedTime = elapsed;
+                var elapsed = Stopwatch.GetElapsedTime(_startTime);
+
+                foreach (var auditEntry in _auditEntries)
+                {
+                    auditEntry.ElapsedTime = elapsed;
+                }
+
+                //publish the audit entries to the internal message broker and let a handler handle them
+                msgBus.Publish(InternalMessageBusProcessMode.Topic, _auditEntries.ToList()); //ToList() makes a copy so when _auditEntries is cleared, the published entries are not affected
+
             }
 
-            //publish the audit entries to the internal message broker and let a handler handle them
-            msgBus.Publish(InternalMessageBusProcessMode.Topic, _auditEntries);
-
+            return await base.SavedChangesAsync(eventData, result, cancellationToken);
         }
-
-        return await base.SavedChangesAsync(eventData, result, cancellationToken);
+        finally
+        {
+            //clear the audit entries after saving changes since this is a pooled DbContext, does not behave like Transient
+            _auditEntries.Clear();
+        }
 
     }
 
     public override async Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
-        if (_auditEntries.Count > 0)
+        try
         {
-            var elapsed = Stopwatch.GetElapsedTime(_startTime);
 
-            foreach (var auditEntry in _auditEntries)
+            if (_auditEntries.Count > 0)
             {
-                auditEntry.ElapsedTime = elapsed;
-                auditEntry.Status = AuditStatus.Failure;
-                auditEntry.Error = eventData.Exception?.GetBaseException().Message;
+                var elapsed = Stopwatch.GetElapsedTime(_startTime);
+
+                foreach (var auditEntry in _auditEntries)
+                {
+                    auditEntry.ElapsedTime = elapsed;
+                    auditEntry.Status = AuditStatus.Failure;
+                    auditEntry.Error = eventData.Exception?.GetBaseException().Message;
+                }
+
+                //publish the audit entries to the internal message broker and let a handler handle them
+                msgBus.Publish(InternalMessageBusProcessMode.Queue, _auditEntries.ToList()); //ToList() makes a copy so when _auditEntries is cleared, the published entries are not affected
             }
 
-            //publish the audit entries to the internal message broker and let a handler handle them
-            msgBus.Publish(InternalMessageBusProcessMode.Queue, _auditEntries);
+            await base.SaveChangesFailedAsync(eventData, cancellationToken);
         }
-
-        await base.SaveChangesFailedAsync(eventData, cancellationToken);
+        finally
+        {
+            //clear the audit entries after saving changes since this is a pooled DbContext, does not behave like Transient
+            _auditEntries.Clear();
+        }
     }
 }

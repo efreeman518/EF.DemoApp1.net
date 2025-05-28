@@ -15,7 +15,7 @@ namespace Infrastructure.Data;
 /// EF Core PMC commands
 /// https://ef.readthedocs.io/en/staging/miscellaneous/cli/powershell.html#add-migration
 /// </summary>
-public class DbContextFactory : IDesignTimeDbContextFactory<TodoDbContextTrxn>
+public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<TodoDbContextTrxn>
 {
     public TodoDbContextTrxn CreateDbContext(string[] args)
     {
@@ -31,6 +31,6 @@ public class DbContextFactory : IDesignTimeDbContextFactory<TodoDbContextTrxn>
 
         var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextTrxn>();
         optionsBuilder.UseSqlServer(connString);
-        return new TodoDbContextTrxn(optionsBuilder.Options);
+        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "DesignTimeAuditId", TenantId = Guid.NewGuid()  };
     }
 }

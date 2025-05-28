@@ -3,6 +3,11 @@ using Microsoft.Extensions.Logging;
 using System.Data.Common;
 
 namespace Infrastructure.Data.Interceptors;
+
+/// <summary>
+/// Registered as transient, but since the DbContext is pooled, this interceptor will be created once per DbContext instance.
+/// </summary>
+/// <param name="logger"></param>
 public class ConnectionNoLockInterceptor(ILogger<ConnectionNoLockInterceptor> logger) : DbConnectionInterceptor
 {
     private readonly ILogger<ConnectionNoLockInterceptor> _logger = logger;

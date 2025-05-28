@@ -126,16 +126,11 @@ public static class IServiceCollectionExtensions
 
         context.AddRequestTransform(async context =>
         {
+            //X-Correlation-ID already handled by CorrelationIdStartupFilter & HeaderPropagation middleware
+
             // Add token auth header
             var token = await tokenService.GetAccessTokenAsync(clusterId);
             context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            // Add correlation id header if present in request
-            var httpContext = context.HttpContext;
-            if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
-            {
-                context.ProxyRequest.Headers.TryAddWithoutValidation("X-Correlation-ID", (string?)correlationId);
-            }
         });
     }
 

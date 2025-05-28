@@ -47,7 +47,5 @@ public static class ProblemDetailsHelper
         }
 
         return problemDetails;
-        //var result = TypedResults.Problem(problemDetails);
-        //return result;
     }
 }

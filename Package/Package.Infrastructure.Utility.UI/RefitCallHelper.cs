@@ -18,7 +18,7 @@ public static class RefitCallHelper
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(30)); // Reasonable timeout
 
-            var result = await Task.Run(async () => await apiCall(), cts.Token);
+            var result = await Task.Run(async () => await apiCall().ConfigureAwait(false), cts.Token);
             return ApiResult<T>.Success(result);
         }
         catch (OperationCanceledException)

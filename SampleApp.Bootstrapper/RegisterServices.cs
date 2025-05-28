@@ -9,6 +9,7 @@ using Application.Services.JobSK.Plugins;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
@@ -310,7 +312,7 @@ public static class RegisterServices
 
     private static void AddRequestContextServices(IServiceCollection services)
     {
-        services.AddScoped<IRequestContext<string, string>>(provider =>
+        services.AddScoped<IRequestContext<string, Guid?>>(provider =>
         {
             var httpContext = provider.GetService<IHttpContextAccessor>()?.HttpContext;
             var correlationId = httpContext?.Request.Headers["X-Correlation-ID"].FirstOrDefault() ?? Guid.NewGuid().ToString();
@@ -318,7 +320,7 @@ public static class RegisterServices
             // Background services will not have an http context
             if (httpContext == null)
             {
-                return new RequestContext<string, string>(correlationId, $"BackgroundService-{correlationId}", null);
+                return new RequestContext<string, Guid?>(correlationId, $"BackgroundService-{correlationId}", null);
             }
 
             var user = httpContext.User;
@@ -334,12 +336,12 @@ public static class RegisterServices
                 ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
                 ?? "NoAuthImplemented";
 
-            // Determine tenantId from token claim 
-            // Uses the standard Azure AD tenant ID claim
-            string? tenantId =
-                user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
+            // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
+            string? tenantIdClaim =
+                user?.Claims.FirstOrDefault(c => c.Type == "clientTenantId")?.Value;
+            Guid? tenantId = Guid.TryParse(tenantIdClaim, out var parsedTenantId) ? parsedTenantId : null;
 
-            return new RequestContext<string, string>(correlationId, auditId, tenantId);
+            return new RequestContext<string, Guid?>(correlationId, auditId, tenantId);
         });
     }
 
@@ -349,9 +351,9 @@ public static class RegisterServices
         services.AddScoped<ITodoRepositoryTrxn, TodoRepositoryTrxn>();
         services.AddScoped<ITodoRepositoryQuery, TodoRepositoryQuery>();
 
-        // Register EF interceptors
-        services.AddScoped<AuditInterceptor>();
-        services.AddScoped<ConnectionNoLockInterceptor>();
+        // Register EF interceptors; used in PooledDbContextFactory singleton so cannot be scoped
+        services.AddTransient<AuditInterceptor>();
+        services.AddTransient<ConnectionNoLockInterceptor>();
 
         // Configure database contexts
         ConfigureDatabaseContexts(services, config);
@@ -395,7 +397,7 @@ public static class RegisterServices
         //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
         //sql compatibility level - https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-compatibility-level?view=azuresqldb-current
 
-        services.AddDbContext<TodoDbContextTrxn>((sp, options) =>
+        services.AddPooledDbContextFactory<TodoDbContextTrxn>((sp, options) =>
         {
             ConfigureTrxnDbContext(options, trxnDBConnectionString);
             var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
@@ -404,14 +406,44 @@ public static class RegisterServices
                 .AddInterceptors(auditInterceptor);
         });
 
+        //services.AddSingleton<IDbContextFactory<TodoDbContextTrxn>>(sp =>
+        //{
+        //    var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextTrxn>();
+        //    ConfigureTrxnDbContext(optionsBuilder, trxnDBConnectionString);
+        //    var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
+        //    optionsBuilder
+        //        .UseExceptionProcessor()
+        //        .AddInterceptors(auditInterceptor);
+
+        //    return new PooledDbContextFactory<TodoDbContextTrxn>(optionsBuilder.Options);
+        //});
+        services.AddScoped<TodoDbContextTrxnScopedFactory>();
+        services.AddScoped(sp => sp.GetRequiredService<TodoDbContextTrxnScopedFactory>().CreateDbContext());
+
         if (queryDBConnectionString != null)
         {
-            services.AddDbContext<TodoDbContextQuery>((sp, options) =>
+            services.AddPooledDbContextFactory<TodoDbContextQuery>((sp, options) =>
             {
                 ConfigureQueryDbContext(options, queryDBConnectionString);
                 var noLockInterceptor = sp.GetRequiredService<ConnectionNoLockInterceptor>();
-                options.AddInterceptors(noLockInterceptor);
+                options
+                    .UseExceptionProcessor()
+                    .AddInterceptors(noLockInterceptor);
             });
+
+            //services.AddSingleton<IDbContextFactory<TodoDbContextQuery>>(sp =>
+            //{
+            //    var optionsBuilder = new DbContextOptionsBuilder<TodoDbContextQuery>();
+            //    ConfigureQueryDbContext(optionsBuilder, queryDBConnectionString);
+            //    var noLockInterceptor = sp.GetRequiredService<ConnectionNoLockInterceptor>();
+            //    optionsBuilder
+            //        .UseExceptionProcessor()
+            //        .AddInterceptors(noLockInterceptor);
+
+            //    return new PooledDbContextFactory<TodoDbContextQuery>(optionsBuilder.Options);
+            //});
+            services.AddScoped<TodoDbContextQueryScopedFactory>();
+            services.AddScoped(sp => sp.GetRequiredService<TodoDbContextQueryScopedFactory>().CreateDbContext());
         }
     }
 
@@ -421,7 +453,7 @@ public static class RegisterServices
         {
             options.UseAzureSql(connectionString, sqlOptions =>
             {
-                sqlOptions.UseCompatibilityLevel(160);
+                sqlOptions.UseCompatibilityLevel(170);
                 //retry strategy does not support user initiated transactions 
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
                 //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
@@ -445,11 +477,12 @@ public static class RegisterServices
 
     private static void ConfigureQueryDbContext(DbContextOptionsBuilder options, string connectionString)
     {
+        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         if (connectionString.Contains("database.windows.net"))
         {
             options.UseAzureSql(connectionString, sqlOptions =>
             {
-                sqlOptions.UseCompatibilityLevel(160);
+                sqlOptions.UseCompatibilityLevel(170);
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
                 //use relational null semantics 3-valued logic (true, false, null) instead of c# which may generate less efficient sql, but LINQ queries will have a different meaning
                 //https://learn.microsoft.com/en-us/ef/core/querying/null-comparisons
@@ -458,8 +491,7 @@ public static class RegisterServices
                 //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
                 //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
 
-            })
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
         }
         else
         {
@@ -474,8 +506,7 @@ public static class RegisterServices
                 //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
                 //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
 
-            })
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
         }
     }
 

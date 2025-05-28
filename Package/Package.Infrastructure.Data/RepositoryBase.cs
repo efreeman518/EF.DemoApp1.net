@@ -20,11 +20,11 @@ namespace Package.Infrastructure.Data;
 /// <typeparam name="TTenantIdType">Not used in RepoBase; The type used for tenant identifiers, supporting multi-tenancy scenarios.</typeparam>
 /// <param name="dbContext"></param>
 /// <param name="requestContext"></param>
-public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TDbContext dbContext, IRequestContext<TAuditIdType, TTenantIdType> requestContext)
-    : IRepositoryBase where TDbContext : DbContextBase
+public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TDbContext dbContext)
+    : IRepositoryBase where TDbContext : DbContextBase<TAuditIdType, TTenantIdType>
 {
     protected TDbContext DB => dbContext;
-    private TAuditIdType AuditId => requestContext.AuditId;
+    //private TAuditIdType AuditId => requestContext.AuditId;
 
     public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
@@ -124,7 +124,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <returns></returns>
     public Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, CancellationToken cancellationToken = default)
     {
-        return dbContext.SaveChangesAsync(winner, AuditId, cancellationToken: cancellationToken);
+        return dbContext.SaveChangesAsync(winner, cancellationToken: cancellationToken);
     }
 
     /// <summary>

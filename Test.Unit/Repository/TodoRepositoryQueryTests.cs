@@ -31,8 +31,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var rc = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, rc);
+        //var rc = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -65,8 +65,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildSQLite<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         var search = new SearchRequest<TodoItemSearchFilter> { PageSize = 10, PageIndex = 1 };
@@ -99,8 +99,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         var response = await repoQuery.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
@@ -130,8 +130,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
@@ -161,8 +161,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -198,8 +198,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -235,8 +235,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(100)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -273,8 +273,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.AddRange(TodoDbContextSupport.TodoItemListFactory(10)))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         Debug.WriteLine($"{DateTime.Now} - Start");
@@ -324,8 +324,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(customData)
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //search criteria
         var search = new SearchRequest<TodoItemSearchFilter>
@@ -355,8 +355,8 @@ public class TodoRepositoryQueryTests : UnitTestBase
             .UseEntityData(entities => entities.Add(TodoDbContextSupport.TodoItemFactory("some entity a")))
             .BuildInMemory<TodoDbContextQuery>();
 
-        var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
-        var repoQuery = new TodoRepositoryQuery(db, src);
+        //var src = new RequestContext<string, string>(Guid.NewGuid().ToString(), "Test.Unit", null);
+        var repoQuery = new TodoRepositoryQuery(db);
 
         //act & assert
         var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);

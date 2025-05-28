@@ -16,7 +16,7 @@ public static partial class WebApplicationBuilderExtensions
 
     private static void ConfigureSecurity(WebApplication app)
     {
-        // ACA (internal to the container env) doesn't like, but ok for other hosting (local, App Service, etc.)
+        // ACA (internal to the container env) doesn't like (maybe expose 443 on the container?), but ok for other hosting (local, App Service, etc.)
         if (app.Configuration.GetValue("EnforceHttpsRedirection", false))
         {
             app.UseHttpsRedirection();

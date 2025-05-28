@@ -11,19 +11,20 @@ namespace Package.Infrastructure.Data;
 /// https://github.com/Giorgi/EntityFramework.Exceptions/blob/main/EntityFramework.Exceptions.Common/Exceptions.cs
 /// </summary>
 /// <param name="options"></param>
-public abstract class DbContextBase(DbContextOptions options) : DbContext(options)
+public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOptions options) : DbContext(options)
 {
+    // AuditId set in the factory, used for auditing
+    public required TAuditIdType AuditId { get; set; }
+
+    //TenantId set in the factory, so it can be used in query filters
+    public TTenantIdType? TenantId { get; set; }
+
+
     //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
     //This approach does not lend itself to testing (unless you target the full database).
     //https://docs.microsoft.com/en-us/ef/core/miscellaneous/configuring-dbcontext
 
     public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException("SaveChangesAsync() overload with auditId must be used.");
-    }
-
-    public async override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         await Task.CompletedTask;
         throw new NotImplementedException("SaveChangesAsync() overload with auditId must be used.");
@@ -42,7 +43,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="DbUpdateConcurrencyException"></exception>
-    public async Task<int> SaveChangesAsync<TAuditIdType>(OptimisticConcurrencyWinner winner, TAuditIdType auditId, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, bool acceptAllChangesOnSuccess = true, int concurrencyExceptionRetries = 3, CancellationToken cancellationToken = default)
     {
         int retryCount = 0;
         while (retryCount++ < concurrencyExceptionRetries)
@@ -50,7 +51,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
             try
             {
                 // Attempt to save changes to the database
-                return await SaveChangesAsync(auditId, acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+                return await SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -78,12 +79,7 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
         throw new DbUpdateConcurrencyException($"DbUpdateConcurrencyException retry limit reached, unable to save {winner}");
     }
 
-    //private static bool IsEntityEntryBaseDerived(EntityEntry entry, Type typeBase)
-    //{
-    //    return entry.Entity.GetType().IsSubclassOf(typeBase);
-    //}
-
-    private async Task<int> SaveChangesAsync<TAuditIdType>(TAuditIdType auditId, bool acceptAllChangesOnSuccess = true, CancellationToken cancellationToken = default)
+    public async override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         //Audit table tracking option - create audit records alternative to audit properties on the entity
         foreach (var entity in ChangeTracker.Entries<EntityBase>())
@@ -104,13 +100,13 @@ public abstract class DbContextBase(DbContextOptions options) : DbContext(option
             {
                 //update audit preperties
                 auditableEntity.Entity.UpdatedDate = DateTime.UtcNow;
-                auditableEntity.Entity.UpdatedBy = auditId;
+                auditableEntity.Entity.UpdatedBy = AuditId;
 
                 //populate created date and created by columns for newly added record.
                 if (auditableEntity.State == EntityState.Added)
                 {
                     auditableEntity.Entity.CreatedDate = DateTime.UtcNow;
-                    auditableEntity.Entity.CreatedBy = auditId;
+                    auditableEntity.Entity.CreatedBy = AuditId;
                 }
                 else
                 {

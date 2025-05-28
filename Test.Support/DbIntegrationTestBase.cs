@@ -175,7 +175,7 @@ public abstract class DbIntegrationTestBase : IntegrationTestBase
             }
         }
         await DbContext.SeedDatabaseAsync(Logger, seedPaths, seedFactories, cancellationToken);
-        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
+        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken: cancellationToken);
     }
 
     protected static async Task BaseClassCleanup()

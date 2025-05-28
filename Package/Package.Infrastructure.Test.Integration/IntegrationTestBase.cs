@@ -335,12 +335,12 @@ public abstract class IntegrationTestBase
     private static void ConfigureRequestContext(ServiceCollection services)
     {
         // IRequestContext - injected into repositories, cache managers, etc.
-        services.AddScoped<IRequestContext<string, string>>(provider =>
+        services.AddScoped<IRequestContext<string, Guid?>>(provider =>
         {
-            return new RequestContext<string, string>(
+            return new RequestContext<string, Guid?>(
                 Guid.NewGuid().ToString(),
                 "IntegrationTest",
-                "SomeTenantId"
+                null
             );
         });
     }

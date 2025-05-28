@@ -1,6 +1,9 @@
 ﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using Package.Infrastructure.Data;
+using Package.Infrastructure.Data.Contracts;
+using System.Linq.Expressions;
+using ZLinq;
 
 namespace Infrastructure.Data;
 
@@ -46,40 +49,66 @@ namespace Infrastructure.Data;
  * https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant
  */
 
-public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBase(options)
+public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBase<string, Guid?>(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        //schema
+        // schema
         modelBuilder.HasDefaultSchema("todo");
 
-        //datatype defaults for sql
-        //decimal
-        foreach (var property in modelBuilder.Model.GetEntityTypes()
-            .SelectMany(t => t.GetProperties())
-            .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+        // table configurations
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextBase).Assembly);
+
+        // datatype defaults for sql
+        // decimal
+        var decimalProperties = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
+            .SelectMany(t => t.GetProperties().AsValueEnumerable())
+            .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?))
+            .Where(p => p.GetColumnType() == null);
+
+        foreach (var property in decimalProperties)
         {
-            if (property.GetColumnType() == null) property.SetColumnType("decimal(10,4)");
-        }
-        //dates
-        foreach (var property in modelBuilder.Model.GetEntityTypes()
-            .SelectMany(t => t.GetProperties())
-            .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
-        {
-            if (property.GetColumnType() == null) property.SetColumnType("datetime2");
+            property.SetColumnType("decimal(10,4)");
         }
 
-        //table configurations
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextBase).Assembly);
+        // dates
+        var dateProperties = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
+            .SelectMany(t => t.GetProperties().AsValueEnumerable())
+            .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?))
+            .Where(p => p.GetColumnType() == null);
+
+        foreach (var property in dateProperties)
+        {
+            property.SetColumnType("datetime2");
+        }
+
+        // query filter - for all entities with ITenantEntity<TTenantIdType> interface
+        var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes().AsValueEnumerable()
+            .Where(entityType => typeof(ITenantEntity<Guid?>).IsAssignableFrom(entityType.ClrType))
+            .Select(entityType => entityType.ClrType);
+
+        foreach (var clrType in tenantEntityClrTypes)
+        {
+            var filter = BuildTenantFilter(clrType, TenantId);
+            modelBuilder.Entity(clrType).HasQueryFilter(filter);
+        }
     }
 
-    override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    //optionsBuilder.AddInterceptors(auditInterceptor);
+    //    base.OnConfiguring(optionsBuilder);
+    //}
+
+    private static LambdaExpression BuildTenantFilter(Type entityType, object? tenantId)
     {
-        //optionsBuilder.AddInterceptors(auditInterceptor);
-        base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        var parameter = Expression.Parameter(entityType, "e");
+        var property = Expression.Property(parameter, nameof(ITenantEntity<Guid?>.TenantId));
+        var tenantIdValue = Expression.Constant(tenantId, typeof(Guid?));
+        var equalsExpression = Expression.Equal(property, tenantIdValue);
+        return Expression.Lambda(equalsExpression, parameter);
     }
 
     //DbSets

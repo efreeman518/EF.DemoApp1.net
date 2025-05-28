@@ -1,6 +1,6 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public interface ITenantEntity<TTenantId>
+public interface ITenantEntity<TTenantIdType>
 {
-    public TTenantId TenantId { get; init; }
+    public TTenantIdType TenantId { get; init; }
 }

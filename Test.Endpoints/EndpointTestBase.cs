@@ -162,7 +162,7 @@ public abstract class EndpointTestBase
             }
         }
         await DbContext.SeedDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, cancellationToken);
-        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, _testContextName, cancellationToken: cancellationToken);
+        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken: cancellationToken);
     }
 
     public static async Task BaseClassCleanup()
@@ -192,7 +192,7 @@ public abstract class EndpointTestBase
         {
             optionsBuilder.UseSqlServer(dbSource);
         }
-        return new TodoDbContextTrxn(optionsBuilder.Options);
+        return new TodoDbContextTrxn(optionsBuilder.Options) { AuditId = "EndpointTests"};
     }
 
 }

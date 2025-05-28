@@ -40,7 +40,7 @@ public class DatabaseConfigurationProvider : ConfigurationProvider
         // Read data from database and populate Data dictionary
         var builder = new DbContextOptionsBuilder<SystemSettingsDbContext>();
         _optionsAction(builder);
-        using var dbContext = new SystemSettingsDbContext(builder.Options);
+        using var dbContext = new SystemSettingsDbContext(builder.Options) { AuditId = "System" };
         dbContext.Database.EnsureCreated();
         Data = !dbContext.SystemSettings.Any()
             ? CreateAndSaveDefaultValues(dbContext)
