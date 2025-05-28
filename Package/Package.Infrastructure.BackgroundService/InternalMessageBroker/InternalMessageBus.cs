@@ -92,15 +92,14 @@ public class InternalMessageBus(
     }
 
     /// <summary>
-    /// Raise event(s) to registered handlers
+    /// Publish message(s) to registered handlers
     /// </summary>
     public void Publish<T>(InternalMessageBusProcessMode mode, ICollection<T> messages) where T : IMessage
     {
         logger.LogDebug("Publish Start {Mode} {MessageType}", mode, typeof(T));
 
         //get the handlers for the message type
-        if (!_handlers.TryGetValue(typeof(T), out var bag) || bag.IsEmpty)
-            return;
+        if (!_handlers.TryGetValue(typeof(T), out var bag) || bag.IsEmpty) return;
 
         var handlerInfos = bag.ToList();
         QueueMessageHandlerWork(mode, handlerInfos, messages);

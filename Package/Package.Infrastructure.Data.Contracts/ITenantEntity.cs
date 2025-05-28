@@ -1,6 +1,6 @@
 ﻿namespace Package.Infrastructure.Data.Contracts;
 
-public interface ITenantEntity : IEntityBase<Guid>
+public interface ITenantEntity<TTenantId> 
 {
-    public Guid TenantId { get; init; }
+    public TTenantId TenantId { get; init; }
 }
