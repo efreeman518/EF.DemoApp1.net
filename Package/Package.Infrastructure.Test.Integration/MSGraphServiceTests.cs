@@ -28,8 +28,8 @@ public class MSGraphServiceTests : IntegrationTestBase
             { "UserRoles", JsonSerializer.Serialize(roles)}
         };
 
-        var request = new CreateUserRequest(true, "SomeDisplayName", "eben.freeman+a3@gmail.com", "changeOnLoginRequired8[", additionalData);
-        var userId = await _graph.CreateUserAsync(request);
+        var request = new UpsertUserRequest(null, true, "SomeDisplayName", "eben.freeman+a3@gmail.com", true, "changeOnLoginRequired8[", additionalData);
+        var userId = await _graph.UpsertUserAsync(request);
 
         Assert.IsNotNull(userId, "User ID should not be null."); //eed180f4-dde1-4be3-8ae1-fff12c64a08a  8737ffb9-d4c3-4231-8882-2c67ef3eec7e
 
