@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using SampleApp.UI1.Model
+@using SampleApp.UI1.Utility
+@using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Options
+
+@layout EmptyLayout
+@inject NavigationManager Navigation
+@* @inject AppStateService AppStateService
+@inject IOptions<B2CSettings> B2CSettings *@
+
+<h3>Login Failed</h3>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>Error: @ErrorMessage</p>
+}
+else
+{
+    <p>An unknown error occurred during login. Please try again.</p>
+}
+
+<p><a href="">Try to log in again</a></p>
+
+@code {
+    private string? ErrorMessage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("message", out StringValues messageValues))
+        {
+            ErrorMessage = messageValues.FirstOrDefault();
+        }
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            Console.WriteLine($"LoginFailedHandler: Error message from query: {ErrorMessage}");
+        }
+        else
+        {
+            Console.WriteLine("LoginFailedHandler: No error message found in query parameters.");
+        }
+    }
+}

@@ -12,18 +12,27 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
     {
         logger.LogInformation("Creating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
         var user = new User
-        { 
+        {
             AccountEnabled = request.AccountEnabled,
             DisplayName = request.DisplayName,
             MailNickname = request.Email.Split('@')[0],
-            UserPrincipalName = request.Email,
+            //UserPrincipalName = request.Email, // Do not set UserPrincipalName for B2C local accounts
             PasswordProfile = new PasswordProfile
             {
                 ForceChangePasswordNextSignIn = true,
                 Password = request.Password
-            }
+            },
+            Identities =
+            [
+                new ObjectIdentity
+                {
+                    SignInType = "emailAddress",
+                    Issuer = settings.Value.IdentityIssuer, // e.g., contosob2c.onmicrosoft.com
+                    IssuerAssignedId = request.Email
+                }
+            ]
         };
-        if(request.AdditionalData != null)
+        if (request.AdditionalData != null)
         {
             //can be in claims for user's access token
             user.AdditionalData ??= new Dictionary<string, object>();

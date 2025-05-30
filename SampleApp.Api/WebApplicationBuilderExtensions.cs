@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Package.Infrastructure.AspNetCore.HealthChecks;
 using Package.Infrastructure.Auth.Tokens;
 using SampleApp.Api.Endpoints;
+using SampleApp.Api.Middleware;
 using SampleApp.Grpc;
 using Scalar.AspNetCore;
 
@@ -78,6 +79,7 @@ public static partial class WebApplicationBuilderExtensions
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseCustomHeaderAuth(); //extract roles from gateway request & assign to current request 
     }
 
     private static void SetupOpenApi(WebApplication app, IConfiguration config)

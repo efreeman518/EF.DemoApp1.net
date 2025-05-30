@@ -5,7 +5,6 @@ using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Common.Extensions;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Yarp.ReverseProxy.Transforms;
@@ -155,6 +154,9 @@ public static class IServiceCollectionExtensions
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(userAccessToken);
 
+            //extension_UserRoles: ["Admin", "User"]
+            //extension_UserTenantId: 9700d4ee - 5d75 - 49fa - 9be5 - 616bbfe718bc
+
             // Extract relevant claims
             var claims = new Dictionary<string, string?>
             {
@@ -162,7 +164,8 @@ public static class IServiceCollectionExtensions
                 ["email"] = jwt.Claims.FirstOrDefault(c => c.Type == "emails")?.Value ?? jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value,
                 ["name"] = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value,
                 ["oid"] = jwt.Claims.FirstOrDefault(c => c.Type == "oid")?.Value,
-                ["clientTenantId"] = jwt.Claims.FirstOrDefault(c => c.Type == "clientTenantId")?.Value
+                ["userTenantId"] = jwt.Claims.FirstOrDefault(c => c.Type == "extension_UserTenantId")?.Value,
+                ["userRoles"] = jwt.Claims.FirstOrDefault(c => c.Type == "extension_UserRoles")?.Value
             };
 
             // Remove null values & Serialize to JSON and add as a single header

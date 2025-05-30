@@ -38,6 +38,10 @@ using (var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment
 //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standalone-with-azure-active-directory-b2c?view=aspnetcore-9.0
 //https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows?pivots=b2c-user-flow
 //https://www.youtube.com/watch?v=S5PRH_N7pag&list=PL1MU-CoFk_3vDt8J8XivnYrwKlJHcqAu3&index=14
+
+// Configure B2cSettings from the "AzureAdB2C" config section in case needed to inject into components or services
+// builder.Services.Configure<B2CSettings>(builder.Configuration.GetSection("AzureAdB2C"));
+
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);

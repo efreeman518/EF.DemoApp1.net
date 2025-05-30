@@ -1,6 +1,5 @@
 ﻿using Azure.Core;
 using Azure.Identity;
-using Microsoft.Identity.Client;
 using System.Collections.Concurrent;
 
 namespace SampleApp.Gateway;

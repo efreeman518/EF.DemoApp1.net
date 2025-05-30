@@ -12,7 +12,7 @@ namespace Infrastructure.MSGraphB2C;
 /// <param name="logger"></param>
 /// <param name="settings"></param>
 /// <param name="graphClient"></param>
-public class MSGraphServiceB2C(ILogger<MSGraphServiceB2C> logger, IOptions<MSGraphServiceB2CSettings> settings, [FromKeyedServices("MSGraphServiceB2C")] GraphServiceClient graphClient) 
+public class MSGraphServiceB2C(ILogger<MSGraphServiceB2C> logger, IOptions<MSGraphServiceB2CSettings> settings, [FromKeyedServices("MSGraphServiceB2C")] GraphServiceClient graphClient)
     : MSGraphServiceBase(logger, settings, graphClient), IMSGraphServiceB2C
 {
 

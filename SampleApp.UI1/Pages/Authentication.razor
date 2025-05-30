@@ -8,7 +8,15 @@
 @inject NavigationManager Navigation
 @inject AppStateService AppStateService
 
-<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded" />
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded">
+    <LogInFailed>
+        @* This content will be displayed if RemoteAuthenticatorView itself handles a login action
+           and it fails directly, before navigating to /authentication/login-failed.
+           For direct navigation to /authentication/login-failed, the LoginFailedHandler
+           will rely on query parameters. *@
+        <SampleApp.UI1.Components.LoginFailedHandler />
+    </LogInFailed>
+</RemoteAuthenticatorView>
 
 @code {
     [CascadingParameter]

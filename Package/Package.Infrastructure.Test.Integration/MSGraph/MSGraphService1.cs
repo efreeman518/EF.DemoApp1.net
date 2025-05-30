@@ -12,7 +12,7 @@ namespace Package.Infrastructure.Test.Integration.MSGraph;
 /// <param name="logger"></param>
 /// <param name="settings"></param>
 /// <param name="graphClient"></param>
-public class MSGraphService1(ILogger<MSGraphServiceBase> logger, IOptions<MSGraphServiceSettings1> settings, [FromKeyedServices("MSGraphService1")] GraphServiceClient graphClient) 
+public class MSGraphService1(ILogger<MSGraphServiceBase> logger, IOptions<MSGraphServiceSettings1> settings, [FromKeyedServices("MSGraphService1")] GraphServiceClient graphClient)
     : MSGraphServiceBase(logger, settings, graphClient), IMSGraphService1
 {
 

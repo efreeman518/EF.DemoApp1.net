@@ -49,7 +49,6 @@ using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
 using StackExchange.Redis;
-using System.Security.Claims;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
@@ -173,7 +172,7 @@ public static class RegisterServices
         var msgraphServiceConfigSection = config.GetSection(MSGraphServiceB2CSettings.ConfigSectionName);
         if (msgraphServiceConfigSection.GetChildren().Any())
         {
-            //register the GraphServiceClient keyed by name
+            //register the GraphServiceClient keyed by name, does not currently support managed identity, so using ClientSecretCredential
             services.AddKeyedSingleton("MSGraphServiceB2C", (_, _) =>
             {
                 var tenantId = msgraphServiceConfigSection["TenantId"];
@@ -372,7 +371,7 @@ public static class RegisterServices
                 // Audit ID is typically the user's subject, email or object ID; if not available, use "NoAuditClaim"
                 auditId = GetFirstKeyValue(claims, "sub", "oid") ?? "NoAuditClaim";
                 // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
-                tenantId = Guid.TryParse(GetFirstKeyValue(claims, "clientTenantId"), out Guid clientTenantId) ? clientTenantId : null;
+                tenantId = Guid.TryParse(GetFirstKeyValue(claims, "userTenantId"), out Guid clientTenantId) ? clientTenantId : null;
             }
 
             return new RequestContext<string, Guid?>(correlationId, auditId, tenantId);
