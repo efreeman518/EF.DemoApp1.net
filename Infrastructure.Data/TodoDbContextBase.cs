@@ -95,6 +95,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         }
     }
 
+    //runs only once per context so when pooled, essentially each DbContext is long-lived and re-used, OnConfiguring not run for each new 'scoped' use
     //override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //{
     //    //optionsBuilder.AddInterceptors(auditInterceptor);

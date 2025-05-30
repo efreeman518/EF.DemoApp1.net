@@ -4,7 +4,10 @@ using Microsoft.Identity.Web;
 using Package.Infrastructure.AspNetCore.Filters;
 using Package.Infrastructure.Auth.Handlers;
 using Package.Infrastructure.Common.Extensions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 
@@ -126,12 +129,48 @@ public static class IServiceCollectionExtensions
 
         context.AddRequestTransform(async context =>
         {
-            //X-Correlation-ID already handled by CorrelationIdStartupFilter & HeaderPropagation middleware
+            AddOriginalUserClaimsHeader(context);
 
-            // Add token auth header
+            // Token auth header based on DefaultAzureCredential (managed identity, etc)
             var token = await tokenService.GetAccessTokenAsync(clusterId);
             context.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         });
+    }
+
+    /// <summary>
+    /// Include original user claims in the request header for downstream services.
+    /// The original user claims are extracted from the incoming B2C token and added as a JSON string in the "X-Orig-Request" header.
+    /// </summary>
+    /// <param name="context"></param>
+    private static void AddOriginalUserClaimsHeader(RequestTransformContext context)
+    {
+        // Extract the original B2C token from the incoming request
+        var authHeader = context.HttpContext.Request.Headers.Authorization.FirstOrDefault();
+        var userAccessToken = authHeader?.StartsWith("Bearer ") == true
+            ? authHeader["Bearer ".Length..]
+            : null;
+
+        if (!string.IsNullOrEmpty(userAccessToken))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(userAccessToken);
+
+            // Extract relevant claims
+            var claims = new Dictionary<string, string?>
+            {
+                ["sub"] = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value,
+                ["email"] = jwt.Claims.FirstOrDefault(c => c.Type == "emails")?.Value ?? jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value,
+                ["name"] = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value,
+                ["oid"] = jwt.Claims.FirstOrDefault(c => c.Type == "oid")?.Value,
+                ["clientTenantId"] = jwt.Claims.FirstOrDefault(c => c.Type == "clientTenantId")?.Value
+            };
+
+            // Remove null values & Serialize to JSON and add as a single header
+            var filteredClaims = claims.Where(kv => !string.IsNullOrEmpty(kv.Value)).ToDictionary(kv => kv.Key, kv => kv.Value);
+            var claimsJson = JsonSerializer.Serialize(filteredClaims);
+            context.ProxyRequest.Headers.Remove("X-Orig-Request");
+            context.ProxyRequest.Headers.Add("X-Orig-Request", claimsJson);
+        }
     }
 
     private static void AddCorrelationTracking(IServiceCollection services)

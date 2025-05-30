@@ -63,6 +63,7 @@
     <ProjectReference Include="..\Package.Infrastructure.CosmosDb\Package.Infrastructure.CosmosDb.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.KeyVault\Package.Infrastructure.KeyVault.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Messaging\Package.Infrastructure.Messaging.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.MSGraph\Package.Infrastructure.MSGraph.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.OpenAI\Package.Infrastructure.OpenAI.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Table\Package.Infrastructure.Table.csproj" />

@@ -13,6 +13,7 @@ using EntityFramework.Exceptions.SqlServer;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.JobsApi;
+using Infrastructure.MSGraphB2C;
 using Infrastructure.RapidApi.WeatherApi;
 using Infrastructure.Repositories;
 using Infrastructure.SampleApi;
@@ -28,6 +29,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Graph;
 using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Package.Infrastructure.AspNetCore.Chaos;
@@ -48,6 +50,7 @@ using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
 using StackExchange.Redis;
 using System.Security.Claims;
+using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 using static Microsoft.KernelMemory.AzureOpenAIConfig;
@@ -74,26 +77,26 @@ public static class RegisterServices
     /// </summary>
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-        AddMessageHandlers(services);
         AddApplicationServices(services, config);
+        AddMessageHandlers(services);
         AddJobChatServices(services, config);
         AddJobAssistantServices(services, config);
         AddJobSearchServices(services, config);
-
         return services;
-    }
-
-    private static void AddMessageHandlers(IServiceCollection services)
-    {
-
-        services.AddSingleton<IMessageHandler<AuditEntry<string>>, AuditHandler>();
-        services.AddScoped<IMessageHandler<AuditEntry<string>>, SomeScopedHandler>();
     }
 
     private static void AddApplicationServices(IServiceCollection services, IConfiguration config)
     {
         services.AddScoped<ITodoService, TodoService>();
         services.Configure<TodoServiceSettings>(config.GetSection(TodoServiceSettings.ConfigSectionName));
+
+        services.AddScoped<IB2CManagement, B2CManagement>();
+    }
+
+    private static void AddMessageHandlers(IServiceCollection services)
+    {
+        services.AddSingleton<IMessageHandler<AuditEntry<string>>, AuditHandler>();
+        services.AddScoped<IMessageHandler<AuditEntry<string>>, SomeScopedHandler>();
     }
 
     private static void AddJobChatServices(IServiceCollection services, IConfiguration config)
@@ -151,6 +154,7 @@ public static class RegisterServices
         AddConfigurationServices(services, config);
         AddInternalServices(services);
         AddCachingServices(services, config);
+        AddB2CManagementService(services, config);
         AddRequestContextServices(services);
         AddDatabaseServices(services, config);
         AddJobsApiServices(services, config);
@@ -162,6 +166,27 @@ public static class RegisterServices
         AddStartupTasks(services);
 
         return services;
+    }
+
+    private static void AddB2CManagementService(IServiceCollection services, IConfiguration config)
+    {
+        var msgraphServiceConfigSection = config.GetSection(MSGraphServiceB2CSettings.ConfigSectionName);
+        if (msgraphServiceConfigSection.GetChildren().Any())
+        {
+            //register the GraphServiceClient keyed by name
+            services.AddKeyedSingleton("MSGraphServiceB2C", (_, _) =>
+            {
+                var tenantId = msgraphServiceConfigSection["TenantId"];
+                var clientId = msgraphServiceConfigSection["ClientId"];
+                var clientSecret = msgraphServiceConfigSection["ClientSecret"];
+                var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+                return new GraphServiceClient(credential, [msgraphServiceConfigSection["GraphBaseUrl"]]);
+            });
+
+            //register the MSGraphService implementation (injected with the keyed GraphServiceClient)
+            services.AddSingleton<IMSGraphServiceB2C, MSGraphServiceB2C>();
+            services.Configure<MSGraphServiceB2CSettings>(msgraphServiceConfigSection);
+        }
     }
 
     private static void AddInternalServices(IServiceCollection services)
@@ -323,26 +348,47 @@ public static class RegisterServices
                 return new RequestContext<string, Guid?>(correlationId, $"BackgroundService-{correlationId}", null);
             }
 
-            var user = httpContext.User;
-
             // Get auditId from token claim or header - tries multiple claim types in order of preference:
             // 1. Email claim (typically user email)
             // 2. Object ID claim (Azure AD user or service principal object ID)
             // 3. App ID claim (client application ID)
             // 4. Falls back to "NoAuthImplemented" if no claims found
-            string? auditId =
-                user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
-                ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
-                ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
-                ?? "NoAuthImplemented";
+            //var user = httpContext.User;
+            //string? auditId =
+            //    user?.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+            //    ?? user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
+            //    ?? user?.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+            //    ?? user?.Claims.FirstOrDefault(c => c.Type == "appid")?.Value
+            //    ?? "NoAuthImplemented";
 
-            // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
-            string? tenantIdClaim =
-                user?.Claims.FirstOrDefault(c => c.Type == "clientTenantId")?.Value;
-            Guid? tenantId = Guid.TryParse(tenantIdClaim, out var parsedTenantId) ? parsedTenantId : null;
+            // Get original claims from header; this is typically set by the reverse proxy or API gateway to pass through user claims
+            // OBO (on behalf of) tokens are not an option when the ui/gateway authority (AzureB2C) is different than this API authority (EntraID)
+            var origClaimsHeader = httpContext.Request.Headers["X-Orig-Request"].FirstOrDefault();
+            var claims = JsonSerializer.Deserialize<Dictionary<string, string>>(origClaimsHeader!);
+            string auditId = "";
+            Guid? tenantId = null;
+            if (claims != null)
+            {
+                // Audit ID is typically the user's subject, email or object ID; if not available, use "NoAuditClaim"
+                auditId = GetFirstKeyValue(claims, "sub", "oid") ?? "NoAuditClaim";
+                // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
+                tenantId = Guid.TryParse(GetFirstKeyValue(claims, "clientTenantId"), out Guid clientTenantId) ? clientTenantId : null;
+            }
 
             return new RequestContext<string, Guid?>(correlationId, auditId, tenantId);
         });
+    }
+
+    private static string? GetFirstKeyValue(Dictionary<string, string> list, params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            if (list.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+        }
+        return null;
     }
 
     private static void AddDatabaseServices(IServiceCollection services, IConfiguration config)
@@ -391,7 +437,7 @@ public static class RegisterServices
         });
     }
 
-    private static void ConfigureSqlDatabase(IServiceCollection services, string trxnDBConnectionString, string? queryDBConnectionString)
+    private static void ConfigureSqlDatabase(IServiceCollection services, string dbConnectionStringTrxn, string? dbConnectionStringQuery)
     {
         //AzureSQL - https://learn.microsoft.com/en-us/ef/core/providers/sql-server/?tabs=dotnet-core-cli
         //consider a pooled factory - https://learn.microsoft.com/en-us/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#dbcontext-pooling
@@ -399,38 +445,27 @@ public static class RegisterServices
 
         services.AddPooledDbContextFactory<TodoDbContextTrxn>((sp, options) =>
         {
-            ConfigureTrxnDbContext(options, trxnDBConnectionString);
+            ConfigureTrxnDbContext(options, dbConnectionStringTrxn);
             var auditInterceptor = sp.GetRequiredService<AuditInterceptor<string, Guid?>>();
             options
                 .UseExceptionProcessor()
                 .AddInterceptors(auditInterceptor);
         });
-
-        //services.AddScoped<TodoDbContextTrxnScopedFactory>();
-        //services.AddScoped(sp => sp.GetRequiredService<TodoDbContextTrxnScopedFactory>().CreateDbContext());
-
         services.AddScoped<DbContextScopedFactory<TodoDbContextTrxn, string, Guid?>>();
         services.AddScoped(sp => sp.GetRequiredService<DbContextScopedFactory<TodoDbContextTrxn, string, Guid?>>().CreateDbContext());
 
-
-
-        if (queryDBConnectionString != null)
+        if (dbConnectionStringQuery != null)
         {
             services.AddPooledDbContextFactory<TodoDbContextQuery>((sp, options) =>
             {
-                ConfigureQueryDbContext(options, queryDBConnectionString);
+                ConfigureQueryDbContext(options, dbConnectionStringQuery);
                 var noLockInterceptor = sp.GetRequiredService<ConnectionNoLockInterceptor>();
                 options
                     .UseExceptionProcessor()
                     .AddInterceptors(noLockInterceptor);
             });
-
-            //services.AddScoped<TodoDbContextQueryScopedFactory>();
-            //services.AddScoped(sp => sp.GetRequiredService<TodoDbContextQueryScopedFactory>().CreateDbContext());
-
             services.AddScoped<DbContextScopedFactory<TodoDbContextQuery, string, Guid?>>();
             services.AddScoped(sp => sp.GetRequiredService<DbContextScopedFactory<TodoDbContextQuery, string, Guid?>>().CreateDbContext());
-
         }
     }
 
@@ -477,7 +512,6 @@ public static class RegisterServices
                 //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
                 //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
                 //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-
             });
         }
         else
@@ -492,7 +526,6 @@ public static class RegisterServices
                 //default to split queries to avoid cartesian explosion when joining (multiple includes at the same level)
                 //https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
                 //sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-
             });
         }
     }
@@ -599,10 +632,10 @@ public static class RegisterServices
         }).WithName("AzureOpenAI");
 
         // Configure OpenAI services
-        ConfigureOpenAIServices(services, config, aoaiConfig, endpoint);
+        ConfigureOpenAIServices(services, aoaiConfig, endpoint);
     }
 
-    private static void ConfigureOpenAIServices(IServiceCollection services, IConfiguration config, IConfigurationSection aoaiConfig, string endpoint)
+    private static void ConfigureOpenAIServices(IServiceCollection services, IConfigurationSection aoaiConfig, string endpoint)
     {
         var clientFactory = services.BuildServiceProvider().GetRequiredService<IAzureClientFactory<AzureOpenAIClient>>();
         AzureOpenAIClient aoaiClient = clientFactory.CreateClient("AzureOpenAI");

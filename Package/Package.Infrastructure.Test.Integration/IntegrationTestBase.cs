@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
@@ -20,6 +21,7 @@ using Package.Infrastructure.Test.Integration.Blob;
 using Package.Infrastructure.Test.Integration.Cosmos;
 using Package.Infrastructure.Test.Integration.KeyVault;
 using Package.Infrastructure.Test.Integration.Messaging;
+using Package.Infrastructure.Test.Integration.MSGraph;
 using Package.Infrastructure.Test.Integration.Service;
 using Package.Infrastructure.Test.Integration.Table;
 using StackExchange.Redis;
@@ -55,29 +57,33 @@ public abstract class IntegrationTestBase
 
     private void RegisterServices(ServiceCollection services)
     {
-        ConfigureLogging(services);
-        ConfigureBackgroundServices(services);
-        ConfigureAzureClients(services, Config);
-        ConfigureRepositories(services, Config);
-        ConfigureCaching(services, Config);
-        ConfigureRequestContext(services);
-        ConfigureExternalServices(services, Config);
-        ConfigureApplicationServices(services);
+        AddLogging(services);
+        AddBackgroundServices(services);
+        AddAzureClients(services, Config);
+        AddBlobRepository(services, Config);
+        AddTableRepository(services, Config);
+        AddEventGridPublisher(services, Config);
+        AddCosmosDbRepository(services, Config);
+        AddMSGraphService(services, Config);
+        AddCaching(services, Config);
+        AddRequestContext(services);
+        AddExternalServices(services, Config);
+        AddApplicationServices(services);
     }
 
-    private static void ConfigureLogging(ServiceCollection services)
+    private static void AddLogging(ServiceCollection services)
     {
         services.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug());
     }
 
-    private static void ConfigureBackgroundServices(ServiceCollection services)
+    private static void AddBackgroundServices(ServiceCollection services)
     {
         // Queued background service - fire and forget 
         services.AddHostedService<BackgroundTaskService>();
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
     }
 
-    private static void ConfigureAzureClients(ServiceCollection services, IConfiguration config)
+    private static void AddAzureClients(ServiceCollection services, IConfiguration config)
     {
         services.AddAzureClients(builder =>
         {
@@ -87,15 +93,15 @@ public abstract class IntegrationTestBase
             // Use DefaultAzureCredential by default
             builder.UseCredential(new DefaultAzureCredential());
 
-            ConfigureBlobServiceClient(builder, config);
-            ConfigureTableServiceClient(builder, config);
-            ConfigureEventGridPublisherClient(builder, config);
-            ConfigureKeyVaultClients(builder, config, services);
-            ConfigureAzureOpenAIClient(builder, config);
+            AddBlobServiceClient(builder, config);
+            AddTableServiceClient(builder, config);
+            AddEventGridPublisherClient(builder, config);
+            AddKeyVaultClients(builder, config, services);
+            AddAzureOpenAIClient(builder, config);
         });
     }
 
-    private static void ConfigureBlobServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    private static void AddBlobServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
     {
         var blobConfigSection = config.GetSection("ConnectionStrings:AzureBlobStorageAccount1");
         if (blobConfigSection.GetChildren().Any())
@@ -104,7 +110,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureTableServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    private static void AddTableServiceClient(AzureClientFactoryBuilder builder, IConfiguration config)
     {
         var tableConfigSection = config.GetSection("ConnectionStrings:AzureTable1");
         if (tableConfigSection.GetChildren().Any())
@@ -113,7 +119,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureEventGridPublisherClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    private static void AddEventGridPublisherClient(AzureClientFactoryBuilder builder, IConfiguration config)
     {
         var egpConfigSection = config.GetSection("EventGridPublisherTopic1");
         if (egpConfigSection.GetChildren().Any())
@@ -125,7 +131,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureKeyVaultClients(AzureClientFactoryBuilder builder, IConfiguration config, ServiceCollection services)
+    private static void AddKeyVaultClients(AzureClientFactoryBuilder builder, IConfiguration config, ServiceCollection services)
     {
         var kvConfigSection = config.GetSection(KeyVaultManager1Settings.ConfigSectionName);
         if (!kvConfigSection.GetChildren().Any())
@@ -153,7 +159,7 @@ public abstract class IntegrationTestBase
         services.AddSingleton<IKeyVaultManager1, KeyVaultManager1>();
     }
 
-    private static void ConfigureAzureOpenAIClient(AzureClientFactoryBuilder builder, IConfiguration config)
+    private static void AddAzureOpenAIClient(AzureClientFactoryBuilder builder, IConfiguration config)
     {
         var azureOpenIAConfigSection = config.GetSection("AzureOpenAI");
         if (azureOpenIAConfigSection.GetChildren().Any())
@@ -186,15 +192,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private void ConfigureRepositories(ServiceCollection services, IConfiguration config)
-    {
-        ConfigureBlobRepository(services, config);
-        ConfigureTableRepository(services, config);
-        ConfigureEventGridPublisher(services, config);
-        ConfigureCosmosDb(services, config);
-    }
-
-    private static void ConfigureBlobRepository(ServiceCollection services, IConfiguration config)
+    private static void AddBlobRepository(ServiceCollection services, IConfiguration config)
     {
         var blobRepoConfigSection = config.GetSection(BlobRepositorySettings1.ConfigSectionName);
         if (blobRepoConfigSection.GetChildren().Any())
@@ -204,7 +202,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureTableRepository(ServiceCollection services, IConfiguration config)
+    private static void AddTableRepository(ServiceCollection services, IConfiguration config)
     {
         var tableRepoConfigSection = config.GetSection(TableRepositorySettings1.ConfigSectionName);
         if (tableRepoConfigSection.GetChildren().Any())
@@ -214,7 +212,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureEventGridPublisher(ServiceCollection services, IConfiguration config)
+    private static void AddEventGridPublisher(ServiceCollection services, IConfiguration config)
     {
         var egpConfigSection = config.GetSection(EventGridPublisherSettings1.ConfigSectionName);
         if (egpConfigSection.GetChildren().Any())
@@ -224,7 +222,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureCosmosDb(ServiceCollection services, IConfiguration config)
+    private static void AddCosmosDbRepository(ServiceCollection services, IConfiguration config)
     {
         var cosmosConnectionString = config.GetConnectionString("CosmosClient1");
         if (string.IsNullOrEmpty(cosmosConnectionString))
@@ -244,7 +242,28 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureCaching(ServiceCollection services, IConfiguration config)
+    private static void AddMSGraphService(ServiceCollection services, IConfiguration config)
+    {
+        var graphService1ConfigSection = config.GetSection(MSGraphServiceSettings1.ConfigSectionName);
+        if (graphService1ConfigSection.GetChildren().Any())
+        {
+            //register the GraphServiceClient keyed by name
+            services.AddKeyedSingleton("MSGraphService1", (_, _) =>
+            {
+                var tenantId = graphService1ConfigSection["TenantId"];
+                var clientId = graphService1ConfigSection["ClientId"];
+                var clientSecret = graphService1ConfigSection["ClientSecret"];
+                var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+                return new GraphServiceClient(credential, [graphService1ConfigSection["GraphBaseUrl"]]);
+            });
+
+            //register the MSGraphService implementation (injected with the keyed GraphServiceClient)
+            services.AddSingleton<IMSGraphService1, MSGraphService1>();
+            services.Configure<MSGraphServiceSettings1>(graphService1ConfigSection);
+        }
+    }
+
+    private static void AddCaching(ServiceCollection services, IConfiguration config)
     {
         // FusionCache settings
         List<CacheSettings> cacheSettings = [];
@@ -332,7 +351,7 @@ public abstract class IntegrationTestBase
         return options;
     }
 
-    private static void ConfigureRequestContext(ServiceCollection services)
+    private static void AddRequestContext(ServiceCollection services)
     {
         // IRequestContext - injected into repositories, cache managers, etc.
         services.AddScoped<IRequestContext<string, Guid?>>(provider =>
@@ -345,13 +364,13 @@ public abstract class IntegrationTestBase
         });
     }
 
-    private void ConfigureExternalServices(ServiceCollection services, IConfiguration config)
+    private static void AddExternalServices(ServiceCollection services, IConfiguration config)
     {
-        ConfigureWeatherService(services, config);
-        ConfigureOpenAIServices(services, config);
+        AddWeatherService(services, config);
+        AddOpenAIServices(services, config);
     }
 
-    private static void ConfigureWeatherService(ServiceCollection services, IConfiguration config)
+    private static void AddWeatherService(ServiceCollection services, IConfiguration config)
     {
         var weatherConfigSection = config.GetSection(WeatherServiceSettings.ConfigSectionName);
         if (!weatherConfigSection.GetChildren().Any())
@@ -370,14 +389,14 @@ public abstract class IntegrationTestBase
         }).AddStandardResilienceHandler();
     }
 
-    private static void ConfigureOpenAIServices(ServiceCollection services, IConfiguration config)
+    private static void AddOpenAIServices(ServiceCollection services, IConfiguration config)
     {
-        ConfigureSomeChatService(services, config);
-        ConfigureSomeAssistantService(services, config);
-        ConfigureOpenAIChatService(services, config);
+        AddSomeChatService(services, config);
+        AddSomeAssistantService(services, config);
+        AddOpenAIChatService(services, config);
     }
 
-    private static void ConfigureSomeChatService(ServiceCollection services, IConfiguration config)
+    private static void AddSomeChatService(ServiceCollection services, IConfiguration config)
     {
         var someChatConfigSection = config.GetSection(SomeChatSettings.ConfigSectionName);
         if (someChatConfigSection.GetChildren().Any())
@@ -387,7 +406,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureSomeAssistantService(ServiceCollection services, IConfiguration config)
+    private static void AddSomeAssistantService(ServiceCollection services, IConfiguration config)
     {
         var someAssistantConfigSection = config.GetSection(SomeAssistantSettings.ConfigSectionName);
         if (someAssistantConfigSection.GetChildren().Any())
@@ -397,7 +416,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureOpenAIChatService(ServiceCollection services, IConfiguration config)
+    private static void AddOpenAIChatService(ServiceCollection services, IConfiguration config)
     {
         var oaiChatConfigSection = config.GetSection(OpenAI.ChatApi.ChatServiceSettings.ConfigSectionName);
         if (oaiChatConfigSection.GetChildren().Any())
@@ -407,7 +426,7 @@ public abstract class IntegrationTestBase
         }
     }
 
-    private static void ConfigureApplicationServices(ServiceCollection services)
+    private static void AddApplicationServices(ServiceCollection services)
     {
         // Sample scoped service for testing BackgroundTaskQueue.QueueScopedBackgroundWorkItem
         services.AddScoped<ISomeScopedService, SomeScopedService>();

@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+using Microsoft.Identity.Client;
 using System.Collections.Concurrent;
 
 namespace SampleApp.Gateway;
@@ -10,6 +11,11 @@ public class TokenService(IConfiguration configuration)
     private readonly DefaultAzureCredential _credential = new();
     private static readonly ConcurrentDictionary<string, (string Token, DateTimeOffset Expiry)> _tokenCache = new();
 
+    /// <summary>
+    /// Gets a token for this api to call downstream api using DefaultAzureCredential (managed identity, etc)
+    /// </summary>
+    /// <param name="clusterId"></param>
+    /// <returns></returns>
     public async Task<string> GetAccessTokenAsync(string clusterId)
     {
         if (string.IsNullOrEmpty(clusterId)) return string.Empty;
@@ -35,4 +41,5 @@ public class TokenService(IConfiguration configuration)
 
         return accessToken.Token;
     }
+
 }
