@@ -5,7 +5,9 @@ namespace Package.Infrastructure.MSGraph;
 
 public interface IMSGraphServiceBase
 {
-    Task<User?> GetUserAsync(string userId, string? select = null, string? expand = null);
-    Task<string?> UpsertUserAsync(UpsertUserRequest request);
+    Task<User?> GetUserAsync(string userId, List<string>? select = null, List<string>? expand = null);
+    Task<string?> CreateUserAsync(GraphUserRequest request);
+    Task UpdateUserAsync(GraphUserRequest request);
+    Task ChangeUserIdentityAsync(string userId, string newEmail);
     Task DeleteUserAsync(string userId);
 }

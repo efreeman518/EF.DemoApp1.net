@@ -6,35 +6,68 @@ using Package.Infrastructure.MSGraph.Models;
 
 namespace Package.Infrastructure.MSGraph;
 
+/// <summary>
+/// https://learn.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
+/// </summary>
+/// <param name="logger"></param>
+/// <param name="settings"></param>
+/// <param name="graphClient"></param>
 public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSGraphServiceSettingsBase> settings, GraphServiceClient graphClient) : IMSGraphServiceBase
 {
-    public async Task<User?> GetUserAsync(string userId, string? select = null, string? expand = null)
+    public async Task<User?> GetUserAsync(string userId, List<string>? select = null, List<string>? expand = null)
     {
-        logger.LogInformation("Getting user {UserId}", userId);
-        return await graphClient.Users[userId].GetAsync(requestConfiguration =>
+        ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId)); // User ID is required
+
+        select ??= ["id", "accountEnabled", "displayName","mailNickname","mail","identities"]; // Default properties to select
+        // Define the custom attributes to fetch
+        var customAttributes = new List<string>
         {
-            if (!string.IsNullOrEmpty(select))
+            $"extension_{settings.Value.ExtensionAppObjectId}_UserTenantId",
+            $"extension_{settings.Value.ExtensionAppObjectId}_UserRoles"
+        };
+        select.AddRange(customAttributes);
+ 
+        logger.LogInformation("Getting user {UserId}", userId);
+        //if select is null, get default properties
+
+        var user = await graphClient.Users[userId].GetAsync(requestConfiguration =>
+        {
+            requestConfiguration.QueryParameters.Select = [.. select];
+            if (expand is not null)
             {
-                requestConfiguration.QueryParameters.Select = select.Split(',');
-            }
-            if (!string.IsNullOrEmpty(expand))
-            {
-                requestConfiguration.QueryParameters.Expand = expand.Split(',');
+                requestConfiguration.QueryParameters.Expand = [.. expand];
             }
         });
+
+        return user;
     }
 
-    public async Task<string?> UpsertUserAsync(UpsertUserRequest request)
+    public async Task<string?> CreateUserAsync(GraphUserRequest request)
     {
+        logger.LogInformation("Creating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
+        ArgumentException.ThrowIfNullOrEmpty(request.Email, nameof(request.Email));
+        ArgumentException.ThrowIfNullOrEmpty(request.Password, nameof(request.Password)); // Password is required for new user
+
         var user = new User
         {
             AccountEnabled = request.AccountEnabled,
             DisplayName = request.DisplayName,
+            Mail = request.Email, // Mail is not used for B2C local accounts but can be set
+            MailNickname = request.Email.Split('@')[0],
             PasswordProfile = new PasswordProfile
             {
                 Password = request.Password, // Password can be null if not changing for an update
-                ForceChangePasswordNextSignIn = request.forceChangePasswordNextSignIn
-            }
+                ForceChangePasswordNextSignIn = request.ForceChangePasswordNextSignIn
+            },
+            Identities =
+                [
+                    new ObjectIdentity
+                        {
+                            SignInType = "emailAddress",
+                            Issuer = settings.Value.IdentityIssuer, // e.g., contosob2c.onmicrosoft.com
+                            IssuerAssignedId = request.Email
+                        }
+                ]
         };
 
         if (request.AdditionalData != null)
@@ -47,39 +80,58 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
             }
         }
 
-        if (string.IsNullOrEmpty(request.id))
+        var createdUser = await graphClient.Users.PostAsync(user);
+        return createdUser?.Id;
+    }
+
+    /// <summary>
+    /// Updates an existing user. If the user does not exist, an exception is thrown. 
+    /// Identities are not updated, as they are immutable in Azure AD B2C, so changing email will NOT change the identity.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task UpdateUserAsync(GraphUserRequest request)
+    {
+        logger.LogInformation("Updating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
+        ArgumentException.ThrowIfNullOrEmpty(request.Id, nameof(request.Id)); // User ID is required for update
+
+        // Retrieve the existing user
+        var existingUser = await GetUserAsync(request.Id) ?? throw new InvalidOperationException($"User with ID {request.Id} not found.");
+
+        // Update only the properties that are populated in the request
+        var userToUpdate = new User
         {
-            // Create User
-            logger.LogInformation("Creating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
-            ArgumentException.ThrowIfNullOrEmpty(request.Email, nameof(request.Email));
-            ArgumentException.ThrowIfNullOrEmpty(request.Password, nameof(request.Password)); // Password is required for new user
+            Id = request.Id,
+            AccountEnabled = request.AccountEnabled,
+            DisplayName = !string.IsNullOrEmpty(request.DisplayName) ? request.DisplayName : existingUser.DisplayName,
+            Mail = !string.IsNullOrEmpty(request.Email) ? request.Email : existingUser.Mail,
+            MailNickname = !string.IsNullOrEmpty(request.Email) ? request.Email.Split('@')[0] : existingUser.MailNickname
+        };
 
-            user.MailNickname = request.Email.Split('@')[0];
-            user.Identities =
-            [
-                new ObjectIdentity
-                {
-                    SignInType = "emailAddress",
-                    Issuer = settings.Value.IdentityIssuer, // e.g., contosob2c.onmicrosoft.com
-                    IssuerAssignedId = request.Email
-                }
-            ];
-            // UserPrincipalName is not set for B2C local accounts for creation via this method.
-
-            var createdUser = await graphClient.Users.PostAsync(user);
-            return createdUser?.Id;
+        if (request.AdditionalData != null)
+        {
+            userToUpdate.AdditionalData ??= new Dictionary<string, object>();
+            foreach (var kvp in request.AdditionalData)
+            {
+                string key = kvp.Key.StartsWith("extension_") ? kvp.Key : $"extension_{settings.Value.ExtensionAppObjectId}_{kvp.Key}";
+                userToUpdate.AdditionalData[key] = kvp.Value;
+            }
         }
-        else
+        await graphClient.Users[request.Id].PatchAsync(userToUpdate);
+
+        //update password separately if provided
+        if (request.ForceChangePasswordNextSignIn != null)
         {
-            // Update User
-            logger.LogInformation("Updating user {UserId}", request.id);
-
-            // Note: MailNickname and Identities (like email) are typically not updated once created via PATCH,
-            // or have specific processes if they need to be changed.
-            // UserPrincipalName is not set for B2C local accounts.
-
-            await graphClient.Users[request.id].PatchAsync(user);
-            return request.id; // Return the user ID upon successful update
+            userToUpdate = new User
+            {
+                PasswordProfile = new PasswordProfile
+                {
+                    //Password = request.Password,
+                    ForceChangePasswordNextSignIn = request.ForceChangePasswordNextSignIn
+                }
+            };
+            await graphClient.Users[request.Id].PatchAsync(userToUpdate);
         }
     }
 
@@ -87,5 +139,31 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
     {
         logger.LogInformation("Deleting user {UserId}", userId);
         await graphClient.Users[userId].DeleteAsync();
+    }
+
+    /// <summary>
+    /// when the user changes email for login
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="newEmail"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task ChangeUserIdentityAsync(string userId, string newEmail)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId)); // User ID is required
+        ArgumentException.ThrowIfNullOrEmpty(newEmail, nameof(newEmail)); // New email is required
+
+        logger.LogInformation("Changing user identity for {UserId} to new email {NewEmail}", userId, newEmail);
+        var user = await GetUserAsync(userId) ?? throw new InvalidOperationException($"User with ID {userId} not found.");
+
+        // Update the identity
+        user.Identities = [new ObjectIdentity
+        {
+            SignInType = "emailAddress",
+            Issuer = settings.Value.IdentityIssuer,
+            IssuerAssignedId = newEmail
+        }];
+
+        await graphClient.Users[userId].PatchAsync(user);
     }
 }
