@@ -22,7 +22,7 @@ public class B2CManagement(IMSGraphServiceB2C b2cClient) : IB2CManagement
             { "Roles", roles.ToList() }
         };
 
-        var request = new CreateUserRequest(true, displayName, email, "changeOnLoginRequired", additionalData);
+        var request = new GraphUserRequest(null, true, displayName, email, true, "changeOnLoginRequired", additionalData);
         var userId = await b2cClient.CreateUserAsync(request);
         return userId;
     }
