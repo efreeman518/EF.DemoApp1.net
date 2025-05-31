@@ -518,8 +518,8 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.MSGraph",
     "classes": [
-      { "name": "Package.Infrastructure.MSGraph.Models.CreateUserRequest", "rp": "Package.Infrastructure.MSGraph_CreateUserRequest.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 2, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "cl": 0, "ucl": 31, "cal": 31, "tl": 49, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.MSGraph.Models.GraphUserRequest", "rp": "Package.Infrastructure.MSGraph_GraphUserRequest.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "cl": 0, "ucl": 95, "cal": 95, "tl": 169, "cb": 0, "tb": 32, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.MSGraph.MSGraphServiceSettingsBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceSettingsBase.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -635,6 +635,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Messaging", "class": "Package.Infrastructure.Messaging.EventHub.EventHubProducerBase", "reportPath": "Package.Infrastructure.Messaging_EventHubProducerBase.html", "methodName": "SendBatchAsync()", "methodShortName": "SendBatchAsync()", "fileIndex": 0, "line": 68,
+    "metrics": [
+      { "value": 272, "exceeded": true },
+      { "value": 16, "exceeded": true },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "UpdateUserAsync()", "methodShortName": "UpdateUserAsync()", "fileIndex": 0, "line": 96,
     "metrics": [
       { "value": 272, "exceeded": true },
       { "value": 16, "exceeded": true },
@@ -808,7 +814,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "CreateUserAsync()", "methodShortName": "CreateUserAsync()", "fileIndex": 0, "line": 13,
+    "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "CreateUserAsync()", "methodShortName": "CreateUserAsync()", "fileIndex": 0, "line": 47,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
