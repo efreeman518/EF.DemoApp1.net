@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Package.Infrastructure.Test.Integration;
 
-//[Ignore("MSGraph requires some Azure tenant - EntraID or AzureB2C")]
+[Ignore("MSGraph requires some Azure tenant - EntraID or AzureB2C")]
 
 [TestClass]
 public class MSGraphServiceTests : IntegrationTestBase
