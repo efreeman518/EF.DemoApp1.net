@@ -26,15 +26,16 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
     /// <remarks>The returned lambda expression can be used in LINQ queries to filter entities based on their
     /// tenant ID. Ensure that the <paramref name="entityType"/> parameter corresponds to a type that has a
     /// <c>TenantId</c> property.</remarks>
+    /// <typeparam name="TTenantIdType1"></typeparam>
     /// <param name="entityType">The type of the entity to filter. Must implement <see cref="ITenantEntity{T}"/>.</param>
-    /// <param name="tenantId">The tenant ID to filter by. Can be <see langword="null"/> to indicate no filtering.</param>
+    /// <param name="tenantId">The tenant ID to filter by.</param>
     /// <returns>A <see cref="LambdaExpression"/> representing the filter condition. The expression checks whether the
     /// <c>TenantId</c> property of the entity matches the specified <paramref name="tenantId"/>.</returns>
-    protected static LambdaExpression BuildTenantFilter(Type entityType, object? tenantId)
+    protected static LambdaExpression BuildTenantFilter<TTenantIdType1>(Type entityType, TTenantIdType1 tenantId) where TTenantIdType1 : struct
     {
         var parameter = Expression.Parameter(entityType, "e");
-        var property = Expression.Property(parameter, nameof(ITenantEntity<Guid>.TenantId));
-        var tenantIdValue = Expression.Constant(tenantId, typeof(Guid?));
+        var property = Expression.Property(parameter, nameof(ITenantEntity<TTenantIdType1>.TenantId));
+        var tenantIdValue = Expression.Constant(tenantId, typeof(TTenantIdType));
         var equalsExpression = Expression.Equal(property, tenantIdValue);
         return Expression.Lambda(equalsExpression, parameter);
     }

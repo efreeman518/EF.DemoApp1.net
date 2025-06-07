@@ -61,6 +61,33 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TodoDbContextBase).Assembly);
 
         // datatype defaults for sql
+        ConfigureDefaultDataTypes(modelBuilder);
+
+        // Use class name as table name
+        SetTableNames(modelBuilder);
+
+        // Configure tenant query filters
+        ConfigureTenantQueryFilters(modelBuilder);
+    }
+
+    //runs only once per context so when pooled, essentially each DbContext is long-lived and re-used, OnConfiguring not run for each new 'scoped' use
+    //override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    //optionsBuilder.AddInterceptors(auditInterceptor);
+    //    base.OnConfiguring(optionsBuilder);
+    //}
+
+    private static void SetTableNames(ModelBuilder modelBuilder)
+    {
+        // Use class name as table name - no pluralization
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            entity.SetTableName(entity.DisplayName());
+        }
+    }
+
+    private static void ConfigureDefaultDataTypes(ModelBuilder modelBuilder)
+    {
         // decimal
         var decimalProperties = modelBuilder.Model.GetEntityTypes()
             .SelectMany(t => t.GetProperties())
@@ -82,27 +109,23 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         {
             property.SetColumnType("datetime2");
         }
+    }
 
-        // query filter - for all entities with ITenantEntity<TTenantIdType> interface
+    private void ConfigureTenantQueryFilters(ModelBuilder modelBuilder)
+    {
         var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes()
             .Where(entityType => typeof(ITenantEntity<Guid>).IsAssignableFrom(entityType.ClrType))
             .Select(entityType => entityType.ClrType);
 
+        var effectiveTenantId = TenantId ?? Guid.Empty;
+
         foreach (var clrType in tenantEntityClrTypes)
         {
-            var filter = BuildTenantFilter(clrType, TenantId);
+            var filter = BuildTenantFilter(clrType, effectiveTenantId);
             modelBuilder.Entity(clrType).HasQueryFilter(filter);
         }
     }
 
-    //runs only once per context so when pooled, essentially each DbContext is long-lived and re-used, OnConfiguring not run for each new 'scoped' use
-    //override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //{
-    //    //optionsBuilder.AddInterceptors(auditInterceptor);
-    //    base.OnConfiguring(optionsBuilder);
-    //}
-
-    
 
     //DbSets
     public DbSet<TodoItem> TodoItems { get; set; } = null!;

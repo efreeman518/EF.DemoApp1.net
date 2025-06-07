@@ -14,9 +14,6 @@ public record BlandCallRequestSettings
 
     //phone_number will be specified dynamically for each call
 
-    //public bool RecordCalls { get; set; } = true; // Default setting for recording calls
-
-
     [JsonPropertyName("from")]
     public string? From { get; set; } //if using a known Twilio number
 
@@ -63,10 +60,10 @@ public record BlandCallRequestSettings
     public object[]? DynamicData { get; set; } = null; // Default dynamic data for the model; EF configuration will need .HasConversion()
 
     [JsonPropertyName("keywords")]
-    public List<string>? Keywords { get; set; }
+    public string[]? Keywords { get; set; }
 
     [JsonPropertyName("pronunciation_guide")]
-    public List<PronunciationGuide>? PronunciationGuide { get; set; }
+    public PronunciationGuide[]? PronunciationGuide { get; set; }
 
     [JsonPropertyName("transfer_phone_number")]
     public string? TransferPhoneNumber { get; set; }
