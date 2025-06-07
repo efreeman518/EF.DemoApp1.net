@@ -85,7 +85,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
 
         // query filter - for all entities with ITenantEntity<TTenantIdType> interface
         var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes()
-            .Where(entityType => typeof(ITenantEntity<Guid?>).IsAssignableFrom(entityType.ClrType))
+            .Where(entityType => typeof(ITenantEntity<Guid>).IsAssignableFrom(entityType.ClrType))
             .Select(entityType => entityType.ClrType);
 
         foreach (var clrType in tenantEntityClrTypes)
@@ -102,14 +102,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
     //    base.OnConfiguring(optionsBuilder);
     //}
 
-    private static LambdaExpression BuildTenantFilter(Type entityType, object? tenantId)
-    {
-        var parameter = Expression.Parameter(entityType, "e");
-        var property = Expression.Property(parameter, nameof(ITenantEntity<Guid?>.TenantId));
-        var tenantIdValue = Expression.Constant(tenantId, typeof(Guid?));
-        var equalsExpression = Expression.Equal(property, tenantIdValue);
-        return Expression.Lambda(equalsExpression, parameter);
-    }
+    
 
     //DbSets
     public DbSet<TodoItem> TodoItems { get; set; } = null!;

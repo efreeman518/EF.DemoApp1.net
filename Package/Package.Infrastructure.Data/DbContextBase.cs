@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Package.Infrastructure.Data.Contracts;
+using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
 
@@ -19,6 +20,24 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
     //TenantId set in the factory, so it can be used in query filters
     public TTenantIdType? TenantId { get; set; }
 
+    /// <summary>
+    /// Builds a lambda expression that filters entities by their tenant ID. Used to apply query filters for multi-tenancy.
+    /// </summary>
+    /// <remarks>The returned lambda expression can be used in LINQ queries to filter entities based on their
+    /// tenant ID. Ensure that the <paramref name="entityType"/> parameter corresponds to a type that has a
+    /// <c>TenantId</c> property.</remarks>
+    /// <param name="entityType">The type of the entity to filter. Must implement <see cref="ITenantEntity{T}"/>.</param>
+    /// <param name="tenantId">The tenant ID to filter by. Can be <see langword="null"/> to indicate no filtering.</param>
+    /// <returns>A <see cref="LambdaExpression"/> representing the filter condition. The expression checks whether the
+    /// <c>TenantId</c> property of the entity matches the specified <paramref name="tenantId"/>.</returns>
+    protected static LambdaExpression BuildTenantFilter(Type entityType, object? tenantId)
+    {
+        var parameter = Expression.Parameter(entityType, "e");
+        var property = Expression.Property(parameter, nameof(ITenantEntity<Guid>.TenantId));
+        var tenantIdValue = Expression.Constant(tenantId, typeof(Guid?));
+        var equalsExpression = Expression.Equal(property, tenantIdValue);
+        return Expression.Lambda(equalsExpression, parameter);
+    }
 
     //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
     //This approach does not lend itself to testing (unless you target the full database).

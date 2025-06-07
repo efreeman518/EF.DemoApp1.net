@@ -2,19 +2,7 @@
 
 namespace Package.Infrastructure.BlandAI.Model;
 
-public class RequestData
-{
-    [JsonPropertyName("phone_number")]
-    public string PhoneNumber { get; set; } = null!;
-
-    [JsonPropertyName("wait")]
-    public bool? Wait { get; set; }
-
-    [JsonPropertyName("language")]
-    public string Language { get; set; } = null!;
-}
-
-public class CallDetails
+public record CallDetails
 {
     [JsonPropertyName("call_id")]
     public string CallId { get; set; } = null!;
@@ -32,7 +20,7 @@ public class CallDetails
     public string From { get; set; } = null!;
 
     [JsonPropertyName("request_data")]
-    public RequestData? RequestData { get; set; }
+    public CallDetailsRequestData? RequestData { get; set; }
 
     [JsonPropertyName("completed")]
     public bool? Completed { get; set; }
@@ -111,6 +99,18 @@ public class CallDetails
 
     [JsonPropertyName("end_at")]
     public DateTime? EndAt { get; set; }
+}
+
+public record CallDetailsRequestData
+{
+    [JsonPropertyName("phone_number")]
+    public string PhoneNumber { get; set; } = null!;
+
+    [JsonPropertyName("wait")]
+    public bool? Wait { get; set; }
+
+    [JsonPropertyName("language")]
+    public string Language { get; set; } = null!;
 }
 
 public class Transcript

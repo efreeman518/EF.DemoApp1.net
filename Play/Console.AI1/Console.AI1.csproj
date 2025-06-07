@@ -15,8 +15,8 @@
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.5.0-preview.1.25265.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.5.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.54.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.54.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.55.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.55.0" />
   </ItemGroup>
 
   <ItemGroup>

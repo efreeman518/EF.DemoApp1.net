@@ -1,55 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using Package.Infrastructure.BlandAI.Enums;
+using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
-
-//https://docs.bland.ai/api-v1/post/calls
-
-public class PronunciationGuide
-{
-    [JsonPropertyName("word")]
-    public string Word { get; set; } = null!;
-
-    [JsonPropertyName("pronunciation")]
-    public string Pronunciation { get; set; } = null!;
-
-    [JsonPropertyName("case_sensitive")]
-    public bool CaseSensitive { get; set; }
-
-    [JsonPropertyName("spaced")]
-    public bool Spaced { get; set; }
-}
-
-public class DispatchHours
-{
-    //"09:00"
-    [JsonPropertyName("start")]
-    public string Start { get; set; } = null!;
-
-    // "17:00"
-    [JsonPropertyName("end")]
-    public string End { get; set; } = null!;
-}
-
-public class Tool
-{
-    // Define properties for the tool object if needed
-}
-
-public class Retry
-{
-
-    [JsonPropertyName("wait")]
-    public int Wait { get; set; }
-
-    //hangup, leave_message, ignore
-    [JsonPropertyName("voicemail_action")]
-    public string VoicemailAction { get; set; } = null!;
-
-    [JsonPropertyName("voicemail_message")]
-    public string VoicemailMessage { get; set; } = null!;
-
-}
-
 
 public class SendCallRequest
 {
@@ -95,6 +47,9 @@ public class SendCallRequest
 
     [JsonPropertyName("temperature")]
     public decimal? Temperature { get; set; }
+
+    [JsonPropertyName("dynamic_data")]
+    public object[]? DynamicData { get; set; } = null; // Default dynamic data for the model; EF configuration will need .HasConversion()
 
     [JsonPropertyName("keywords")]
     public List<string>? Keywords { get; set; }
@@ -153,7 +108,7 @@ public class SendCallRequest
     public Dictionary<string, string>? RequestData { get; set; }
 
     [JsonPropertyName("tools")]
-    public List<Tool>? Tools { get; set; }
+    public object[]? Tools { get; set; } // Default dynamic data for the model; EF configuration will need .HasConversion()
 
     /// <summary>
     /// YYYY-MM-DD HH:MM:SS -HH:MM
@@ -171,7 +126,7 @@ public class SendCallRequest
     public string? VoicemailAction { get; set; }
 
     [JsonPropertyName("retry")]
-    public Retry? Retry { get; set; }
+    public CallRetry? Retry { get; set; }
 
     [JsonPropertyName("max_duration")]
     public int? MaxDuration { get; set; }
@@ -201,17 +156,43 @@ public class SendCallRequest
     public List<string>? AvailableTags { get; set; }
 }
 
-public class SendCallResponse
+public record PronunciationGuide
 {
-    [JsonPropertyName("status")]
-    public string Status { get; set; } = null!;
+    [JsonPropertyName("word")]
+    public string Word { get; set; } = null!;
 
-    [JsonPropertyName("message")]
-    public string? Message { get; set; }
+    [JsonPropertyName("pronunciation")]
+    public string Pronunciation { get; set; } = null!;
 
-    [JsonPropertyName("call_id")]
-    public string? CallId { get; set; }
+    [JsonPropertyName("case_sensitive")]
+    public bool CaseSensitive { get; set; }
 
-    [JsonPropertyName("batch_id")]
-    public string? BatchId { get; set; } // Use `string` to handle `null` values
+    [JsonPropertyName("spaced")]
+    public bool Spaced { get; set; }
+}
+
+public record DispatchHours
+{
+    //"09:00"
+    [JsonPropertyName("start")]
+    public TimeOnly Start { get; set; }
+
+    // "17:00"
+    [JsonPropertyName("end")]
+    public TimeOnly End { get; set; }
+}
+
+public record CallRetry
+{
+
+    [JsonPropertyName("wait")]
+    public int Wait { get; set; } = 30; // Default wait time in seconds before retrying the call
+
+    //hangup, leave_message, ignore
+    [JsonPropertyName("voicemail_action")]
+    public VoicemailAction VoicemailAction { get; set; } = VoicemailAction.hangup;
+
+    [JsonPropertyName("voicemail_message")]
+    public string VoicemailMessage { get; set; } = null!;
+
 }
