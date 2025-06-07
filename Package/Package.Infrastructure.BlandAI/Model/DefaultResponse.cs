@@ -2,7 +2,7 @@
 
 namespace Package.Infrastructure.BlandAI.Model;
 
-public class DefaultResponse
+public abstract record DefaultResponse
 {
     [JsonPropertyName("status")]
     public string? Status { get; set; }

@@ -2,6 +2,9 @@
 
 namespace Package.Infrastructure.BlandAI.Model;
 
+/// <summary>
+/// Response from the call details endpoint
+/// </summary>
 public record CallDetails
 {
     [JsonPropertyName("call_id")]
@@ -9,6 +12,9 @@ public record CallDetails
 
     [JsonPropertyName("call_length")]
     public double? CallLength { get; set; }
+
+    [JsonPropertyName("transferred_to")]
+    public string? TransferredTo { get; set; }
 
     [JsonPropertyName("batch_id")]
     public string? BatchId { get; set; }
@@ -25,11 +31,17 @@ public record CallDetails
     [JsonPropertyName("completed")]
     public bool? Completed { get; set; }
 
+    [JsonPropertyName("inbound")]
+    public bool? Inbound { get; set; }
+
     [JsonPropertyName("created_at")]
     public DateTime? CreatedAt { get; set; }
 
-    [JsonPropertyName("inbound")]
-    public bool? Inbound { get; set; }
+    [JsonPropertyName("Started_at")]
+    public DateTime? StartedAt { get; set; }
+
+    [JsonPropertyName("ended_at")]
+    public DateTime? EndedAt { get; set; }
 
     [JsonPropertyName("queue_status")]
     public string QueueStatus { get; set; } = null!;
@@ -44,7 +56,7 @@ public record CallDetails
     public object? ErrorMessage { get; set; }
 
     [JsonPropertyName("variables")]
-    public KeyValuePair<string, object>? Variables { get; set; }
+    public object? Variables { get; set; }
 
     [JsonPropertyName("answered_by")]
     public string? AnsweredBy { get; set; }
@@ -55,9 +67,6 @@ public record CallDetails
     [JsonPropertyName("recording_url")]
     public string? RecordingUrl { get; set; }
 
-    [JsonPropertyName("c_id")]
-    public string? CId { get; set; }
-
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
@@ -66,9 +75,6 @@ public record CallDetails
 
     [JsonPropertyName("price")]
     public double? Price { get; set; }
-
-    [JsonPropertyName("started_at")]
-    public DateTime? StartedAt { get; set; }
 
     [JsonPropertyName("local_dialing")]
     public bool? LocalDialing { get; set; }
@@ -97,8 +103,8 @@ public record CallDetails
     [JsonPropertyName("corrected_duration")]
     public string? CorrectedDuration { get; set; }
 
-    [JsonPropertyName("end_at")]
-    public DateTime? EndAt { get; set; }
+    [JsonPropertyName("citations")]
+    public object[]? Citations { get; set; }
 }
 
 public record CallDetailsRequestData

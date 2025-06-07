@@ -36,11 +36,11 @@ public static class BlandAIEndpoints
 
     }
 
-    private static async Task<IResult> SendCall([FromServices] IBlandAIRestClient client, [FromServices] IOptions<SendCallSettings> settings)
+    private static async Task<IResult> SendCall([FromServices] IBlandAIRestClient client, string phoneNumber, string name)
     {
         var request = new SendCallRequest
         {
-            PhoneNumber = settings.Value.PhoneNumber,
+            PhoneNumber = phoneNumber,
 
             //1)What is your profession? 2)What are your areas of expertise? 3)What is your availability by days and work hours? 
             //4)How soon can you start?, 5)What time of the day do you normally jump to warp speed?, 6)Favorite color?, 7)Gender (male or female)?, 8)Current Age? 9)Feedback on this call?
@@ -55,9 +55,9 @@ public static class BlandAIEndpoints
             ",
             Voice = "Maya",
             InterruptionThreshold = 125,
-            Record = true,
+            RecordCallAudio = true,
             FirstSentence = "Hello {{name}}, this is the AI assistant Betty from {{company}} and I have a few questions.",
-            RequestData = new Dictionary<string, string>() { { "name", settings.Value.Name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, { "officenumber", "999-999-9999" } },
+            RequestData = new Dictionary<string, string>() { { "name", name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, { "officenumber", "999-999-9999" } },
             VoicemailMessage = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.",
             AvailableTags = ["successful", "incomplete", "failed"],
             Metadata = new Dictionary<string, object>() { { "originId", "123" }, { "reasonId", "456" } }

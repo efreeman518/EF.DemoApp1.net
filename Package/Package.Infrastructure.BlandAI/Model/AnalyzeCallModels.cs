@@ -2,7 +2,7 @@
 
 namespace Package.Infrastructure.BlandAI.Model;
 
-public class AnalyzeCallRequest
+public record AnalyzeCallRequest
 {
     [JsonPropertyName("goal")]
     public string Goal { get; set; } = null!;
@@ -19,7 +19,7 @@ public class AnalyzeCallRequest
     public List<List<string>> Questions { get; set; } = null!;
 }
 
-public class AnalyzeCallResponse : DefaultResponse
+public record AnalyzeCallResponse : DefaultResponse
 {
     /* 
         "answers": [

@@ -2,7 +2,7 @@
 
 namespace Package.Infrastructure.BlandAI.Model;
 
-public class TokenResponse
+public record TokenResponse
 {
     [JsonPropertyName("token")]
     public string? Token { get; set; }

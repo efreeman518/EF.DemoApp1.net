@@ -1,12 +1,24 @@
 ﻿using Package.Infrastructure.BlandAI.Enums;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
 
-public class SendCallRequest
+/// <summary>
+/// Common settings for making a call request to the Bland AI API.
+/// </summary>
+public record BlandCallRequestSettings 
 {
-    [JsonPropertyName("phone_number")]
-    public string PhoneNumber { get; set; } = null!;
+    // Call settings properties
+    //https://docs.bland.ai/api-v1/post/calls
+
+    //phone_number will be specified dynamically for each call
+
+    //public bool RecordCalls { get; set; } = true; // Default setting for recording calls
+
+
+    [JsonPropertyName("from")]
+    public string? From { get; set; } //if using a known Twilio number
 
     [JsonPropertyName("pathway_id")]
     public string? PathwayId { get; set; }
@@ -14,8 +26,9 @@ public class SendCallRequest
     [JsonPropertyName("task")]
     public string? Task { get; set; }
 
+    //Maya Josh Florian Derek June Nat Paige
     [JsonPropertyName("voice")]
-    public string? Voice { get; set; }
+    public string? Voice { get; set; } = "Maya"; // Default voice name for calls
 
     /// <summary>
     /// null - Default, will play audible but quiet phone static.
@@ -25,7 +38,7 @@ public class SendCallRequest
     /// none - Minimizes background noise
     /// </summary>
     [JsonPropertyName("background_track")]
-    public string? BackgroundTrack { get; set; }
+    public string? BackgroundTrack { get; set; } = "none";
 
     [JsonPropertyName("first_sentence")]
     public string? FirstSentence { get; set; }
@@ -37,11 +50,9 @@ public class SendCallRequest
     public bool BlockInterruptions { get; set; }
 
     [JsonPropertyName("interruption_threshold")]
-    public int? InterruptionThreshold { get; set; }
+    public int? InterruptionThreshold { get; set; } = 100;
 
-    /// <summary>
-    /// default:"enhanced"
-    /// </summary>
+    //base turbo
     [JsonPropertyName("model")]
     public string? Model { get; set; }
 
@@ -60,6 +71,7 @@ public class SendCallRequest
     [JsonPropertyName("transfer_phone_number")]
     public string? TransferPhoneNumber { get; set; }
 
+    //Overrides transfer_phone_number if a TransferList.default is specified.
     /// <summary>
     /// "transfer_list": {
     ///  "default": "+12223334444",
@@ -72,7 +84,7 @@ public class SendCallRequest
     public Dictionary<string, string>? TransferList { get; set; }
 
     [JsonPropertyName("language")]
-    public string? Language { get; set; }
+    public string? Language { get; set; } = "en-US"; // Default language for the call
 
     [JsonPropertyName("pathway_version")]
     public int? PathwayVersion { get; set; }
@@ -81,10 +93,14 @@ public class SendCallRequest
     public bool LocalDialing { get; set; }
 
     [JsonPropertyName("voicemail_sms")]
-    public string? VoicemailSms { get; set; }
+    public object? VoicemailSms { get; set; } //  If a voicemail is left, an SMS message is sent to the “to” number. Requires SMS configuration.
 
     [JsonPropertyName("dispatch_hours")]
-    public DispatchHours? DispatchHours { get; set; }
+    public DispatchHours DispatchHours { get; set; } = new()
+    {
+        Start = TimeOnly.ParseExact("09:00", "HH:mm", CultureInfo.InvariantCulture),
+        End = TimeOnly.ParseExact("17:00", "HH:mm", CultureInfo.InvariantCulture)
+    }; // Restricts calls to certain hours in your timezone. Specify the timezone and time windows using 24-hour format.
 
     [JsonPropertyName("sensitive_voicemail_detection")]
     public bool SensitiveVoicemailDetection { get; set; }
@@ -95,17 +111,11 @@ public class SendCallRequest
     [JsonPropertyName("ignore_button_press")]
     public bool IgnoreButtonPress { get; set; }
 
-    [JsonPropertyName("language_detection_period")]
-    public int? LanguageDetectionPeriod { get; set; }
-
-    [JsonPropertyName("language_detection_options")]
-    public List<string>? LanguageDetectionOptions { get; set; }
-
     [JsonPropertyName("timezone")]
-    public string? Timezone { get; set; }
+    public string? Timezone { get; set; } = "America/Los_Angeles";
 
     [JsonPropertyName("request_data")]
-    public Dictionary<string, string>? RequestData { get; set; }
+    public Dictionary<string, string>? RequestData { get; set; } //provide replacement vars for the call {{name}}, {{company}}, etc. This is used to replace variables in the AI's dialog.
 
     [JsonPropertyName("tools")]
     public object[]? Tools { get; set; } // Default dynamic data for the model; EF configuration will need .HasConversion()
@@ -125,35 +135,47 @@ public class SendCallRequest
     [JsonPropertyName("voicemail_action")]
     public string? VoicemailAction { get; set; }
 
+    // If the AI encounters a voicemail, it will retry the call after the specified wait time. If voicemail_action is set to hangup, the AI will not retry the call.
     [JsonPropertyName("retry")]
     public CallRetry? Retry { get; set; }
 
     [JsonPropertyName("max_duration")]
-    public int? MaxDuration { get; set; }
+    public int? MaxDuration { get; set; } // Maximum duration of the call in minutes (default is 30)
 
     [JsonPropertyName("record")]
-    public bool Record { get; set; }
-
-    [JsonPropertyName("from")]
-    public string? From { get; set; }
+    public bool RecordCallAudio { get; set; } //access through the recording_url field in the call details 
 
     [JsonPropertyName("webhook")]
     public string? Webhook { get; set; }
 
     /// <summary>
-    /// queue, call, latency, webhook, tool, dynamic_data
+    /// queue, call, latency, webhook, tool, dynamic_data, citations (Sent separately, Enterprise only)
     /// </summary>
     [JsonPropertyName("webhook_events")]
-    public List<string>? WebhookEvents { get; set; }
+    public string[]? WebhookEvents { get; set; } //Anything here will be returned in the post call webhook under metadata.
 
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
+    [JsonPropertyName("citation_schema_id")]
+    public string? CitationSchemaId { get; set; } //Enterprise only
+
     [JsonPropertyName("analysis_preset")]
     public string? AnalysisPreset { get; set; }
 
+    //human: voicemail: unknown: no-answer: Call was not answered null: Detection not enabled or still processing
+    [JsonPropertyName("answered_by_enabled")]
+    public bool? AnswerByEnabled { get; set; }
+
     [JsonPropertyName("available_tags")]
-    public List<string>? AvailableTags { get; set; }
+    public string[]? AvailableTags { get; set; }
+
+    [JsonPropertyName("geospatial_dialing")]
+    public string? GeoSpatialDialing { get; set; }
+
+    [JsonPropertyName("precall_dtmf_sequence")]
+    public string? PrecallDTMFSequence { get; set; }
+
 }
 
 public record PronunciationGuide

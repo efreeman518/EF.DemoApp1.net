@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
-public class EmotionData
+public record EmotionData
 {
     [JsonPropertyName("emotion")]
     public string? Emotion { get; set; }
@@ -13,7 +13,7 @@ public class EmotionData
     public DateTime? AnalyzedAt { get; set; }
 }
 
-public class CallEmotionResponse
+public record CallEmotionResponse
 {
     [JsonPropertyName("status")]
     public string? Status { get; set; }
@@ -25,7 +25,7 @@ public class CallEmotionResponse
     public object? Errors { get; set; }
 }
 
-public class CallEmotionRequest
+public record CallEmotionRequest
 {
     [JsonPropertyName("callId")]
     public string CallId { get; set; } = null!;

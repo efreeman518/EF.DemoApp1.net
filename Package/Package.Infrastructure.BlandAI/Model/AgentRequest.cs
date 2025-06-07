@@ -5,7 +5,7 @@ namespace Package.Infrastructure.BlandAI.Model;
 /// <summary>
 /// https://docs.bland.ai/api-v1/post/agents
 /// </summary>
-public class AgentRequest
+public record AgentRequest
 {
     //used for update in url
     public string? AgentId { get; set; }

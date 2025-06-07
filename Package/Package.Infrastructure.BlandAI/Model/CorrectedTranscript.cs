@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
-public class Aligned
+public record Aligned
 {
     [JsonPropertyName("start")]
     public double? Start { get; set; }
@@ -19,7 +19,7 @@ public class Aligned
     public double? Similarity { get; set; }
 }
 
-public class Corrected
+public record Corrected
 {
     [JsonPropertyName("start")]
     public double? Start { get; set; }
@@ -34,7 +34,7 @@ public class Corrected
     public int? Speaker { get; set; }
 }
 
-public class Original
+public record Original
 {
     [JsonPropertyName("id")]
     public int? Id { get; set; }
@@ -52,7 +52,7 @@ public class Original
     public string? CId { get; set; }
 }
 
-public class CorrectedTranscript
+public record CorrectedTranscript
 {
     [JsonPropertyName("corrected")]
     public List<Corrected> Corrected { get; set; } = null!;
