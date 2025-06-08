@@ -4,12 +4,12 @@ using Package.Infrastructure.Data.Contracts;
 
 namespace Infrastructure.Data.Configuration;
 
-public abstract class EntityBaseConfiguration<T> : IEntityTypeConfiguration<T> where T : EntityBase
+public abstract class EntityBaseConfiguration<T>(bool pkClusteredIndex = false) : IEntityTypeConfiguration<T> where T : EntityBase
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
         //Guid PK
-        builder.HasKey(e => e.Id).IsClustered(false);
+        builder.HasKey(e => e.Id).IsClustered(pkClusteredIndex);
         builder.Property(e => e.Id).ValueGeneratedNever();
 
         //using as a shadow property causes concurrency problems when not tracked then attached, so keeping it on the base class, we always have it 
