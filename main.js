@@ -289,7 +289,7 @@ var assemblies = [
     "name": "Infrastructure.Data",
     "classes": [
       { "name": "Infrastructure.Data.Configuration.AuditableBaseConfiguration<T>", "rp": "Infrastructure.Data_AuditableBaseConfiguration_1.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.Configuration.EntityBaseConfiguration<T>", "rp": "Infrastructure.Data_EntityBaseConfiguration_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.Configuration.EntityBaseConfiguration<T>", "rp": "Infrastructure.Data_EntityBaseConfiguration_1.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.SystemSettingConfiguration", "rp": "Infrastructure.Data_SystemSettingConfiguration.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.TodoItemConfiguration", "rp": "Infrastructure.Data_TodoItemConfiguration.html", "cl": 18, "ucl": 0, "cal": 18, "tl": 34, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 227, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -479,7 +479,7 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.Data",
     "classes": [
-      { "name": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "rp": "Package.Infrastructure.Data_DbContextBase_2.html", "cl": 11, "ucl": 32, "cal": 43, "tl": 134, "cb": 5, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "rp": "Package.Infrastructure.Data_DbContextBase_2.html", "cl": 11, "ucl": 34, "cal": 45, "tl": 143, "cb": 5, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.DbContextScopedFactory<T1, T2, T3>", "rp": "Package.Infrastructure.Data_DbContextScopedFactory_3.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.EFExtensions", "rp": "Package.Infrastructure.Data_EFExtensions.html", "cl": 28, "ucl": 71, "cal": 99, "tl": 444, "cb": 8, "tb": 48, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.EntityChangeInfo", "rp": "Package.Infrastructure.Data_EntityChangeInfo.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -856,7 +856,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 60,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 69,
     "metrics": [
       { "value": 73, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -1240,7 +1240,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 97,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 106,
     "metrics": [
       { "value": 32, "exceeded": true },
       { "value": 10, "exceeded": false },
