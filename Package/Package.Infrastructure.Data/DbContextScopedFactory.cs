@@ -2,6 +2,7 @@
 using Package.Infrastructure.Common.Contracts;
 
 namespace Package.Infrastructure.Data;
+
 public class DbContextScopedFactory<TDbContext, TAuditIdType, TTenantIdType>(IDbContextFactory<TDbContext> pooledFactory,
     IRequestContext<TAuditIdType, TTenantIdType?> requestContext) : IDbContextFactory<TDbContext>
     where TDbContext : DbContextBase<TAuditIdType, TTenantIdType>

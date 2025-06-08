@@ -426,7 +426,7 @@ public static class RegisterServices
 
         services.AddDbContext<TodoDbContextTrxn>((sp, opt) =>
         {
-            var auditInterceptor = sp.GetRequiredService<AuditInterceptor<string, Guid?>>();
+            var auditInterceptor = sp.GetRequiredService<AuditInterceptor<string, Guid>>();
             opt.UseInMemoryDatabase("TodoDbContext", inMemoryDatabaseRoot).AddInterceptors(auditInterceptor);
         });
 

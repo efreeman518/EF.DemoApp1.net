@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Data;
 
@@ -117,7 +116,7 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
             .Where(entityType => typeof(ITenantEntity<Guid>).IsAssignableFrom(entityType.ClrType))
             .Select(entityType => entityType.ClrType);
 
-        var effectiveTenantId = TenantId ?? Guid.Empty;
+        var effectiveTenantId = TenantId; // ?? Guid.Empty;
 
         foreach (var clrType in tenantEntityClrTypes)
         {

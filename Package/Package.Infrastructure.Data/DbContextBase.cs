@@ -17,7 +17,7 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
     // AuditId set in the factory, used for auditing
     public required TAuditIdType AuditId { get; set; }
 
-    //TenantId set in the factory, so it can be used in query filters
+    //TenantId set in the factory from incoming claims, so it can be used in query filters
     public TTenantIdType? TenantId { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
     /// <param name="tenantId">The tenant ID to filter by.</param>
     /// <returns>A <see cref="LambdaExpression"/> representing the filter condition. The expression checks whether the
     /// <c>TenantId</c> property of the entity matches the specified <paramref name="tenantId"/>.</returns>
-    protected static LambdaExpression BuildTenantFilter<TTenantIdType1>(Type entityType, TTenantIdType1 tenantId) where TTenantIdType1 : struct
+    protected static LambdaExpression BuildTenantFilter<TTenantIdType1>(Type entityType, TTenantIdType1? tenantId) where TTenantIdType1 : struct
     {
         var parameter = Expression.Parameter(entityType, "e");
         var property = Expression.Property(parameter, nameof(ITenantEntity<TTenantIdType1>.TenantId));
