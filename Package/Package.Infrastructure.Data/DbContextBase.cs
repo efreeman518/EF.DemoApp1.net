@@ -1,5 +1,4 @@
-﻿using LanguageExt.ClassInstances;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
@@ -28,12 +27,14 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
         var dbContext = Expression.Constant(this);
         var dbContextTenantId = Expression.Property(dbContext, nameof(TenantId));
 
-        // Handle nullable TenantId: (e.TenantId == this.TenantId || this.TenantId == null)
-        // var tenantIdEquals = Expression.Equal(tenantIdProperty, dbContextTenantId);
-
-        // Block all entities when TenantId is null: (this.TenantId != null && e.TenantId == this.TenantId)
+        /// Handle nullable TenantId: (e.TenantId == this.TenantId || this.TenantId == null)
         var tenantIdIsNotNull = Expression.NotEqual(dbContextTenantId, Expression.Constant(null, typeof(TTenantIdType?)));
-        var tenantIdEquals = Expression.Equal(tenantIdProperty, dbContextTenantId);
+
+        // Convert TenantId to non-nullable for comparison if necessary
+        var tenantIdPropertyConverted = Expression.Convert(tenantIdProperty, typeof(TTenantIdType));
+        var dbContextTenantIdConverted = Expression.Convert(dbContextTenantId, typeof(TTenantIdType));
+
+        var tenantIdEquals = Expression.Equal(tenantIdPropertyConverted, dbContextTenantIdConverted);
         var body = Expression.AndAlso(tenantIdIsNotNull, tenantIdEquals);
 
         var lambda = Expression.Lambda(body, parameter);
