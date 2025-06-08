@@ -110,21 +110,20 @@ public abstract class TodoDbContextBase(DbContextOptions options) : DbContextBas
         }
     }
 
-    private void ConfigureTenantQueryFilters(ModelBuilder modelBuilder)
+    public void ConfigureTenantQueryFilters(ModelBuilder modelBuilder)
     {
+        // Get the ITenantEntity types
         var tenantEntityClrTypes = modelBuilder.Model.GetEntityTypes()
             .Where(entityType => typeof(ITenantEntity<Guid>).IsAssignableFrom(entityType.ClrType))
             .Select(entityType => entityType.ClrType);
 
-        var effectiveTenantId = TenantId; // ?? Guid.Empty;
-
+        //Apply the query filter for each ITenantEntity
         foreach (var clrType in tenantEntityClrTypes)
         {
-            var filter = BuildTenantFilter(clrType, effectiveTenantId);
-            modelBuilder.Entity(clrType).HasQueryFilter(filter);
+            var lambda = BuildTenantFilter(clrType);
+            modelBuilder.Entity(clrType).HasQueryFilter(lambda);
         }
     }
-
 
     //DbSets
     public DbSet<TodoItem> TodoItems { get; set; } = null!;

@@ -17,28 +17,20 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
     // AuditId set in the factory, used for auditing
     public required TAuditIdType AuditId { get; set; }
 
-    //TenantId set in the factory from incoming claims, so it can be used in query filters
+    //TenantId set in the factory, so it can be used in query filters
     public TTenantIdType? TenantId { get; set; }
 
-    /// <summary>
-    /// Builds a lambda expression that filters entities by their tenant ID. Used to apply query filters for multi-tenancy.
-    /// </summary>
-    /// <remarks>The returned lambda expression can be used in LINQ queries to filter entities based on their
-    /// tenant ID. Ensure that the <paramref name="entityType"/> parameter corresponds to a type that has a
-    /// <c>TenantId</c> property.</remarks>
-    /// <typeparam name="TTenantIdType1"></typeparam>
-    /// <param name="entityType">The type of the entity to filter. Must implement <see cref="ITenantEntity{T}"/>.</param>
-    /// <param name="tenantId">The tenant ID to filter by.</param>
-    /// <returns>A <see cref="LambdaExpression"/> representing the filter condition. The expression checks whether the
-    /// <c>TenantId</c> property of the entity matches the specified <paramref name="tenantId"/>.</returns>
-    protected static LambdaExpression BuildTenantFilter<TTenantIdType1>(Type entityType, TTenantIdType1? tenantId) where TTenantIdType1 : struct
+    protected LambdaExpression BuildTenantFilter(Type entityType)
     {
         var parameter = Expression.Parameter(entityType, "e");
-        var property = Expression.Property(parameter, nameof(ITenantEntity<TTenantIdType1>.TenantId));
-        var tenantIdValue = Expression.Constant(tenantId, typeof(TTenantIdType));
-        var equalsExpression = Expression.Equal(property, tenantIdValue);
-        return Expression.Lambda(equalsExpression, parameter);
+        var tenantIdProperty = Expression.Property(parameter, nameof(TenantId));
+        var dbContext = Expression.Constant(this);
+        var dbContextTenantId = Expression.Property(dbContext, nameof(TenantId));
+        var body = Expression.Equal(tenantIdProperty, dbContextTenantId);
+        var lambda = Expression.Lambda(body, parameter);
+        return lambda;
     }
+
 
     //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
     //This approach does not lend itself to testing (unless you target the full database).

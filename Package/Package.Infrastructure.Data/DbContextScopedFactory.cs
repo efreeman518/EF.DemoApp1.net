@@ -16,6 +16,10 @@ public class DbContextScopedFactory<TDbContext, TAuditIdType, TTenantIdType>(IDb
         var context = _pooledFactory.CreateDbContext();
         context.AuditId = _auditId;
         context.TenantId = _tenantId;
+
+        //might have to do this here to update the filters per request?
+        //context.ConfigureTenantQueryFilters
+
         return context;
     }
 }
