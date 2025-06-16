@@ -250,11 +250,11 @@ var assemblies = [
       { "name": "Application.Services.JobChat.JobChatOrchestratorSettings", "rp": "Application.Services_JobChatOrchestratorSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobChat.JobChatService", "rp": "Application.Services_JobChatService.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobChat.JobChatServiceSettings", "rp": "Application.Services_JobChatServiceSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.JobSK.JobSearchOrchestrator", "rp": "Application.Services_JobSearchOrchestrator.html", "cl": 0, "ucl": 88, "cal": 88, "tl": 165, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.JobSK.JobSearchOrchestrator", "rp": "Application.Services_JobSearchOrchestrator.html", "cl": 0, "ucl": 89, "cal": 89, "tl": 166, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobSK.JobSearchOrchestratorSettings", "rp": "Application.Services_JobSearchOrchestratorSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobSK.Plugins.ChatSummaryPlugin", "rp": "Application.Services_ChatSummaryPlugin.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 58, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobSK.Plugins.JobSearchPlugin", "rp": "Application.Services_JobSearchPlugin.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.JobSK.Plugins.KernelMemorySearchPlugin", "rp": "Application.Services_KernelMemorySearchPlugin.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 30, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.JobSK.Plugins.KernelMemorySearchPlugin", "rp": "Application.Services_KernelMemorySearchPlugin.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 30, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.Logging.LoggerMessageDefinitionSrcGen", "rp": "Application.Services_LoggerMessageDefinitionSrcGen.html", "cl": 4, "ucl": 42, "cal": 46, "tl": 81, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.Rules.TodoCompositeRule", "rp": "Application.Services_TodoCompositeRule.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.Rules.TodoNameLengthRule", "rp": "Application.Services_TodoNameLengthRule.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 27, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -281,7 +281,7 @@ var assemblies = [
     "name": "Infrastructure.Configuration",
     "classes": [
       { "name": "Infrastructure.Configuration.ConfigurationBuilderExtensions", "rp": "Infrastructure.Configuration_ConfigurationBuilderExtensions.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 22, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Configuration.DatabaseConfigurationProvider", "rp": "Infrastructure.Configuration_DatabaseConfigurationProvider.html", "cl": 0, "ucl": 29, "cal": 29, "tl": 68, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Configuration.DatabaseConfigurationProvider", "rp": "Infrastructure.Configuration_DatabaseConfigurationProvider.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 67, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Configuration.DatabaseConfigurationRefresher", "rp": "Infrastructure.Configuration_DatabaseConfigurationRefresher.html", "cl": 0, "ucl": 17, "cal": 17, "tl": 72, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Configuration.DatabaseConfigurationSource", "rp": "Infrastructure.Configuration_DatabaseConfigurationSource.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -307,7 +307,7 @@ var assemblies = [
       { "name": "Infrastructure.JobsApi.Expertise", "rp": "Infrastructure.JobsApi_Expertise.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.Job", "rp": "Infrastructure.JobsApi_Job.html", "cl": 0, "ucl": 89, "cal": 89, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobDetail", "rp": "Infrastructure.JobsApi_JobDetail.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.JobsApi.JobsApiService", "rp": "Infrastructure.JobsApi_JobsApiService.html", "cl": 0, "ucl": 32, "cal": 32, "tl": 91, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.JobsApi.JobsApiService", "rp": "Infrastructure.JobsApi_JobsApiService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 91, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobsApiServiceSettings", "rp": "Infrastructure.JobsApi_JobsApiServiceSettings.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobSearchRequest", "rp": "Infrastructure.JobsApi_JobSearchRequest.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 2, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobSearchResponse", "rp": "Infrastructure.JobsApi_JobSearchResponse.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 2, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -348,7 +348,7 @@ var assemblies = [
     "name": "Package.Infrastructure.AspNetCore",
     "classes": [
       { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 36, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 58, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 57, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManager", "rp": "Package.Infrastructure.AspNetCore_ChaosManager.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 36, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManagerSettings", "rp": "Package.Infrastructure.AspNetCore_ChaosManagerSettings.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 37, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -394,7 +394,7 @@ var assemblies = [
     "classes": [
       { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskQueue.html", "cl": 15, "ucl": 17, "cal": 32, "tl": 120, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 120, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 214, "cb": 0, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 214, "cb": 0, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 70, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "rp": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 31, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "rp": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "cl": 0, "ucl": 50, "cal": 50, "tl": 94, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -403,12 +403,12 @@ var assemblies = [
       { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 79, "cal": 79, "tl": 162, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBusSettings", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBusSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ScopedBackgroundService", "rp": "Package.Infrastructure.BackgroundServices_ScopedBackgroundService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 57, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 20, "cal": 20, "tl": 62, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.BlandAI",
     "classes": [
-      { "name": "Package.Infrastructure.BlandAI.BlandAIRestClient", "rp": "Package.Infrastructure.BlandAI_BlandAIRestClient.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 96, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BlandAI.BlandAIRestClient", "rp": "Package.Infrastructure.BlandAI_BlandAIRestClient.html", "cl": 0, "ucl": 38, "cal": 38, "tl": 98, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.BlandAISettings", "rp": "Package.Infrastructure.BlandAI_BlandAISettings.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.Model.AgentRequest", "rp": "Package.Infrastructure.BlandAI_AgentRequest.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 102, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.Model.AgentResponse", "rp": "Package.Infrastructure.BlandAI_AgentResponse.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 102, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -451,7 +451,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Extensions.DictionaryExtensions", "rp": "Package.Infrastructure.Common_DictionaryExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 32, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "rp": "Package.Infrastructure.Common_HttpClientExtensions.html", "cl": 0, "ucl": 71, "cal": 71, "tl": 196, "cb": 0, "tb": 42, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.IAsyncEnumerableExtensions", "rp": "Package.Infrastructure.Common_IAsyncEnumerableExtensions.html", "cl": 56, "ucl": 0, "cal": 56, "tl": 126, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "rp": "Package.Infrastructure.Common_LoggerExtensions.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 135, "cb": 0, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "rp": "Package.Infrastructure.Common_LoggerExtensions.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 130, "cb": 0, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "rp": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "cl": 4, "ucl": 166, "cal": 170, "tl": 264, "cb": 2, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.RegexExtensions", "rp": "Package.Infrastructure.Common_RegexExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 23, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.SerializeExtensions", "rp": "Package.Infrastructure.Common_SerializeExtensions.html", "cl": 13, "ucl": 12, "cal": 25, "tl": 80, "cb": 14, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -461,7 +461,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Specification<T>", "rp": "Package.Infrastructure.Common_Specification_1.html", "cl": 3, "ucl": 9, "cal": 12, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.SpecificationExtensions", "rp": "Package.Infrastructure.Common_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 44, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StaticLogging", "rp": "Package.Infrastructure.Common_StaticLogging.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 38, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 47, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 46, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.SymmetricEncryptionUtility", "rp": "Package.Infrastructure.Common_SymmetricEncryptionUtility.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 72, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.TypeUtility", "rp": "Package.Infrastructure.Common_TypeUtility.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 16, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.ValidationResult", "rp": "Package.Infrastructure.Common_ValidationResult.html", "cl": 4, "ucl": 12, "cal": 16, "tl": 47, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -519,7 +519,7 @@ var assemblies = [
     "name": "Package.Infrastructure.MSGraph",
     "classes": [
       { "name": "Package.Infrastructure.MSGraph.Models.GraphUserRequest", "rp": "Package.Infrastructure.MSGraph_GraphUserRequest.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "cl": 0, "ucl": 95, "cal": 95, "tl": 169, "cb": 0, "tb": 32, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "cl": 0, "ucl": 95, "cal": 95, "tl": 169, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.MSGraph.MSGraphServiceSettingsBase", "rp": "Package.Infrastructure.MSGraph_MSGraphServiceSettingsBase.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -540,7 +540,7 @@ var assemblies = [
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 504, "cal": 504, "tl": 875, "cb": 0, "tb": 92, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 511, "cal": 511, "tl": 881, "cb": 0, "tb": 92, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -610,6 +610,12 @@ var riskHotspots = [
       { "value": 18, "exceeded": true },
     ]},
   {
+    "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "UpdateUserAsync()", "methodShortName": "UpdateUserAsync()", "fileIndex": 0, "line": 96,
+    "metrics": [
+      { "value": 342, "exceeded": true },
+      { "value": 18, "exceeded": true },
+    ]},
+  {
     "assembly": "SampleApp.Grpc", "class": "SampleApp.Grpc.Proto.TodoItemDto", "reportPath": "SampleApp.Grpc_TodoItemDto.html", "methodName": "MergeFrom(SampleApp.Grpc.Proto.TodoItemDto)", "methodShortName": "MergeFrom(...)", "fileIndex": 0, "line": 316,
     "metrics": [
       { "value": 342, "exceeded": true },
@@ -622,12 +628,6 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
-    "metrics": [
-      { "value": 272, "exceeded": true },
-      { "value": 16, "exceeded": true },
-    ]},
-  {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "LevenshteinDistance(System.String,System.String,System.Boolean)", "methodShortName": "LevenshteinDistance(...)", "fileIndex": 0, "line": 120,
     "metrics": [
       { "value": 272, "exceeded": true },
@@ -635,12 +635,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Messaging", "class": "Package.Infrastructure.Messaging.EventHub.EventHubProducerBase", "reportPath": "Package.Infrastructure.Messaging_EventHubProducerBase.html", "methodName": "SendBatchAsync()", "methodShortName": "SendBatchAsync()", "fileIndex": 0, "line": 68,
-    "metrics": [
-      { "value": 272, "exceeded": true },
-      { "value": 16, "exceeded": true },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "UpdateUserAsync()", "methodShortName": "UpdateUserAsync()", "fileIndex": 0, "line": 96,
     "metrics": [
       { "value": 272, "exceeded": true },
       { "value": 16, "exceeded": true },
@@ -688,7 +682,7 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 339,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 338,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -886,7 +880,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "DequeueAsync()", "methodShortName": "DequeueAsync()", "fileIndex": 0, "line": 140,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -916,7 +910,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 776,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 782,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1048,7 +1042,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Application.Services", "class": "Application.Services.JobSK.JobSearchOrchestrator", "reportPath": "Application.Services_JobSearchOrchestrator.html", "methodName": "GetOrCreateChatHistoryAsync()", "methodShortName": "GetOrCreateChatHistoryAsync()", "fileIndex": 0, "line": 89,
+    "assembly": "Application.Services", "class": "Application.Services.JobSK.JobSearchOrchestrator", "reportPath": "Application.Services_JobSearchOrchestrator.html", "methodName": "GetOrCreateChatHistoryAsync()", "methodShortName": "GetOrCreateChatHistoryAsync()", "fileIndex": 0, "line": 90,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1067,6 +1061,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Auth", "class": "Package.Infrastructure.Auth.Tokens.OAuth2TokenProvider", "reportPath": "Package.Infrastructure.Auth_OAuth2TokenProvider.html", "methodName": "GetTokenRequestBody()", "methodShortName": "GetTokenRequestBody()", "fileIndex": 0, "line": 39,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "DequeueAsync()", "methodShortName": "DequeueAsync()", "fileIndex": 0, "line": 140,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
