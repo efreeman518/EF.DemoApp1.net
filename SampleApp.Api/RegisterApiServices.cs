@@ -96,6 +96,9 @@ internal static class IServiceCollectionExtensions
         var authConfig = configSection.GetChildren().ToDictionary(cs => cs.Key, cs => cs.Value);
         logger.LogInformation("Auth Config: {ConfigSection}", authConfig.SerializeToJson());
 
+        // The middleware parses the incoming JWT access token & validates the token’s signature, issuer, audience, expiration, and claims locally using the public keys (signing keys) from the authority.
+        // On application startup (or when the signing keys change/expire), the middleware fetches the public signing keys from the authority’s discovery endpoint (e.g., /.well-known/openid-configuration and /.well-known/keys).
+        // These keys are cached in memory by the middleware.
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;

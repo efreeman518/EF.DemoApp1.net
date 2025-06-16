@@ -15,16 +15,6 @@ public interface ISampleAppClient
     [Get("/api1/v1.1/todoitems/{id}")]
     Task<TodoItemDto> GetItemAsync(Guid id, CancellationToken cancellationToken = default);
 
-    #region various security configurations
-    //Task<TodoItemDto?> GetTodoItem_NoAttribute(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Role_SomeAccess1(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Policy_AdminPolicy(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Policy_SomeRolePolicy1(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Policy_SomeScopePolicy1(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Policy_ScopeOrRolePolicy1(Guid id, CancellationToken cancellationToken = default);
-    //Task<TodoItemDto?> GetTodoItem_Policy_ScopeOrRolePolicy2(Guid id, CancellationToken cancellationToken = default);
-    #endregion
-
     [Post("/api1/v1.1/todoitems")]
     Task<TodoItemDto> CreateItemAsync(TodoItemDto todo, CancellationToken cancellationToken = default);
 

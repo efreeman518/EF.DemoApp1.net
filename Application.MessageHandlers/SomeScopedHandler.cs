@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Interfaces;
 using Package.Infrastructure.BackgroundServices.Attributes;
-using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.Common.Contracts;
 
 namespace Application.MessageHandlers;

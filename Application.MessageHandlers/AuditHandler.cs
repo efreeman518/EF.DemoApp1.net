@@ -1,4 +1,4 @@
-﻿using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+﻿using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.Common.Contracts;
 
 namespace Application.MessageHandlers;

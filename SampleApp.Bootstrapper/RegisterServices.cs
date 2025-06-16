@@ -34,7 +34,7 @@ using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
-using Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
 using Package.Infrastructure.Cache;
@@ -738,7 +738,9 @@ public static class RegisterServices
 
         services.Configure<SampleApiRestClientSettings>(sampleApiConfigSection);
 
-        services.AddScoped(provider =>
+
+        // determines the lifetime of the handler—and thus the DefaultAzureCredential instance inside it (token caching)
+        services.AddSingleton(provider =>
         {
             // Set env vars if client credentials are provided
             if (config.GetValue<string>("SampleApiRestClientSettings:ClientId") != null)
@@ -838,7 +840,7 @@ public static class RegisterServices
         if (weatherServiceConfigSection.GetChildren().Any())
         {
             services.Configure<WeatherServiceSettings>(weatherServiceConfigSection);
-            services.AddScoped<IWeatherService, WeatherService>();
+            services.AddSingleton<IWeatherService, WeatherService>();
 
             services.AddHttpClient<IWeatherService, WeatherService>(client =>
             {

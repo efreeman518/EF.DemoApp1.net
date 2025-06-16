@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 
-namespace Package.Infrastructure.BackgroundServices.InternalMessageBroker;
+namespace Package.Infrastructure.BackgroundServices.InternalMessageBus;
 
 /// <summary>
 /// Should be singleton
