@@ -45,6 +45,41 @@ public static class RefitCallHelper
         }
     }
 
+    public static async Task<ApiResult> TryApiCallVoidAsync(Func<Task> apiCall, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Create a linked token with timeout
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(30)); // Reasonable timeout
+
+            await Task.Run(async () => await apiCall().ConfigureAwait(false), cts.Token);
+            return ApiResult.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.GatewayTimeout,
+                Title = "Request Timeout",
+                Detail = "The request took too long to complete."
+            });
+        }
+        catch (ApiException ex)
+        {
+            return ApiResult.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
+        }
+        catch (Exception ex)
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = "Unexpected Error",
+                Detail = ex.Message
+            });
+        }
+    }
+
     private static ProblemDetails DeserializeProblemDetails(HttpStatusCode statusCode, string? content)
     {
         if (string.IsNullOrEmpty(content)) return new ProblemDetails
