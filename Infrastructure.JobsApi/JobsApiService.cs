@@ -51,10 +51,10 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     //    return result;
     //}
 
-    private async Task<IReadOnlyList<Expertise>> GetAllExpertiseList(CancellationToken cancellationToken = default)
-    {
-        return (await GetLookupsAsync(cancellationToken)).Expertises;
-    }
+    //private async Task<IReadOnlyList<Expertise>> GetAllExpertiseList(CancellationToken cancellationToken = default)
+    //{
+    //    return (await GetLookupsAsync(cancellationToken)).Expertises;
+    //}
 
     //search 
     //https://api.ayahealthcare.com/AyaHealthcareWeb/job/search?professionCode=1&expertiseCodes=22&stateCodes=5&limit=30&includeRelatedSpecialties=false&useCityLatLong=true&offset=0

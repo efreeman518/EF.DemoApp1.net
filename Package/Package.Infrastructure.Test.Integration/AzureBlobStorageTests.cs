@@ -83,7 +83,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         //upload by sas upload uri
         await _blobRepo.UploadBlobStreamAsync(sasUri, uploadStream);
         //attemt download by sas upload uri - expect exception
-        await Assert.ThrowsExceptionAsync<RequestFailedException>(async () =>
+        await Assert.ThrowsExactlyAsync<RequestFailedException>(async () =>
         {
             using Stream downloadStream = await _blobRepo.StartDownloadBlobStreamAsync(sasUri);
             StreamReader reader = new(downloadStream);
@@ -94,7 +94,7 @@ public class AzureBlobStorageTests : IntegrationTestBase
         sasUri = await _blobRepo.GenerateBlobSasUriAsync(containerInfo, blobName, BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(5));
         Assert.IsNotNull(sasUri);
         //attemt upload by sas upload uri - expect exception
-        await Assert.ThrowsExceptionAsync<RequestFailedException>(async () =>
+        await Assert.ThrowsExactlyAsync<RequestFailedException>(async () =>
         {
             uploadStream.Position = 0;
             await _blobRepo.UploadBlobStreamAsync(sasUri, uploadStream);

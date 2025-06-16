@@ -11,12 +11,12 @@ public sealed class ChannelBackgroundTaskQueue : IBackgroundTaskQueue, IDisposab
 {
     private readonly Channel<Func<CancellationToken, Task>> _channel;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ILogger<ChannelBackgroundTaskQueue>? _logger;
+    private readonly ILogger<ChannelBackgroundTaskQueue> _logger;
     private bool _disposed;
 
     public ChannelBackgroundTaskQueue(
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<ChannelBackgroundTaskQueue>? logger = null,
+        ILogger<ChannelBackgroundTaskQueue> logger,
         int? boundedCapacity = null,
         BoundedChannelFullMode boundedChannelFullMode = BoundedChannelFullMode.Wait)
     {
@@ -61,7 +61,7 @@ public sealed class ChannelBackgroundTaskQueue : IBackgroundTaskQueue, IDisposab
 
         if (_disposed)
         {
-            _logger?.LogWarning("Cannot queue work item - channel is completed");
+            _logger.LogWarning("Cannot queue work item - channel is completed");
             return -1;
         }
 
@@ -72,17 +72,17 @@ public sealed class ChannelBackgroundTaskQueue : IBackgroundTaskQueue, IDisposab
                 return _channel.Reader.Count; // Returns approximate count after enqueue
             }
 
-            _logger?.LogWarning("Failed to write work item to channel");
+            _logger.LogWarning("Failed to write work item to channel");
             return -1;
         }
         catch (ChannelClosedException exCCE)
         {
-            _logger?.LogWarning(exCCE, "Cannot queue work item - channel is completed");
+            _logger.LogWarning(exCCE, "Cannot queue work item - channel is completed");
             return -1;
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Error queuing background work item");
+            _logger.LogError(ex, "Error queuing background work item");
             throw new InvalidOperationException("Error queuing background work item", ex);
         }
     }
@@ -125,7 +125,7 @@ public sealed class ChannelBackgroundTaskQueue : IBackgroundTaskQueue, IDisposab
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Error executing scoped background task for service {ServiceType}", typeof(TScoped).Name);
+                _logger.LogError(ex, "Error executing scoped background task for service {ServiceType}", typeof(TScoped).Name);
             }
         }, throwOnNullWorkitem);
     }
@@ -161,7 +161,7 @@ public sealed class ChannelBackgroundTaskQueue : IBackgroundTaskQueue, IDisposab
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Error dequeuing work item");
+            _logger.LogError(ex, "Error dequeuing work item");
             throw;
         }
     }

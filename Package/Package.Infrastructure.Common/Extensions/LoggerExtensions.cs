@@ -75,8 +75,6 @@ public static class LoggerExtensions
             logValues.Add(a.Value);
         });
 
-#pragma warning disable CA2254 // Template should be a static expression
-
         //structured logging - logTemplate {} items must match the values in logValues
         switch (logLevel)
         {
@@ -100,9 +98,6 @@ public static class LoggerExtensions
                 logger.LogWarning(eventId, exception, logTemplate, logValues);
                 break;
         }
-
-#pragma warning restore CA2254 // Template should be a static expression
-
     }
 }
 

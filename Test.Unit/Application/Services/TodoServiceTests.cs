@@ -27,7 +27,6 @@ public class TodoServiceTests : UnitTestBase
     private readonly Mock<IServiceScopeFactory> ServiceScopeFactoryMock;
     private readonly Mock<ITodoRepositoryTrxn> RepositoryTrxnMock;
     private readonly Mock<ITodoRepositoryQuery> RepositoryQueryMock;
-    private readonly Mock<ISampleApiRestClient> SampleApiRestClientMock;
     private readonly Mock<IBackgroundTaskQueue> BackgroundTaskQueueMock;
     private readonly Mock<IOptionsMonitor<TodoServiceSettings>> SettingsMock;
     private readonly TodoServiceSettings _settings = new();
@@ -40,10 +39,8 @@ public class TodoServiceTests : UnitTestBase
     {
         //use Mock repo
         ServiceScopeFactoryMock = _mockFactory.Create<IServiceScopeFactory>();
-        //ValidationHelperMock = _mockFactory.Create<IValidationHelper>();
         RepositoryQueryMock = _mockFactory.Create<ITodoRepositoryQuery>();
         RepositoryTrxnMock = _mockFactory.Create<ITodoRepositoryTrxn>();
-        SampleApiRestClientMock = _mockFactory.Create<ISampleApiRestClient>();
         BackgroundTaskQueueMock = _mockFactory.Create<IBackgroundTaskQueue>();
         RepositoryTrxnMock.Setup(r => r.SaveChangesAsync(It.IsAny<OptimisticConcurrencyWinner>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(1)); //default behavior
 
@@ -93,7 +90,7 @@ public class TodoServiceTests : UnitTestBase
 
 
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
-            .Callback(new MockCreateCallback((ref TodoItem output) => output = dbTodo));
+            .Callback(new MockCreateCallback((ref output) => output = dbTodo));
 
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object,
             RepositoryTrxnMock.Object, RepositoryQueryMock.Object, BackgroundTaskQueueMock.Object);
@@ -109,7 +106,7 @@ public class TodoServiceTests : UnitTestBase
             err => null
         );
         Assert.IsTrue(todoNew.Id != todoSaved!.Id); //orig dto will still have empty Guid id
-        Assert.IsTrue(todoNew.Name == todoSaved!.Name);
+        Assert.AreEqual(todoSaved!.Name, todoNew.Name);
         Assert.AreEqual(todoNew.Status, todoSaved.Status);
 
         var id = (Guid)todoSaved.Id!;

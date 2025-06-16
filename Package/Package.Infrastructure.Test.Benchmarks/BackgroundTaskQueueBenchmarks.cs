@@ -14,7 +14,6 @@ namespace Package.Infrastructure.Test.Benchmarks;
 [CategoriesColumn]
 public class BackgroundTaskQueueBenchmarks
 {
-    private IServiceProvider _serviceProvider = null!;
     private IServiceScopeFactory _serviceScopeFactory = null!;
     private ILogger<ChannelBackgroundTaskQueue> _logger = null!;
     private int _iterations;
@@ -33,9 +32,9 @@ public class BackgroundTaskQueueBenchmarks
         services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
         services.AddLogging();
 
-        _serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
-        _serviceScopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
+        _serviceScopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         _logger = NullLogger<ChannelBackgroundTaskQueue>.Instance;
 
         _iterations = 0;
@@ -111,7 +110,7 @@ public class BackgroundTaskQueueBenchmarks
         await Task.WhenAny(completed.Task, Task.Delay(TimeSpan.FromSeconds(20), token));
 
         // Ensure cancellation and cleanup
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
 
         // Wait for tasks to complete with timeout
         await Task.WhenAny(
@@ -184,7 +183,7 @@ public class BackgroundTaskQueueBenchmarks
         await Task.WhenAny(completed.Task, Task.Delay(TimeSpan.FromSeconds(20), token));
 
         // Ensure cancellation and cleanup
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
 
         // Wait for tasks to complete with timeout
         await Task.WhenAny(
@@ -259,7 +258,7 @@ public class BackgroundTaskQueueBenchmarks
         await Task.WhenAny(completed.Task, Task.Delay(TimeSpan.FromSeconds(20), token));
 
         // Ensure cancellation and cleanup
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
 
         // Wait for tasks to complete with timeout
         await Task.WhenAny(

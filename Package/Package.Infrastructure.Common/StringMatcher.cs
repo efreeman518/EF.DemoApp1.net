@@ -22,7 +22,6 @@ public class StringMatcher
 
         // For small to medium number of keywords, sequential is faster
         // For larger sets, consider parallelization with appropriate threshold
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions - performance over readability here
         foreach (var keyword in _keywords.Span)
         {
             // Skip empty keywords
@@ -35,7 +34,7 @@ public class StringMatcher
                 return true;
             }
         }
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
+
         return false;
     }
 

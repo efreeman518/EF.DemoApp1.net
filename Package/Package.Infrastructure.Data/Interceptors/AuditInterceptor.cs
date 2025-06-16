@@ -17,7 +17,7 @@ namespace Package.Infrastructure.Data.Interceptors;
 /// <param name="msgBus"></param>
 public class AuditInterceptor<TAuditIdType, TTenantIdType>(IInternalMessageBus msgBus) : SaveChangesInterceptor
 {
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
+    private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles };
     private readonly List<AuditEntry<TAuditIdType>> _auditEntries = [];
     private long _startTime;
 

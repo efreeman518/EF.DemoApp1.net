@@ -8,13 +8,14 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;
 
-public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, [FromKeyedServices("JobSearchKernel")] Kernel kernel,
-    IJobsApiService jobsService, IFusionCacheProvider cacheProvider) : IJobSearchOrchestrator
+public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, 
+    [FromKeyedServices("JobSearchKernel")] Kernel kernel, IFusionCacheProvider cacheProvider) : IJobSearchOrchestrator
 {
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("ChatCompletionAsync: {ChatId}", request.ChatId); 
         (var chatId, var chatHistory) = await GetOrCreateChatHistoryAsync(request.ChatId, cancellationToken);
         chatHistory.AddUserMessage(request.Message);
 

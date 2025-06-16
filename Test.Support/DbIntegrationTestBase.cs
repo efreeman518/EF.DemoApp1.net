@@ -19,7 +19,7 @@ namespace Test.Support;
 /// </summary>
 public abstract class DbIntegrationTestBase : IntegrationTestBase
 {
-    private static string _testContextName = null!;
+    protected static string _testContextName = null!;
     protected static TodoDbContextBase DbContext => _dbContext;
     private static TodoDbContextBase _dbContext = null!;
 

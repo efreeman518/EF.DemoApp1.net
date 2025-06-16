@@ -29,7 +29,7 @@ try
     startupLogger.LogInformation("{AppName} {Environment} - Register services.", appName, env);
     services
         //infrastructure - caches, DbContexts, repos, external service sdks/proxies, startup tasks
-        .RegisterInfrastructureServices(config, true)
+        .RegisterInfrastructureServices(config)
         //domain services
         .RegisterDomainServices(config)
         //app services
@@ -37,7 +37,7 @@ try
         //background services
         .RegisterBackgroundServices(config)
         //api services - controllers, versioning, health checks, openapidoc, telemetry
-        .RegisterApiServices(config, startupLogger, appName);
+        .RegisterApiServices(config, startupLogger);
 
     var app = builder.Build().ConfigurePipeline();
 

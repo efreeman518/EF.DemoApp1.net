@@ -101,6 +101,6 @@ public class SampleApiRestClientTests
         await _svc.DeleteItemAsync(id);
 
         //GET (NotFound) - ensure deleted - NotFound exception expected
-        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await _svc.GetItemAsync(id));
+        await Assert.ThrowsExactlyAsync<HttpRequestException>(async () => await _svc.GetItemAsync(id));
     }
 }

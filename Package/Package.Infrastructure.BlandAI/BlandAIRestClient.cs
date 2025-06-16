@@ -19,6 +19,8 @@ public class BlandAIRestClient(ILogger<BlandAIRestClient> logger, IOptions<Bland
 
     public async Task<Result<SendCallResponse?>> SendCallAsync(SendCallRequest request, CancellationToken cancellationToken = default)
     {
+        _ = settings.GetHashCode();
+        logger.LogDebug("SendCallAsync: {Url}", urlCalls);  
         (var _, var parsedResponse) = await httpClient.HttpRequestAndResponseResultAsync<SendCallResponse>(HttpMethod.Post, $"{urlCalls}", request, JsonSerializerOptions, ensureSuccessStatusCode: false, cancellationToken: cancellationToken);
         return parsedResponse;
     }

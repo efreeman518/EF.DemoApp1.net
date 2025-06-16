@@ -29,10 +29,15 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddChannelBackgroundTaskQueue(this IServiceCollection services, int? boundedCapacity = null)
     {
         services.AddSingleton<ChannelBackgroundTaskQueue>(sp =>
-            new ChannelBackgroundTaskQueue(
+        {
+            var logger = sp.GetService<ILogger<ChannelBackgroundTaskQueue>>();
+            return logger == null
+                ? throw new InvalidOperationException("ILogger<ChannelBackgroundTaskQueue> is not registered in the service collection.")
+                : new ChannelBackgroundTaskQueue(
                 sp.GetRequiredService<IServiceScopeFactory>(),
-                sp.GetService<ILogger<ChannelBackgroundTaskQueue>>(),
-                boundedCapacity));
+                logger,
+                boundedCapacity);
+        });
 
         services.AddSingleton<IBackgroundTaskQueue>(sp =>
             sp.GetRequiredService<ChannelBackgroundTaskQueue>());

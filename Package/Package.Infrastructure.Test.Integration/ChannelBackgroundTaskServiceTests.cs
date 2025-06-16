@@ -18,7 +18,7 @@ public class ChannelBackgroundTaskServiceTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
-        var queue = new ChannelBackgroundTaskQueue(scopeFactory);
+        var queue = new ChannelBackgroundTaskQueue(scopeFactory, new NullLogger<ChannelBackgroundTaskQueue>());
         var logger = NullLogger<ChannelBackgroundTaskService>.Instance;
         var service = new ChannelBackgroundTaskService(queue, logger);
 
@@ -58,7 +58,7 @@ public class ChannelBackgroundTaskServiceTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
-        var queue = new ChannelBackgroundTaskQueue(scopeFactory);
+        var queue = new ChannelBackgroundTaskQueue(scopeFactory, new NullLogger<ChannelBackgroundTaskQueue>());
         var logger = NullLogger<ChannelBackgroundTaskService>.Instance;
         var service = new ChannelBackgroundTaskService(queue, logger);
 
@@ -134,7 +134,7 @@ public class ChannelBackgroundTaskServiceTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
-        var queue = new ChannelBackgroundTaskQueue(scopeFactory);
+        var queue = new ChannelBackgroundTaskQueue(scopeFactory, new NullLogger<ChannelBackgroundTaskQueue>());
         var logger = NullLogger<ChannelBackgroundTaskService>.Instance;
         var service = new ChannelBackgroundTaskService(queue, logger);
 

@@ -92,7 +92,7 @@ public class TodoEndpointsTests : EndpointTestBase
         _httpClient = await GetHttpClient();
     }
 
-    [ClassCleanup]
+    [ClassCleanup(ClassCleanupBehavior.EndOfClass)]
     public static async Task ClassCleanup()
     {
         //DBSnapshot delete 

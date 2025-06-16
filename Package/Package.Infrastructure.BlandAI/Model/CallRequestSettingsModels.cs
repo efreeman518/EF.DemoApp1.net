@@ -7,7 +7,7 @@ namespace Package.Infrastructure.BlandAI.Model;
 /// <summary>
 /// Common settings for making a call request to the Bland AI API.
 /// </summary>
-public record BlandCallRequestSettings 
+public record BlandCallRequestSettings
 {
     // Call settings properties
     //https://docs.bland.ai/api-v1/post/calls

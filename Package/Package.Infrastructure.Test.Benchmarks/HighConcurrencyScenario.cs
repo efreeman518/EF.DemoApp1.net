@@ -5,13 +5,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Package.Infrastructure.BackgroundServices;
 
-namespace Package.Infrastructure.Test.Benchmarks.Scenarios;
+namespace Package.Infrastructure.Test.Benchmarks;
 
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net90)]
 public class HighConcurrencyScenario
 {
-    private IServiceProvider _serviceProvider = null!;
     private BackgroundTaskQueue _standardQueue = null!;
     private ChannelBackgroundTaskQueue _channelQueue = null!;
 
@@ -30,9 +29,9 @@ public class HighConcurrencyScenario
         services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
         services.AddLogging();
 
-        _serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
-        var factory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
+        var factory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         var logger = NullLogger<ChannelBackgroundTaskQueue>.Instance;
 
         _standardQueue = new BackgroundTaskQueue(factory);
@@ -82,12 +81,11 @@ public class HighConcurrencyScenario
         // Enqueue tasks with simulated CPU work
         for (int i = 0; i < TaskCount; i++)
         {
-            var taskId = i;
             _standardQueue.QueueBackgroundWorkItem(async ct =>
             {
                 // Simulate both CPU and I/O work
                 SimulateCpuWork(0.5); // 0.5ms of CPU work
-                await Task.Delay(1); // 1ms of I/O work
+                await Task.Delay(1, ct); // 1ms of I/O work
             });
         }
 
@@ -95,12 +93,17 @@ public class HighConcurrencyScenario
         var timeoutTask = Task.Delay(TimeSpan.FromSeconds(60));
         await Task.WhenAny(completed.Task, timeoutTask);
 
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
         try
         {
             await Task.WhenAll(consumerTasks.Where(t => !t.IsCompleted));
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            //handle
+        }
+
+        cancellationTokenSource.Dispose();
     }
 
     [Benchmark]
@@ -135,12 +138,11 @@ public class HighConcurrencyScenario
         // Enqueue tasks with simulated CPU work
         for (int i = 0; i < TaskCount; i++)
         {
-            var taskId = i;
             _channelQueue.QueueBackgroundWorkItem(async ct =>
             {
                 // Simulate both CPU and I/O work
                 SimulateCpuWork(0.5); // 0.5ms of CPU work
-                await Task.Delay(1); // 1ms of I/O work
+                await Task.Delay(1, ct); // 1ms of I/O work
             });
         }
 
@@ -148,16 +150,21 @@ public class HighConcurrencyScenario
         var timeoutTask = Task.Delay(TimeSpan.FromSeconds(60));
         await Task.WhenAny(completed.Task, timeoutTask);
 
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
         _channelQueue.Complete();
         try
         {
             await Task.WhenAll(consumerTasks.Where(t => !t.IsCompleted));
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            //handle
+        }
+
+        cancellationTokenSource.Dispose();
     }
 
-    private void SimulateCpuWork(double milliseconds)
+    private static void SimulateCpuWork(double milliseconds)
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
         while (watch.Elapsed.TotalMilliseconds < milliseconds)

@@ -16,9 +16,9 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
 {
     public async Task<User?> GetUserAsync(string userId, List<string>? select = null, List<string>? expand = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId)); // User ID is required
+        ArgumentException.ThrowIfNullOrEmpty(userId); // User ID is required
 
-        select ??= ["id", "accountEnabled", "displayName","mailNickname","mail","identities"]; // Default properties to select
+        select ??= ["id", "accountEnabled", "displayName", "mailNickname", "mail", "identities"]; // Default properties to select
         // Define the custom attributes to fetch
         var customAttributes = new List<string>
         {
@@ -26,7 +26,7 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
             $"extension_{settings.Value.ExtensionAppObjectId}_UserRoles"
         };
         select.AddRange(customAttributes);
- 
+
         logger.LogInformation("Getting user {UserId}", userId);
         //if select is null, get default properties
 
@@ -45,8 +45,8 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
     public async Task<string?> CreateUserAsync(GraphUserRequest request)
     {
         logger.LogInformation("Creating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
-        ArgumentException.ThrowIfNullOrEmpty(request.Email, nameof(request.Email));
-        ArgumentException.ThrowIfNullOrEmpty(request.Password, nameof(request.Password)); // Password is required for new user
+        ArgumentException.ThrowIfNullOrEmpty(request.Email);
+        ArgumentException.ThrowIfNullOrEmpty(request.Password); // Password is required for new user
 
         var user = new User
         {
@@ -94,7 +94,7 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
     public async Task UpdateUserAsync(GraphUserRequest request)
     {
         logger.LogInformation("Updating user {Email} with display name {DisplayName}", request.Email, request.DisplayName);
-        ArgumentException.ThrowIfNullOrEmpty(request.Id, nameof(request.Id)); // User ID is required for update
+        ArgumentException.ThrowIfNullOrEmpty(request.Id); // User ID is required for update
 
         // Retrieve the existing user
         var existingUser = await GetUserAsync(request.Id) ?? throw new InvalidOperationException($"User with ID {request.Id} not found.");
@@ -121,7 +121,7 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
         await graphClient.Users[request.Id].PatchAsync(userToUpdate);
 
         //update password separately if provided
-        if (request.ForceChangePasswordNextSignIn != null)
+        if (request.ForceChangePasswordNextSignIn)
         {
             userToUpdate = new User
             {
@@ -150,8 +150,8 @@ public class MSGraphServiceBase(ILogger<MSGraphServiceBase> logger, IOptions<MSG
     /// <exception cref="InvalidOperationException"></exception>
     public async Task ChangeUserIdentityAsync(string userId, string newEmail)
     {
-        ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId)); // User ID is required
-        ArgumentException.ThrowIfNullOrEmpty(newEmail, nameof(newEmail)); // New email is required
+        ArgumentException.ThrowIfNullOrEmpty(userId); // User ID is required
+        ArgumentException.ThrowIfNullOrEmpty(newEmail); // New email is required
 
         logger.LogInformation("Changing user identity for {UserId} to new email {NewEmail}", userId, newEmail);
         var user = await GetUserAsync(userId) ?? throw new InvalidOperationException($"User with ID {userId} not found.");

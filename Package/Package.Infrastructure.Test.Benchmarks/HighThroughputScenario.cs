@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Package.Infrastructure.BackgroundServices;
 using System.Threading.Channels;
 
-namespace Package.Infrastructure.Test.Benchmarks.Scenarios;
+namespace Package.Infrastructure.Test.Benchmarks;
 
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net90)]
@@ -72,7 +72,7 @@ public class HighThroughputScenario
         // Start producer tasks
         var tasksPerProducer = TaskCount / ProducerCount;
         var producerTasks = Enumerable.Range(0, ProducerCount)
-            .Select(i => StartProducer(queue, i * tasksPerProducer, Math.Min(tasksPerProducer, TaskCount - (i * tasksPerProducer))))
+            .Select(i => StartProducer(queue, Math.Min(tasksPerProducer, TaskCount - i * tasksPerProducer)))
             .ToArray();
 
         // Wait for all producers to finish
@@ -85,7 +85,7 @@ public class HighThroughputScenario
 
         // Clean up
         if (!cancellationTokenSource.IsCancellationRequested)
-            cancellationTokenSource.Cancel();
+            await cancellationTokenSource.CancelAsync();
 
         // Complete the channel if it's a ChannelBackgroundTaskQueue
         if (queue is ChannelBackgroundTaskQueue channelQueue && !channelQueue.IsCompleted)
@@ -107,7 +107,7 @@ public class HighThroughputScenario
         );
     }
 
-    private Task StartConsumer(IBackgroundTaskQueue queue, int processedCount, TaskCompletionSource<bool> completionSource, int totalTasks, CancellationToken token)
+    private static Task StartConsumer(IBackgroundTaskQueue queue, int processedCount, TaskCompletionSource<bool> completionSource, int totalTasks, CancellationToken token)
     {
         if (queue is ChannelBackgroundTaskQueue channelQueue)
         {
@@ -145,7 +145,7 @@ public class HighThroughputScenario
                 {
                     // Ignore other exceptions during benchmarking
                 }
-            });
+            }, token);
         }
         else
         {
@@ -176,11 +176,11 @@ public class HighThroughputScenario
                         // Ignore exceptions during benchmarking
                     }
                 }
-            });
+            }, token);
         }
     }
 
-    private Task StartProducer(IBackgroundTaskQueue queue, int startIndex, int count)
+    private static Task StartProducer(IBackgroundTaskQueue queue, int count)
     {
         return Task.Run(() =>
         {

@@ -80,8 +80,9 @@ public static partial class WebApplicationBuilderExtensions
         catch (Exception ex)
         {
             var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred during proxy request.");
-            throw;
+            logger.LogError(ex, "An error occurred during proxy request. TraceIdentifier: {TraceIdentifier}, RequestPath: {RequestPath}",
+                context.TraceIdentifier, context.Request.Path);
+            throw new InvalidOperationException($"An error occurred during proxy request. TraceIdentifier: {context.TraceIdentifier}, RequestPath: {context.Request.Path}", ex);
         }
     }
 

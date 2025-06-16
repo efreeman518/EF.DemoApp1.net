@@ -12,7 +12,6 @@ namespace Package.Infrastructure.Test.Benchmarks;
 [SimpleJob(RuntimeMoniker.Net90)]
 public class ChannelBackgroundTaskQueueBenchmarks
 {
-    private IServiceProvider _serviceProvider = null!;
     private ChannelBackgroundTaskQueue _unboundedQueue = null!;
     private ChannelBackgroundTaskQueue _boundedQueue = null!;
     private ChannelBackgroundTaskQueue _boundedDropOldestQueue = null!;
@@ -31,9 +30,9 @@ public class ChannelBackgroundTaskQueueBenchmarks
         services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
         services.AddLogging();
 
-        _serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
-        var factory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
+        var factory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         var logger = NullLogger<ChannelBackgroundTaskQueue>.Instance;
 
         // Create queues with different configurations
@@ -98,7 +97,6 @@ public class ChannelBackgroundTaskQueueBenchmarks
         // Enqueue tasks
         for (int i = 0; i < TaskCount; i++)
         {
-            var taskId = i;
             queue.QueueBackgroundWorkItem(async ct =>
             {
                 // Simulate some minimal work
@@ -108,8 +106,10 @@ public class ChannelBackgroundTaskQueueBenchmarks
 
         // Wait for all items to be processed
         await completed.Task;
-        cancellationTokenSource.Cancel();
+        await cancellationTokenSource.CancelAsync();
         queue.Complete();
         await Task.WhenAll(consumerTasks.Where(t => !t.IsCompleted));
+
+        cancellationTokenSource.Dispose();
     }
 }

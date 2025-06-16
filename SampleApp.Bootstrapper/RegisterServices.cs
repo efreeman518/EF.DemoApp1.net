@@ -36,7 +36,6 @@ using Package.Infrastructure.AspNetCore.Chaos;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.BlandAI;
-using Package.Infrastructure.BlandAI.Model;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data;
@@ -148,7 +147,7 @@ public static class RegisterServices
     /// <summary>
     /// Register/configure infrastructure services for DI
     /// </summary>
-    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config, bool hasHttpContext = false)
+    public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
         AddConfigurationServices(services, config);
         AddInternalServices(services);
@@ -645,9 +644,16 @@ public static class RegisterServices
         // Default text embedding service
         var textEmbeddingDeployment = aoaiConfig.GetValue<string>("DefaultTextEmbeddingDeployment")!;
 
+        var aoiaConfig = new AzureOpenAIConfig
+        {
+            Auth = AuthTypes.AzureIdentity,
+            APIType = APITypes.EmbeddingGeneration,
+            Deployment = textEmbeddingDeployment,
+            Endpoint = endpoint
+        };
 #pragma warning disable SKEXP0010 // Type is for evaluation purposes only
         // Embedding data
-        services.AddAzureOpenAITextEmbeddingGeneration(textEmbeddingDeployment, aoaiClient);
+        services.AddAzureOpenAIEmbeddingGeneration(aoiaConfig);
         // Search data
         services.AddAzureOpenAITextGeneration(new AzureOpenAIConfig
         {

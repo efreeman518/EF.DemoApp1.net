@@ -30,7 +30,7 @@ internal static class IServiceCollectionExtensions
     /// <param name="config"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger, string serviceName)
+    public static IServiceCollection RegisterApiServices(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
         AddCorsPolicy(services, config, logger);
         AddAuthentication(services, config, logger);

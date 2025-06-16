@@ -4,12 +4,17 @@ using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using Package.Infrastructure.Test.Benchmarks.Scenarios;
 
 namespace Package.Infrastructure.Test.Benchmarks;
 
 internal class Program
 {
+    protected Program()
+    {
+        // This constructor is intentionally left empty.
+        // It can be used for any initialization if needed in the future.
+    }
+
     static void Main(string[] args)
     {
         var config = ManualConfig.Create(DefaultConfig.Instance)
