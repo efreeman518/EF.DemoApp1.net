@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Package.Infrastructure.Data;
 
@@ -145,6 +146,13 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     {
         dbContext.ChangeTracker.DetectChanges();
     }
+
+    public async Task<T?> GetEntityByKeysAsync<T>(CancellationToken cancellationToken = default, params object[] keys)
+        where T : class
+    {
+        return await dbContext.Set<T>().GetEntityByKeysAsync<T>(cancellationToken, keys).ConfigureAwait(ConfigureAwaitOptions.None);
+    }
+
 
     /// <summary>
     /// Returns a the first T with optional related data

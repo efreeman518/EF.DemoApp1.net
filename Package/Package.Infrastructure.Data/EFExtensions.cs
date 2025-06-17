@@ -326,13 +326,14 @@ public static class EFExtensions
     }
 
     /// <summary>
-    /// Returns a single T based on keys, attached and tracked by the DbContext
+    /// FindByKeys returns only the entity, checks EF local store first (before DB), not guaranteed to 'include' any related entities 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="context"></param>
+    /// <param name="dbSet"></param>
+    /// <param name="cancellationToken"></param>
     /// <param name="keys"></param>
     /// <returns></returns>
-    public static async Task<T?> GetByKeyAsync<T>(this DbSet<T> dbSet, CancellationToken cancellationToken = default, params object[] keys) where T : class
+    public static async Task<T?> GetEntityByKeysAsync<T>(this DbSet<T> dbSet, CancellationToken cancellationToken = default, params object[] keys) where T : class
     {
         return await dbSet.FindAsync(keys, cancellationToken).ConfigureAwait(false);
     }
