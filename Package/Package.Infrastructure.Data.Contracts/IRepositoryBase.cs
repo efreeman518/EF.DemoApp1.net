@@ -24,6 +24,8 @@ public interface IRepositoryBase
 
     Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, CancellationToken cancellationToken = default);
 
+    Task<T?> GetEntityByKeysAsync<T>(CancellationToken cancellationToken = default, params object[] keys) where T : class;
+
     Task<T?> GetEntityAsync<T>(bool tracking = false,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
