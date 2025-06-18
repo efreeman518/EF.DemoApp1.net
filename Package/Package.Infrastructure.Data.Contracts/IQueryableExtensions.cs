@@ -64,6 +64,66 @@ public static class IQueryableExtensions
     }
 
     /// <summary>
+    /// Efficiently filter entities by a large collection of values for any property.
+    /// Uses optimal strategy (IN clause or JOIN) based on collection size.
+    /// </summary>
+    /// <typeparam name="T">The entity type</typeparam>
+    /// <typeparam name="TKey">The property type (could be Guid, int, string, etc.)</typeparam>
+    /// <param name="query">The source IQueryable</param>
+    /// <param name="propertySelector">Expression to select the property from entity</param>
+    /// <param name="values">Collection of values to filter by</param>
+    /// <param name="threshold">Optional threshold to control when to switch from Contains to Join (default: 30)</param>
+    /// <returns>Filtered IQueryable</returns>
+    public static IQueryable<T> WherePropertyIn<T, TKey>(this IQueryable<T> query,
+        Expression<Func<T, TKey>> propertySelector,
+        ICollection<TKey> values,
+        int threshold = 30)
+        where T : class
+    {
+        if (values == null || values.Count == 0)
+            return query.Take(0); // Return empty result if no values provided
+
+        // For small sets, Contains is still efficient
+        if (values.Count <= threshold)
+        {
+            return query.Where(BuildContainsPredicate(propertySelector, values));
+        }
+
+        // For large sets, use a join operation
+        var valuesQuery = values.AsQueryable();
+
+        // Convert propertySelector from t => t.Property to t => new { Property = t.Property }
+        var parameter = propertySelector.Parameters[0];
+        var property = propertySelector.Body;
+
+        // Create lambda for the join
+        var keySelector = Expression.Lambda<Func<T, TKey>>(property, parameter);
+
+        // Use join operation (SQL will optimize this better than IN with large sets)
+        return query.Join(
+            valuesQuery,
+            keySelector,
+            value => value,
+            (entity, _) => entity);
+    }
+
+    private static Expression<Func<T, bool>> BuildContainsPredicate<T, TKey>(
+        Expression<Func<T, TKey>> idSelector,
+        ICollection<TKey> ids)
+    {
+        // Create a Contains expression: entity => ids.Contains(entity.Id)
+        var containsMethod = (typeof(Enumerable)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
+            .FirstOrDefault(m => m.Name == "Contains" && m.GetParameters().Length == 2)?
+            .MakeGenericMethod(typeof(TKey))) ?? throw new InvalidOperationException("Could not find Contains method");
+
+        var idsConstant = Expression.Constant(ids);
+        var call = Expression.Call(containsMethod, idsConstant, idSelector.Body);
+
+        return Expression.Lambda<Func<T, bool>>(call, idSelector.Parameters);
+    }
+
+    /// <summary>
     /// Return IAsyncEnumerable for streaming - await foreach (var x in GetStream<Entity>(...).WithCancellation(cancellationTokenSource.Token))
     /// </summary>
     /// <typeparam name="T"></typeparam>
