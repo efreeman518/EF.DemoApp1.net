@@ -148,6 +148,6 @@ jobs:
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
-              "/user/packages/nuget/$PACKAGE_NAME" \
+              "/users/${{ github.repository_owner }}/packages/nuget/$PACKAGE_NAME" \
               -f visibility='private'
           done
