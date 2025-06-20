@@ -135,7 +135,7 @@ jobs:
 
       - name: Make packages private
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #package.write PAT permissions needed
+          GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }} #package.write PAT permissions needed  ${{ secrets.GITHUB_TOKEN }} 
         run: |
           for project_file in $PACKAGE_PROJECTS; do
             # Get the PackageId directly from MSBuild. This is more reliable than parsing the project file.
