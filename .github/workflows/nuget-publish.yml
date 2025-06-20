@@ -151,12 +151,12 @@ jobs:
 
             echo "Updating visibility for '$PACKAGE_NAME' to private"
 
-            # ${{ github.repository_owner }}
-            echo "API Call: /users/efreeman518/packages/nuget/$PACKAGE_NAME"
+            # Correct API endpoint for the authenticated user
+            echo "API Call: /user/packages/nuget/$PACKAGE_NAME"
 
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
-              "/users/efreeman518/packages/nuget/$PACKAGE_NAME" \
+              "/user/packages/nuget/$PACKAGE_NAME" \
               -f visibility='private'
           done
