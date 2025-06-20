@@ -169,7 +169,7 @@ jobs:
               gh api \
                 --method PATCH \
                 -H "Accept: application/vnd.github+json" \
-                "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
+                "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID/visibility" \
                 -f visibility='private'
             done
           done
