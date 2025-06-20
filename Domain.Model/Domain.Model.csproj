@@ -13,7 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain.Shared\Domain.Shared.csproj" />
-    <ProjectReference Include="..\Package\Package.Infrastructure.Data\Package.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\Package\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
