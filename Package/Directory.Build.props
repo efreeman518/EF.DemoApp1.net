@@ -1,29 +1,33 @@
 <Project>
   <PropertyGroup>
-    <!-- Common NuGet package properties -->
-    <Authors>E. Freeman</Authors>
-    <Company>E. Freeman</Company>
-    <Copyright>Copyright © E. Freeman 2025</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!-- Package visibility settings -->
+    <IsPackable>true</IsPackable>
+    <PackageProjectUrl>https://github.com/efreeman518/EF.DemoApp1.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/efreeman518/EF.DemoApp1.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/efreeman518/EF.DemoApp1.net</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    
-    <!-- Enable packaging -->
-    <IsPackable>true</IsPackable>
-    
-    <!-- Set deterministic builds -->
-    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <DebugType>embedded</DebugType>
+    <Authors>efreeman518</Authors>
+    <Company>efreeman518</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Private package for EF.DemoApp1.net</Description>
+
+    <!-- For GitHub Packages - ensures proper namespace -->
+    <PackageId>efreeman518.$(AssemblyName)</PackageId>
+
+    <!-- Symbol packaging -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Make packages private by restricting where they can be restored from -->
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+    <!-- Remove or comment out RestoreLockedMode 
+    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
+    -->
+    <RestoreForce>true</RestoreForce>
+    <RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
   
   <ItemGroup>
-    <!-- Include README.md in the package -->
-    <None Include="$(MSBuildThisFileDirectory)\..\README.md" Pack="true" PackagePath="\" Visible="false" />
-    
     <!-- Include SourceLink for better debugging experience -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
