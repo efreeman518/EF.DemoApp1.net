@@ -133,30 +133,43 @@ jobs:
             --source github \
             --skip-duplicate
 
-      - name: List Packages in GitHub Registry
+      - name: List packages with versions
         env:
           GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
         run: |
-          echo "Listing packages for owner ${{ github.repository_owner }}..."
-          gh api "/users/${{ github.repository_owner }}/packages?package_type=nuget" --jq '.[] | .name'
-          echo "Package listing complete."
+          echo "Listing packages with versions..."
+          for pkg in $(gh api "/user/packages?package_type=nuget" --jq '.[].name'); do
+            echo "Package: $pkg"
+            # Get the version IDs for this package
+            gh api "/user/packages/nuget/$pkg/versions" --jq '.[] | {id: .id, name: .name}'
+          done
 
       - name: Make packages private
         env:
           GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
         run: |
           for project_file in $PACKAGE_PROJECTS; do
-            # Get the PackageId directly from MSBuild for reliability
+            # Extract PackageId
             PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
-
-            echo "Updating visibility for '$PACKAGE_NAME' to private"
-
-            # Correct API endpoint for the authenticated user
-            echo "API Call: /user/packages/nuget/$PACKAGE_NAME"
-
-            gh api \
-              --method PATCH \
-              -H "Accept: application/vnd.github+json" \
-              "/user/packages/nuget/$PACKAGE_NAME" \
-              -f visibility='private'
+            
+            echo "Processing package: $PACKAGE_NAME"
+            
+            # Get all versions of this package
+            echo "Fetching versions for $PACKAGE_NAME..."
+            VERSIONS=$(gh api "/user/packages/nuget/$PACKAGE_NAME/versions" --jq '.[].id' || echo "")
+            
+            if [ -z "$VERSIONS" ]; then
+              echo "No versions found for $PACKAGE_NAME, skipping."
+              continue
+            fi
+            
+            # Update each version to private
+            for VERSION_ID in $VERSIONS; do
+              echo "Setting version $VERSION_ID of package $PACKAGE_NAME to private"
+              gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
+                -f visibility='private'
+            done
           done
