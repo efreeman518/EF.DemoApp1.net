@@ -148,15 +148,12 @@ jobs:
           for project_file in $PACKAGE_PROJECTS; do
             # Get the PackageId directly from MSBuild for reliability
             PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
-            
-            # GitHub Packages API requires the package name to be lowercase
-            LOWERCASE_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
-            echo "Updating visibility for '$PACKAGE_NAME' (using '$LOWERCASE_PACKAGE_NAME' for API call) to private"
-            
+            echo "Updating visibility for '$PACKAGE_NAME' to private"
+
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
-              "/users/${{ github.repository_owner }}/packages/nuget/$LOWERCASE_PACKAGE_NAME" \
+              "/users/${{ github.repository_owner }}/packages/nuget/$PACKAGE_NAME" \
               -f visibility='private'
           done
