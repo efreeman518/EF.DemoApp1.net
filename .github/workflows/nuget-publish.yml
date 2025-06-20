@@ -137,17 +137,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for project in $PACKAGE_PROJECTS; do
-            # Extract PackageId from .csproj, fallback to project file name
-            PACKAGE_NAME=$(grep '<PackageId>' "$project" | sed -e 's/.*<PackageId>\(.*\)<\/PackageId>.*/\1/' | xargs)
-            if [ -z "$PACKAGE_NAME" ]; then
-              PACKAGE_NAME=$(basename "$project" .csproj)
-            fi
-
-            # GitHub Packages API requires the package name to be lowercase for the API call
+          for project_file in $PACKAGE_PROJECTS; do
+            # Get the PackageId directly from MSBuild. This is more reliable than parsing the project file.
+            # The output can include build info, so we add -nologo and take the last line.
+            PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
+            
+            # GitHub Packages API requires the package name to be lowercase for the API call.
             LOWERCASE_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
-            echo "Updating visibility for $PACKAGE_NAME (using '$LOWERCASE_PACKAGE_NAME' for API call) to private"
+            echo "Updating visibility for '$PACKAGE_NAME' (using '$LOWERCASE_PACKAGE_NAME' for API call) to private"
+            
+            # Add a small delay to mitigate potential replication lag in GitHub Packages.
+            sleep 5
+
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
