@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageId>Package.Infrastructure.Auth</PackageId>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -12,8 +13,8 @@
     <PackageReference Include="LazyCache" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.72.1" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.9.3" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.73.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.9.4" />
   </ItemGroup>
 
 </Project>

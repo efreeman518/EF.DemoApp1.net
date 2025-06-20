@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageId>Package.Infrastructure.AspNetCore</PackageId>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -17,7 +18,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.2.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
-    <PackageReference Include="Polly.Core" Version="8.6.0" />
+    <PackageReference Include="Polly.Core" Version="8.6.1" />
   </ItemGroup>
 
 </Project>
