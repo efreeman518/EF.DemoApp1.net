@@ -133,23 +133,27 @@ jobs:
             --source github \
             --skip-duplicate
 
+      - name: List Packages in GitHub Registry
+        env:
+          GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
+        run: |
+          echo "Listing packages for owner ${{ github.repository_owner }}..."
+          gh api "/users/${{ github.repository_owner }}/packages?package_type=nuget" --jq '.[] | .name'
+          echo "Package listing complete."
+
       - name: Make packages private
         env:
-          GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }} #package.write PAT permissions needed  ${{ secrets.GITHUB_TOKEN }} 
+          GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
         run: |
           for project_file in $PACKAGE_PROJECTS; do
-            # Get the PackageId directly from MSBuild. This is more reliable than parsing the project file.
-            # The output can include build info, so we add -nologo and take the last line.
+            # Get the PackageId directly from MSBuild for reliability
             PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
             
-            # GitHub Packages API requires the package name to be lowercase for the API call.
+            # GitHub Packages API requires the package name to be lowercase
             LOWERCASE_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
             echo "Updating visibility for '$PACKAGE_NAME' (using '$LOWERCASE_PACKAGE_NAME' for API call) to private"
             
-            # Add a small delay to mitigate potential replication lag in GitHub Packages.
-            sleep 5
-
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
