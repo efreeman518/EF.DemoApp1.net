@@ -444,6 +444,7 @@ var assemblies = [
     "name": "Package.Infrastructure.Common",
     "classes": [
       { "name": "Package.Infrastructure.Common.Attributes.MaskAttribute", "rp": "Package.Infrastructure.Common_MaskAttribute.html", "cl": 3, "ucl": 2, "cal": 5, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.CollectionUtility", "rp": "Package.Infrastructure.Common_CollectionUtility.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 46, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Exceptions.NotFoundException", "rp": "Package.Infrastructure.Common_NotFoundException.html", "cl": 2, "ucl": 4, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Exceptions.ValidationException", "rp": "Package.Infrastructure.Common_ValidationException.html", "cl": 2, "ucl": 11, "cal": 13, "tl": 35, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.AsyncPageableExtensions", "rp": "Package.Infrastructure.Common_AsyncPageableExtensions.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -881,6 +882,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollection(System.Collections.Generic.ICollection`1<TBase>,System.Collections.Generic.IEnumerable`1<TMod>,System.Func`3<TBase,TMod,System.Boolean>,System.Action`1<TMod>,System.Action`1<TBase>,System.Action`2<TBase,TMod>)", "methodShortName": "SyncCollection(...)", "fileIndex": 0, "line": 21,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
