@@ -169,7 +169,18 @@ jobs:
               gh api \
                 --method PATCH \
                 -H "Accept: application/vnd.github+json" \
-                "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID/visibility" \
+                "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
                 -f visibility='private'
+
+              # If the above fails, try the raw JSON approach
+              if [ $? -ne 0 ]; then
+                echo "First attempt failed, trying alternative method..."
+                gh api \
+                  --method PATCH \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Content-Type: application/json" \
+                  "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
+                  -f '{"visibility":"private"}'
+              fi
             done
           done
