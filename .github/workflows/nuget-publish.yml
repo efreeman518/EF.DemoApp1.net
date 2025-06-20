@@ -132,3 +132,22 @@ jobs:
             --api-key "${{ secrets.GITHUB_TOKEN }}" \
             --source github \
             --skip-duplicate
+
+      - name: Make packages private
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for project in $PACKAGE_PROJECTS; do
+            # Extract PackageId from .csproj, fallback to project file name
+            PACKAGE_NAME=$(grep '<PackageId>' "$project" | sed -e 's/.*<PackageId>\(.*\)<\/PackageId>.*/\1/' | xargs)
+            if [ -z "$PACKAGE_NAME" ]; then
+              PACKAGE_NAME=$(basename "$project" .csproj)
+            fi
+
+            echo "Updating visibility for $PACKAGE_NAME to private"
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              "/user/packages/nuget/$PACKAGE_NAME" \
+              -f visibility='private'
+          done
