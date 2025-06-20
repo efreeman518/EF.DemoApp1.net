@@ -144,10 +144,13 @@ jobs:
               PACKAGE_NAME=$(basename "$project" .csproj)
             fi
 
-            echo "Updating visibility for $PACKAGE_NAME to private"
+            # GitHub Packages API requires the package name to be lowercase for the API call
+            LOWERCASE_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr '[:upper:]' '[:lower:]')
+
+            echo "Updating visibility for $PACKAGE_NAME (using '$LOWERCASE_PACKAGE_NAME' for API call) to private"
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
-              "/users/${{ github.repository_owner }}/packages/nuget/$PACKAGE_NAME" \
+              "/users/${{ github.repository_owner }}/packages/nuget/$LOWERCASE_PACKAGE_NAME" \
               -f visibility='private'
           done
