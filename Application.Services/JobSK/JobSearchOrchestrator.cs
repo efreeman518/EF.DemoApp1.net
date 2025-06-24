@@ -1,5 +1,4 @@
-﻿using Infrastructure.JobsApi;
-using LanguageExt.Common;
+﻿using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -8,14 +7,14 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;
 
-public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings, 
+public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptions<JobSearchOrchestratorSettings> settings,
     [FromKeyedServices("JobSearchKernel")] Kernel kernel, IFusionCacheProvider cacheProvider) : IJobSearchOrchestrator
 {
     private readonly IFusionCache cache = cacheProvider.GetCache(settings.Value.CacheName);
 
     public async Task<Result<ChatResponse>> ChatCompletionAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("ChatCompletionAsync: {ChatId}", request.ChatId); 
+        logger.LogInformation("ChatCompletionAsync: {ChatId}", request.ChatId);
         (var chatId, var chatHistory) = await GetOrCreateChatHistoryAsync(request.ChatId, cancellationToken);
         chatHistory.AddUserMessage(request.Message);
 

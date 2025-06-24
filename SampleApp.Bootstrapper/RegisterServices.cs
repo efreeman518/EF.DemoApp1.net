@@ -48,6 +48,7 @@ using Polly.Simmy.Outcomes;
 using SampleApp.BackgroundServices.Scheduler;
 using SampleApp.Bootstrapper.StartupTasks;
 using StackExchange.Redis;
+using System.Security.Claims;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
@@ -207,30 +208,30 @@ public static class RegisterServices
         List<CacheSettings> cacheSettings = [];
         config.GetSection("CacheSettings").Bind(cacheSettings);
 
-        foreach (var cacheInstance in cacheSettings)
+        foreach (var cacheSettingsInstance in cacheSettings)
         {
-            ConfigureFusionCacheInstance(services, config, cacheInstance);
+            ConfigureFusionCacheInstance(services, config, cacheSettingsInstance);
         }
 
         // Configure Redis or Memory Cache
         ConfigureDistributedCache(services, config);
     }
 
-    private static void ConfigureFusionCacheInstance(IServiceCollection services, IConfiguration config, CacheSettings cacheInstance)
+    private static void ConfigureFusionCacheInstance(IServiceCollection services, IConfiguration config, CacheSettings cacheSettingsInstance)
     {
-        var fcBuilder = services.AddFusionCache(cacheInstance.Name)
+        var fcBuilder = services.AddFusionCache(cacheSettingsInstance.Name)
             .WithCysharpMemoryPackSerializer()
-            .WithCacheKeyPrefix($"{cacheInstance.Name}:")
+            .WithCacheKeyPrefix($"{cacheSettingsInstance.Name}:")
             .WithDefaultEntryOptions(new FusionCacheEntryOptions()
             {
                 //memory cache duration
-                Duration = TimeSpan.FromMinutes(cacheInstance.DurationMinutes),
+                Duration = TimeSpan.FromMinutes(cacheSettingsInstance.DurationMinutes),
                 //distributed cache duration
-                DistributedCacheDuration = TimeSpan.FromMinutes(cacheInstance.DistributedCacheDurationMinutes),
+                DistributedCacheDuration = TimeSpan.FromMinutes(cacheSettingsInstance.DistributedCacheDurationMinutes),
                 //how long to use expired cache value if the factory is unable to provide an updated value
-                FailSafeMaxDuration = TimeSpan.FromMinutes(cacheInstance.FailSafeMaxDurationMinutes),
+                FailSafeMaxDuration = TimeSpan.FromMinutes(cacheSettingsInstance.FailSafeMaxDurationMinutes),
                 //how long to wait before trying to get a new value from the factory after a fail-safe expiration
-                FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheInstance.FailSafeThrottleDurationMinutes),
+                FailSafeThrottleDuration = TimeSpan.FromSeconds(cacheSettingsInstance.FailSafeThrottleDurationMinutes),
                 //allow some jitter in the Duration for variable expirations
                 JitterMaxDuration = TimeSpan.FromSeconds(10),
                 //factory timeout before returning stale value, if fail-safe is enabled and we have a stale value
@@ -246,38 +247,55 @@ public static class RegisterServices
         //https://github.com/ZiggyCreatures/FusionCache/blob/main/docs/Backplane.md#-wire-format-versioning
         //https://markmcgookin.com/2020/01/15/azure-redis-cache-no-endpoints-specified-error-in-dotnet-core/
         //Redis Settings - Data Access Configuration requires the identities to have 'Data Contributor' access policy for subscribing on the backchannel
-        if (!string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
-        {
-            ConfigureFusionCacheRedisBackplane(fcBuilder, config, cacheInstance);
-        }
+        ConfigureFusionCacheRedis(fcBuilder, config, cacheSettingsInstance);
     }
 
-    private static void ConfigureFusionCacheRedisBackplane(IFusionCacheBuilder fcBuilder, IConfiguration config, CacheSettings cacheInstance)
+    private static void ConfigureFusionCacheRedis(IFusionCacheBuilder fcBuilder, IConfiguration config, CacheSettings cacheSettingsInstance)
     {
-        if (string.IsNullOrEmpty(cacheInstance.RedisConfigurationSection))
+        // possible use the redis connection string
+        if (!string.IsNullOrEmpty(cacheSettingsInstance.RedisConnectionStringName))
         {
-            throw new ArgumentException("RedisConfigurationSection cannot be null or empty.", nameof(config));
-        }
-
-        RedisConfiguration redisConfigFusion = new();
-        config.GetSection(cacheInstance.RedisConfigurationSection).Bind(redisConfigFusion);
-
-        if (redisConfigFusion.EndpointUrl != null)
-        {
-            var redisConfigurationOptions = CreateRedisConfigurationOptions(redisConfigFusion, cacheInstance.BackplaneChannelName);
-
+            var redisConnectionString = config.GetConnectionString(cacheSettingsInstance.RedisConnectionStringName);
             fcBuilder
                 .WithDistributedCache(new RedisCache(new RedisCacheOptions()
                 {
-                    ConfigurationOptions = redisConfigurationOptions
+                    Configuration = redisConnectionString
                 }))
                 .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                 {
-                    ConfigurationOptions = redisConfigurationOptions
+                    Configuration = redisConnectionString
                 }));
+        }
+        //Azure seems to have a backplane issue when using redis connection string, so optionally parse into explicit config options
+        else
+        {
+            RedisConfiguration redisConfigFusion = new();
+            config.GetSection(cacheSettingsInstance.RedisConfigurationSection!).Bind(redisConfigFusion);
+
+            if (redisConfigFusion.EndpointUrl != null)
+            {
+                var redisConfigurationOptions = CreateRedisConfigurationOptions(redisConfigFusion, cacheSettingsInstance.BackplaneChannelName);
+
+                fcBuilder
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+                    {
+                        ConfigurationOptions = redisConfigurationOptions
+                    }))
+                    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                    {
+                        ConfigurationOptions = redisConfigurationOptions
+                    }));
+            }
+            else
+                throw new InvalidOperationException("Redis not configured.");
         }
     }
 
+    /// <summary>
+    /// Not needed for FusionCache, but can be used for direct Redis access if needed
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
     private static void ConfigureDistributedCache(IServiceCollection services, IConfiguration config)
     {
         var redisConfigSection = "Redis1Configuration";
@@ -343,7 +361,7 @@ public static class RegisterServices
             // Background services will not have an http context
             if (httpContext == null)
             {
-                return new RequestContext<string, Guid?>(correlationId, $"BackgroundService-{correlationId}", null);
+                return new RequestContext<string, Guid?>(correlationId, $"BackgroundService-{correlationId}", null, []);
             }
 
             // Get auditId from token claim or header - tries multiple claim types in order of preference:
@@ -372,8 +390,10 @@ public static class RegisterServices
                 // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
                 tenantId = Guid.TryParse(GetFirstKeyValue(claims, "userTenantId"), out Guid clientTenantId) ? clientTenantId : null;
             }
+            //roles previously extracted from header and applied in middleware CustomHeaderAuthMiddleware
+            List<string> rolesList = httpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
 
-            return new RequestContext<string, Guid?>(correlationId, auditId, tenantId);
+            return new RequestContext<string, Guid?>(correlationId, auditId, tenantId, rolesList);
         });
     }
 

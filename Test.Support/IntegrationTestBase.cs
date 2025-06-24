@@ -63,7 +63,7 @@ public abstract class IntegrationTestBase
         ServicesCollection.AddTransient<IRequestContext<string, Guid?>>(provider =>
         {
             var correlationId = Guid.NewGuid().ToString();
-            return new RequestContext<string, Guid?>(correlationId, $"Test.Support.IntegrationTestBase-{correlationId}", null);
+            return new RequestContext<string, Guid?>(correlationId, $"Test.Support.IntegrationTestBase-{correlationId}", null, []);
         });
 
         //build IServiceProvider for subsequent use finding/injecting services

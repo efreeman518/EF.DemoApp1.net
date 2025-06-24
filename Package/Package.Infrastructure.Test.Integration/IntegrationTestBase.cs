@@ -359,7 +359,8 @@ public abstract class IntegrationTestBase
             return new RequestContext<string, Guid?>(
                 Guid.NewGuid().ToString(),
                 "IntegrationTest",
-                null
+                null,
+                []
             );
         });
     }

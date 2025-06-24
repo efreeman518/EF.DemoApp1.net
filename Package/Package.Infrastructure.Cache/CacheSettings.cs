@@ -12,7 +12,13 @@ public class CacheSettings
 
     /// <summary>
     /// Redis connection string name to look up in the configuration
-    /// ConnectionString not currently used because it doesn't work with FusionCache backplane; must load config separately
+    /// Exclusive with RedisConfigurationSection
+    /// </summary>
+    public string? RedisConnectionStringName { get; set; }
+
+    /// <summary>
+    /// Section in the configuration
+    /// if RedisConnectionStringName is null, this section may be used; Apparently Fusion Cache with Azure Redis has a problem using the connection string 
     /// </summary>
     public string? RedisConfigurationSection { get; set; }
 
@@ -41,11 +47,4 @@ public class CacheSettings
     /// How long will we wait before trying to get a new value from the factory after a fail-safe expiration
     /// </summary>
     public int FailSafeThrottleDurationMinutes { get; set; }
-}
-
-public class RedisConfiguration
-{
-    public string EndpointUrl { get; set; } = null!;
-    public int Port { get; set; }
-    public string? Password { get; set; }
 }

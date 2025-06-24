@@ -34,7 +34,7 @@ public class BasicEndpointsTests : EndpointTestBase
         await ConfigureTestInstanceAsync(testContext.TestName!);
     }
 
-    [ClassCleanup(ClassCleanupBehavior.EndOfClass)] 
+    [ClassCleanup(ClassCleanupBehavior.EndOfClass)]
     public static async Task ClassCleanup()
     {
         await BaseClassCleanup();

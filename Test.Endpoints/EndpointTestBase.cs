@@ -78,9 +78,39 @@ public abstract class EndpointTestBase
     {
         //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
 
-        _dbContainer = new MsSqlBuilder().Build();
+        _dbContainer = new MsSqlBuilder().WithPassword("YourStr0ngP@ssword!").Build();
         await _dbContainer.StartAsync(cancellationToken);
+
+        // Get the connection string to master database
+        string masterConnectionString = _dbContainer.GetConnectionString();
+
+        // Get the database name from configuration
+        string dbName = Config.GetValue("TestSettings:DBName", "TestDB");
+
+        // Create the database first
+        await CreateDatabaseIfNotExists(masterConnectionString, dbName, cancellationToken);
+
         _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
+    }
+
+    private static async Task CreateDatabaseIfNotExists(string masterConnectionString, string dbName, CancellationToken cancellationToken)
+    {
+        using var connection = new SqlConnection(masterConnectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        // Check if database exists
+        string checkDbQuery = $"SELECT DB_ID('{dbName}')";
+        using (var command = new SqlCommand(checkDbQuery, connection))
+        {
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+            if (result != DBNull.Value) // Database already exists
+                return;
+        }
+
+        // Create database if it doesn't exist
+        string createDbQuery = $"CREATE DATABASE [{dbName}]";
+        using var createCommand = new SqlCommand(createDbQuery, connection);
+        await createCommand.ExecuteNonQueryAsync(cancellationToken);
     }
 
     /// <summary>
