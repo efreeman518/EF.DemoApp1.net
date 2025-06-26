@@ -32,7 +32,35 @@ public static class RefitCallHelper
         }
         catch (ApiException ex)
         {
-            return ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
+            //return ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
+            string errorMessage = "An error occurred.";
+
+            if (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                errorMessage = "Not authorized.";
+            }
+            else if (!string.IsNullOrEmpty(ex.Content))
+            {
+                try
+                {
+                    // Attempt to parse the JSON content for more details
+                    var errorDetails = JsonSerializer.Deserialize<ProblemDetails>(ex.Content);
+                    if (errorDetails != null && !string.IsNullOrEmpty(errorDetails.Detail))
+                    {
+                        errorMessage = errorDetails.Detail;
+                    }
+                }
+                catch (JsonException)
+                {
+                    errorMessage = "Failed to parse error details.";
+                }
+            }
+
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = (int)ex.StatusCode,
+                Detail = errorMessage
+            });
         }
         catch (Exception ex)
         {
