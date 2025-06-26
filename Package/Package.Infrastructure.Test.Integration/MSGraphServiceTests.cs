@@ -28,6 +28,10 @@ public class MSGraphServiceTests : IntegrationTestBase
         var displayName = $"SomeDisplayName{randomInt}";
         var email = $"eben.freeman+{randomInt}@gmail.com";
         var roles = new List<string> { "StandardUser" };
+        //var displayName = $"ef.admin";
+        //var email = $"eben.freeman+cdadmin@gmail.com";
+        //var roles = new List<string> { "GlobalAdmin" };
+
         var additionalData = new Dictionary<string, object>
         {
             { "UserTenantId", userTenantId },
@@ -35,7 +39,7 @@ public class MSGraphServiceTests : IntegrationTestBase
         };
 
         //new user
-        var request = new GraphUserRequest(null, true, displayName, email, true, $"change!On@Login%Required*{email}", additionalData);
+        var request = new GraphUserRequest(null, true, displayName, email, true, "change!On@Login%Required", additionalData);
         var userId = await _graph.CreateUserAsync(request);
         Assert.IsNotNull(userId, "User ID should not be null.");
 
@@ -82,7 +86,7 @@ public class MSGraphServiceTests : IntegrationTestBase
         await _graph.GetUserAsync(userId).ContinueWith(t =>
         {
             Assert.IsTrue(t.IsFaulted, "User should not be found after deletion.");
-            Assert.IsInstanceOfType(t.Exception?.InnerException, typeof(ODataError), "Expected ODataError for user not found.");
+            Assert.IsInstanceOfType<ODataError>(t.Exception?.InnerException, "Expected ODataError for user not found.");
         });
 
     }

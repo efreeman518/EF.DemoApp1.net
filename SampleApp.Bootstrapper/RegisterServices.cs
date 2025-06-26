@@ -38,6 +38,7 @@ using Package.Infrastructure.BackgroundServices.InternalMessageBus;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Interceptors;
 using Polly;
@@ -386,27 +387,15 @@ public static class RegisterServices
             if (claims != null)
             {
                 // Audit ID is typically the user's subject, email or object ID; if not available, use "NoAuditClaim"
-                auditId = GetFirstKeyValue(claims, "sub", "oid") ?? "NoAuditClaim";
+                auditId = claims.GetFirstKeyValue("sub", "oid") ?? "NoAuditClaim";
                 // Determine tenantId from token claim; we want the client's associated tenant, NOT the standard EntraID tenant ID claim (http://schemas.microsoft.com/identity/claims/tenantid)
-                tenantId = Guid.TryParse(GetFirstKeyValue(claims, "userTenantId"), out Guid clientTenantId) ? clientTenantId : null;
+                tenantId = Guid.TryParse(claims.GetFirstKeyValue("userTenantId"), out Guid clientTenantId) ? clientTenantId : null;
             }
             //roles previously extracted from header and applied in middleware CustomHeaderAuthMiddleware
-            List<string> rolesList = httpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            List<string> rolesList = [.. httpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value)];
 
             return new RequestContext<string, Guid?>(correlationId, auditId, tenantId, rolesList);
         });
-    }
-
-    private static string? GetFirstKeyValue(Dictionary<string, string> list, params string[] keys)
-    {
-        foreach (var key in keys)
-        {
-            if (list.TryGetValue(key, out var value))
-            {
-                return value;
-            }
-        }
-        return null;
     }
 
     private static void AddDatabaseServices(IServiceCollection services, IConfiguration config)
