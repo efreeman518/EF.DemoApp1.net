@@ -6,4 +6,9 @@ public class RequestContext<TAuditIdType, TTenantIdType>(string correlationId, T
     public TAuditIdType AuditId => auditId;
     public TTenantIdType? TenantId => tenantId; // Nullable to allow for no tenant context
     public List<string> Roles { get; } = roles; // List of roles associated with the request context
+
+    public bool RoleExists(string roleName)
+    {
+        return Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
+    }
 }
