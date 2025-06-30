@@ -32,21 +32,34 @@ public static class RefitCallHelper
         }
         catch (ApiException ex)
         {
-            if (ex.StatusCode == HttpStatusCode.Forbidden)
+            return ex.StatusCode switch
             {
-                // Handle 403 Forbidden specifically
-                return ApiResult<T>.Failure(new ProblemDetails
+                HttpStatusCode.Unauthorized => ApiResult<T>.Failure(new ProblemDetails
                 {
-                    Status = (int)HttpStatusCode.Forbidden,
+                    Status = (int)HttpStatusCode.Unauthorized,
                     Title = "Not Authorized",
                     Detail = "You do not have permission to perform this action."
-                });
-            }
-
-            // For other errors, attempt to parse ProblemDetails
-            ProblemDetails problemDetails = DeserializeProblemDetails(ex.StatusCode, ex.Content);
-
-            return ApiResult<T>.Failure(problemDetails);
+                }),
+                HttpStatusCode.Forbidden => ApiResult<T>.Failure(new ProblemDetails
+                {
+                    Status = (int)HttpStatusCode.Forbidden,
+                    Title = "Forbidden",
+                    Detail = "You do not have permission to perform this action."
+                }),
+                HttpStatusCode.NotFound => ApiResult<T>.Failure(new ProblemDetails
+                {
+                    Status = (int)HttpStatusCode.NotFound,
+                    Title = "Not Found",
+                    Detail = "Resource not found."
+                }),
+                HttpStatusCode.MethodNotAllowed => ApiResult<T>.Failure(new ProblemDetails
+                {
+                    Status = (int)HttpStatusCode.MethodNotAllowed,
+                    Title = "Method Not Allowed",
+                    Detail = "Method Not Allowed."
+                }),
+                _ => ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content))
+            };
         }
         catch (Exception ex)
         {
