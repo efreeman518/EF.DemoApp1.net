@@ -10,7 +10,7 @@ public static class RefitCallHelper
         PropertyNameCaseInsensitive = true
     };
 
-    public static async Task<ApiResult<T>> TryApiCallAsync<T>(Func<Task<T>> apiCall, CancellationToken cancellationToken = default)
+    public static async Task<ApiResult<T>> TryApiCallAsync<T>(Func<Task<T>> apiCall, bool failOnTimeout = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -21,7 +21,7 @@ public static class RefitCallHelper
             var result = await Task.Run(async () => await apiCall().ConfigureAwait(false), cts.Token);
             return ApiResult<T>.Success(result);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (!failOnTimeout)
         {
             return ApiResult<T>.Failure(new ProblemDetails
             {
@@ -72,7 +72,7 @@ public static class RefitCallHelper
         }
     }
 
-    public static async Task<ApiResult> TryApiCallVoidAsync(Func<Task> apiCall, CancellationToken cancellationToken = default)
+    public static async Task<ApiResult> TryApiCallVoidAsync(Func<Task> apiCall, bool failOnTimeout = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -83,7 +83,7 @@ public static class RefitCallHelper
             await Task.Run(async () => await apiCall().ConfigureAwait(false), cts.Token);
             return ApiResult.Success();
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (!failOnTimeout)
         {
             return ApiResult.Failure(new ProblemDetails
             {
