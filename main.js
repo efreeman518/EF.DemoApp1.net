@@ -450,7 +450,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Exceptions.ValidationException", "rp": "Package.Infrastructure.Common_ValidationException.html", "cl": 2, "ucl": 11, "cal": 13, "tl": 35, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.AsyncPageableExtensions", "rp": "Package.Infrastructure.Common_AsyncPageableExtensions.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.CompressionExtensions", "rp": "Package.Infrastructure.Common_CompressionExtensions.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 74, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.DictionaryExtensions", "rp": "Package.Infrastructure.Common_DictionaryExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 32, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Extensions.DictionaryExtensions", "rp": "Package.Infrastructure.Common_DictionaryExtensions.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 56, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "rp": "Package.Infrastructure.Common_HttpClientExtensions.html", "cl": 0, "ucl": 71, "cal": 71, "tl": 196, "cb": 0, "tb": 42, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.IAsyncEnumerableExtensions", "rp": "Package.Infrastructure.Common_IAsyncEnumerableExtensions.html", "cl": 56, "ucl": 0, "cal": 56, "tl": 126, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "rp": "Package.Infrastructure.Common_LoggerExtensions.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 130, "cb": 0, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -474,7 +474,7 @@ var assemblies = [
     "classes": [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.PagedResponse<T>", "rp": "Package.Infrastructure.Common.Contracts_PagedResponse_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -542,7 +542,7 @@ var assemblies = [
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 521, "cal": 521, "tl": 901, "cb": 0, "tb": 90, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 517, "cal": 517, "tl": 890, "cb": 0, "tb": 86, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -690,7 +690,7 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 356,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "AddRequestContextServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddRequestContextServices(...)", "fileIndex": 0, "line": 357,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -936,7 +936,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 802,
+    "assembly": "SampleApp.Bootstrapper", "class": "SampleApp.Bootstrapper.RegisterServices", "reportPath": "SampleApp.Bootstrapper_RegisterServices.html", "methodName": "ConfigureSampleApiResiliency(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)", "methodShortName": "ConfigureSampleApiResiliency(...)", "fileIndex": 0, "line": 791,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },

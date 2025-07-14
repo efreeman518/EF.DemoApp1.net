@@ -45,19 +45,19 @@
 </tr>
 <tr>
 <th>Uncovered lines:</th>
-<td class="limit-width right" title="10">10</td>
+<td class="limit-width right" title="14">14</td>
 </tr>
 <tr>
 <th>Coverable lines:</th>
-<td class="limit-width right" title="10">10</td>
+<td class="limit-width right" title="14">14</td>
 </tr>
 <tr>
 <th>Total lines:</th>
-<td class="limit-width right" title="32">32</td>
+<td class="limit-width right" title="56">56</td>
 </tr>
 <tr>
 <th>Line coverage:</th>
-<td class="limit-width right" title="0 of 10">0%</td>
+<td class="limit-width right" title="0 of 14">0%</td>
 </tr>
 </table>
 </div>
@@ -75,11 +75,11 @@
 </tr>
 <tr>
 <th>Total branches:</th>
-<td class="limit-width right" title="4">4</td>
+<td class="limit-width right" title="8">8</td>
 </tr>
 <tr>
 <th>Branch coverage:</th>
-<td class="limit-width right" title="0 of 4">0%</td>
+<td class="limit-width right" title="0 of 8">0%</td>
 </tr>
 </table>
 </div>
@@ -109,6 +109,7 @@
 <tbody>
 <tr><td title="GetOrAdd(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)"><a href="#file0_line12" class="navigatetohash">GetOrAdd(...)</a></td><td>0%</td><td>6</td><td>2</td><td>0%</td></tr>
 <tr><td title="TryUpdate(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)"><a href="#file0_line24" class="navigatetohash">TryUpdate(...)</a></td><td>0%</td><td>6</td><td>2</td><td>0%</td></tr>
+<tr><td title="GetFirstKeyValue(System.Collections.Generic.Dictionary`2&lt;TKey,TVal&gt;,TKey[])"><a href="#file0_line47" class="navigatetohash">GetFirstKeyValue(...)</a></td><td>0%</td><td>20</td><td>4</td><td>0%</td></tr>
 </tbody>
 </table>
 </div>
@@ -149,16 +150,41 @@
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line29"></a><code>29</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;=&nbsp;newValue;</code></td></tr>
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line30"></a><code>30</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line31"></a><code>31</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line32"></a><code>32</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line32"></a><code>32</code></td><td></td><td class="lightgray"><code></code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line33"></a><code>33</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line34"></a><code>34</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Retrieves&nbsp;the&nbsp;value&nbsp;associated&nbsp;with&nbsp;the&nbsp;first&nbsp;key&nbsp;in&nbsp;the&nbsp;specified&nbsp;sequence&nbsp;that&nbsp;exists&nbsp;in&nbsp;the&nbsp;dictionary.</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line35"></a><code>35</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line36"></a><code>36</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;remarks&gt;This&nbsp;method&nbsp;iterates&nbsp;through&nbsp;the&nbsp;provided&nbsp;keys&nbsp;in&nbsp;order&nbsp;and&nbsp;returns&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;first</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line37"></a><code>37</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;key&nbsp;that&nbsp;exists&nbsp;in&nbsp;the&nbsp;dictionary.&nbsp;If&nbsp;none&nbsp;of&nbsp;the&nbsp;keys&nbsp;are&nbsp;found,&nbsp;the&nbsp;method&nbsp;returns&nbsp;the&nbsp;default&nbsp;value&nbsp;for</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line38"></a><code>38</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;typeparamref&nbsp;name=&quot;TVal&quot;/&gt;.&lt;/remarks&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line39"></a><code>39</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;typeparam&nbsp;name=&quot;TKey&quot;&gt;The&nbsp;type&nbsp;of&nbsp;the&nbsp;keys&nbsp;in&nbsp;the&nbsp;dictionary.&nbsp;Must&nbsp;be&nbsp;a&nbsp;non-nullable&nbsp;type.&lt;/typeparam&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line40"></a><code>40</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;typeparam&nbsp;name=&quot;TVal&quot;&gt;The&nbsp;type&nbsp;of&nbsp;the&nbsp;values&nbsp;in&nbsp;the&nbsp;dictionary.&lt;/typeparam&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line41"></a><code>41</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;param&nbsp;name=&quot;dictionary&quot;&gt;The&nbsp;dictionary&nbsp;to&nbsp;search&nbsp;for&nbsp;the&nbsp;specified&nbsp;keys.&lt;/param&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line42"></a><code>42</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;param&nbsp;name=&quot;keys&quot;&gt;An&nbsp;array&nbsp;of&nbsp;keys&nbsp;to&nbsp;search&nbsp;for&nbsp;in&nbsp;the&nbsp;dictionary,&nbsp;in&nbsp;order&nbsp;of&nbsp;priority.&lt;/param&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line43"></a><code>43</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;The&nbsp;value&nbsp;associated&nbsp;with&nbsp;the&nbsp;first&nbsp;key&nbsp;found&nbsp;in&nbsp;the&nbsp;dictionary;&nbsp;otherwise,&nbsp;the&nbsp;default&nbsp;value&nbsp;for&nbsp;&lt;type</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line44"></a><code>44</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;name=&quot;TVal&quot;/&gt;.&lt;/returns&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line45"></a><code>45</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;TVal?&nbsp;GetFirstKeyValue&lt;TKey,&nbsp;TVal&gt;(this&nbsp;Dictionary&lt;TKey,&nbsp;TVal&gt;&nbsp;dictionary,&nbsp;params&nbsp;TKey[]&nbsp;keys)&nbsp;where&nbsp;T</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line46"></a><code>46</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits, 0 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line47"></a><code>47</code></td><td class="percentagebar percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach&nbsp;(var&nbsp;key&nbsp;in&nbsp;keys)</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line48"></a><code>48</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits, 0 of 2 branches are covered)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line49"></a><code>49</code></td><td class="percentagebar percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(dictionary.TryGetValue(key,&nbsp;out&nbsp;var&nbsp;value))</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line50"></a><code>50</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line51"></a><code>51</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;value;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line52"></a><code>52</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line53"></a><code>53</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line54"></a><code>54</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;default;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line55"></a><code>55</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line56"></a><code>56</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
 </tbody>
 </table>
 </div>
-<div class="footer">Generated by: ReportGenerator 5.4.8.0<br />06/24/2025 - 21:10:04<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
+<div class="footer">Generated by: ReportGenerator 5.4.8.0<br />07/14/2025 - 00:06:53<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
 <a href="#file0_line12" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - GetOrAdd(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)"><i class="icon-cube"></i>GetOrAdd(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)</a><br />
 <a href="#file0_line24" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - TryUpdate(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)"><i class="icon-cube"></i>TryUpdate(System.Collections.Generic.Dictionary`2&lt;TKey,TValue&gt;,TKey,TValue)</a><br />
+<a href="#file0_line47" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - GetFirstKeyValue(System.Collections.Generic.Dictionary`2&lt;TKey,TVal&gt;,TKey[])"><i class="icon-cube"></i>GetFirstKeyValue(System.Collections.Generic.Dictionary`2&lt;TKey,TVal&gt;,TKey[])</a><br />
 <br/></div>
 </div></div>
 <script type="text/javascript">

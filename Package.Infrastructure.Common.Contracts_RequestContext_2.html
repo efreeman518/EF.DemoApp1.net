@@ -45,19 +45,19 @@
 </tr>
 <tr>
 <th>Uncovered lines:</th>
-<td class="limit-width right" title="5">5</td>
+<td class="limit-width right" title="6">6</td>
 </tr>
 <tr>
 <th>Coverable lines:</th>
-<td class="limit-width right" title="5">5</td>
+<td class="limit-width right" title="6">6</td>
 </tr>
 <tr>
 <th>Total lines:</th>
-<td class="limit-width right" title="9">9</td>
+<td class="limit-width right" title="14">14</td>
 </tr>
 <tr>
 <th>Line coverage:</th>
-<td class="limit-width right" title="0 of 5">0%</td>
+<td class="limit-width right" title="0 of 6">0%</td>
 </tr>
 </table>
 </div>
@@ -112,6 +112,7 @@
 <tr><td title="get_AuditId()"><a href="#file0_line6" class="navigatetohash">get_AuditId()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 <tr><td title="get_TenantId()"><a href="#file0_line7" class="navigatetohash">get_TenantId()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 <tr><td title="get_Roles()"><a href="#file0_line8" class="navigatetohash">get_Roles()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
+<tr><td title="RoleExists(System.String)"><a href="#file0_line12" class="navigatetohash">RoleExists(...)</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 </tbody>
 </table>
 </div>
@@ -129,11 +130,16 @@
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line6"></a><code>6</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType&nbsp;AuditId&nbsp;=&gt;&nbsp;auditId;</code></td></tr>
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line7"></a><code>7</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TTenantIdType?&nbsp;TenantId&nbsp;=&gt;&nbsp;tenantId;&nbsp;//&nbsp;Nullable&nbsp;to&nbsp;allow&nbsp;for&nbsp;no&nbsp;tenant&nbsp;context</code></td></tr>
 <tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line8"></a><code>8</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;List&lt;string&gt;&nbsp;Roles&nbsp;{&nbsp;get;&nbsp;}&nbsp;=&nbsp;roles;&nbsp;//&nbsp;List&nbsp;of&nbsp;roles&nbsp;associated&nbsp;with&nbsp;the&nbsp;request&nbsp;context</code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line9"></a><code>9</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line9"></a><code>9</code></td><td></td><td class="lightgray"><code></code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line10"></a><code>10</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;bool&nbsp;RoleExists(string&nbsp;roleName)</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line11"></a><code>11</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line12"></a><code>12</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Roles.Contains(roleName,&nbsp;StringComparer.OrdinalIgnoreCase);</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line13"></a><code>13</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line14"></a><code>14</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
 </tbody>
 </table>
 </div>
-<div class="footer">Generated by: ReportGenerator 5.4.8.0<br />06/24/2025 - 21:10:04<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
+<div class="footer">Generated by: ReportGenerator 5.4.8.0<br />07/14/2025 - 00:06:53<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
@@ -142,6 +148,7 @@
 <a href="#file0_line6" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_AuditId()"><i class="icon-wrench"></i>get_AuditId()</a><br />
 <a href="#file0_line7" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_TenantId()"><i class="icon-wrench"></i>get_TenantId()</a><br />
 <a href="#file0_line8" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_Roles()"><i class="icon-wrench"></i>get_Roles()</a><br />
+<a href="#file0_line12" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - RoleExists(System.String)"><i class="icon-cube"></i>RoleExists(System.String)</a><br />
 <br/></div>
 </div></div>
 <script type="text/javascript">
