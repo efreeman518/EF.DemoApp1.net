@@ -8,6 +8,16 @@ public interface ISpecification<in T>
 public class Specification<T>(Func<T, bool> predicate) : ISpecification<T> where T : class
 {
     private readonly Func<T, bool> _predicate = predicate;
+    private readonly List<string> _messages = [];
+
+    public IReadOnlyList<string> Messages => _messages;
+    public void AddMessage(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            _messages.Add(message);
+        }
+    }
 
     public virtual bool IsSatisfiedBy(T t) { return _predicate(t); }
 
