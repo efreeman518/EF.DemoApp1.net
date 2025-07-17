@@ -2,9 +2,10 @@
 
 public record StaticItem<TId, TValue>(TId Id, string Name, TValue? Value = default);
 
-public record StaticList<T>(string ListName, IReadOnlyList<T> Items);
+public record StaticList<T>(IReadOnlyList<T> Items);
 
 /// <summary>
+/// Duplicated from the Application.Models.Static namespace to avoid that dependency in the UI project.
 /// A simple container for collections of static data lists and individual values.
 /// </summary>
 public record StaticData
@@ -22,12 +23,11 @@ public record StaticData
     public Dictionary<string, object> Values { get; } = [];
 
     /// <summary>
-    /// Adds a 'StaticList<T>' to the 'Lists' dictionary.
-    /// The list's 'ListName' property is used as the key.
+    /// Adds a 'StaticList<T>' to the 'Lists' dictionary with a specified key.
     /// </summary>
-    public void AddList<T>(StaticList<T> list)
+    public void AddList<T>(string listName, StaticList<T> list)
     {
-        Lists[list.ListName] = list;
+        Lists[listName] = list;
     }
 
     /// <summary>
@@ -65,6 +65,3 @@ public record StaticData
         return null;
     }
 }
-
-
-
