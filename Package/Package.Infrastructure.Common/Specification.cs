@@ -5,10 +5,24 @@ public interface ISpecification<in T>
     bool IsSatisfiedBy(T t);
 }
 
-public class Specification<T>(Func<T, bool> predicate) : ISpecification<T> where T : class
+public class Specification<T> : ISpecification<T> where T : class
 {
-    private readonly Func<T, bool> _predicate = predicate;
+    private readonly Func<T, bool>? _predicate;
     private readonly List<string> _messages = [];
+
+    /// <summary>
+    /// Constructor for creating a specification with a predicate.
+    /// </summary>
+    /// <param name="predicate">The predicate that defines the specification.</param>
+    public Specification(Func<T, bool> predicate)
+    {
+        _predicate = predicate;
+    }
+
+    /// <summary>
+    /// Constructor for creating a specification that will be implemented by a derived class.
+    /// </summary>
+    protected Specification() { }
 
     public IReadOnlyList<string> Messages => _messages;
     public void AddMessage(string message)
@@ -19,7 +33,15 @@ public class Specification<T>(Func<T, bool> predicate) : ISpecification<T> where
         }
     }
 
-    public virtual bool IsSatisfiedBy(T t) { return _predicate(t); }
+    public virtual bool IsSatisfiedBy(T t)
+    {
+        if (_predicate != null)
+        {
+            return _predicate(t);
+        }
+        // This will be overridden by derived classes that use the parameterless constructor.
+        throw new NotImplementedException("Specification predicate not defined and IsSatisfiedBy not overridden.");
+    }
 
     // optional
     public static Specification<T> operator &(Specification<T> me, ISpecification<T> other)
@@ -40,7 +62,9 @@ public class Specification<T>(Func<T, bool> predicate) : ISpecification<T> where
     public static implicit operator Predicate<T>(Specification<T> spec)
     { return spec.IsSatisfiedBy; }
     public static implicit operator Func<T, bool>(Specification<T> spec)
-    { return spec._predicate; }
+    {
+        return spec._predicate ?? throw new InvalidCastException("Cannot implicitly convert a specification without a predicate to a Func<T, bool>.");
+    }
 }
 
 public static class SpecificationExtensions
