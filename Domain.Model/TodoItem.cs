@@ -2,7 +2,7 @@
 using Domain.Shared.Enums;
 using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Attributes;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model;

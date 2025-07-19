@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;

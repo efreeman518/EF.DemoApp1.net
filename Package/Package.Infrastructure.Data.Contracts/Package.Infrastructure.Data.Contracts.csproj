@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Package.Infrastructure.Common.Contracts\Package.Infrastructure.Common.Contracts.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Domain\Package.Infrastructure.Domain.csproj" />
   </ItemGroup>
 
 </Project>

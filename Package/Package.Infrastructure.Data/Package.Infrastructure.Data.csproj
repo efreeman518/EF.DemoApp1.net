@@ -22,6 +22,7 @@
     <ProjectReference Include="..\Package.Infrastructure.BackgroundService\Package.Infrastructure.BackgroundServices.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Data.Contracts\Package.Infrastructure.Data.Contracts.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Domain\Package.Infrastructure.Domain.csproj" />
   </ItemGroup>
 
 </Project>

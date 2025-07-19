@@ -1,9 +1,9 @@
-﻿namespace Package.Infrastructure.Data.Contracts;
+﻿namespace Package.Infrastructure.Domain;
 
-public abstract class xEntityBase : xIEntityBase<Guid>
+public abstract class EntityBase : IEntityBase<Guid>
 {
     private readonly Guid _id = Guid.CreateVersion7();
-    protected xEntityBase()
+    protected EntityBase()
     {
     }
 

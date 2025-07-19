@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;

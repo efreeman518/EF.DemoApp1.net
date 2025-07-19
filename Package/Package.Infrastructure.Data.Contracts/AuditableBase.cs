@@ -1,4 +1,6 @@
-﻿namespace Package.Infrastructure.Data.Contracts;
+﻿using Package.Infrastructure.Domain;
+
+namespace Package.Infrastructure.Data.Contracts;
 
 public abstract class AuditableBase<TAuditIdType> : EntityBase, IAuditable<TAuditIdType>
 {
