@@ -97,37 +97,30 @@ public class TodoServiceTests : UnitTestBase
 
         //act & assert
 
-        //create
+        /// Create
         var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created);
-        TodoItemDto? todoSaved = null;
-        var result = await svc.CreateItemAsync(todoNew); //new Id has been assigned
-        _ = result.Match<TodoItemDto?>(
-            dto => todoSaved = dto,
-            err => null
-        );
-        Assert.IsTrue(todoNew.Id != todoSaved!.Id); //orig dto will still have empty Guid id
-        Assert.AreEqual(todoSaved!.Name, todoNew.Name);
+        var result = await svc.CreateItemAsync(todoNew);
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        var todoSaved = result.Value;
+        Assert.IsNotNull(todoSaved);
+        Assert.AreNotEqual(todoNew.Id, todoSaved.Id);
+        Assert.AreEqual(todoSaved.Name, todoNew.Name);
         Assert.AreEqual(todoNew.Status, todoSaved.Status);
 
         var id = (Guid)todoSaved.Id!;
 
-        //retrieve
-        var oTodo = await svc.GetItemAsync(id);
-        var todoGet = oTodo.Match(
-            dto => dto,
-            () => throw new AssertFailedException("TodoItem not found")
-        );
+        // Retrieve
+        var getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        var todoGet = getResult.Value;
         Assert.AreEqual(todoSaved.Id, todoGet!.Id);
         Assert.AreEqual(todoSaved.Name, todoGet!.Name);
 
-        //update
-        TodoItemDto? todoUpdated = null;
-        result = await svc.UpdateItemAsync(todoGet!); //mock set to return a specific todoItem
-        _ = result.Match(
-            dto => todoUpdated = dto,
-            err => throw err
-        );
-        Assert.IsTrue(todoUpdated != null);
+        // Update
+        var updateResult = await svc.UpdateItemAsync(todoGet!);
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        var todoUpdated = updateResult.Value;
+        Assert.IsNotNull(todoUpdated);
 
         //delete
         await svc.DeleteItemAsync((Guid)todoUpdated.Id!);
@@ -155,50 +148,42 @@ public class TodoServiceTests : UnitTestBase
 
         //act & assert
 
-        //create
+        // Create
         var result = await svc.CreateItemAsync(todo);
-        _ = result.Match(
-            dto => todo = dto,
-            err => throw err
-        );
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        todo = result.Value;
+        Assert.IsNotNull(todo);
         Assert.IsTrue(todo.Id != Guid.Empty);
         var id = (Guid)todo.Id!;
 
-        //retrieve
-        var oTodo = await svc.GetItemAsync(id);
-        todo = oTodo.Match(
-            dto => dto,
-            () => throw new AssertFailedException("TodoItem not found")
-        );
+        // Retrieve
+        var getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        todo = getResult.Value;
         Assert.AreEqual(id, todo!.Id);
 
-        //update
+        // Update
         string newName = "mow lawn";
         var todo2 = todo with { Name = newName, Status = TodoItemStatus.Completed };
 
-        TodoItemDto? updated = null;
-        result = await svc.UpdateItemAsync(todo2);
-        _ = result.Match(
-            dto => updated = dto,
-            err => throw err
-        );
+        var updateResult = await svc.UpdateItemAsync(todo2);
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
-        //retrieve and make sure the update persisted
-        oTodo = await svc.GetItemAsync(id);
-        todo = oTodo.Match(
-            dto => dto,
-            () => throw new AssertFailedException("TodoItem not found")
-        );
+        // Retrieve and ensure the update persisted
+        getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {getResult.Error}");
+        todo = getResult.Value;
         Assert.AreEqual(updated!.Status, todo?.Status);
 
         //delete
         await svc.DeleteItemAsync(id);
 
-        //ensure not found after delete
-        oTodo = await svc.GetItemAsync(id);
-        Assert.IsTrue(oTodo.IsNone);
+        /// Ensure not found after delete
+        getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsNone, "Item was not deleted");
     }
 
     [DataTestMethod]
@@ -213,7 +198,8 @@ public class TodoServiceTests : UnitTestBase
 
         //act & assert
         var result = await svc.CreateItemAsync(todo);
-        Assert.IsTrue(result.IsFaulted);
+        Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
+        Assert.IsNotNull(result.Error, "Expected an error message but got none");
     }
 
     [TestMethod]
@@ -226,25 +212,10 @@ public class TodoServiceTests : UnitTestBase
 
         //act & assert
         var result = await svc.UpdateItemAsync(todo);
-        Assert.IsTrue(result.IsFaulted);
-        result.IfFail(ex => Assert.IsTrue(ex is NotFoundException));
-        result.IfSucc(todo => Assert.Fail($"Should not have found id {todo!.Id} to update"));
+        Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
+        Assert.IsNotNull(result.Error, "Expected an error message but got none");
     }
 
-    [TestMethod]
-    public async Task Todo_UpdateAsync_fail()
-    {
-        //arrange
-        var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _repoTrxn, _repoQuery, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
-        //random Id to 'update'
-        var todo = new TodoItemDto(Guid.NewGuid(), "sdsa", TodoItemStatus.Created);
-
-        //act & assert
-        var result = await svc.UpdateItemAsync(todo);
-        Assert.IsTrue(result.IsFaulted);
-        result.IfFail(ex => Assert.IsTrue(ex is NotFoundException));
-        result.IfSucc(todo => Assert.Fail($"Should not have found id {todo!.Id} to update"));
-    }
 
     [TestMethod]
     public async Task Todo_GetPageAsync_pass()

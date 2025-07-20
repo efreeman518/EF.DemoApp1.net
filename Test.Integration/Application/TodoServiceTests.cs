@@ -54,50 +54,41 @@ public class TodoServiceTests : DbIntegrationTestBase
 
         //act & assert
 
-        //create
+        // Create
         var result = await svc.CreateItemAsync(todo);
-        _ = result.Match(
-            dto => todo = dto,
-            err => throw err
-
-        );
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        todo = result.Value;
+        Assert.IsNotNull(todo);
         Assert.IsTrue(todo.Id != Guid.Empty);
         Guid id = (Guid)todo.Id!;
 
-        //retrieve
-        var option = await svc.GetItemAsync(id);
-        todo = option.Match(
-            dto => dto,
-            () => throw new AssertFailedException("Item not found")
-        );
+        // Retrieve
+        var getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        todo = getResult.Value;
         Assert.AreEqual(id, todo?.Id);
 
-        //update
+        // Update
         string newName = "mow lawn";
         var todo2 = todo! with { Name = newName, Status = TodoItemStatus.Completed };
-        TodoItemDto? updated = null;
-        result = await svc.UpdateItemAsync(todo2);
-        _ = result.Match(
-            dto => updated = dto,
-            err => throw err
-        );
+        var updateResult = await svc.UpdateItemAsync(todo2);
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
         Assert.AreEqual(newName, updated?.Name);
 
-        //retrieve and make sure the update persisted
-        option = await svc.GetItemAsync(id);
-        todo = option.Match(
-            dto => dto,
-            () => throw new AssertFailedException("Item not found")
-        );
+        // Retrieve and ensure the update persisted
+        getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {getResult.Error}");
+        todo = getResult.Value;
         Assert.AreEqual(updated!.Status, todo!.Status);
 
         //delete
         await svc.DeleteItemAsync(id);
 
-        //ensure null after delete
-        option = await svc.GetItemAsync(id);
-        Assert.IsTrue(option.IsNone);
+        // Ensure null after delete
+        getResult = await svc.GetItemAsync(id);
+        Assert.IsTrue(getResult.IsNone, "Item was not deleted");
 
         //queue the task to complete the test; this enables the test to wait for the background tasks to complete
         _bgTaskQueue.QueueBackgroundWorkItem(async token =>
@@ -133,9 +124,10 @@ public class TodoServiceTests : DbIntegrationTestBase
 
         //act & assert
 
-        //create
+        // Create
         var result = await svc.CreateItemAsync(todo);
-        Assert.IsTrue(result.IsFaulted);
+        Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
+        Assert.IsNotNull(result.Error, "Expected an error message but got none");
     }
 
     /// <summary>

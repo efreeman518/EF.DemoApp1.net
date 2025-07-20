@@ -59,10 +59,18 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     [HttpGet("{id:Guid}")]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(Guid id)
     {
-        var option = await _todoService.GetItemAsync(id);
-        return option.Match<ActionResult<TodoItemDto>>(
-            Some: dto => Ok(dto),
-            None: () => NotFound(id));
+        var result = await _todoService.GetItemAsync(id);
+        if (result.IsNone)
+        {
+            return NotFound(id);
+        }
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 
     #region auth policy endpoints
@@ -139,10 +147,15 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
     public async Task<ActionResult<TodoItemDto>> PostTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
         var result = await _todoService.CreateItemAsync(todoItem);
-        return result.Match<ActionResult<TodoItemDto>>(
-            dto => CreatedAtAction(nameof(PostTodoItem), new { id = dto!.Id }, dto),
-            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment()))
-            );
+        if (!result.IsSuccess)
+        {
+            return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                traceId: HttpContext.TraceIdentifier,
+                includeStackTrace: hostEnv.IsDevelopment()));
+        }
+
+        return CreatedAtAction(nameof(PostTodoItem), new { id = result.Value!.Id }, result.Value);
     }
 
     /// <summary>
@@ -160,9 +173,17 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
         }
 
         var result = await _todoService.UpdateItemAsync(todoItem);
-        return result.Match<ActionResult<TodoItemDto>>(
-            dto => dto is null ? NotFound(id) : Ok(dto),
-            err => BadRequest(err.Message));
+        if (result.IsNone)
+        {
+            return NotFound(id);
+        }
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
 ﻿using Domain.Shared.Enums;
-using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 
 namespace Domain.Model;
 public class SystemSetting(string key, string? value) : AuditableBase<string>

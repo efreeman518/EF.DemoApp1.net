@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Package.Infrastructure.Data;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 
 namespace Infrastructure.Data;
 

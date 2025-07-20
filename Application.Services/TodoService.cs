@@ -2,13 +2,11 @@
 using Application.Contracts.Mappers;
 using Application.Services.Logging;
 using EntityFramework.Exceptions.Common;
-using LanguageExt;
-using LanguageExt.Common;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Contracts;
-using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
+using Package.Infrastructure.Domain;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace Application.Services;
@@ -38,16 +36,18 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
             includeTotal: true, cancellationToken: cancellationToken);
     }
 
-    public async Task<Option<TodoItemDto>> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<TodoItemDto>> GetItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        //performant logging
         logger.TodoItemGetById(id);
 
         var todo = await repoTrxn.GetEntityAsync<TodoItem>(filter: t => t.Id == id, cancellationToken: cancellationToken);
 
-        return (todo == null)
-            ? Option<TodoItemDto>.None
-            : todo.ToDto();
+        if (todo == null)
+        {
+            return Result<TodoItemDto>.None();
+        }
+
+        return Result<TodoItemDto>.Success(todo.ToDto());
     }
 
     public async Task<Result<TodoItemDto>> CreateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
@@ -59,7 +59,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = todo.Validate();
         if (!validationResult)
         {
-            return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
+            return Result<TodoItemDto>.Failure(validationResult.Error!);
         }
 
         //structured logging
@@ -73,7 +73,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
         catch (UniqueConstraintException ex)
         {
-            return new Result<TodoItemDto>(ex); //name exists
+            return Result<TodoItemDto>.Failure(ex.Message); //name exists
         }
 
         //queue some non-scoped work - fire and forget (notification)
@@ -96,14 +96,14 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         logger.TodoItemCRUD("AddItemAsync Finish", todo.Id.ToString());
 
         //return mapped domain -> app
-        return todo.ToDto();
+        return Result<TodoItemDto>.Success(todo.ToDto());
     }
 
     public async Task<Result<TodoItemDto>> UpdateItemAsync(TodoItemDto dto, CancellationToken cancellationToken = default)
     {
         //retrieve existing
         var dbTodo = await repoTrxn.GetEntityAsync<TodoItem>(true, filter: t => t.Id == dto.Id, cancellationToken: cancellationToken);
-        if (dbTodo == null) return new Result<TodoItemDto>(new NotFoundException($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}"));
+        if (dbTodo == null) return Result<TodoItemDto>.Failure($"{AppConstants.ERROR_ITEM_NOTFOUND}: {dto.Id}");
 
         //update
         dbTodo.SetName(dto.Name);
@@ -115,7 +115,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = dbTodo.Validate();
         if (!validationResult)
         {
-            return new Result<TodoItemDto>(new ValidationException(validationResult.Messages));
+            return Result<TodoItemDto>.Failure(validationResult.Error!);
         }
 
         logger.TodoItemCRUD("UpdateItemAsync Start", dbTodo.SerializeToJson());
@@ -127,13 +127,13 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         }
         catch (UniqueConstraintException ex)
         {
-            return new Result<TodoItemDto>(ex); //name exists on another record
+            return Result<TodoItemDto>.Failure(ex.Message); //name exists on another record
         }
 
         logger.TodoItemCRUD("UpdateItemAsync Complete", dbTodo.Id.ToString());
 
         //return mapped domain -> app 
-        return dbTodo.ToDto();
+        return Result<TodoItemDto>.Success(dbTodo.ToDto());
     }
 
     public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)

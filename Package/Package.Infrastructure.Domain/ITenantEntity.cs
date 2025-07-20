@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Data.Contracts;
+﻿namespace Package.Infrastructure.Domain;
 
 public interface ITenantEntity<TTenantIdType> where TTenantIdType : struct
 {

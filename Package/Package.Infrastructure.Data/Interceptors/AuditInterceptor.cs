@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Package.Infrastructure.BackgroundServices.InternalMessageBus;
-using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain.Attributes;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;

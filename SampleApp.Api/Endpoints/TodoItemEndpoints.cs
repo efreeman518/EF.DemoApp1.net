@@ -65,33 +65,66 @@ public static class TodoItemEndpoints
 
     private static async Task<IResult> GetById([FromServices] ITodoService todoService, Guid id)
     {
-        var option = await todoService.GetItemAsync(id);
-        return option.Match<IResult>(
-            Some: dto => TypedResults.Ok(dto),
-            None: () => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse("Not Found", message: $"Id '{id}' not found.", statusCodeOverride: StatusCodes.Status404NotFound)));
+        var result = await todoService.GetItemAsync(id);
+        if (result.IsNone)
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                "Not Found",
+                message: $"Id '{id}' not found.",
+                statusCodeOverride: StatusCodes.Status404NotFound));
+        }
+
+        if (!result.IsSuccess)
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                statusCodeOverride: StatusCodes.Status400BadRequest));
+        }
+
+        return TypedResults.Ok(result.Value);
     }
 
     private static async Task<IResult> Create(HttpContext httpContext, [FromServices] ITodoService todoService, [FromBody] TodoItemDto todoItemDto)
     {
         var result = await todoService.CreateItemAsync(todoItemDto);
-        return result.Match<IResult>(
-            dto => TypedResults.Created(httpContext.Request.Path, dto),
-            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
-        );
+        if (!result.IsSuccess)
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                traceId: httpContext.TraceIdentifier,
+                includeStackTrace: _problemDetailsIncludeStackTrace));
+        }
+
+        return TypedResults.Created(httpContext.Request.Path, result.Value);
     }
 
     private static async Task<IResult> Update(HttpContext httpContext, [FromServices] ITodoService todoService, Guid id, [FromBody] TodoItemDto todoItem)
     {
         if (todoItem.Id != null && todoItem.Id != id)
         {
-            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(statusCodeOverride: StatusCodes.Status400BadRequest, message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}"));
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                statusCodeOverride: StatusCodes.Status400BadRequest,
+                message: $"{AppConstants.ERROR_URL_BODY_ID_MISMATCH}: {id} <> {todoItem.Id}"));
         }
 
         var result = await todoService.UpdateItemAsync(todoItem);
-        return result.Match<IResult>(
-            dto => dto is null ? Results.NotFound(id) : TypedResults.Ok(dto),
-            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
-        );
+        if (result.IsNone)
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                "Not Found",
+                message: $"Id '{id}' not found.",
+                statusCodeOverride: StatusCodes.Status404NotFound));
+        }
+
+        if (!result.IsSuccess)
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                traceId: httpContext.TraceIdentifier,
+                includeStackTrace: _problemDetailsIncludeStackTrace));
+        }
+
+        return TypedResults.Ok(result.Value);
     }
 
     private static async Task<IResult> Delete([FromServices] ITodoService todoService, Guid id)

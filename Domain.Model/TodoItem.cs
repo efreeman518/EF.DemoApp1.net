@@ -1,8 +1,7 @@
 ﻿using Domain.Shared.Constants;
 using Domain.Shared.Enums;
-using Package.Infrastructure.Common;
-using Package.Infrastructure.Common.Attributes;
 using Package.Infrastructure.Domain;
+using Package.Infrastructure.Domain.Attributes;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model;
@@ -32,13 +31,18 @@ public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatu
         Status = status;
     }
 
-    public ValidationResult Validate()
+    public Result Validate()
     {
-        var result = new ValidationResult(true);
-        if (Name?.Length < Constants.RULE_NAME_LENGTH_MIN) result.Messages.Add("Name length violation");
-        if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) result.Messages.Add("Name regex violation");
-        result.IsValid = result.Messages.Count == 0;
-        return result;
+        var errors = new List<string>();
+        if (Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
+        if (!KnownGeneratedRegexNameRule().Match(Name ?? "").Success) errors.Add("Name regex violation");
+        if (errors.Count > 0)
+        {
+            var errorMessage = $"{GetType().Name} is not valid: {string.Join(", ", errors)}";
+            return Result.Failure(errorMessage);
+        }
+
+        return Result.Success();
     }
 
     /// <summary>
