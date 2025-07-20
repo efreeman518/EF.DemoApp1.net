@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Graph" Version="5.85.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.86.0" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.98.250508.3" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.60.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.60.0-preview" />
