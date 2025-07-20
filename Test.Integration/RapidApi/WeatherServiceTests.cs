@@ -48,15 +48,18 @@ public class WeatherServiceTests
     {
         _logger.InfoLog("GetCurrentAsync_pass - Start");
 
-        //act
-        var weather = (await _svc.GetCurrentAsync("San Diego, CA")).Match(
-            Succ: response => response,
-            Fail: err => throw err);
+        var result = await _svc.GetCurrentAsync("San Diego, CA");
 
-        //assert 
-        Assert.IsNotNull(weather);
-
-        _logger.InfoLog($"GetCurrentAsync_pass - Complete: {weather.SerializeToJson()}");
+        if (result.IsSuccess)
+        {
+            var weather = result.Value;
+            Assert.IsNotNull(weather);
+            _logger.InfoLog($"GetCurrentAsync_pass - Complete: {weather.SerializeToJson()}");
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 
     [TestMethod]
@@ -64,19 +67,29 @@ public class WeatherServiceTests
     {
         _logger.InfoLog("GetForecastAsync_pass - Start");
 
-        //act
-        var weather = (await _svc.GetForecastAsync("San Diego, CA", 3)).Match(
-            Succ: response => response,
-            Fail: err => throw err);
-        Assert.IsNotNull(weather);
+        var forecastResult = await _svc.GetForecastAsync("San Diego, CA", 3);
 
-        var forecast = (await _svc.GetCurrentAsync("Paris, France")).Match(
-            Succ: response => response,
-            Fail: err => throw err);
+        if (forecastResult.IsSuccess)
+        {
+            var weather = forecastResult.Value;
+            Assert.IsNotNull(weather);
+            _logger.InfoLog($"GetForecastAsync_pass - Complete: {weather.SerializeToJson()}");
+        }
+        else
+        {
+            throw new Exception(forecastResult.Error);
+        }
 
-        //assert 
-        Assert.IsNotNull(forecast);
+        var currentResult = await _svc.GetCurrentAsync("Paris, France");
 
-        _logger.InfoLog($"GetForecastAsync_pass - Complete: {weather.SerializeToJson()}");
+        if (currentResult.IsSuccess)
+        {
+            var forecast = currentResult.Value;
+            Assert.IsNotNull(forecast);
+        }
+        else
+        {
+            throw new Exception(currentResult.Error);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using LanguageExt.Common;
+﻿
+using Package.Infrastructure.Domain;
 
 namespace Application.Services.JobSK;
 

@@ -1,8 +1,7 @@
 ﻿using Infrastructure.JobsApi;
-using LanguageExt;
-using LanguageExt.Common;
 using OpenAI.Assistants;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -64,7 +63,7 @@ public class JobAssistantOrchestrator(ILogger<JobAssistantOrchestrator> logger, 
 
         //continue the conversation
         var response = await assistantService.AddMessageAndRunThreadAsync(assistant.Id, threadId, request.Message, toolCallFunc: RunToolCalls, cancellationToken: cancellationToken);
-        return new AssistantResponse(assistant.Id, threadId, response);
+        return Result<AssistantResponse>.Success(new AssistantResponse(assistant.Id, threadId, response));
 
     }
 

@@ -1,9 +1,9 @@
 ﻿using Application.Contracts.Interfaces;
 using Application.Contracts.Model;
-using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 
 namespace Infrastructure.RapidApi.WeatherApi;
 

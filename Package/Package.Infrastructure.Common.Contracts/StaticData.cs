@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Common;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
 public record StaticItem<TId, TValue>(TId Id, string Name, TValue? Value = default);
 

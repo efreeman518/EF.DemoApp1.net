@@ -22,10 +22,19 @@ public static class AssistantEndpoints
     private static async Task<IResult> AppendMessage(HttpContext httpContext, [FromServices] IJobAssistantOrchestrator assistantService, [FromBody] AssistantRequest request)
     {
         var result = await assistantService.AssistantRunAsync(request);
-        return result.Match<IResult>(
-            dto => TypedResults.Ok(dto),
-            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: err.Message, exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
-        );
+
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                message: result.Error,
+                exception: new Exception(result.Error),
+                traceId: httpContext.TraceIdentifier,
+                includeStackTrace: _problemDetailsIncludeStackTrace));
+        }
     }
 
 }

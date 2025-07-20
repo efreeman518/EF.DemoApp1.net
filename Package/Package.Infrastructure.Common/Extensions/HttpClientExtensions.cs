@@ -1,7 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
-using LanguageExt.Common;
+using Package.Infrastructure.Domain;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -74,9 +74,9 @@ public static class HttpClientExtensions
             }
         }
 
-        //might not be expecting a response payload (Http Delete - TResponse = object)
         return (httpResponse, response);
     }
+
 
     /// <summary>
     /// Optional method to return the response as a Result<TResponse> instead of throwing an exception
@@ -97,14 +97,15 @@ public static class HttpClientExtensions
     {
         var httpRequest = BuildHttpRequest(method, url, payload, payloadJsonSerializerOptions, headers);
         using HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, cancellationToken);
+
         if (ensureSuccessStatusCode && !httpResponse.IsSuccessStatusCode)
         {
-            return (httpResponse, new Result<TResponse?>(new HttpRequestException(httpResponse.ReasonPhrase, null, httpResponse.StatusCode)));
+            return (httpResponse, Result<TResponse?>.Failure(httpResponse.ReasonPhrase ?? "Unknown error"));
         }
 
         if (typeof(TResponse) == typeof(IHtmlDocument))
         {
-            return (httpResponse, (TResponse)await GetDocumentAsync(httpResponse, cancellationToken)); //must cast even though we know TResponse is IHtmlDocument
+            return (httpResponse, Result<TResponse?>.Success((TResponse)await GetDocumentAsync(httpResponse, cancellationToken)));
         }
 
         TResponse? response = default;
@@ -126,19 +127,18 @@ public static class HttpClientExtensions
                 }
             }
 
-            //might not be expecting a response payload (Http Delete - TResponse = object)
-            return (httpResponse, response);
+            return (httpResponse, Result<TResponse?>.Success(response));
         }
         else
         {
-            string? val = null; //possible ProblemDetails
+            string? val = null;
             if (s.Length > 0)
             {
                 StreamReader reader = new(s);
                 val = await reader.ReadToEndAsync(cancellationToken);
             }
 
-            return (httpResponse, new Result<TResponse?>(new HttpRequestException(val ?? httpResponse.ReasonPhrase, null, httpResponse.StatusCode)));
+            return (httpResponse, Result<TResponse?>.Failure(val ?? httpResponse.ReasonPhrase ?? "Unknown error"));
         }
     }
 

@@ -67,17 +67,19 @@ public class SampleApiRestClientTests
 
         //act
 
-        //POST create (insert)
-        //var todoResponse = await _svc.SaveItemAsync(todo);
-
+        // POST create (insert)
         var result = await _svc.SaveItemAsync(todo);
-        var todoResponse = result.Match(
-            Succ: dto => dto,
-            Fail: err => throw err
-            );
+        if (!result.IsSuccess)
+        {
+            throw new Exception(result.Error);
+        }
+        var todoResponse = result.Value;
         Assert.IsNotNull(todoResponse);
 
-        if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
+        if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id))
+        {
+            throw new Exception("Invalid Guid");
+        }
 
         //GET retrieve
         todoResponse = await _svc.GetItemAsync(id);
@@ -86,11 +88,12 @@ public class SampleApiRestClientTests
         //PUT update
         todo = todoResponse;
         var todo2 = todo with { Name = $"Update {name}" };
-        //todoResponse = await _svc.SaveItemAsync(todo2)!;
-        todoResponse = result.Match(
-            Succ: dto => dto,
-            Fail: err => throw err
-            );
+        result = await _svc.SaveItemAsync(todo2);
+        if (!result.IsSuccess)
+        {
+            throw new Exception(result.Error);
+        }
+        todoResponse = result.Value;
         Assert.AreEqual(todo2.Name, todoResponse!.Name);
 
         //GET retrieve

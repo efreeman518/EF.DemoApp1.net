@@ -21,10 +21,19 @@ public static class ChatEndpoints
     private static async Task<IResult> AppendMessage(HttpContext httpContext, IJobChatOrchestrator chatService1, ChatRequest request)
     {
         var result = await chatService1.ChatCompletionAsync(request);
-        return result.Match<IResult>(
-            dto => TypedResults.Ok(dto),
-            err => TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(message: err.Message, exception: err, traceId: httpContext.TraceIdentifier, includeStackTrace: _problemDetailsIncludeStackTrace))
-        );
+
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                message: result.Error,
+                exception: new Exception(result.Error),
+                traceId: httpContext.TraceIdentifier,
+                includeStackTrace: _problemDetailsIncludeStackTrace));
+        }
     }
 
 }

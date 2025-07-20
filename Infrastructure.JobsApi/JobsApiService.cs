@@ -1,8 +1,7 @@
-﻿using LanguageExt;
-using LanguageExt.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Infrastructure.JobsApi;
@@ -23,9 +22,15 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
             var url = "job/joblookups";
             logger.LogInformation("GetLookupsAsync: {Url}", url);
             (HttpResponseMessage _, Result<Lookups?> result) = await httpClient.HttpRequestAndResponseResultAsync<Lookups?>(HttpMethod.Get, url, cancellationToken: cancellationToken);
-            return result.Match(
-                Succ: response => response ?? throw new InvalidDataException("Lookup endpoint returned null."),
-                Fail: err => throw err);
+
+            if (result.IsSuccess)
+            {
+                return result.Value ?? throw new InvalidDataException("Lookup endpoint returned null.");
+            }
+            else
+            {
+                throw new Exception(result.Error);
+            }
         }, token: cancellationToken);
 
         return lookups;
@@ -63,18 +68,24 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
     {
         if (request.ExpertiseCodes.Count == 0)
         {
-            return new([]);
+            return new([]); // Return an empty response if no expertise codes are provided
         }
-        //var expertiseCodes = (await GetAllExpertiseList()).Where(e => expertises.Contains(e.Name, StringComparer.OrdinalIgnoreCase)).Select(e => e.Id.ToString()).ToList();
+
         var joinExpertises = string.Join("&expertiseCodes=", request.ExpertiseCodes);
         var url = $"job/search?LocationLat={request.Latitude}&LocationLong={request.Longitude}&Radius={request.RadiusMiles}&expertiseCodes={joinExpertises}&includeRelatedSpecialties=true";
         logger.LogInformation("SearchJobsAsync: {Url}", url);
 
         (HttpResponseMessage _, Result<JobSearchResult?> result) = await httpClient.HttpRequestAndResponseResultAsync<JobSearchResult>(HttpMethod.Get, url, cancellationToken: cancellationToken);
-        var jobResult = result.Match(
-               Succ: response => response ?? throw new InvalidDataException($"Endpoint returned null: {url}"),
-               Fail: err => throw err);
-        return new JobSearchResponse([.. jobResult.Items.Take(request.PageSize)]);
+
+        if (result.IsSuccess)
+        {
+            var jobResult = result.Value ?? throw new InvalidDataException($"Endpoint returned null: {url}");
+            return new JobSearchResponse([.. jobResult.Items.Take(request.PageSize)]);
+        }
+        else
+        {
+            throw new InvalidOperationException(result.Error!);
+        }
     }
 
     //get job details

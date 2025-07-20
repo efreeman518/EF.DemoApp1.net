@@ -24,15 +24,18 @@ public class JobAssistantOrchestratorTests : IntegrationTestBase
     {
         var request = new AssistantRequest { Message = "hi" };
 
-        AssistantResponse? response = null;
         var result = await _jobAssistant.AssistantRunAsync(request);
-        _ = result.Match(
-            dto => response = dto,
-            err => throw err
-            );
 
-        Assert.IsNotNull(response?.AssistantId);
-        Assert.IsNotNull(response?.ThreadId);
-        Assert.IsNotNull(response?.Message);
+        if (result.IsSuccess)
+        {
+            var response = result.Value;
+            Assert.IsNotNull(response?.AssistantId);
+            Assert.IsNotNull(response?.ThreadId);
+            Assert.IsNotNull(response?.Message);
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 }

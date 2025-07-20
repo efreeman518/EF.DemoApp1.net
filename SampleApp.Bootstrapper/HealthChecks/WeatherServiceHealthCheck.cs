@@ -18,9 +18,15 @@ public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger
         try
         {
             var result = await _weatherService.GetCurrentAsync("San Diego, CA");
-            status = result.Match(
-                Succ: response => (response != null) ? HealthStatus.Healthy : HealthStatus.Unhealthy,
-                Fail: err => { exHealth = err; return HealthStatus.Unhealthy; });
+            if (result.IsSuccess)
+            {
+                status = result.Value != null ? HealthStatus.Healthy : HealthStatus.Unhealthy;
+            }
+            else
+            {
+                exHealth = new Exception(result.Error);
+                status = HealthStatus.Unhealthy;
+            }
 
             _logger.LogInformation("WeatherServiceHealthCheck - Complete");
         }

@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.Common;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
 public interface ISpecification<in T>
 {

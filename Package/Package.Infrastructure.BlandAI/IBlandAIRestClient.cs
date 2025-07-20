@@ -1,5 +1,5 @@
-﻿using LanguageExt.Common;
-using Package.Infrastructure.BlandAI.Model;
+﻿using Package.Infrastructure.BlandAI.Model;
+using Package.Infrastructure.Domain;
 
 namespace Package.Infrastructure.BlandAI;
 

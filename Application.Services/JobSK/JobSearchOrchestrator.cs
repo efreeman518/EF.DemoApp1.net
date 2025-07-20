@@ -1,8 +1,8 @@
-﻿using LanguageExt.Common;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.OpenApi;
+using Package.Infrastructure.Domain;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;
@@ -81,7 +81,7 @@ public class JobSearchOrchestrator(ILogger<JobSearchOrchestrator> logger, IOptio
         //save the chat to the cache
         await cache.SetAsync($"chat-{chatId}", chatHistory, token: cancellationToken);
         var chatResponse = new ChatResponse(chatId, chatCompletionResult.Content!);
-        return chatResponse;
+        return Result<ChatResponse>.Success(chatResponse);
     }
 
     private async Task<(Guid, ChatHistory)> GetOrCreateChatHistoryAsync(Guid? chatId = null, CancellationToken cancellationToken = default)

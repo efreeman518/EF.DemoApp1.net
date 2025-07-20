@@ -118,10 +118,18 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
     public async Task<ActionResult<TodoItemDto>> SaveTodoItem([FromServices] IHostEnvironment hostEnv, TodoItemDto todoItem)
     {
         var result = await _apiClient.SaveItemAsync(todoItem);
-        return result.Match<ActionResult<TodoItemDto>>(
-            dto => CreatedAtAction(nameof(TodoItemDto), new { id = dto!.Id }, dto),
-            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment()))
-            );
+
+        if (result.IsSuccess)
+        {
+            return CreatedAtAction(nameof(TodoItemDto), new { id = result.Value!.Id }, result.Value);
+        }
+        else
+        {
+            return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                traceId: HttpContext.TraceIdentifier,
+                includeStackTrace: hostEnv.IsDevelopment()));
+        }
     }
 
     [HttpPut("{id:Guid}")]
@@ -133,10 +141,18 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         }
 
         var result = await _apiClient.SaveItemAsync(todoItem);
-        return result.Match<ActionResult<TodoItemDto>>(
-            dto => Ok(dto),
-            err => BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(exception: err, traceId: HttpContext.TraceIdentifier, includeStackTrace: hostEnv.IsDevelopment()))
-            );
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+        else
+        {
+            return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
+                exception: new Exception(result.Error),
+                traceId: HttpContext.TraceIdentifier,
+                includeStackTrace: hostEnv.IsDevelopment()));
+        }
     }
 
     [HttpDelete("{id:Guid}")]

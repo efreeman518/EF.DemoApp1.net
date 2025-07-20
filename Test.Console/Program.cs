@@ -3,13 +3,12 @@ using Application.Contracts.Interfaces;
 using Domain.Shared.Enums;
 using Google.Protobuf.WellKnownTypes;
 using Infrastructure.SampleApi;
-using LanguageExt;
-using LanguageExt.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Package.Infrastructure.Auth.Tokens;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 using Package.Infrastructure.Grpc;
 using SampleAppGrpc = SampleApp.Grpc.Proto;
 using SampleAppModel = Application.Contracts.Model;
@@ -196,10 +195,14 @@ async Task AttemptResultAsync<T>(Func<Task<Result<T?>>> method) where T : class
         var result = await method();
         Console.WriteLine("----------REST Client handles response -----------");
 
-        _ = result.Match(
-            dto => { Console.WriteLine($"{dto?.SerializeToJson()}"); return Unit.Default; },
-            err => { Console.WriteLine($"ERROR: {err.Message}"); return Unit.Default; }
-        );
+        if (result.IsSuccess)
+        {
+            Console.WriteLine($"{result.Value?.SerializeToJson()}");
+        }
+        else
+        {
+            Console.WriteLine($"ERROR: {result.Error}");
+        }
     }
     catch (Exception ex)
     {

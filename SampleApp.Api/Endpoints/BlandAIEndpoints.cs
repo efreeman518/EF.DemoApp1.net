@@ -69,11 +69,17 @@ public static class BlandAIEndpoints
             //    }
             //],
         };
+
         var callResult = await client.SendCallAsync(request);
-        var callResponse = callResult.Match(
-               Succ: response => response ?? throw new InvalidDataException($"SendCallAsync returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(callResponse);
+
+        if (callResult.IsSuccess)
+        {
+            return TypedResults.Ok(callResult.Value);
+        }
+        else
+        {
+            throw new Exception(callResult.Error);
+        }
     }
 
     private static async Task<IResult> AnalyzeCall(string callId, [FromServices] IBlandAIRestClient client)
@@ -87,37 +93,54 @@ public static class BlandAIEndpoints
             ["How soon can you start?", "date"], ["Normal time of the jump to warp speed", "time"], ["Favorite color", "string"], ["Gender", "male or female or other"], ["Current Age", "number"], ["Feedback on the call", "string"]]
         };
         var result = await client.AnalyzeCallAsync(callId, request);
-        var callResponse = result.Match(
-               Succ: response => response ?? throw new InvalidDataException($"AnalyzeCallAsync returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(callResponse);
+
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 
     private static async Task<IResult> CallDetails(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CallDetailsAsync(callId);
-        var callResponse = result.Match(
-               Succ: response => response ?? throw new InvalidDataException($"CallDetailsAsync returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(callResponse);
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 
     private static async Task<IResult> CorrectedTranscript(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CorrectedTranscriptAsync(callId);
-        var callResponse = result.Match(
-               Succ: response => response ?? throw new InvalidDataException($"CorrectedTranscriptAsync returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(callResponse);
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 
     private static async Task<IResult> CallEmotion(string callId, [FromServices] IBlandAIRestClient client)
     {
         var result = await client.CallEmotionsAsync(new CallEmotionRequest { CallId = callId });
-        var callResponse = result.Match(
-               Succ: response => response ?? throw new InvalidDataException($"CallEmotionsAsync returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(callResponse);
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok(result.Value);
+        }
+        else
+        {
+            throw new Exception(result.Error);
+        }
     }
 
     private sealed class AgentConfigResponse
@@ -136,14 +159,19 @@ public static class BlandAIEndpoints
             Webhook = "https://tdcjwf8m-44318.use.devtunnels.ms/api1/v1/blandai/webhook1"
         };
         var resultAgent = await client.CreateWebAgentAsync(request);
-        var agentResponse = resultAgent.Match(
-               Succ: response => response ?? throw new InvalidDataException($"CreateWebAgent returned null."),
-               Fail: err => throw err);
-        var resultToken = await client.AuthorizeWebAgentCallAsync(agentResponse.AgentId!, CancellationToken.None);
-        var tokenResponse = resultToken.Match(
-               Succ: response => response ?? throw new InvalidDataException($"AuthorizeWebAgentCall returned null."),
-               Fail: err => throw err);
-        return TypedResults.Ok(new AgentConfigResponse { AgentId = agentResponse.AgentId, Token = tokenResponse.Token });
+        if (!resultAgent.IsSuccess)
+        {
+            throw new Exception(resultAgent.Error);
+        }
+        var resultToken = await client.AuthorizeWebAgentCallAsync(resultAgent.Value!.AgentId!, CancellationToken.None);
+
+        if (!resultToken.IsSuccess)
+        {
+            throw new Exception(resultToken.Error);
+        }
+
+        return TypedResults.Ok(new AgentConfigResponse { AgentId = resultAgent.Value.AgentId, Token = resultToken.Value!.Token });
+
     }
 
     private static IResult Webhook1(HttpContext httpContext, [FromServices] IOptions<BlandAISettings> blandAISettings, [FromBody] JsonElement body) //someData item)

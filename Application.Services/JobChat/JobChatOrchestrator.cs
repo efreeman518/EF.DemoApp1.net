@@ -1,7 +1,7 @@
 ﻿using Infrastructure.JobsApi;
-using LanguageExt.Common;
 using OpenAI.Chat;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 using System.Text.Json;
 
 namespace Application.Services.JobChat;
@@ -29,11 +29,11 @@ public class JobChatOrchestrator(ILogger<JobChatOrchestrator> logger, IOptions<J
         try
         {
             var response = await chatService2.ChatCompletionAsync(request.ChatId, messages, options, ToolsCallback, settings.Value.MaxCompletionMessageCount, cancellationToken: cancellationToken);
-            return new ChatResponse(response.Item1, response.Item2);
+            return Result<ChatResponse>.Success(new ChatResponse(response.Item1, response.Item2));
         }
         catch (Exception ex)
         {
-            return new Result<ChatResponse>(ex);
+            return Result<ChatResponse>.Failure(ex.Message);
         }
     }
 

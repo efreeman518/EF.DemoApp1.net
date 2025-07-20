@@ -1,6 +1,6 @@
 ﻿using Application.Contracts.Model;
-using LanguageExt.Common;
 using Package.Infrastructure.Common.Contracts;
+using Package.Infrastructure.Domain;
 
 namespace Application.Contracts.Interfaces;
 

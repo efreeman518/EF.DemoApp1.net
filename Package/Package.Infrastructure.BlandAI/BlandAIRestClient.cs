@@ -1,8 +1,8 @@
-﻿using LanguageExt.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.BlandAI.Model;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

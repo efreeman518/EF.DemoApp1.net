@@ -1,5 +1,5 @@
 ﻿using Application.Contracts.Model;
-using LanguageExt.Common;
+using Package.Infrastructure.Domain;
 
 namespace Application.Contracts.Services;
 
