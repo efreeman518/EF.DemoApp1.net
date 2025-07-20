@@ -112,7 +112,7 @@ jobs:
             echo "📦 Packing $project..."
             dotnet pack "$project" \
               --configuration Release \
-              --no-build \
+              #--no-build \
               --output ./nupkgs \
               -p:PackageVersion=$PACKAGE_VERSION \
               -p:IncludeSymbols=true \
