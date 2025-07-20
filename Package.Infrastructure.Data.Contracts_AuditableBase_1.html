@@ -53,7 +53,7 @@
 </tr>
 <tr>
 <th>Total lines:</th>
-<td class="limit-width right" title="9">9</td>
+<td class="limit-width right" title="11">11</td>
 </tr>
 <tr>
 <th>Line coverage:</th>
@@ -107,10 +107,10 @@
 </colgroup>
 <thead><tr><th>Method</th><th>Branch coverage <a href="https://en.wikipedia.org/wiki/Code_coverage" target="_blank"><i class="icon-info-circled"></i></a></th><th>Crap Score <a href="https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" target="_blank"><i class="icon-info-circled"></i></a></th><th>Cyclomatic complexity <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity" target="_blank"><i class="icon-info-circled"></i></a></th><th>Line coverage <a href="https://en.wikipedia.org/wiki/Code_coverage" target="_blank"><i class="icon-info-circled"></i></a></th></tr></thead>
 <tbody>
-<tr><td title="get_CreatedDate()"><a href="#file0_line5" class="navigatetohash">get_CreatedDate()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
-<tr><td title="get_CreatedBy()"><a href="#file0_line6" class="navigatetohash">get_CreatedBy()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
-<tr><td title="get_UpdatedDate()"><a href="#file0_line7" class="navigatetohash">get_UpdatedDate()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
-<tr><td title="get_UpdatedBy()"><a href="#file0_line8" class="navigatetohash">get_UpdatedBy()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
+<tr><td title="get_CreatedDate()"><a href="#file0_line7" class="navigatetohash">get_CreatedDate()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
+<tr><td title="get_CreatedBy()"><a href="#file0_line8" class="navigatetohash">get_CreatedBy()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
+<tr><td title="get_UpdatedDate()"><a href="#file0_line9" class="navigatetohash">get_UpdatedDate()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
+<tr><td title="get_UpdatedBy()"><a href="#file0_line10" class="navigatetohash">get_UpdatedBy()</a></td><td>100%</td><td>2</td><td>1</td><td>0%</td></tr>
 </tbody>
 </table>
 </div>
@@ -120,26 +120,28 @@
 <table class="lineAnalysis">
 <thead><tr><th></th><th>#</th><th>Line</th><th></th><th>Line coverage</th></tr></thead>
 <tbody>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line1"></a><code>1</code></td><td></td><td class="lightgray"><code>namespace&nbsp;Package.Infrastructure.Data.Contracts;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line1"></a><code>1</code></td><td></td><td class="lightgray"><code>using&nbsp;Package.Infrastructure.Domain;</code></td></tr>
 <tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line2"></a><code>2</code></td><td></td><td class="lightgray"><code></code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line3"></a><code>3</code></td><td></td><td class="lightgray"><code>public&nbsp;abstract&nbsp;class&nbsp;AuditableBase&lt;TAuditIdType&gt;&nbsp;:&nbsp;EntityBase,&nbsp;IAuditable&lt;TAuditIdType&gt;</code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line4"></a><code>4</code></td><td></td><td class="lightgray"><code>{</code></td></tr>
-<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line5"></a><code>5</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;DateTime&nbsp;CreatedDate&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;DateTime.UtcNow;</code></td></tr>
-<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line6"></a><code>6</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType&nbsp;CreatedBy&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;default!;&nbsp;//must&nbsp;be&nbsp;set&nbsp;by&nbsp;the&nbsp;caller</code></td></tr>
-<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line7"></a><code>7</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;DateTime?&nbsp;UpdatedDate&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}</code></td></tr>
-<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line8"></a><code>8</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType?&nbsp;UpdatedBy&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}</code></td></tr>
-<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line9"></a><code>9</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line3"></a><code>3</code></td><td></td><td class="lightgray"><code>namespace&nbsp;Package.Infrastructure.Data.Contracts;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line4"></a><code>4</code></td><td></td><td class="lightgray"><code></code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line5"></a><code>5</code></td><td></td><td class="lightgray"><code>public&nbsp;abstract&nbsp;class&nbsp;AuditableBase&lt;TAuditIdType&gt;&nbsp;:&nbsp;EntityBase,&nbsp;IAuditable&lt;TAuditIdType&gt;</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line6"></a><code>6</code></td><td></td><td class="lightgray"><code>{</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line7"></a><code>7</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;DateTime&nbsp;CreatedDate&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;DateTime.UtcNow;</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line8"></a><code>8</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType&nbsp;CreatedBy&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;default!;&nbsp;//must&nbsp;be&nbsp;set&nbsp;by&nbsp;the&nbsp;caller</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line9"></a><code>9</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;DateTime?&nbsp;UpdatedDate&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}</code></td></tr>
+<tr class="coverableline" title="Not covered (0 visits)" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line10"></a><code>10</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;TAuditIdType?&nbsp;UpdatedBy&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}</code></td></tr>
+<tr class="" title="Not coverable" data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line11"></a><code>11</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
 </tbody>
 </table>
 </div>
-<div class="footer">Generated by: ReportGenerator 5.4.8.0<br />07/14/2025 - 00:06:53<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
+<div class="footer">Generated by: ReportGenerator 5.4.9.0<br />07/20/2025 - 02:36:55<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
-<a href="#file0_line5" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_CreatedDate()"><i class="icon-wrench"></i>get_CreatedDate()</a><br />
-<a href="#file0_line6" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_CreatedBy()"><i class="icon-wrench"></i>get_CreatedBy()</a><br />
-<a href="#file0_line7" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_UpdatedDate()"><i class="icon-wrench"></i>get_UpdatedDate()</a><br />
-<a href="#file0_line8" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_UpdatedBy()"><i class="icon-wrench"></i>get_UpdatedBy()</a><br />
+<a href="#file0_line7" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_CreatedDate()"><i class="icon-wrench"></i>get_CreatedDate()</a><br />
+<a href="#file0_line8" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_CreatedBy()"><i class="icon-wrench"></i>get_CreatedBy()</a><br />
+<a href="#file0_line9" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_UpdatedDate()"><i class="icon-wrench"></i>get_UpdatedDate()</a><br />
+<a href="#file0_line10" class="navigatetohash percentagebar percentagebar0" title="Line coverage: 0% - get_UpdatedBy()"><i class="icon-wrench"></i>get_UpdatedBy()</a><br />
 <br/></div>
 </div></div>
 <script type="text/javascript">
