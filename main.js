@@ -242,11 +242,11 @@ var assemblies = [
     "name": "Application.Services",
     "classes": [
       { "name": "Application.Services.B2CManagement", "rp": "Application.Services_B2CManagement.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 29, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.JobAssistant.JobAssistantOrchestrator", "rp": "Application.Services_JobAssistantOrchestrator.html", "cl": 0, "ucl": 137, "cal": 137, "tl": 269, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.JobAssistant.JobAssistantOrchestrator", "rp": "Application.Services_JobAssistantOrchestrator.html", "cl": 0, "ucl": 137, "cal": 137, "tl": 268, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobAssistant.JobAssistantOrchestratorSettings", "rp": "Application.Services_JobAssistantOrchestratorSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobAssistant.JobAssistantService", "rp": "Application.Services_JobAssistantService.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobAssistant.JobAssistantServiceSettings", "rp": "Application.Services_JobAssistantServiceSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.JobChat.JobChatOrchestrator", "rp": "Application.Services_JobChatOrchestrator.html", "cl": 0, "ucl": 142, "cal": 142, "tl": 214, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.JobChat.JobChatOrchestrator", "rp": "Application.Services_JobChatOrchestrator.html", "cl": 0, "ucl": 141, "cal": 141, "tl": 214, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobChat.JobChatOrchestratorSettings", "rp": "Application.Services_JobChatOrchestratorSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobChat.JobChatService", "rp": "Application.Services_JobChatService.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobChat.JobChatServiceSettings", "rp": "Application.Services_JobChatServiceSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -256,9 +256,9 @@ var assemblies = [
       { "name": "Application.Services.JobSK.Plugins.JobSearchPlugin", "rp": "Application.Services_JobSearchPlugin.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.JobSK.Plugins.KernelMemorySearchPlugin", "rp": "Application.Services_KernelMemorySearchPlugin.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 30, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.Logging.LoggerMessageDefinitionSrcGen", "rp": "Application.Services_LoggerMessageDefinitionSrcGen.html", "cl": 4, "ucl": 42, "cal": 46, "tl": 81, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.Rules.TodoCompositeRule", "rp": "Application.Services_TodoCompositeRule.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.Rules.TodoNameLengthRule", "rp": "Application.Services_TodoNameLengthRule.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 27, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Application.Services.Rules.TodoNameRegexRule", "rp": "Application.Services_TodoNameRegexRule.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.Rules.TodoCompositeRule", "rp": "Application.Services_TodoCompositeRule.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.Rules.TodoNameLengthRule", "rp": "Application.Services_TodoNameLengthRule.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 28, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Application.Services.Rules.TodoNameRegexRule", "rp": "Application.Services_TodoNameRegexRule.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.ServiceBase", "rp": "Application.Services_ServiceBase.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Application.Services.TodoService", "rp": "Application.Services_TodoService.html", "cl": 56, "ucl": 7, "cal": 63, "tl": 155, "cb": 7, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -307,7 +307,7 @@ var assemblies = [
       { "name": "Infrastructure.JobsApi.Expertise", "rp": "Infrastructure.JobsApi_Expertise.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.Job", "rp": "Infrastructure.JobsApi_Job.html", "cl": 0, "ucl": 89, "cal": 89, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobDetail", "rp": "Infrastructure.JobsApi_JobDetail.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 233, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.JobsApi.JobsApiService", "rp": "Infrastructure.JobsApi_JobsApiService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 91, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.JobsApi.JobsApiService", "rp": "Infrastructure.JobsApi_JobsApiService.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 102, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobsApiServiceSettings", "rp": "Infrastructure.JobsApi_JobsApiServiceSettings.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobSearchRequest", "rp": "Infrastructure.JobsApi_JobSearchRequest.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 2, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.JobsApi.JobSearchResponse", "rp": "Infrastructure.JobsApi_JobSearchResponse.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 2, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -451,7 +451,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Extensions.AsyncPageableExtensions", "rp": "Package.Infrastructure.Common_AsyncPageableExtensions.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.CompressionExtensions", "rp": "Package.Infrastructure.Common_CompressionExtensions.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 74, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.DictionaryExtensions", "rp": "Package.Infrastructure.Common_DictionaryExtensions.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 56, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "rp": "Package.Infrastructure.Common_HttpClientExtensions.html", "cl": 0, "ucl": 71, "cal": 71, "tl": 196, "cb": 0, "tb": 42, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "rp": "Package.Infrastructure.Common_HttpClientExtensions.html", "cl": 0, "ucl": 71, "cal": 71, "tl": 196, "cb": 0, "tb": 46, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.IAsyncEnumerableExtensions", "rp": "Package.Infrastructure.Common_IAsyncEnumerableExtensions.html", "cl": 56, "ucl": 0, "cal": 56, "tl": 126, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "rp": "Package.Infrastructure.Common_LoggerExtensions.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 130, "cb": 0, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "rp": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "cl": 4, "ucl": 166, "cal": 170, "tl": 264, "cb": 2, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -460,11 +460,6 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Extensions.StringExtensions", "rp": "Package.Infrastructure.Common_StringExtensions.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 156, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.HashUtility", "rp": "Package.Infrastructure.Common_HashUtility.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 27, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.PredicateBuilder", "rp": "Package.Infrastructure.Common_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Specification<T>", "rp": "Package.Infrastructure.Common_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.SpecificationExtensions", "rp": "Package.Infrastructure.Common_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 78, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StaticData", "rp": "Package.Infrastructure.Common_StaticData.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 67, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StaticList<T>", "rp": "Package.Infrastructure.Common_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StaticLogging", "rp": "Package.Infrastructure.Common_StaticLogging.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 38, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 46, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.SymmetricEncryptionUtility", "rp": "Package.Infrastructure.Common_SymmetricEncryptionUtility.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 72, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -480,6 +475,11 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.SpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 78, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticData", "rp": "Package.Infrastructure.Common.Contracts_StaticData.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 67, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticList<T>", "rp": "Package.Infrastructure.Common.Contracts_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.Data",
@@ -551,7 +551,7 @@ var assemblies = [
   {
     "name": "SampleApp.Bootstrapper",
     "classes": [
-      { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 39, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 45, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 517, "cal": 517, "tl": 890, "cb": 0, "tb": 86, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 40, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -599,6 +599,12 @@ var riskHotspots = [
       { "value": 24, "exceeded": true },
     ]},
   {
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseResultAsync()", "methodShortName": "HttpRequestAndResponseResultAsync()", "fileIndex": 0, "line": 98,
+    "metrics": [
+      { "value": 506, "exceeded": true },
+      { "value": 22, "exceeded": true },
+    ]},
+  {
     "assembly": "SampleApp.Grpc", "class": "SampleApp.Grpc.Proto.TodoItemDto", "reportPath": "SampleApp.Grpc_TodoItemDto.html", "methodName": "Google.Protobuf.IBufferMessage.InternalMergeFrom(Google.Protobuf.ParseContext&)", "methodShortName": "Google.Protobuf.IBufferMessage.InternalMergeFrom(...)", "fileIndex": 0, "line": 401,
     "metrics": [
       { "value": 506, "exceeded": true },
@@ -618,12 +624,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseAsync()", "methodShortName": "HttpRequestAndResponseAsync()", "fileIndex": 0, "line": 34,
-    "metrics": [
-      { "value": 342, "exceeded": true },
-      { "value": 18, "exceeded": true },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseResultAsync()", "methodShortName": "HttpRequestAndResponseResultAsync()", "fileIndex": 0, "line": 98,
     "metrics": [
       { "value": 342, "exceeded": true },
       { "value": 18, "exceeded": true },
@@ -1086,6 +1086,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Infrastructure.Configuration", "class": "Infrastructure.Configuration.ConfigurationBuilderExtensions", "reportPath": "Infrastructure.Configuration_ConfigurationBuilderExtensions.html", "methodName": "AddDatabaseSource(Microsoft.Extensions.Configuration.IConfigurationBuilder,System.String,System.Nullable`1<System.TimeSpan>)", "methodShortName": "AddDatabaseSource(...)", "fileIndex": 0, "line": 9,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Infrastructure.JobsApi", "class": "Infrastructure.JobsApi.JobsApiService", "reportPath": "Infrastructure.JobsApi_JobsApiService.html", "methodName": "SearchJobsAsync()", "methodShortName": "SearchJobsAsync()", "fileIndex": 0, "line": 69,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
