@@ -1,7 +1,7 @@
 ﻿using Infrastructure.JobsApi;
 using OpenAI.Assistants;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Domain;
 using System.Text.Json;
 using ZiggyCreatures.Caching.Fusion;
 

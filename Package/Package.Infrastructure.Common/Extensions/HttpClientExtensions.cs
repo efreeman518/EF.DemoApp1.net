@@ -1,7 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
-using Package.Infrastructure.Domain;
+using Package.Infrastructure.Common.Contracts;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;

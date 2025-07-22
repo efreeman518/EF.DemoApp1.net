@@ -1,7 +1,7 @@
 ﻿using Infrastructure.JobsApi;
 using OpenAI.Chat;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Domain;
 using System.Text.Json;
 
 namespace Application.Services.JobChat;

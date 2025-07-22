@@ -1,9 +1,9 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Exceptions;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Domain;
 using SampleApp.Grpc.Mappers;
 using SampleAppGrpc = SampleApp.Grpc.Proto;
 using SampleAppModel = Application.Contracts.Model;
@@ -48,7 +48,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
 
         if (!result.IsSuccess)
         {
-            throw new RpcException(new Status(StatusCode.Internal, string.Join(",", result.Errors.Select(e => e.Error))));
+            throw new RpcException(new Status(StatusCode.Internal, result.ErrorMessage));
         }
 
         return new SampleAppGrpc.ServiceResponseTodoItem
@@ -80,7 +80,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         {
             ResponseCode = result.IsSuccess ? SampleAppGrpc.ResponseCode.Success : SampleAppGrpc.ResponseCode.Failure,
             Data = result.IsSuccess ? TodoItemMapper.ToGrpcDto(result.Value!) : null,
-            Errors = { result.IsSuccess ? Enumerable.Empty<SampleAppGrpc.ResponseError>() : new[] { new SampleAppGrpc.ResponseError { Message = string.Join(",", result.Errors.Select(e => e.Error)) } } },
+            Errors = { result.IsSuccess ? Enumerable.Empty<SampleAppGrpc.ResponseError>() : [new SampleAppGrpc.ResponseError { Message = result.ErrorMessage }] },
             Message = result.IsSuccess ? "Success" : "Failure"
         };
 

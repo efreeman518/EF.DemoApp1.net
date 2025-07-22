@@ -1,6 +1,40 @@
 ﻿namespace Package.Infrastructure.Common;
 public static class CollectionUtility
 {
+    public static void ProcessCollection<TItem>(IEnumerable<TItem>? items, Action<TItem> processAction, bool failFast = true)
+    {
+        if (items == null) return;
+
+        if (failFast)
+        {
+            foreach (var item in items)
+            {
+                processAction(item);
+            }
+        }
+        else
+        {
+            List<Exception>? exceptions = null;
+            foreach (var item in items)
+            {
+                try
+                {
+                    processAction(item);
+                }
+                catch (Exception ex)
+                {
+                    exceptions ??= [];
+                    exceptions.Add(ex);
+                }
+            }
+
+            if (exceptions?.Count > 0)
+            {
+                throw new AggregateException(exceptions);
+            }
+        }
+    }
+
     /// <summary>
     /// Synchronizes two collections based on a key, performing create, update, and remove operations.
     /// This optimized version uses dictionaries for lookups, providing O(N+M) performance.

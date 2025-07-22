@@ -1,6 +1,40 @@
-﻿namespace Package.Infrastructure.Domain;
+﻿using Package.Infrastructure.Domain.Contracts;
+
+namespace Package.Infrastructure.Domain;
 public static class CollectionUtility
 {
+    /// <summary>
+    /// Helper function to process a collection of items with a processing function,
+    /// returning a Result indicating success or failure.
+    /// </summary>
+    /// <typeparam name="TItem"></typeparam>
+    /// <param name="items"></param>
+    /// <param name="processFunc"></param>
+    /// <param name="failFast"></param>
+    /// <returns></returns>
+    public static DomainResult ProcessCollection<TItem>(IEnumerable<TItem>? items, Func<TItem, DomainResult> processFunc, bool failFast = true)
+    {
+        if (items == null) return DomainResult.Success();
+
+        if (failFast)
+        {
+            foreach (var item in items)
+            {
+                var result = processFunc(item);
+                if (result.IsFailure) return result; // Fail fast
+            }
+            return DomainResult.Success();
+        }
+
+        var results = new List<DomainResult>();
+        foreach (var item in items)
+        {
+            results.Add(processFunc(item));
+        }
+        return DomainResult.Combine([.. results]);
+    }
+
+
     /// <summary>
     /// Synchronizes a collection of entities with a collection of DTOs,
     /// while correctly handling and propagating the Result pattern from domain operations.
@@ -17,20 +51,20 @@ public static class CollectionUtility
     /// <param name="updateFunc">An optional function to update an existing entity association. Must return a Result.</param>
     /// <param name="failFast">If true, the operation stops on the first failure. If false, it processes all items and aggregates errors.</param>
     /// <returns>A Result indicating the success or failure of the entire synchronization operation.</returns>
-    public static Result SyncCollectionWithResult<TEntity, TDto>(
+    public static DomainResult SyncCollectionWithResult<TEntity, TDto>(
         ICollection<TEntity> existingEntities,
         ICollection<TDto>? incomingDtos,
         Func<TEntity, object> entityKeySelector,
         Func<TDto, object?> dtoKeySelector,
-        Func<TDto, Result> createFunc,
+        Func<TDto, DomainResult> createFunc,
         Action<TEntity> removeAction,
-        Func<TEntity, TDto, Result>? updateFunc = null,
+        Func<TEntity, TDto, DomainResult>? updateFunc = null,
         bool failFast = true)
     {
         if (incomingDtos == null)
         {
             foreach (var entity in existingEntities.ToList()) removeAction(entity);
-            return Result.Success();
+            return DomainResult.Success();
         }
 
         var existingDict = existingEntities.ToDictionary(entityKeySelector);
@@ -48,12 +82,12 @@ public static class CollectionUtility
             }
         }
 
-        var operationResults = new List<Result>();
+        var operationResults = new List<DomainResult>();
 
         // Add or Update entities
         foreach (var (key, dto) in incomingDict)
         {
-            Result? operationResult;
+            DomainResult? operationResult;
             if (existingDict.TryGetValue(key, out var existingEntity))
             {
                 // Update existing entity
@@ -74,6 +108,6 @@ public static class CollectionUtility
             operationResults.Add(operationResult);
         }
 
-        return failFast ? Result.Success() : Result.Combine([.. operationResults]);
+        return failFast ? DomainResult.Success() : DomainResult.Combine([.. operationResults]);
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using Package.Infrastructure.Domain;
+﻿using Package.Infrastructure.Common.Contracts;
 
 namespace Application.Services.JobSK;
 

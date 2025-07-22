@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
-using Package.Infrastructure.Domain;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Infrastructure.JobsApi;
@@ -29,7 +29,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
             }
             else
             {
-                throw new InvalidOperationException(string.Join(",", result.Errors.Select(e => e.Error)));
+                throw new InvalidOperationException(result.ErrorMessage);
             }
         }, token: cancellationToken);
 
@@ -84,7 +84,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         }
         else
         {
-            throw new InvalidOperationException(string.Join(",", result.Errors.Select(e => e.Error)));
+            throw new InvalidOperationException(result.ErrorMessage);
         }
     }
 

@@ -2,7 +2,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.OpenApi;
-using Package.Infrastructure.Domain;
+using Package.Infrastructure.Common.Contracts;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace Application.Services.JobSK;

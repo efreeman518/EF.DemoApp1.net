@@ -2,6 +2,7 @@
 using Domain.Shared.Enums;
 using Package.Infrastructure.Domain;
 using Package.Infrastructure.Domain.Attributes;
+using Package.Infrastructure.Domain.Contracts;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model;
@@ -31,7 +32,7 @@ public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatu
         Status = status;
     }
 
-    public Result Validate()
+    public DomainResult Validate()
     {
         var errors = new List<string>();
         if (Name?.Length < Constants.RULE_NAME_LENGTH_MIN) errors.Add("Name length violation");
@@ -39,10 +40,10 @@ public partial class TodoItem(string name, TodoItemStatus status = TodoItemStatu
         if (errors.Count > 0)
         {
             var errorMessage = $"{GetType().Name} is not valid: {string.Join(", ", errors)}";
-            return Result.Failure(errorMessage);
+            return DomainResult.Failure(errorMessage);
         }
 
-        return Result.Success();
+        return DomainResult.Success();
     }
 
     /// <summary>

@@ -6,7 +6,6 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
-using Package.Infrastructure.Domain;
 using AppConstants = Application.Contracts.Constants.Constants;
 
 namespace Application.Services;
@@ -59,7 +58,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = todo.Validate();
         if (!validationResult)
         {
-            return Result<TodoItemDto>.Failure(string.Join(",",validationResult.Errors.Select(e => e.Error)));
+            return Result<TodoItemDto>.Failure(validationResult.ErrorMessage);
         }
 
         //structured logging
@@ -115,7 +114,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = dbTodo.Validate();
         if (!validationResult)
         {
-            return Result<TodoItemDto>.Failure(string.Join(",", validationResult.Errors.Select(e => e.Error)));
+            return Result<TodoItemDto>.Failure(validationResult.ErrorMessage);
         }
 
         logger.TodoItemCRUD("UpdateItemAsync Start", dbTodo.SerializeToJson());
