@@ -445,7 +445,7 @@ var assemblies = [
     "name": "Package.Infrastructure.Common",
     "classes": [
       { "name": "Package.Infrastructure.Common.Attributes.MaskAttribute", "rp": "Package.Infrastructure.Common_MaskAttribute.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.CollectionUtility", "rp": "Package.Infrastructure.Common_CollectionUtility.html", "cl": 0, "ucl": 23, "cal": 23, "tl": 89, "cb": 0, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.CollectionUtility", "rp": "Package.Infrastructure.Common_CollectionUtility.html", "cl": 0, "ucl": 27, "cal": 27, "tl": 110, "cb": 0, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Exceptions.NotFoundException", "rp": "Package.Infrastructure.Common_NotFoundException.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Exceptions.ValidationException", "rp": "Package.Infrastructure.Common_ValidationException.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 35, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.AsyncPageableExtensions", "rp": "Package.Infrastructure.Common_AsyncPageableExtensions.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -507,9 +507,12 @@ var assemblies = [
     "classes": [
       { "name": "Package.Infrastructure.Domain.Attributes.MaskAttribute", "rp": "Package.Infrastructure.Domain_MaskAttribute.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.AuditableBase<T>", "rp": "Package.Infrastructure.Domain_AuditableBase_1.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.CollectionUtility", "rp": "Package.Infrastructure.Domain_CollectionUtility.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 79, "cb": 0, "tb": 28, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.DomainError", "rp": "Package.Infrastructure.Domain_DomainError.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.EntityBase", "rp": "Package.Infrastructure.Domain_EntityBase.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Result", "rp": "Package.Infrastructure.Domain_Result.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 108, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Result<T>", "rp": "Package.Infrastructure.Domain_Result_1.html", "cl": 12, "ucl": 0, "cal": 12, "tl": 108, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Exceptions.DomainException", "rp": "Package.Infrastructure.Domain_DomainException.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Result", "rp": "Package.Infrastructure.Domain_Result.html", "cl": 10, "ucl": 16, "cal": 26, "tl": 226, "cb": 2, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Result<T>", "rp": "Package.Infrastructure.Domain_Result_1.html", "cl": 12, "ucl": 9, "cal": 21, "tl": 226, "cb": 2, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.Messaging",
@@ -592,6 +595,12 @@ var riskHotspotMetrics = [
 ];
 
 var riskHotspots = [
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.CollectionUtility", "reportPath": "Package.Infrastructure.Domain_CollectionUtility.html", "methodName": "SyncCollectionWithResult(System.Collections.Generic.ICollection`1<TEntity>,System.Collections.Generic.ICollection`1<TDto>,System.Func`2<TEntity,System.Object>,System.Func`2<TDto,System.Object>,System.Func`2<TDto,Package.Infrastructure.Domain.Result>,System.Action`1<TEntity>,System.Func`3<TEntity,TDto,Package.Infrastructure.Domain.Result>,System.Boolean)", "methodShortName": "SyncCollectionWithResult(...)", "fileIndex": 0, "line": 30,
+    "metrics": [
+      { "value": 812, "exceeded": true },
+      { "value": 28, "exceeded": true },
+    ]},
   {
     "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "reportPath": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "methodName": "BuildProblemDetailsResponse(System.String,System.String,System.Exception,System.String,System.Boolean,System.Nullable`1<System.Int32>)", "methodShortName": "BuildProblemDetailsResponse(...)", "fileIndex": 0, "line": 26,
     "metrics": [
@@ -815,7 +824,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollectionAsync()", "methodShortName": "SyncCollectionAsync()", "fileIndex": 0, "line": 60,
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollectionAsync()", "methodShortName": "SyncCollectionAsync()", "fileIndex": 0, "line": 79,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
@@ -917,7 +926,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollection(System.Collections.Generic.ICollection`1<TBase>,System.Collections.Generic.IEnumerable`1<TMod>,System.Func`3<TBase,TMod,System.Boolean>,System.Action`1<TMod>,System.Action`1<TBase>,System.Action`2<TBase,TMod>)", "methodShortName": "SyncCollection(...)", "fileIndex": 0, "line": 14,
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollection(System.Collections.Generic.ICollection`1<TBase>,System.Collections.Generic.IEnumerable`1<TMod>,System.Func`2<TBase,TKey>,System.Func`2<TMod,TKey>,System.Action`1<TMod>,System.Action`1<TBase>,System.Action`2<TBase,TMod>)", "methodShortName": "SyncCollection(...)", "fileIndex": 0, "line": 27,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
