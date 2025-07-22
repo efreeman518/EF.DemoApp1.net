@@ -1,29 +1,38 @@
-﻿namespace Package.Infrastructure.Domain;
+﻿using System.Collections.ObjectModel;
+
+namespace Package.Infrastructure.Domain;
 
 /// <summary>
 /// Represents the result of an operation, indicating success or failure.
 /// </summary>
 public class Result
 {
+    private static readonly DomainError[] s_emptyDomainErrors = [];
+
     /// <summary>
     /// Indicates whether the operation was successful.
     /// </summary>
     public bool IsSuccess { get; }
 
     /// <summary>
-    /// Contains the error message if the operation failed; otherwise, null.
+    /// Convenience property - Indicates whether the operation failed.
     /// </summary>
-    public string? Error { get; }
+    public bool IsFailure => !IsSuccess;
+
+    /// <summary>
+    /// Contains the errors if the operation failed; otherwise, an empty collection.
+    /// </summary>
+    public IReadOnlyCollection<DomainError> Errors { get; }
 
     /// <summary>
     /// Protected constructor to initialize a Result instance.
     /// </summary>
     /// <param name="isSuccess">Indicates whether the operation was successful.</param>
-    /// <param name="error">The error message if the operation failed; otherwise, null.</param>
-    protected Result(bool isSuccess, string? error = null)
+    /// <param name="errors">The collection of domain errors if the operation failed.</param>
+    protected Result(bool isSuccess, IReadOnlyCollection<DomainError>? errors = null)
     {
         IsSuccess = isSuccess;
-        Error = error;
+        Errors = errors ?? s_emptyDomainErrors;
     }
 
     /// <summary>
@@ -37,28 +46,37 @@ public class Result
     /// </summary>
     /// <param name="error">The error message describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static Result Failure(string error) => new(false, error);
+    public static Result Failure(string error) => new(false, [DomainError.Create(error)]);
+
+    /// <summary>
+    /// Creates a failed result with the specified errors.
+    /// </summary>
+    /// <param name="errors">The collection of errors describing the failure.</param>
+    /// <returns>A Result instance representing failure.</returns>
+    public static Result Failure(IReadOnlyCollection<DomainError> errors) => new(false, errors);
 
     /// <summary>
     /// Creates a failed result with the specified exception.
     /// </summary>
     /// <param name="exception">The exception describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static Result Failure(Exception exception) => new(false, exception.Message);
+    public static Result Failure(Exception exception) => new(false, [DomainError.Create(exception.Message)]);
 
     /// <summary>
-    /// Combines multiple Result instances into one. If any result is a failure, the combined result is a failure.
+    /// Combines multiple Result instances into one. If any result is a failure, the combined result is a failure with aggregated errors.
     /// </summary>
     /// <param name="results">The array of Result instances to combine.</param>
     /// <returns>A combined Result instance.</returns>
     public static Result Combine(params Result[] results)
     {
-        foreach (var result in results)
+        var failedResults = results.Where(r => r.IsFailure).ToList();
+        if (failedResults.Count == 0)
         {
-            if (!result.IsSuccess)
-                return Failure(result.Error ?? "One or more operations failed.");
+            return Success();
         }
-        return Success();
+
+        var errors = failedResults.SelectMany(r => r.Errors).ToList();
+        return Failure(new ReadOnlyCollection<DomainError>(errors));
     }
 
     /// <summary>
@@ -69,14 +87,23 @@ public class Result
     public override bool Equals(object? obj)
     {
         if (obj is not Result other) return false;
-        return IsSuccess == other.IsSuccess && Error == other.Error;
+        return IsSuccess == other.IsSuccess && Errors.SequenceEqual(other.Errors);
     }
 
     /// <summary>
     /// Gets the hash code for this Result instance.
     /// </summary>
     /// <returns>The hash code for this instance.</returns>
-    public override int GetHashCode() => HashCode.Combine(IsSuccess, Error);
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(IsSuccess);
+        foreach (var error in Errors)
+        {
+            hashCode.Add(error);
+        }
+        return hashCode.ToHashCode();
+    }
 
     /// <summary>
     /// Implicitly converts a Result instance to a boolean, returning true if the result is successful.
@@ -99,7 +126,7 @@ public class Result<T> : Result
     /// <summary>
     /// Indicates whether the result represents "None" (no value and no error).
     /// </summary>
-    public bool IsNone => !IsSuccess && EqualityComparer<T>.Default.Equals(Value, default) && Error == null;
+    public bool IsNone => !IsSuccess && EqualityComparer<T>.Default.Equals(Value, default) && Errors.Count == 0;
 
     /// <summary>
     /// Private constructor to initialize a successful Result with a value.
@@ -113,8 +140,8 @@ public class Result<T> : Result
     /// <summary>
     /// Private constructor to initialize a failed Result with an error message.
     /// </summary>
-    /// <param name="error">The error message describing the failure.</param>
-    private Result(string error) : base(false, error)
+    /// <param name="errors">The collection of errors describing the failure.</param>
+    private Result(IReadOnlyCollection<DomainError> errors) : base(false, errors)
     {
     }
 
@@ -137,14 +164,21 @@ public class Result<T> : Result
     /// </summary>
     /// <param name="error">The error message describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static new Result<T> Failure(string error) => new(error);
+    public static new Result<T> Failure(string error) => new([DomainError.Create(error)]);
+
+    /// <summary>
+    /// Creates a failed result with the specified errors.
+    /// </summary>
+    /// <param name="errors">The collection of errors describing the failure.</param>
+    /// <returns>A Result instance representing failure.</returns>
+    public static Result<T> Failure(IReadOnlyCollection<DomainError> errors) => new(errors);
 
     /// <summary>
     /// Creates a failed result with the specified exception.
     /// </summary>
     /// <param name="exception">The exception describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static new Result<T> Failure(Exception exception) => new(exception.Message);
+    public static new Result<T> Failure(Exception exception) => new([DomainError.Create(exception.Message)]);
 
     /// <summary>
     /// Creates a result representing "None" (no value and no error).
@@ -162,7 +196,7 @@ public class Result<T> : Result
     {
         return IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default)
         ? Result<TOut>.Success(map(Value!))
-        : Result<TOut>.Failure(Error!);
+        : Result<TOut>.Failure(Errors);
     }
 
     /// <summary>
@@ -175,7 +209,7 @@ public class Result<T> : Result
     {
         return IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default)
             ? bind(Value!)
-            : Result<TOut>.Failure(Error!);
+            : Result<TOut>.Failure(Errors);
     }
 
     /// <summary>
