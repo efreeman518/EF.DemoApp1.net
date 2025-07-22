@@ -29,8 +29,8 @@ public static class ChatSKEndpoints
         else
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                message: result.Error,
-                exception: new Exception(result.Error),
+                message: string.Join(",", result.Errors),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: httpContext.TraceIdentifier,
                 includeStackTrace: _problemDetailsIncludeStackTrace));
         }

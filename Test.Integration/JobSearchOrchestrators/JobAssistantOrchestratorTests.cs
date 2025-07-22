@@ -35,7 +35,7 @@ public class JobAssistantOrchestratorTests : IntegrationTestBase
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 }

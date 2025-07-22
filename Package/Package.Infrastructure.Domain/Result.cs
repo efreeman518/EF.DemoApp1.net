@@ -24,6 +24,12 @@ public class Result
     /// </summary>
     public IReadOnlyCollection<DomainError> Errors { get; }
 
+
+    /// <summary>
+    /// Gets the concatenated error messages from the list of errors.
+    /// </summary>
+    public string ErrorMessage => Errors.Count > 0 ? string.Join(", ", Errors.Select(e => e.Error)) : string.Empty;
+
     /// <summary>
     /// Protected constructor to initialize a Result instance.
     /// </summary>
@@ -171,7 +177,7 @@ public class Result<T> : Result
     /// </summary>
     /// <param name="errors">The collection of errors describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static Result<T> Failure(IReadOnlyCollection<DomainError> errors) => new(errors);
+    public static new Result<T> Failure(IReadOnlyCollection<DomainError> errors) => new(errors);
 
     /// <summary>
     /// Creates a failed result with the specified exception.

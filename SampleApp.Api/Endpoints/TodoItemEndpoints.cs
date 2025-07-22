@@ -77,7 +77,7 @@ public static class TodoItemEndpoints
         if (!result.IsSuccess)
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 statusCodeOverride: StatusCodes.Status400BadRequest));
         }
 
@@ -90,7 +90,7 @@ public static class TodoItemEndpoints
         if (!result.IsSuccess)
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: httpContext.TraceIdentifier,
                 includeStackTrace: _problemDetailsIncludeStackTrace));
         }
@@ -119,7 +119,7 @@ public static class TodoItemEndpoints
         if (!result.IsSuccess)
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: httpContext.TraceIdentifier,
                 includeStackTrace: _problemDetailsIncludeStackTrace));
         }

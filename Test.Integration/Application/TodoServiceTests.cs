@@ -56,7 +56,7 @@ public class TodoServiceTests : DbIntegrationTestBase
 
         // Create
         var result = await svc.CreateItemAsync(todo);
-        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {string.Join(",", result.Errors)}");
         todo = result.Value;
         Assert.IsNotNull(todo);
         Assert.IsTrue(todo.Id != Guid.Empty);
@@ -64,7 +64,7 @@ public class TodoServiceTests : DbIntegrationTestBase
 
         // Retrieve
         var getResult = await svc.GetItemAsync(id);
-        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(id, todo?.Id);
 
@@ -72,14 +72,14 @@ public class TodoServiceTests : DbIntegrationTestBase
         string newName = "mow lawn";
         var todo2 = todo! with { Name = newName, Status = TodoItemStatus.Completed };
         var updateResult = await svc.UpdateItemAsync(todo2);
-        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         // Retrieve and ensure the update persisted
         getResult = await svc.GetItemAsync(id);
-        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {getResult.Error}");
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(updated!.Status, todo!.Status);
 
@@ -127,7 +127,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         // Create
         var result = await svc.CreateItemAsync(todo);
         Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
-        Assert.IsNotNull(result.Error, "Expected an error message but got none");
+        Assert.IsNotNull(string.Join(",", result.Errors), "Expected an error message but got none");
     }
 
     /// <summary>

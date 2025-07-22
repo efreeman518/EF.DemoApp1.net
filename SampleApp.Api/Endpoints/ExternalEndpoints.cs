@@ -68,7 +68,7 @@ public static class ExternalEndpoints
         else
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: httpContext.TraceIdentifier,
                 includeStackTrace: _problemDetailsIncludeStackTrace));
         }
@@ -94,7 +94,7 @@ public static class ExternalEndpoints
         else
         {
             return TypedResults.Problem(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: httpContext.TraceIdentifier,
                 includeStackTrace: _problemDetailsIncludeStackTrace));
         }

@@ -201,7 +201,7 @@ async Task AttemptResultAsync<T>(Func<Task<Result<T?>>> method) where T : class
         }
         else
         {
-            Console.WriteLine($"ERROR: {result.Error}");
+            Console.WriteLine($"ERROR: {string.Join(",", result.Errors)}");
         }
     }
     catch (Exception ex)

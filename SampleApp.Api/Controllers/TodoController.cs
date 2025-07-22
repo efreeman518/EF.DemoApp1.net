@@ -67,7 +67,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
 
         if (!result.IsSuccess)
         {
-            return BadRequest(result.Error);
+            return BadRequest(string.Join(",", result.Errors));
         }
 
         return Ok(result.Value);
@@ -150,7 +150,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
         if (!result.IsSuccess)
         {
             return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: HttpContext.TraceIdentifier,
                 includeStackTrace: hostEnv.IsDevelopment()));
         }
@@ -180,7 +180,7 @@ public class TodoItemsController(ITodoService todoService) : ControllerBase()
 
         if (!result.IsSuccess)
         {
-            return BadRequest(result.Error);
+            return BadRequest(string.Join(",", result.Errors));
         }
 
         return Ok(result.Value);

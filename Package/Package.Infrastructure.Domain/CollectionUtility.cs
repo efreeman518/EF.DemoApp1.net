@@ -4,10 +4,10 @@ public static class CollectionUtility
     /// <summary>
     /// Synchronizes a collection of entities with a collection of DTOs,
     /// while correctly handling and propagating the Result pattern from domain operations.
+    /// This version is designed to handle variance in Result<T> return types.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the domain entity.</typeparam>
+    /// <typeparam name="TEntity">The type of the domain entity in the collection.</typeparam>
     /// <typeparam name="TDto">The type of the data transfer object.</typeparam>
-    /// <typeparam name="TKey">The type of the key used for matching.</typeparam>
     /// <param name="existingEntities">The current collection of entities on the domain object.</param>
     /// <param name="incomingDtos">The collection of DTOs from the request.</param>
     /// <param name="entityKeySelector">A function to select the key from an entity.</param>
@@ -15,15 +15,17 @@ public static class CollectionUtility
     /// <param name="createFunc">A function to create a new entity association. Must return a Result.</param>
     /// <param name="removeAction">An action to remove an entity association.</param>
     /// <param name="updateFunc">An optional function to update an existing entity association. Must return a Result.</param>
+    /// <param name="failFast">If true, the operation stops on the first failure. If false, it processes all items and aggregates errors.</param>
     /// <returns>A Result indicating the success or failure of the entire synchronization operation.</returns>
-    public static Result SyncCollectionWithResult<TEntity, TDto, TKey>(
+    public static Result SyncCollectionWithResult<TEntity, TDto>(
         ICollection<TEntity> existingEntities,
         ICollection<TDto>? incomingDtos,
-        Func<TEntity, TKey> entityKeySelector,
-        Func<TDto, TKey?> dtoKeySelector,
+        Func<TEntity, object> entityKeySelector,
+        Func<TDto, object?> dtoKeySelector,
         Func<TDto, Result> createFunc,
         Action<TEntity> removeAction,
-        Func<TEntity, TDto, Result>? updateFunc = null) where TKey : struct
+        Func<TEntity, TDto, Result>? updateFunc = null,
+        bool failFast = true)
     {
         if (incomingDtos == null)
         {
@@ -32,22 +34,27 @@ public static class CollectionUtility
         }
 
         var existingDict = existingEntities.ToDictionary(entityKeySelector);
-        var incomingDict = incomingDtos.Where(d => dtoKeySelector(d).HasValue).ToDictionary(d => dtoKeySelector(d)!.Value);
+        var incomingDict = incomingDtos
+            .Select(dto => new { Dto = dto, Key = dtoKeySelector(dto) })
+            .Where(x => x.Key != null)
+            .ToDictionary(x => x.Key!, x => x.Dto);
 
         // Remove entities that are in the existing collection but not in the incoming DTOs
-        var keysToRemove = existingDict.Keys.Except(incomingDict.Keys).ToList();
-        foreach (var key in keysToRemove)
+        foreach (var (key, entity) in existingDict)
         {
-            removeAction(existingDict[key]);
+            if (!incomingDict.ContainsKey(key))
+            {
+                removeAction(entity);
+            }
         }
 
-        // Add or Update entities
-        foreach (var dto in incomingDtos)
-        {
-            var dtoKey = dtoKeySelector(dto);
-            Result? operationResult;
+        var operationResults = new List<Result>();
 
-            if (dtoKey.HasValue && existingDict.TryGetValue(dtoKey.Value, out var existingEntity))
+        // Add or Update entities
+        foreach (var (key, dto) in incomingDict)
+        {
+            Result? operationResult;
+            if (existingDict.TryGetValue(key, out var existingEntity))
             {
                 // Update existing entity
                 operationResult = updateFunc?.Invoke(existingEntity, dto);
@@ -58,12 +65,15 @@ public static class CollectionUtility
                 operationResult = createFunc(dto);
             }
 
-            if (operationResult != null && !operationResult.IsSuccess)
+            if (operationResult == null) continue;
+
+            if (failFast && operationResult.IsFailure)
             {
                 return operationResult; // Fail fast and propagate the error
             }
+            operationResults.Add(operationResult);
         }
 
-        return Result.Success();
+        return failFast ? Result.Success() : Result.Combine([.. operationResults]);
     }
 }

@@ -24,7 +24,7 @@ public class WeatherServiceHealthCheck(ILogger<WeatherServiceHealthCheck> logger
             }
             else
             {
-                exHealth = new Exception(result.Error);
+                exHealth = new Exception(string.Join(",",result.Errors));
                 status = HealthStatus.Unhealthy;
             }
 

@@ -71,7 +71,7 @@ public class SampleApiRestClientTests
         var result = await _svc.SaveItemAsync(todo);
         if (!result.IsSuccess)
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors.Select(e => e.Error)));
         }
         var todoResponse = result.Value;
         Assert.IsNotNull(todoResponse);
@@ -91,7 +91,7 @@ public class SampleApiRestClientTests
         result = await _svc.SaveItemAsync(todo2);
         if (!result.IsSuccess)
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors.Select(e => e.Error)));
         }
         todoResponse = result.Value;
         Assert.AreEqual(todo2.Name, todoResponse!.Name);

@@ -59,7 +59,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = todo.Validate();
         if (!validationResult)
         {
-            return Result<TodoItemDto>.Failure(validationResult.Error!);
+            return Result<TodoItemDto>.Failure(string.Join(",",validationResult.Errors.Select(e => e.Error)));
         }
 
         //structured logging
@@ -115,7 +115,7 @@ public class TodoService(ILogger<TodoService> logger, IOptionsMonitor<TodoServic
         var validationResult = dbTodo.Validate();
         if (!validationResult)
         {
-            return Result<TodoItemDto>.Failure(validationResult.Error!);
+            return Result<TodoItemDto>.Failure(string.Join(",", validationResult.Errors.Select(e => e.Error)));
         }
 
         logger.TodoItemCRUD("UpdateItemAsync Start", dbTodo.SerializeToJson());

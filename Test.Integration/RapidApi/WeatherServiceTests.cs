@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
+using Package.Infrastructure.Domain;
 
 namespace Test.Integration.RapidApi;
 
@@ -58,7 +59,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 
@@ -77,7 +78,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(forecastResult.Error);
+            throw new Exception(string.Join(",", forecastResult.Errors));
         }
 
         var currentResult = await _svc.GetCurrentAsync("Paris, France");
@@ -89,7 +90,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(currentResult.Error);
+            throw new Exception(string.Join(",", currentResult.Errors));
         }
     }
 }

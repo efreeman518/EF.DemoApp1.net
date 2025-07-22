@@ -100,7 +100,7 @@ public class TodoServiceTests : UnitTestBase
         /// Create
         var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created);
         var result = await svc.CreateItemAsync(todoNew);
-        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {string.Join(",", result.Errors)}");
         var todoSaved = result.Value;
         Assert.IsNotNull(todoSaved);
         Assert.AreNotEqual(todoNew.Id, todoSaved.Id);
@@ -111,14 +111,14 @@ public class TodoServiceTests : UnitTestBase
 
         // Retrieve
         var getResult = await svc.GetItemAsync(id);
-        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {string.Join(",", getResult.Errors)}");
         var todoGet = getResult.Value;
         Assert.AreEqual(todoSaved.Id, todoGet!.Id);
         Assert.AreEqual(todoSaved.Name, todoGet!.Name);
 
         // Update
         var updateResult = await svc.UpdateItemAsync(todoGet!);
-        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var todoUpdated = updateResult.Value;
         Assert.IsNotNull(todoUpdated);
 
@@ -150,7 +150,7 @@ public class TodoServiceTests : UnitTestBase
 
         // Create
         var result = await svc.CreateItemAsync(todo);
-        Assert.IsTrue(result.IsSuccess, $"Create failed: {result.Error}");
+        Assert.IsTrue(result.IsSuccess, $"Create failed: {string.Join(",", result.Errors)}");
         todo = result.Value;
         Assert.IsNotNull(todo);
         Assert.IsTrue(todo.Id != Guid.Empty);
@@ -158,7 +158,7 @@ public class TodoServiceTests : UnitTestBase
 
         // Retrieve
         var getResult = await svc.GetItemAsync(id);
-        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {getResult.Error}");
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(id, todo!.Id);
 
@@ -167,14 +167,14 @@ public class TodoServiceTests : UnitTestBase
         var todo2 = todo with { Name = newName, Status = TodoItemStatus.Completed };
 
         var updateResult = await svc.UpdateItemAsync(todo2);
-        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {updateResult.Error}");
+        Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         // Retrieve and ensure the update persisted
         getResult = await svc.GetItemAsync(id);
-        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {getResult.Error}");
+        Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(updated!.Status, todo?.Status);
 
@@ -199,7 +199,7 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
         var result = await svc.CreateItemAsync(todo);
         Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
-        Assert.IsNotNull(result.Error, "Expected an error message but got none");
+        Assert.IsNotNull(string.Join(",", result.Errors), "Expected an error message but got none");
     }
 
     [TestMethod]
@@ -213,7 +213,7 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
         var result = await svc.UpdateItemAsync(todo);
         Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
-        Assert.IsNotNull(result.Error, "Expected an error message but got none");
+        Assert.IsNotNull(string.Join(",", result.Errors), "Expected an error message but got none");
     }
 
 

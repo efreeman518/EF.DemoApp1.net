@@ -29,7 +29,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
             }
             else
             {
-                throw new Exception(result.Error);
+                throw new InvalidOperationException(string.Join(",", result.Errors.Select(e => e.Error)));
             }
         }, token: cancellationToken);
 
@@ -84,7 +84,7 @@ public class JobsApiService(ILogger<JobsApiService> logger, IOptions<JobsApiServ
         }
         else
         {
-            throw new InvalidOperationException(result.Error!);
+            throw new InvalidOperationException(string.Join(",", result.Errors.Select(e => e.Error)));
         }
     }
 

@@ -1,89 +1,110 @@
 ﻿namespace Package.Infrastructure.Common;
 public static class CollectionUtility
 {
-    // Helper to synchronize collections
-    public static void SyncCollection<TBase, TMod>(
+    /// <summary>
+    /// Synchronizes two collections based on a key, performing create, update, and remove operations.
+    /// This optimized version uses dictionaries for lookups, providing O(N+M) performance.
+    /// </summary>
+    /// <typeparam name="TBase">The type of items in the base collection (e.g., database entities).</typeparam>
+    /// <typeparam name="TMod">The type of items in the modification collection (e.g., DTOs).</typeparam>
+    /// <typeparam name="TKey">The type of the key used for matching items.</typeparam>
+    /// <param name="baseCollection">The collection to be modified.</param>
+    /// <param name="modCollection">The collection containing the desired state.</param>
+    /// <param name="baseKeySelector">A function to extract the key from a base item.</param>
+    /// <param name="modKeySelector">A function to extract the key from a modification item.</param>
+    /// <param name="createAction">An action to create a new item in the base collection.</param>
+    /// <param name="removeAction">An action to remove an item from the base collection.</param>
+    /// <param name="updateAction">An optional action to update an existing item.</param>
+    public static void SyncCollection<TBase, TMod, TKey>(
         ICollection<TBase> baseCollection,
         IEnumerable<TMod> modCollection,
-        Func<TBase, TMod, bool> matcher,
+        Func<TBase, TKey> baseKeySelector,
+        Func<TMod, TKey> modKeySelector,
         Action<TMod> createAction,
         Action<TBase> removeAction,
-        Action<TBase, TMod>? updateAction = null)
+        Action<TBase, TMod>? updateAction = null) where TKey : notnull
     {
-        // Find items to remove
-        var itemsToRemove = baseCollection
-            .Where(baseItem => !modCollection.Any(modItem => matcher(baseItem, modItem)))
-            .ToList();
+        var baseDict = baseCollection.ToDictionary(baseKeySelector);
+        var modDict = modCollection.ToDictionary(modKeySelector);
 
-        // Remove items
+        // Items to remove: in base but not in mod
+        var itemsToRemove = baseCollection
+            .Where(baseItem => !modDict.ContainsKey(baseKeySelector(baseItem)))
+            .ToList();
         foreach (var item in itemsToRemove)
         {
             removeAction(item);
         }
 
-        // Add new items or update existing ones
+        // Items to add or update
         foreach (var modItem in modCollection)
         {
-            var matchingItems = baseCollection.Where(baseItem => matcher(baseItem, modItem)).ToList();
-
-            if (matchingItems.Count != 0)
+            var modKey = modKeySelector(modItem);
+            if (baseDict.TryGetValue(modKey, out var baseItem))
             {
-                updateAction?.Invoke(matchingItems[0], modItem);
+                // Item exists in both, so update
+                updateAction?.Invoke(baseItem, modItem);
             }
             else
             {
+                // Item is new, so create
                 createAction(modItem);
             }
         }
     }
 
     /// <summary>
-    /// Asynchronously synchronizes two collections by performing add, update, and remove operations.
+    /// Asynchronously synchronizes two collections based on a key, performing create, update, and remove operations.
+    /// This optimized version uses dictionaries for lookups, providing O(N+M) performance.
     /// </summary>
-    /// <typeparam name="TBase">The type of items in the base collection</typeparam>
-    /// <typeparam name="TMod">The type of items in the modification collection</typeparam>
-    /// <param name="baseCollection">The collection to modify (database entities)</param>
-    /// <param name="modCollection">The collection containing the desired state (DTOs)</param>
-    /// <param name="matcher">Function to determine if items from both collections match</param>
-    /// <param name="createAction">Async function to create a new item in the base collection</param>
-    /// <param name="removeAction">Async function to remove an item from the base collection</param>
-    /// <param name="updateAction">Optional async function to update an existing item</param>
-    public static async Task SyncCollectionAsync<TBase, TMod>(
+    /// <typeparam name="TBase">The type of items in the base collection (e.g., database entities).</typeparam>
+    /// <typeparam name="TMod">The type of items in the modification collection (e.g., DTOs).</typeparam>
+    /// <typeparam name="TKey">The type of the key used for matching items.</typeparam>
+    /// <param name="baseCollection">The collection to be modified.</param>
+    /// <param name="modCollection">The collection containing the desired state.</param>
+    /// <param name="baseKeySelector">A function to extract the key from a base item.</param>
+    /// <param name="modKeySelector">A function to extract the key from a modification item.</param>
+    /// <param name="createAction">An async function to create a new item in the base collection.</param>
+    /// <param name="removeAction">An async function to remove an item from the base collection.</param>
+    /// <param name="updateAction">An optional async function to update an existing item.</param>
+    public static async Task SyncCollectionAsync<TBase, TMod, TKey>(
         ICollection<TBase> baseCollection,
         IEnumerable<TMod> modCollection,
-        Func<TBase, TMod, bool> matcher,
+        Func<TBase, TKey> baseKeySelector,
+        Func<TMod, TKey> modKeySelector,
         Func<TMod, Task> createAction,
         Func<TBase, Task> removeAction,
-        Func<TBase, TMod, Task>? updateAction = null)
+        Func<TBase, TMod, Task>? updateAction = null) where TKey : notnull
     {
-        // Find items to remove
-        var itemsToRemove = baseCollection
-            .Where(baseItem => !modCollection.Any(modItem => matcher(baseItem, modItem)))
-            .ToList();
+        var baseDict = baseCollection.ToDictionary(baseKeySelector);
+        var modDict = modCollection.ToDictionary(modKeySelector);
 
-        // Remove items
+        // Items to remove: in base but not in mod
+        var itemsToRemove = baseCollection
+            .Where(baseItem => !modDict.ContainsKey(baseKeySelector(baseItem)))
+            .ToList();
         foreach (var item in itemsToRemove)
         {
             await removeAction(item);
         }
 
-        // Add new items or update existing ones
+        // Items to add or update
         foreach (var modItem in modCollection)
         {
-            var matchingItems = baseCollection.Where(baseItem => matcher(baseItem, modItem)).ToList();
-
-            if (matchingItems.Count != 0)
+            var modKey = modKeySelector(modItem);
+            if (baseDict.TryGetValue(modKey, out var baseItem))
             {
+                // Item exists in both, so update
                 if (updateAction != null)
                 {
-                    await updateAction(matchingItems[0], modItem);
+                    await updateAction(baseItem, modItem);
                 }
             }
             else
             {
+                // Item is new, so create
                 await createAction(modItem);
             }
         }
     }
-
 }

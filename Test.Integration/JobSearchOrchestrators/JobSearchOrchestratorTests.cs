@@ -40,7 +40,7 @@ public class JobSearchOrchestratorTests : IntegrationTestBase
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 }

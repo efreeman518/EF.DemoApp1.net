@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
+using Package.Infrastructure.Domain;
 using System.Text.Json;
 
 namespace SampleApp.Api.Endpoints;
@@ -78,7 +79,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(callResult.Error);
+            throw new Exception(string.Join(",", callResult.Errors));
         }
     }
 
@@ -100,7 +101,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 
@@ -113,7 +114,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 
@@ -126,7 +127,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 
@@ -139,7 +140,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(result.Error);
+            throw new Exception(string.Join(",", result.Errors));
         }
     }
 
@@ -161,13 +162,13 @@ public static class BlandAIEndpoints
         var resultAgent = await client.CreateWebAgentAsync(request);
         if (!resultAgent.IsSuccess)
         {
-            throw new Exception(resultAgent.Error);
+            throw new Exception(string.Join(",", resultAgent.Errors));
         }
         var resultToken = await client.AuthorizeWebAgentCallAsync(resultAgent.Value!.AgentId!, CancellationToken.None);
 
         if (!resultToken.IsSuccess)
         {
-            throw new Exception(resultToken.Error);
+            throw new Exception(string.Join(",", resultToken.Errors));
         }
 
         return TypedResults.Ok(new AgentConfigResponse { AgentId = resultAgent.Value.AgentId, Token = resultToken.Value!.Token });

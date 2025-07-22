@@ -48,7 +48,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
 
         if (!result.IsSuccess)
         {
-            throw new RpcException(new Status(StatusCode.Internal, result.Error!));
+            throw new RpcException(new Status(StatusCode.Internal, string.Join(",", result.Errors.Select(e => e.Error))));
         }
 
         return new SampleAppGrpc.ServiceResponseTodoItem
@@ -80,7 +80,7 @@ public class TodoGrpcService(ILogger<TodoGrpcService> logger, Application.Contra
         {
             ResponseCode = result.IsSuccess ? SampleAppGrpc.ResponseCode.Success : SampleAppGrpc.ResponseCode.Failure,
             Data = result.IsSuccess ? TodoItemMapper.ToGrpcDto(result.Value!) : null,
-            Errors = { result.IsSuccess ? Enumerable.Empty<SampleAppGrpc.ResponseError>() : new[] { new SampleAppGrpc.ResponseError { Message = result.Error } } },
+            Errors = { result.IsSuccess ? Enumerable.Empty<SampleAppGrpc.ResponseError>() : new[] { new SampleAppGrpc.ResponseError { Message = string.Join(",", result.Errors.Select(e => e.Error)) } } },
             Message = result.IsSuccess ? "Success" : "Failure"
         };
 

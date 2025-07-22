@@ -126,7 +126,7 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         else
         {
             return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: HttpContext.TraceIdentifier,
                 includeStackTrace: hostEnv.IsDevelopment()));
         }
@@ -149,7 +149,7 @@ public class ExternalController(ISampleApiRestClient apiClient) : ControllerBase
         else
         {
             return BadRequest(ProblemDetailsHelper.BuildProblemDetailsResponse(
-                exception: new Exception(result.Error),
+                exception: new Exception(string.Join(",", result.Errors)),
                 traceId: HttpContext.TraceIdentifier,
                 includeStackTrace: hostEnv.IsDevelopment()));
         }
