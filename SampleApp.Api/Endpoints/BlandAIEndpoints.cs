@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
 using Package.Infrastructure.BlandAI.Model;
-using Package.Infrastructure.Domain;
 using System.Text.Json;
 
 namespace SampleApp.Api.Endpoints;

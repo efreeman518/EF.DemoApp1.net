@@ -260,6 +260,23 @@ public class Result<T> : Result
     }
 
     /// <summary>
+    /// Executes one of three provided functions based on the result's state (success, failure, or none).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The function to execute if the result is successful.</param>
+    /// <param name="onFailure">The function to execute if the result is a failure.</param>
+    /// <param name="onNone">The function to execute if the result is none.</param>
+    /// <returns>The value returned by the executed function.</returns>
+    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyCollection<string>, TOut> onFailure, Func<TOut> onNone)
+    {
+        if (IsNone)
+        {
+            return onNone();
+        }
+        return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
+    }
+
+    /// <summary>
     /// Executes one of two provided asynchronous functions based on the result's state (success or failure).
     /// </summary>
     /// <typeparam name="TOut">The return type of the functions.</typeparam>

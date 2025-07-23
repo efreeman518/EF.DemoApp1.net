@@ -27,7 +27,14 @@ public static partial class WebApplicationBuilderExtensions
         SetupBasicEndpoints(app);
         SetupApiVersionedEndpoints(app);
 
+        SetupExceptionHandler(app);
+
         return app;
+    }
+
+    private static void SetupExceptionHandler(WebApplication app)
+    {
+        app.UseExceptionHandler();
     }
 
     private static void SetupConfiguration(WebApplication app, IConfiguration config)

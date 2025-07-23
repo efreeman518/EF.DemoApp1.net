@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.BlandAI.Model;
-using Package.Infrastructure.Common;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;

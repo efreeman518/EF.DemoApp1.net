@@ -1,5 +1,4 @@
-﻿using Package.Infrastructure.Data.Contracts;
-using Package.Infrastructure.Domain;
+﻿using Package.Infrastructure.Domain;
 
 namespace Package.Infrastructure.Test.Integration.Model;
 

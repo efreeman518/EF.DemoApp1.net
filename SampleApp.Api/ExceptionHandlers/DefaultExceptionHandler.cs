@@ -43,14 +43,12 @@ public sealed class DefaultExceptionHandler(ILogger<DefaultExceptionHandler> log
 
         var problemDetails = ProblemDetailsHelper.BuildProblemDetailsResponse(message: exception.Message, exception: exception, traceId: httpContext.TraceIdentifier, includeStackTrace: hostEnvironment.IsDevelopment());
 
-        return await problemDetailsService.TryWriteAsync(
-            new ProblemDetailsContext
-            {
-                HttpContext = httpContext,
-                ProblemDetails = problemDetails,
-                Exception = exception
-            }
-            );
+        return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            Exception = exception,
+            ProblemDetails = problemDetails
+        });
     }
 }
 

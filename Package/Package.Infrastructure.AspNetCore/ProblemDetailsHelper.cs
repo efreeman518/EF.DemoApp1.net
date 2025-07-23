@@ -11,7 +11,7 @@ public static class ProblemDetailsHelper
     /// <summary>
     /// Build a ProblemDetails; unhandled exceptions will be handled by the DefaultExceptionHandler, 
     /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method returns ProblemDetails for use like: response
+    /// this method returns ProblemDetails
     /// </summary>
     /// <param name="title"></param>
     /// <param name="message"></param>
@@ -47,5 +47,28 @@ public static class ProblemDetailsHelper
         }
 
         return problemDetails;
+    }
+
+    /// <summary>
+    /// Build a ProblemDetails; unhandled exceptions will be handled by the DefaultExceptionHandler, 
+    /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
+    /// this method returns ProblemDetails
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="messages"></param>
+    /// <param name="exception"></param>
+    /// <param name="traceId"></param>
+    /// <param name="includeStackTrace"></param>
+    /// <param name="statusCodeOverride"></param>
+    /// <returns></returns>
+    public static ProblemDetails BuildProblemDetailsResponseWithMessages(string title = "Error", IReadOnlyList<string>? messages = null, string messageDelimiter = ",", Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
+    {
+        return BuildProblemDetailsResponse(
+            title: title,
+            message: messages != null && messages.Count > 0 ? string.Join(messageDelimiter, messages) : null,
+            exception: exception,
+            traceId: traceId,
+            includeStackTrace: includeStackTrace,
+            statusCodeOverride: statusCodeOverride);
     }
 }
