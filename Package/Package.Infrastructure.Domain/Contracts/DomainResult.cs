@@ -23,7 +23,7 @@ public class DomainResult
     /// <summary>
     /// Contains the errors if the operation failed; otherwise, an empty collection.
     /// </summary>
-    public IReadOnlyCollection<DomainError> Errors { get; }
+    public IReadOnlyList<DomainError> Errors { get; }
 
     /// <summary>
     /// Gets the concatenated error messages from the list of errors.
@@ -35,7 +35,7 @@ public class DomainResult
     /// </summary>
     /// <param name="isSuccess">Indicates whether the operation was successful.</param>
     /// <param name="errors">The collection of domain errors if the operation failed.</param>
-    protected DomainResult(bool isSuccess, IReadOnlyCollection<DomainError>? errors = null)
+    protected DomainResult(bool isSuccess, IReadOnlyList<DomainError>? errors = null)
     {
         IsSuccess = isSuccess;
         Errors = errors ?? s_emptyDomainErrors;
@@ -59,7 +59,7 @@ public class DomainResult
     /// </summary>
     /// <param name="errors">The collection of errors describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static DomainResult Failure(IReadOnlyCollection<DomainError> errors) => new(false, errors);
+    public static DomainResult Failure(IReadOnlyList<DomainError> errors) => new(false, errors);
 
     /// <summary>
     /// Creates a failed result with the specified exception.
@@ -75,7 +75,7 @@ public class DomainResult
     /// <param name="onSuccess">The function to execute if the result is successful.</param>
     /// <param name="onFailure">The function to execute if the result is a failure.</param>
     /// <returns>The value returned by the executed function.</returns>
-    public TOut Match<TOut>(Func<TOut> onSuccess, Func<IReadOnlyCollection<DomainError>, TOut> onFailure)
+    public TOut Match<TOut>(Func<TOut> onSuccess, Func<IReadOnlyList<DomainError>, TOut> onFailure)
     {
         return IsSuccess ? onSuccess() : onFailure(Errors);
     }
@@ -87,7 +87,7 @@ public class DomainResult
     /// <param name="onSuccess">The asynchronous function to execute if the result is successful.</param>
     /// <param name="onFailure">The asynchronous function to execute if the result is a failure.</param>
     /// <returns>A task that represents the asynchronous operation, containing the value returned by the executed function.</returns>
-    public Task<TOut> MatchAsync<TOut>(Func<Task<TOut>> onSuccess, Func<IReadOnlyCollection<DomainError>, Task<TOut>> onFailure)
+    public Task<TOut> MatchAsync<TOut>(Func<Task<TOut>> onSuccess, Func<IReadOnlyList<DomainError>, Task<TOut>> onFailure)
     {
         return IsSuccess ? onSuccess() : onFailure(Errors);
     }
@@ -111,7 +111,7 @@ public class DomainResult
     /// </summary>
     /// <param name="action">The action to execute with the errors.</param>
     /// <returns>The original result, allowing for chaining.</returns>
-    public DomainResult OnFailure(Action<IReadOnlyCollection<DomainError>> action)
+    public DomainResult OnFailure(Action<IReadOnlyList<DomainError>> action)
     {
         if (IsFailure)
         {
@@ -137,7 +137,7 @@ public class DomainResult
             }
         }
 
-        return allErrors is null ? s_success : Failure(new ReadOnlyCollection<DomainError>(allErrors));
+        return allErrors is null ? s_success : Failure(allErrors);
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class DomainResult<T> : DomainResult
     /// Private constructor to initialize a failed Result with an error message.
     /// </summary>
     /// <param name="errors">The collection of errors describing the failure.</param>
-    private DomainResult(IReadOnlyCollection<DomainError> errors) : base(false, errors)
+    private DomainResult(IReadOnlyList<DomainError> errors) : base(false, errors)
     {
     }
 
@@ -232,7 +232,7 @@ public class DomainResult<T> : DomainResult
     /// </summary>
     /// <param name="errors">The collection of errors describing the failure.</param>
     /// <returns>A Result instance representing failure.</returns>
-    public static new DomainResult<T> Failure(IReadOnlyCollection<DomainError> errors) => new(errors);
+    public static new DomainResult<T> Failure(IReadOnlyList<DomainError> errors) => new(errors);
 
     /// <summary>
     /// Creates a failed result with the specified exception.
@@ -254,7 +254,7 @@ public class DomainResult<T> : DomainResult
     /// <param name="onSuccess">The function to execute if the result is successful.</param>
     /// <param name="onFailure">The function to execute if the result is a failure.</param>
     /// <returns>The value returned by the executed function.</returns>
-    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyCollection<DomainError>, TOut> onFailure)
+    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyList<DomainError>, TOut> onFailure)
     {
         return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
     }
@@ -267,7 +267,7 @@ public class DomainResult<T> : DomainResult
     /// <param name="onFailure">The function to execute if the result is a failure.</param>
     /// <param name="onNone">The function to execute if the result is none.</param>
     /// <returns>The value returned by the executed function.</returns>
-    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyCollection<DomainError>, TOut> onFailure, Func<TOut> onNone)
+    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyList<DomainError>, TOut> onFailure, Func<TOut> onNone)
     {
         if (IsNone)
         {
@@ -283,7 +283,7 @@ public class DomainResult<T> : DomainResult
     /// <param name="onSuccess">The asynchronous function to execute if the result is successful.</param>
     /// <param name="onFailure">The asynchronous function to execute if the result is a failure.</param>
     /// <returns>A task that represents the asynchronous operation, containing the value returned by the executed function.</returns>
-    public Task<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSuccess, Func<IReadOnlyCollection<DomainError>, Task<TOut>> onFailure)
+    public Task<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSuccess, Func<IReadOnlyList<DomainError>, Task<TOut>> onFailure)
     {
         return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
     }

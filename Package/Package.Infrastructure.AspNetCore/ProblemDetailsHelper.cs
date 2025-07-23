@@ -61,7 +61,7 @@ public static class ProblemDetailsHelper
     /// <param name="includeStackTrace"></param>
     /// <param name="statusCodeOverride"></param>
     /// <returns></returns>
-    public static ProblemDetails BuildProblemDetailsResponseWithMessages(string title = "Error", IReadOnlyList<string>? messages = null, string messageDelimiter = ",", Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
+    public static ProblemDetails BuildProblemDetailsResponseMultiple(string title = "Error", IReadOnlyList<string>? messages = null, string messageDelimiter = ",", Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
     {
         return BuildProblemDetailsResponse(
             title: title,
