@@ -474,8 +474,8 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.PagedResponse<T>", "rp": "Package.Infrastructure.Common.Contracts_PagedResponse_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 20, "cal": 28, "tl": 234, "cb": 2, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 9, "cal": 22, "tl": 234, "cb": 2, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 28, "cal": 36, "tl": 324, "cb": 2, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 14, "cal": 27, "tl": 324, "cb": 2, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -512,8 +512,8 @@ var assemblies = [
       { "name": "Package.Infrastructure.Domain.AuditableBase<T>", "rp": "Package.Infrastructure.Domain_AuditableBase_1.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.CollectionUtility", "rp": "Package.Infrastructure.Domain_CollectionUtility.html", "cl": 0, "ucl": 33, "cal": 33, "tl": 113, "cb": 0, "tb": 38, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Contracts.DomainError", "rp": "Package.Infrastructure.Domain_DomainError.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 16, "cal": 28, "tl": 234, "cb": 3, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 234, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 24, "cal": 36, "tl": 324, "cb": 3, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 27, "cal": 27, "tl": 324, "cb": 0, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.EntityBase", "rp": "Package.Infrastructure.Domain_EntityBase.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Exceptions.DomainException", "rp": "Package.Infrastructure.Domain_DomainException.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -953,7 +953,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result", "reportPath": "Package.Infrastructure.Common.Contracts_Result.html", "methodName": "Combine(Package.Infrastructure.Common.Contracts.Result[])", "methodShortName": "Combine(...)", "fileIndex": 0, "line": 78,
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result", "reportPath": "Package.Infrastructure.Common.Contracts_Result.html", "methodName": "Combine(Package.Infrastructure.Common.Contracts.Result[])", "methodShortName": "Combine(...)", "fileIndex": 0, "line": 130,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -977,7 +977,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult", "reportPath": "Package.Infrastructure.Domain_DomainResult.html", "methodName": "Combine(Package.Infrastructure.Domain.Contracts.DomainResult[])", "methodShortName": "Combine(...)", "fileIndex": 0, "line": 78,
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult", "reportPath": "Package.Infrastructure.Domain_DomainResult.html", "methodName": "Combine(Package.Infrastructure.Domain.Contracts.DomainResult[])", "methodShortName": "Combine(...)", "fileIndex": 0, "line": 130,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
