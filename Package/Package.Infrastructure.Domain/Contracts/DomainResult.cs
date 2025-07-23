@@ -69,6 +69,58 @@ public class DomainResult
     public static DomainResult Failure(Exception exception) => new(false, [DomainError.Create(exception.Message)]);
 
     /// <summary>
+    /// Executes one of two provided functions based on the result's state (success or failure).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The function to execute if the result is successful.</param>
+    /// <param name="onFailure">The function to execute if the result is a failure.</param>
+    /// <returns>The value returned by the executed function.</returns>
+    public TOut Match<TOut>(Func<TOut> onSuccess, Func<IReadOnlyCollection<DomainError>, TOut> onFailure)
+    {
+        return IsSuccess ? onSuccess() : onFailure(Errors);
+    }
+
+    /// <summary>
+    /// Executes one of two provided asynchronous functions based on the result's state (success or failure).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The asynchronous function to execute if the result is successful.</param>
+    /// <param name="onFailure">The asynchronous function to execute if the result is a failure.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the value returned by the executed function.</returns>
+    public Task<TOut> MatchAsync<TOut>(Func<Task<TOut>> onSuccess, Func<IReadOnlyCollection<DomainError>, Task<TOut>> onFailure)
+    {
+        return IsSuccess ? onSuccess() : onFailure(Errors);
+    }
+
+    /// <summary>
+    /// Executes an action if the result is successful.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>The original result, allowing for chaining.</returns>
+    public DomainResult OnSuccess(Action action)
+    {
+        if (IsSuccess)
+        {
+            action();
+        }
+        return this;
+    }
+
+    /// <summary>
+    /// Executes an action if the result is a failure.
+    /// </summary>
+    /// <param name="action">The action to execute with the errors.</param>
+    /// <returns>The original result, allowing for chaining.</returns>
+    public DomainResult OnFailure(Action<IReadOnlyCollection<DomainError>> action)
+    {
+        if (IsFailure)
+        {
+            action(Errors);
+        }
+        return this;
+    }
+
+    /// <summary>
     /// Combines multiple Result instances into one. If any result is a failure, the combined result is a failure with aggregated errors.
     /// </summary>
     /// <param name="results">The array of Result instances to combine.</param>
@@ -194,6 +246,44 @@ public class DomainResult<T> : DomainResult
     /// </summary>
     /// <returns>A cached Result instance representing "None."</returns>
     public static DomainResult<T> None() => NoneResult.Instance;
+
+    /// <summary>
+    /// Executes one of two provided functions based on the result's state (success or failure).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The function to execute if the result is successful.</param>
+    /// <param name="onFailure">The function to execute if the result is a failure.</param>
+    /// <returns>The value returned by the executed function.</returns>
+    public TOut Match<TOut>(Func<T, TOut> onSuccess, Func<IReadOnlyCollection<DomainError>, TOut> onFailure)
+    {
+        return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
+    }
+
+    /// <summary>
+    /// Executes one of two provided asynchronous functions based on the result's state (success or failure).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The asynchronous function to execute if the result is successful.</param>
+    /// <param name="onFailure">The asynchronous function to execute if the result is a failure.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the value returned by the executed function.</returns>
+    public Task<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSuccess, Func<IReadOnlyCollection<DomainError>, Task<TOut>> onFailure)
+    {
+        return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
+    }
+
+    /// <summary>
+    /// Executes an action if the result is successful.
+    /// </summary>
+    /// <param name="action">The action to execute with the value.</param>
+    /// <returns>The original result, allowing for chaining.</returns>
+    public DomainResult<T> OnSuccess(Action<T> action)
+    {
+        if (IsSuccess && Value is not null)
+        {
+            action(Value);
+        }
+        return this;
+    }
 
     /// <summary>
     /// Transforms the value of a successful result into another type while preserving the success or failure state.
