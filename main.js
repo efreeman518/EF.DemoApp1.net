@@ -295,7 +295,7 @@ var assemblies = [
       { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 227, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Migrations.TodoDbContextTrxnModelSnapshot", "rp": "Infrastructure.Data_TodoDbContextTrxnModelSnapshot.html", "cl": 0, "ucl": 94, "cal": 94, "tl": 118, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.SystemSettingsDbContext", "rp": "Infrastructure.Data_SystemSettingsDbContext.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 38, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.TodoDbContextBase", "rp": "Infrastructure.Data_TodoDbContextBase.html", "cl": 29, "ucl": 4, "cal": 33, "tl": 133, "cb": 8, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.TodoDbContextBase", "rp": "Infrastructure.Data_TodoDbContextBase.html", "cl": 29, "ucl": 4, "cal": 33, "tl": 132, "cb": 8, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.TodoDbContextQuery", "rp": "Infrastructure.Data_TodoDbContextQuery.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 6, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.TodoDbContextTrxn", "rp": "Infrastructure.Data_TodoDbContextTrxn.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -358,7 +358,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.AspNetCore.HealthChecks.HealthCheckHelper", "rp": "Package.Infrastructure.AspNetCore_HealthCheckHelper.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.HealthChecks.MemoryCheckOptions", "rp": "Package.Infrastructure.AspNetCore_MemoryCheckOptions.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 68, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.HealthChecks.MemoryHealthCheck", "rp": "Package.Infrastructure.AspNetCore_MemoryHealthCheck.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 68, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "rp": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "cl": 0, "ucl": 19, "cal": 19, "tl": 51, "cb": 0, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "rp": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 74, "cb": 0, "tb": 28, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.ValidationFailureResponse", "rp": "Package.Infrastructure.AspNetCore_ValidationFailureResponse.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.ValidationHelper", "rp": "Package.Infrastructure.AspNetCore_ValidationHelper.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.ValidatorDiscovery", "rp": "Package.Infrastructure.AspNetCore_ValidatorDiscovery.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 36, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -408,7 +408,7 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.BlandAI",
     "classes": [
-      { "name": "Package.Infrastructure.BlandAI.BlandAIRestClient", "rp": "Package.Infrastructure.BlandAI_BlandAIRestClient.html", "cl": 0, "ucl": 38, "cal": 38, "tl": 99, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BlandAI.BlandAIRestClient", "rp": "Package.Infrastructure.BlandAI_BlandAIRestClient.html", "cl": 0, "ucl": 38, "cal": 38, "tl": 98, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.BlandAISettings", "rp": "Package.Infrastructure.BlandAI_BlandAISettings.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.Model.AgentRequest", "rp": "Package.Infrastructure.BlandAI_AgentRequest.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 102, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BlandAI.Model.AgentResponse", "rp": "Package.Infrastructure.BlandAI_AgentResponse.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 102, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -474,8 +474,8 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.PagedResponse<T>", "rp": "Package.Infrastructure.Common.Contracts_PagedResponse_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 28, "cal": 36, "tl": 324, "cb": 2, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 14, "cal": 27, "tl": 324, "cb": 2, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 28, "cal": 36, "tl": 341, "cb": 2, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 17, "cal": 30, "tl": 341, "cb": 2, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -512,8 +512,8 @@ var assemblies = [
       { "name": "Package.Infrastructure.Domain.AuditableBase<T>", "rp": "Package.Infrastructure.Domain_AuditableBase_1.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.CollectionUtility", "rp": "Package.Infrastructure.Domain_CollectionUtility.html", "cl": 0, "ucl": 33, "cal": 33, "tl": 113, "cb": 0, "tb": 38, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Contracts.DomainError", "rp": "Package.Infrastructure.Domain_DomainError.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 24, "cal": 36, "tl": 324, "cb": 3, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 27, "cal": 27, "tl": 324, "cb": 0, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 24, "cal": 36, "tl": 341, "cb": 3, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 341, "cb": 0, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.EntityBase", "rp": "Package.Infrastructure.Domain_EntityBase.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Exceptions.DomainException", "rp": "Package.Infrastructure.Domain_DomainException.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -1181,6 +1181,12 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "Match(System.Func`2<T,TOut>,System.Func`2<System.Collections.Generic.IReadOnlyCollection`1<System.String>,TOut>,System.Func`1<TOut>)", "methodShortName": "Match(...)", "fileIndex": 0, "line": 272,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetAllEntityChanges(Microsoft.EntityFrameworkCore.DbContext)", "methodShortName": "GetAllEntityChanges(...)", "fileIndex": 0, "line": 191,
     "metrics": [
       { "value": 42, "exceeded": true },
@@ -1206,6 +1212,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ApplyFilters(System.Linq.IQueryable`1<T>,T)", "methodShortName": "ApplyFilters(...)", "fileIndex": 0, "line": 196,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Match(System.Func`2<T,TOut>,System.Func`2<System.Collections.Generic.IReadOnlyCollection`1<Package.Infrastructure.Domain.Contracts.DomainError>,TOut>,System.Func`1<TOut>)", "methodShortName": "Match(...)", "fileIndex": 0, "line": 272,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
