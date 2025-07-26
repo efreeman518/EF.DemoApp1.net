@@ -69,6 +69,32 @@ public class DomainResult
     public static DomainResult Failure(Exception exception) => new(false, [DomainError.Create(exception.Message)]);
 
     /// <summary>
+    /// Transforms a successful result into a typed result with the provided value while preserving the success or failure state.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the value in the resulting Result.</typeparam>
+    /// <param name="value">The value to use for a successful result.</param>
+    /// <returns>A new DomainResult&lt;TOut&gt; instance with the provided value or the original failure.</returns>
+    public DomainResult<TOut> Map<TOut>(TOut value)
+    {
+        return IsSuccess
+            ? DomainResult<TOut>.Success(value)
+            : DomainResult<TOut>.Failure(Errors);
+    }
+
+    /// <summary>
+    /// Transforms a successful result into a typed result using a factory function while preserving the success or failure state.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the value in the resulting Result.</typeparam>
+    /// <param name="factory">The function to create the value for a successful result.</param>
+    /// <returns>A new DomainResult&lt;TOut&gt; instance with the created value or the original failure.</returns>
+    public DomainResult<TOut> Map<TOut>(Func<TOut> factory)
+    {
+        return IsSuccess
+            ? DomainResult<TOut>.Success(factory())
+            : DomainResult<TOut>.Failure(Errors);
+    }
+
+    /// <summary>
     /// Executes one of two provided functions based on the result's state (success or failure).
     /// </summary>
     /// <typeparam name="TOut">The return type of the functions.</typeparam>
