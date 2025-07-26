@@ -34,80 +34,71 @@ public static class CollectionUtility
         return DomainResult.Combine([.. results]);
     }
 
-
     /// <summary>
-    /// Synchronizes a collection of entities with a collection of DTOs,
-    /// while correctly handling and propagating the Result pattern from domain operations.
-    /// This version is designed to handle variance in Result<T> return types.
+    /// Processes items in a DTO collection to create, update, or optionally remove entities.
+    /// If a <paramref name="removeFunc"/> is provided, entities not present in the DTO collection will be removed.
+    /// Otherwise, no entities are removed, allowing for partial updates.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the domain entity in the collection.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity in the database.</typeparam>
     /// <typeparam name="TDto">The type of the data transfer object.</typeparam>
-    /// <param name="existingEntities">The current collection of entities on the domain object.</param>
-    /// <param name="incomingDtos">The collection of DTOs from the request.</param>
-    /// <param name="entityKeySelector">A function to select the key from an entity.</param>
-    /// <param name="dtoKeySelector">A function to select the key from a DTO.</param>
-    /// <param name="createFunc">A function to create a new entity association. Must return a Result.</param>
-    /// <param name="removeAction">An action to remove an entity association.</param>
-    /// <param name="updateFunc">An optional function to update an existing entity association. Must return a Result.</param>
-    /// <param name="failFast">If true, the operation stops on the first failure. If false, it processes all items and aggregates errors.</param>
-    /// <returns>A Result indicating the success or failure of the entire synchronization operation.</returns>
-    public static DomainResult SyncCollectionWithResult<TEntity, TDto>(
-        ICollection<TEntity> existingEntities,
-        ICollection<TDto>? incomingDtos,
-        Func<TEntity, object> entityKeySelector,
-        Func<TDto, object?> dtoKeySelector,
+    /// <typeparam name="TId">The type of the identifier for both entity and DTO.</typeparam>
+    /// <param name="dbCollection">The collection of entities from the database.</param>
+    /// <param name="dtoCollection">The collection of DTOs with incoming data.</param>
+    /// <param name="getDbId">A function to extract the ID from an entity.</param>
+    /// <param name="getDtoId">A function to extract the ID from a DTO.</param>
+    /// <param name="createFunc">A function to create a new entity from a DTO.</param>
+    /// <param name="updateFunc">A function to update an existing entity from a DTO.</param>
+    /// <param name="removeFunc">An optional function to remove an entity.</param>
+    /// <param name="failFast">If true, stops processing on the first failure.</param>
+    /// <returns>A <see cref="DomainResult"/> indicating success or failure of the operations.</returns>
+    public static DomainResult SyncCollectionWithResult<TEntity, TDto, TId>(
+        ICollection<TEntity> dbCollection,
+        ICollection<TDto> dtoCollection,
+        Func<TEntity, TId> getDbId,
+        Func<TDto, TId?> getDtoId,
         Func<TDto, DomainResult> createFunc,
-        Action<TEntity> removeAction,
-        Func<TEntity, TDto, DomainResult>? updateFunc = null,
-        bool failFast = true)
+        Func<TEntity, TDto, DomainResult> updateFunc,
+        Func<TEntity, DomainResult>? removeFunc = null,
+        bool failFast = false)
+        where TId : struct, IEquatable<TId>
     {
-        if (incomingDtos == null)
-        {
-            foreach (var entity in existingEntities.ToList()) removeAction(entity);
-            return DomainResult.Success();
-        }
+        dtoCollection ??= [];
+        var results = new List<DomainResult>();
+        var dbMap = dbCollection.ToDictionary(getDbId);
 
-        var existingDict = existingEntities.ToDictionary(entityKeySelector);
-        var incomingDict = incomingDtos
-            .Select(dto => new { Dto = dto, Key = dtoKeySelector(dto) })
-            .Where(x => x.Key != null)
-            .ToDictionary(x => x.Key!, x => x.Dto);
-
-        // Remove entities that are in the existing collection but not in the incoming DTOs
-        foreach (var (key, entity) in existingDict)
+        // Process Creates and Updates
+        foreach (var dto in dtoCollection)
         {
-            if (!incomingDict.ContainsKey(key))
+            DomainResult result;
+            var dtoId = getDtoId(dto);
+            if (!dtoId.HasValue || dtoId.Value.Equals(default) || !dbMap.TryGetValue(dtoId.Value, out var entity))
             {
-                removeAction(entity);
-            }
-        }
-
-        var operationResults = new List<DomainResult>();
-
-        // Add or Update entities
-        foreach (var (key, dto) in incomingDict)
-        {
-            DomainResult? operationResult;
-            if (existingDict.TryGetValue(key, out var existingEntity))
-            {
-                // Update existing entity
-                operationResult = updateFunc?.Invoke(existingEntity, dto);
+                result = createFunc(dto);
             }
             else
             {
-                // Create new entity
-                operationResult = createFunc(dto);
+                // Item is present in both db and dto, so it's an update.
+                // Remove it from the map so it's not considered for deletion later.
+                dbMap.Remove(dtoId.Value);
+                result = updateFunc(entity, dto);
             }
 
-            if (operationResult == null) continue;
-
-            if (failFast && operationResult.IsFailure)
-            {
-                return operationResult; // Fail fast and propagate the error
-            }
-            operationResults.Add(operationResult);
+            if (!result.IsSuccess && failFast) return result;
+            results.Add(result);
         }
 
-        return failFast ? DomainResult.Success() : DomainResult.Combine([.. operationResults]);
+        // Process Deletes if removeFunc is provided
+        // Any entities remaining in dbMap were not in the dto collection, so they should be removed.
+        if (removeFunc != null)
+        {
+            foreach (var entityToRemove in dbMap.Values)
+            {
+                var result = removeFunc(entityToRemove);
+                if (!result.IsSuccess && failFast) return result;
+                results.Add(result);
+            }
+        }
+
+        return DomainResult.Combine([.. results]);
     }
 }
