@@ -47,7 +47,7 @@ public static class CollectionUtility
     /// <param name="getDbId">A function to extract the ID from an entity.</param>
     /// <param name="getDtoId">A function to extract the ID from a DTO.</param>
     /// <param name="createFunc">A function to create a new entity from a DTO.</param>
-    /// <param name="updateFunc">A function to update an existing entity from a DTO.</param>
+    /// <param name="updateFunc">An optional function to update an existing entity from a DTO. Not needed for a pure m-m join entity with no other properties</param>
     /// <param name="removeFunc">An optional function to remove an entity.</param>
     /// <param name="failFast">If true, stops processing on the first failure.</param>
     /// <returns>A <see cref="DomainResult"/> indicating success or failure of the operations.</returns>
@@ -57,7 +57,7 @@ public static class CollectionUtility
         Func<TEntity, TId> getDbId,
         Func<TDto, TId?> getDtoId,
         Func<TDto, DomainResult> createFunc,
-        Func<TEntity, TDto, DomainResult> updateFunc,
+        Func<TEntity, TDto, DomainResult>? updateFunc = null,
         Func<TEntity, DomainResult>? removeFunc = null,
         bool failFast = false)
         where TId : struct, IEquatable<TId>
@@ -69,7 +69,7 @@ public static class CollectionUtility
         // Process Creates and Updates
         foreach (var dto in dtoCollection)
         {
-            DomainResult result;
+            DomainResult result = DomainResult.Success();
             var dtoId = getDtoId(dto);
             if (!dtoId.HasValue || dtoId.Value.Equals(default) || !dbMap.TryGetValue(dtoId.Value, out var entity))
             {
@@ -78,9 +78,13 @@ public static class CollectionUtility
             else
             {
                 // Item is present in both db and dto, so it's an update.
+
                 // Remove it from the map so it's not considered for deletion later.
                 dbMap.Remove(dtoId.Value);
-                result = updateFunc(entity, dto);
+                if (updateFunc != null)
+                {
+                    result = updateFunc(entity, dto);
+                }
             }
 
             if (!result.IsSuccess && failFast) return result;
