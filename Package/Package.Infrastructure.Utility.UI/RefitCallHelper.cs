@@ -1,5 +1,6 @@
 ﻿using Refit;
 using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Utility.UI;
@@ -61,6 +62,24 @@ public static class RefitCallHelper
                 _ => ApiResult<T>.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content))
             };
         }
+        catch (HttpRequestException httpEx) // Detect network errors
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = 503,
+                Title = "API Unreachable",
+                Detail = $"The API may be offline or unreachable. Please check your network connection or try again later. {httpEx.Message}"
+            });
+        }
+        catch (SocketException sockEx) // Detect socket errors
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = 503,
+                Title = "API Unreachable",
+                Detail = $"The API may be offline or unreachable. Please check your network connection or try again later. {sockEx.Message}"
+            });
+        }
         catch (Exception ex)
         {
             return ApiResult<T>.Failure(new ProblemDetails
@@ -95,6 +114,24 @@ public static class RefitCallHelper
         catch (ApiException ex)
         {
             return ApiResult.Failure(DeserializeProblemDetails(ex.StatusCode, ex.Content));
+        }
+        catch (HttpRequestException httpEx) // Detect network errors
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = 503,
+                Title = "API Unreachable",
+                Detail = $"The API may be offline or unreachable. Please check your network connection or try again later. {httpEx.Message}"
+            });
+        }
+        catch (SocketException sockEx) // Detect socket errors
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = 503,
+                Title = "API Unreachable",
+                Detail = $"The API may be offline or unreachable. Please check your network connection or try again later. {sockEx.Message}"
+            });
         }
         catch (Exception ex)
         {
