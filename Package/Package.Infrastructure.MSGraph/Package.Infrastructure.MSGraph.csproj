@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Graph" Version="5.86.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.88.0" />
   </ItemGroup>
 
 </Project>
