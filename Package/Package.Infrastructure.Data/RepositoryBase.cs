@@ -174,6 +174,29 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     }
 
     /// <summary>
+    /// Returns a the first T projected to TProject with optional related data; Projections are not tracked
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
+    /// <param name="projector"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public async Task<TProject?> GetEntityProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        CancellationToken cancellationToken = default,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        return await dbContext.Set<T>().GetEntityProjectionAsync<T, TProject>(projector, filter, orderBy, splitQuery, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
+    }
+
+
+    /// <summary>
     /// Returns a List<T> page of data with optional related data
     /// </summary>
     /// <typeparam name="T"></typeparam>

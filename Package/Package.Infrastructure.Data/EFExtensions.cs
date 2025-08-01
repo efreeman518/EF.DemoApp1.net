@@ -362,6 +362,31 @@ public static class EFExtensions
     }
 
     /// <summary>
+    /// Returns first TProject if T exists, otherwise null; Projections are not tracked
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProject"></typeparam>
+    /// <param name="dbSet"></param>
+    /// <param name="projector"></param>
+    /// <param name="filter"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="splitQuery"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="includes"></param>
+    /// <returns></returns>
+    public static async Task<TProject?> GetEntityProjectionAsync<T, TProject>(this DbSet<T> dbSet, 
+        Expression<Func<T, TProject>> projector,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        CancellationToken cancellationToken = default,
+        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        where T : class
+    {
+        IQueryable<T> query = dbSet.ComposeIQueryable(false, null, null, filter, orderBy, splitQuery, includes);
+        return await query.Select(projector).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+    }
+
+    /// <summary>
     /// IQueryable<typeparamref name="T"/> extension takes the query, applies filter, order, paging, runs the query and returns results 
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -390,7 +415,7 @@ public static class EFExtensions
     }
 
     /// <summary>
-    /// IQueryable<typeparamref name="T"/> extension takes the query, applies filter, order, paging, runs the query and returns results 
+    /// IQueryable<typeparamref name="T"/> extension takes the query, applies filter, order, paging, runs the query and returns projected results 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
