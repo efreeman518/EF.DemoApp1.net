@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Package.Infrastructure.Common.Contracts;
+﻿namespace Package.Infrastructure.Common.Contracts;
 
 public record StaticItem<TId, TValue>(TId Id, string Name, TValue? Value = default);
 
@@ -16,14 +14,12 @@ public record StaticData
     /// Stores lists of static items, keyed by the list name.
     /// The value is stored as 'object' to accommodate any 'StaticList<T>' type.
     /// </summary>
-    //[JsonPropertyName("lists")]
     public Dictionary<string, object> Lists { get; set; } = [];
 
     /// <summary>
     /// Stores individual static items, keyed by a unique name.
     /// The value is stored as 'object' to accommodate any 'StaticItem<TId, TValue>' type.
     /// </summary>
-    //[JsonPropertyName("values")]
     public Dictionary<string, object> Values { get; set; } = [];
 
     /// <summary>
@@ -44,26 +40,6 @@ public record StaticData
         {
             return typedList;
         }
-
-        // Handle JsonElement case - when JSON deserialization stores the object as JsonElement
-        if (listObject is System.Text.Json.JsonElement jsonElement)
-        {
-            try
-            {
-                var deserializedList = System.Text.Json.JsonSerializer.Deserialize<StaticList<T>>(jsonElement.GetRawText());
-                if (deserializedList != null)
-                {
-                    // Cache the properly typed object for future use
-                    Lists[listName] = deserializedList;
-                    return deserializedList;
-                }
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                // Deserialization failed, return null
-            }
-        }
-
         return null;
     }
 
@@ -86,26 +62,6 @@ public record StaticData
         {
             return typedItem;
         }
-
-        // Handle JsonElement case - when JSON deserialization stores the object as JsonElement
-        if (valueObject is System.Text.Json.JsonElement jsonElement)
-        {
-            try
-            {
-                var deserializedItem = System.Text.Json.JsonSerializer.Deserialize<StaticItem<TId, TValue>>(jsonElement.GetRawText());
-                if (deserializedItem != null)
-                {
-                    // Cache the properly typed object for future use
-                    Values[key] = deserializedItem;
-                    return deserializedItem;
-                }
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                // Deserialization failed, return null
-            }
-        }
-
         return null;
     }
 }
