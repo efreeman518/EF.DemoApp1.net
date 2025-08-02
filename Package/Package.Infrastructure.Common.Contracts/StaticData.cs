@@ -16,15 +16,15 @@ public record StaticData
     /// Stores lists of static items, keyed by the list name.
     /// The value is stored as 'object' to accommodate any 'StaticList<T>' type.
     /// </summary>
-    [JsonPropertyName("lists")]
-    public Dictionary<string, object> Lists { get; } = [];
+    //[JsonPropertyName("lists")]
+    public Dictionary<string, object> Lists { get; set; } = [];
 
     /// <summary>
     /// Stores individual static items, keyed by a unique name.
     /// The value is stored as 'object' to accommodate any 'StaticItem<TId, TValue>' type.
     /// </summary>
-    [JsonPropertyName("values")]
-    public Dictionary<string, object> Values { get; } = [];
+    //[JsonPropertyName("values")]
+    public Dictionary<string, object> Values { get; set; } = [];
 
     /// <summary>
     /// Adds a 'StaticList<T>' to the 'Lists' dictionary with a specified key.
