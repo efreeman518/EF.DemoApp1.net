@@ -315,6 +315,23 @@ public class Result<T> : Result
     }
 
     /// <summary>
+    /// Executes one of three provided asynchronous functions based on the result's state (success, failure, or none).
+    /// </summary>
+    /// <typeparam name="TOut">The return type of the functions.</typeparam>
+    /// <param name="onSuccess">The asynchronous function to execute if the result is successful.</param>
+    /// <param name="onFailure">The asynchronous function to execute if the result is a failure.</param>
+    /// <param name="onNone">The asynchronous function to execute if the result is none.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the value returned by the executed function.</returns>
+    public Task<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSuccess, Func<IReadOnlyList<string>, Task<TOut>> onFailure, Func<Task<TOut>> onNone)
+    {
+        if (IsNone)
+        {
+            return onNone();
+        }
+        return IsSuccess && Value is not null ? onSuccess(Value) : onFailure(Errors);
+    }
+
+    /// <summary>
     /// Executes an action if the result is successful.
     /// </summary>
     /// <param name="action">The action to execute with the value.</param>
@@ -336,9 +353,17 @@ public class Result<T> : Result
     /// <returns>A new Result instance with the transformed value or the original failure.</returns>
     public Result<TOut> Map<TOut>(Func<T, TOut> map)
     {
-        return IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default)
-        ? Result<TOut>.Success(map(Value!))
-        : Result<TOut>.Failure(Errors);
+        if (IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default))
+        {
+            return Result<TOut>.Success(map(Value!));
+        }
+
+        if (IsNone)
+        {
+            return Result<TOut>.None();
+        }
+
+        return Result<TOut>.Failure(Errors);
     }
 
     /// <summary>
@@ -347,12 +372,94 @@ public class Result<T> : Result
     /// <typeparam name="TOut">The type of the value in the resulting Result.</typeparam>
     /// <param name="bind">The function to apply to the value of a successful result.</param>
     /// <returns>A new Result instance from the chained operation or the original failure.</returns>
-
     public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> bind)
     {
-        return IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default)
-            ? bind(Value!)
-            : Result<TOut>.Failure(Errors);
+        if (IsSuccess && !EqualityComparer<T>.Default.Equals(Value, default))
+        {
+            return bind(Value!);
+        }
+
+        if (IsNone)
+        {
+            return Result<TOut>.None();
+        }
+
+        return Result<TOut>.Failure(Errors);
+    }
+
+    /// <summary>
+    /// Chains operations, but treats None results as successful continuation, preserving the original value.
+    /// Use when None represents a valid "no-op" rather than failure.
+    /// </summary>
+    /// <typeparam name="TIgnore">The type of the value in the bind operation result (ignored if None).</typeparam>
+    /// <param name="bind">The function to apply to the value of a successful result.</param>
+    /// <returns>The original result if the bind operation succeeds or returns None; otherwise, the failure from the bind operation.</returns>
+    public Result<T> BindOrContinue<TIgnore>(Func<T, Result<TIgnore>> bind)
+    {
+        if (!IsSuccess || EqualityComparer<T>.Default.Equals(Value, default))
+        {
+            if (IsNone)
+            {
+                return Result<T>.None();
+            }
+            return Result<T>.Failure(Errors);
+        }
+
+        var result = bind(Value!);
+
+        // If the operation succeeds or returns None, preserve original value
+        return result.IsFailure
+            ? Result<T>.Failure(result.Errors)
+            : Result<T>.Success(Value!);
+    }
+
+    /// <summary>
+    /// Applies a side effect operation that may fail, but preserves the original value on success or None.
+    /// Use for operations like logging, auditing, or updating related data where the side effect shouldn't affect the main result.
+    /// </summary>
+    /// <param name="sideEffect">The side effect function to apply to the value of a successful result.</param>
+    /// <returns>The original result if the side effect succeeds or returns None; otherwise, the failure from the side effect.</returns>
+    public Result<T> Tap(Func<T, Result> sideEffect)
+    {
+        if (!IsSuccess || EqualityComparer<T>.Default.Equals(Value, default))
+        {
+            if (IsNone)
+            {
+                return Result<T>.None();
+            }
+            return Result<T>.Failure(Errors);
+        }
+
+        var result = sideEffect(Value!);
+
+        return result.IsFailure
+            ? Result<T>.Failure(result.Errors)
+            : Result<T>.Success(Value!);
+    }
+
+    /// <summary>
+    /// Applies a side effect operation that returns a typed result, but preserves the original value on success or None.
+    /// Use for operations like validation or updating related data where the side effect result type differs from the main value.
+    /// </summary>
+    /// <typeparam name="TIgnore">The type of the value in the side effect result (ignored if successful or None).</typeparam>
+    /// <param name="sideEffect">The side effect function to apply to the value of a successful result.</param>
+    /// <returns>The original result if the side effect succeeds or returns None; otherwise, the failure from the side effect.</returns>
+    public Result<T> Tap<TIgnore>(Func<T, Result<TIgnore>> sideEffect)
+    {
+        if (!IsSuccess || EqualityComparer<T>.Default.Equals(Value, default))
+        {
+            if (IsNone)
+            {
+                return Result<T>.None();
+            }
+            return Result<T>.Failure(Errors);
+        }
+
+        var result = sideEffect(Value!);
+
+        return result.IsFailure
+            ? Result<T>.Failure(result.Errors)
+            : Result<T>.Success(Value!);
     }
 
     /// <summary>
