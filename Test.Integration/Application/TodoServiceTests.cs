@@ -6,7 +6,6 @@ using Domain.Shared.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Extensions;
 using Test.Support;
