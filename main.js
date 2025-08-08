@@ -474,15 +474,15 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.PagedResponse<T>", "rp": "Package.Infrastructure.Common.Contracts_PagedResponse_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 34, "cal": 42, "tl": 368, "cb": 2, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 17, "cal": 30, "tl": 368, "cb": 2, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 34, "cal": 42, "tl": 475, "cb": 2, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 48, "cal": 61, "tl": 475, "cb": 2, "tb": 64, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 78, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticData", "rp": "Package.Infrastructure.Common.Contracts_StaticData.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 67, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticList<T>", "rp": "Package.Infrastructure.Common.Contracts_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 67, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticData", "rp": "Package.Infrastructure.Common.Contracts_StaticData.html", "cl": 0, "ucl": 67, "cal": 67, "tl": 171, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 171, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticList<T>", "rp": "Package.Infrastructure.Common.Contracts_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 171, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.Data",
@@ -512,8 +512,8 @@ var assemblies = [
       { "name": "Package.Infrastructure.Domain.AuditableBase<T>", "rp": "Package.Infrastructure.Domain_AuditableBase_1.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.CollectionUtility", "rp": "Package.Infrastructure.Domain_CollectionUtility.html", "cl": 0, "ucl": 31, "cal": 31, "tl": 108, "cb": 0, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Contracts.DomainError", "rp": "Package.Infrastructure.Domain_DomainError.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 5, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 30, "cal": 42, "tl": 367, "cb": 3, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 367, "cb": 0, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult", "rp": "Package.Infrastructure.Domain_DomainResult.html", "cl": 12, "ucl": 30, "cal": 42, "tl": 475, "cb": 3, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "rp": "Package.Infrastructure.Domain_DomainResult_1.html", "cl": 0, "ucl": 61, "cal": 61, "tl": 475, "cb": 0, "tb": 64, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.EntityBase", "rp": "Package.Infrastructure.Domain_EntityBase.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Domain.Exceptions.DomainException", "rp": "Package.Infrastructure.Domain_DomainException.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -606,6 +606,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseResultAsync()", "methodShortName": "HttpRequestAndResponseResultAsync()", "fileIndex": 0, "line": 98,
+    "metrics": [
+      { "value": 506, "exceeded": true },
+      { "value": 22, "exceeded": true },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetValue(System.String)", "methodShortName": "GetValue(...)", "fileIndex": 0, "line": 108,
     "metrics": [
       { "value": 506, "exceeded": true },
       { "value": 22, "exceeded": true },
@@ -762,6 +768,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.StringMatcher", "reportPath": "Package.Infrastructure.Common_StringMatcher.html", "methodName": "ContainsKeyword(System.ReadOnlySpan`1<System.Char>)", "methodShortName": "ContainsKeyword(...)", "fileIndex": 0, "line": 16,
+    "metrics": [
+      { "value": 156, "exceeded": true },
+      { "value": 12, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetList(System.String)", "methodShortName": "GetList(...)", "fileIndex": 0, "line": 45,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -959,6 +971,24 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "BindOrContinue(System.Func`2<T,Package.Infrastructure.Common.Contracts.Result`1<TIgnore>>)", "methodShortName": "BindOrContinue(...)", "fileIndex": 0, "line": 399,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "Tap(System.Func`2<T,Package.Infrastructure.Common.Contracts.Result>)", "methodShortName": "Tap(...)", "fileIndex": 0, "line": 424,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "Tap(System.Func`2<T,Package.Infrastructure.Common.Contracts.Result`1<TIgnore>>)", "methodShortName": "Tap(...)", "fileIndex": 0, "line": 449,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetEntityChanges(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry,System.Collections.Generic.List`1<System.String>)", "methodShortName": "GetEntityChanges(...)", "fileIndex": 0, "line": 220,
     "metrics": [
       { "value": 72, "exceeded": true },
@@ -978,6 +1008,24 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult", "reportPath": "Package.Infrastructure.Domain_DomainResult.html", "methodName": "Combine(Package.Infrastructure.Domain.Contracts.DomainResult[])", "methodShortName": "Combine(...)", "fileIndex": 0, "line": 156,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "BindOrContinue(System.Func`2<T,Package.Infrastructure.Domain.Contracts.DomainResult`1<TIgnore>>)", "methodShortName": "BindOrContinue(...)", "fileIndex": 0, "line": 399,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Tap(System.Func`2<T,Package.Infrastructure.Domain.Contracts.DomainResult>)", "methodShortName": "Tap(...)", "fileIndex": 0, "line": 424,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Tap(System.Func`2<T,Package.Infrastructure.Domain.Contracts.DomainResult`1<TIgnore>>)", "methodShortName": "Tap(...)", "fileIndex": 0, "line": 449,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1187,6 +1235,24 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "MatchAsync(System.Func`2<T,System.Threading.Tasks.Task`1<TOut>>,System.Func`2<System.Collections.Generic.IReadOnlyList`1<System.String>,System.Threading.Tasks.Task`1<TOut>>,System.Func`1<System.Threading.Tasks.Task`1<TOut>>)", "methodShortName": "MatchAsync(...)", "fileIndex": 0, "line": 327,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "Map(System.Func`2<T,TOut>)", "methodShortName": "Map(...)", "fileIndex": 0, "line": 356,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.Result<T>", "reportPath": "Package.Infrastructure.Common.Contracts_Result_1.html", "methodName": "Bind(System.Func`2<T,Package.Infrastructure.Common.Contracts.Result`1<TOut>>)", "methodShortName": "Bind(...)", "fileIndex": 0, "line": 377,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetAllEntityChanges(Microsoft.EntityFrameworkCore.DbContext)", "methodShortName": "GetAllEntityChanges(...)", "fileIndex": 0, "line": 191,
     "metrics": [
       { "value": 42, "exceeded": true },
@@ -1218,6 +1284,24 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Match(System.Func`2<T,TOut>,System.Func`2<System.Collections.Generic.IReadOnlyList`1<Package.Infrastructure.Domain.Contracts.DomainError>,TOut>,System.Func`1<TOut>)", "methodShortName": "Match(...)", "fileIndex": 0, "line": 298,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "MatchAsync(System.Func`2<T,System.Threading.Tasks.Task`1<TOut>>,System.Func`2<System.Collections.Generic.IReadOnlyList`1<Package.Infrastructure.Domain.Contracts.DomainError>,System.Threading.Tasks.Task`1<TOut>>,System.Func`1<System.Threading.Tasks.Task`1<TOut>>)", "methodShortName": "MatchAsync(...)", "fileIndex": 0, "line": 327,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Map(System.Func`2<T,TOut>)", "methodShortName": "Map(...)", "fileIndex": 0, "line": 356,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Domain", "class": "Package.Infrastructure.Domain.Contracts.DomainResult<T>", "reportPath": "Package.Infrastructure.Domain_DomainResult_1.html", "methodName": "Bind(System.Func`2<T,Package.Infrastructure.Domain.Contracts.DomainResult`1<TOut>>)", "methodShortName": "Bind(...)", "fileIndex": 0, "line": 377,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
