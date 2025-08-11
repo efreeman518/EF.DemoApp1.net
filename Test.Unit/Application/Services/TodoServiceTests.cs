@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Contracts;
@@ -72,24 +71,27 @@ public class TodoServiceTests : UnitTestBase
         _repoQuery = new TodoRepositoryQuery(dbQuery); //not used in this test
     }
 
-    delegate void MockCreateCallback(ref TodoItem output);
-
     [TestMethod]
     public async Task Todo_CRUD_mock_pass()
     {
-        //arrange return from repo
+        //arrange
         string name = "wash car";
-        var dbTodo = new TodoItem(name, TodoItemStatus.Created);
+        TodoItem? capturedTodoItem = null; // Will hold the item created by the service
 
+        // When GetEntityAsync is called, return the item that was captured during the Create call.
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
                 It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>(),
                 It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()))
-            .Returns(() => Task.FromResult<TodoItem?>(dbTodo));
+            .Returns(() => Task.FromResult(capturedTodoItem)); // Return the captured item
 
-
+        // When Create is called by the service, capture the passed-in TodoItem.
+        // We don't try to modify it, just hold a reference to it.
         RepositoryTrxnMock.Setup(m => m.Create(ref It.Ref<TodoItem>.IsAny))
-            .Callback(new MockCreateCallback((ref output) => output = dbTodo));
+            .Callback((ref TodoItem item) =>
+            {
+                capturedTodoItem = item;
+            });
 
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object,
             RepositoryTrxnMock.Object, RepositoryQueryMock.Object, BackgroundTaskQueueMock.Object);
@@ -98,31 +100,34 @@ public class TodoServiceTests : UnitTestBase
 
         /// Create
         var todoNew = new TodoItemDto(null, name, TodoItemStatus.Created);
-        var result = await svc.CreateItemAsync(todoNew);
+        var result = await svc.CreateItemAsync(todoNew, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(result.IsSuccess, $"Create failed: {string.Join(",", result.Errors)}");
         var todoSaved = result.Value;
+
+        // Assert that the service returned a DTO with the same ID as the item it created and passed to the repository.
         Assert.IsNotNull(todoSaved);
-        Assert.AreNotEqual(todoNew.Id, todoSaved.Id);
-        Assert.AreEqual(todoSaved.Name, todoNew.Name);
+        Assert.IsNotNull(capturedTodoItem, "Repository.Create was never called.");
+        Assert.AreEqual(capturedTodoItem.Id, todoSaved.Id);
+        Assert.AreEqual(todoNew.Name, todoSaved.Name);
         Assert.AreEqual(todoNew.Status, todoSaved.Status);
 
         var id = (Guid)todoSaved.Id!;
 
         // Retrieve
-        var getResult = await svc.GetItemAsync(id);
+        var getResult = await svc.GetItemAsync(id, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {string.Join(",", getResult.Errors)}");
         var todoGet = getResult.Value;
         Assert.AreEqual(todoSaved.Id, todoGet!.Id);
         Assert.AreEqual(todoSaved.Name, todoGet!.Name);
 
         // Update
-        var updateResult = await svc.UpdateItemAsync(todoGet!);
+        var updateResult = await svc.UpdateItemAsync(todoGet!, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var todoUpdated = updateResult.Value;
         Assert.IsNotNull(todoUpdated);
 
         //delete
-        await svc.DeleteItemAsync((Guid)todoUpdated.Id!);
+        await svc.DeleteItemAsync((Guid)todoUpdated.Id!, TestContext.CancellationTokenSource.Token);
 
         //verify call counts
         RepositoryTrxnMock.Verify(
@@ -148,7 +153,7 @@ public class TodoServiceTests : UnitTestBase
         //act & assert
 
         // Create
-        var result = await svc.CreateItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(result.IsSuccess, $"Create failed: {string.Join(",", result.Errors)}");
         todo = result.Value;
         Assert.IsNotNull(todo);
@@ -156,7 +161,7 @@ public class TodoServiceTests : UnitTestBase
         var id = (Guid)todo.Id!;
 
         // Retrieve
-        var getResult = await svc.GetItemAsync(id);
+        var getResult = await svc.GetItemAsync(id, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(getResult.IsSuccess, $"Retrieve failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(id, todo!.Id);
@@ -165,27 +170,27 @@ public class TodoServiceTests : UnitTestBase
         string newName = "mow lawn";
         var todo2 = todo with { Name = newName, Status = TodoItemStatus.Completed };
 
-        var updateResult = await svc.UpdateItemAsync(todo2);
+        var updateResult = await svc.UpdateItemAsync(todo2, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated?.Status);
         Assert.AreEqual(newName, updated?.Name);
 
         // Retrieve and ensure the update persisted
-        getResult = await svc.GetItemAsync(id);
+        getResult = await svc.GetItemAsync(id, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(getResult.IsSuccess, $"Retrieve after update failed: {string.Join(",", getResult.Errors)}");
         todo = getResult.Value;
         Assert.AreEqual(updated!.Status, todo?.Status);
 
         //delete
-        await svc.DeleteItemAsync(id);
+        await svc.DeleteItemAsync(id, TestContext.CancellationTokenSource.Token);
 
         /// Ensure not found after delete
-        getResult = await svc.GetItemAsync(id);
+        getResult = await svc.GetItemAsync(id, TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(getResult.IsNone, "Item was not deleted");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("asd")]
     [DataRow("fhjkjfgkhj")]
@@ -196,7 +201,7 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto(null, name, TodoItemStatus.Created);
 
         //act & assert
-        var result = await svc.CreateItemAsync(todo);
+        var result = await svc.CreateItemAsync(todo, TestContext.CancellationTokenSource.Token);
         Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
         Assert.IsNotNull(string.Join(",", result.Errors), "Expected an error message but got none");
     }
@@ -210,7 +215,7 @@ public class TodoServiceTests : UnitTestBase
         var todo = new TodoItemDto(Guid.NewGuid(), "asdsa", TodoItemStatus.Created);
 
         //act & assert
-        var result = await svc.UpdateItemAsync(todo);
+        var result = await svc.UpdateItemAsync(todo, TestContext.CancellationTokenSource.Token);
         Assert.IsFalse(result.IsSuccess, "Expected failure but got success");
         Assert.IsNotNull(string.Join(",", result.Errors), "Expected an error message but got none");
     }
@@ -223,11 +228,11 @@ public class TodoServiceTests : UnitTestBase
         var svc = new TodoService(new NullLogger<TodoService>(), SettingsMock.Object, _repoTrxn, _repoQuery, new BackgroundTaskQueue(ServiceScopeFactoryMock.Object));
 
         //act
-        var response = await svc.GetPageAsync();
+        var response = await svc.GetPageAsync(cancellationToken: TestContext.CancellationTokenSource.Token);
 
         //act & assert
         Assert.IsNotNull(response);
-        Assert.IsTrue(response.Data.Count <= response.Total);
+        Assert.IsLessThanOrEqualTo(response.Total, response.Data.Count);
     }
 
     [TestMethod]
@@ -241,11 +246,12 @@ public class TodoServiceTests : UnitTestBase
         };
 
         //act
-        var response = await svc.SearchAsync(search);
+        var response = await svc.SearchAsync(search, TestContext.CancellationTokenSource.Token);
 
         //act & assert
         Assert.IsNotNull(response);
-        Assert.IsTrue(response.Data.Count <= response.Total);
+        Assert.IsLessThanOrEqualTo(response.Total, response.Data.Count);
     }
 
+    public TestContext TestContext { get; set; }
 }
