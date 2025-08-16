@@ -9,21 +9,19 @@ namespace Package.Infrastructure.AspNetCore;
 public static class ProblemDetailsHelper
 {
     /// <summary>
-    /// Build a ProblemDetails; unhandled exceptions will be handled by the DefaultExceptionHandler, 
-    /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method returns ProblemDetails
+    /// Optional global resolver (can be set once at startup) used when no per-call resolver is supplied.
+    /// Return null from the resolver to fall back to default mapping.
     /// </summary>
-    /// <param name="title"></param>
-    /// <param name="message"></param>
-    /// <param name="exception"></param>
-    /// <param name="traceId"></param>
-    /// <param name="includeStackTrace"></param>
-    /// <param name="statusCodeOverride"></param>
-    /// <returns></returns>
-    public static ProblemDetails BuildProblemDetailsResponse(string title = "Error", string? message = null, Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
-    {
-        //map exception to status code
-        var statusCode = statusCodeOverride ?? exception?.GetType().Name switch
+    public static Func<Exception?, int?>? GlobalStatusCodeResolver { get; set; }
+
+    /// <summary>
+    /// Default internal mapping used only if:
+    /// 1) statusCodeOverride is null AND
+    /// 2) per-call resolver returns null or not provided AND
+    /// 3) GlobalStatusCodeResolver returns null or not provided.
+    /// </summary>
+    private static int DefaultStatusCodeMapping(Exception? ex) =>
+        ex?.GetType().Name switch
         {
             "ValidationException" => StatusCodes.Status400BadRequest,
             "InvalidOperationException" => StatusCodes.Status400BadRequest,
@@ -31,13 +29,36 @@ public static class ProblemDetailsHelper
             _ => StatusCodes.Status500InternalServerError
         };
 
+    /// <summary>
+    /// Build a ProblemDetails. If providing a custom status code mapping, pass a resolver delegate.
+    /// Resolution order:
+    /// 1) statusCodeOverride (if provided)
+    /// 2) statusCodeResolver(exception) (if provided and returns non-null)
+    /// 3) GlobalStatusCodeResolver(exception) (if set and returns non-null)
+    /// 4) DefaultStatusCodeMapping
+    /// </summary>
+    public static ProblemDetails BuildProblemDetailsResponse(
+        string title = "Error",
+        string? message = null,
+        Exception? exception = null,
+        string? traceId = null,
+        bool includeStackTrace = false,
+        int? statusCodeOverride = null,
+        Func<Exception?, int?>? statusCodeResolver = null)
+    {
+        var resolved = statusCodeOverride
+            ?? statusCodeResolver?.Invoke(exception)
+            ?? GlobalStatusCodeResolver?.Invoke(exception)
+            ?? DefaultStatusCodeMapping(exception);
+
         var problemDetails = new ProblemDetails
         {
             Type = exception?.GetType().Name ?? "Error",
             Title = title,
             Detail = message ?? exception?.Message,
-            Status = statusCode
+            Status = resolved
         };
+
         problemDetails.Extensions.TryAdd("traceId", traceId);
         problemDetails.Extensions.TryAdd("machineName", Environment.MachineName);
 
@@ -50,25 +71,26 @@ public static class ProblemDetailsHelper
     }
 
     /// <summary>
-    /// Build a ProblemDetails; unhandled exceptions will be handled by the DefaultExceptionHandler, 
-    /// however when controlling flow using Result<T> instead of throwing exceptions all the way out, 
-    /// this method returns ProblemDetails
+    /// Build a ProblemDetails with multiple messages combined.
+    /// Accepts same resolver pattern as the single-message overload.
     /// </summary>
-    /// <param name="title"></param>
-    /// <param name="messages"></param>
-    /// <param name="exception"></param>
-    /// <param name="traceId"></param>
-    /// <param name="includeStackTrace"></param>
-    /// <param name="statusCodeOverride"></param>
-    /// <returns></returns>
-    public static ProblemDetails BuildProblemDetailsResponseMultiple(string title = "Error", IReadOnlyList<string>? messages = null, string messageDelimiter = ",", Exception? exception = null, string? traceId = null, bool includeStackTrace = false, int? statusCodeOverride = null)
+    public static ProblemDetails BuildProblemDetailsResponseMultiple(
+        string title = "Error",
+        IReadOnlyList<string>? messages = null,
+        string messageDelimiter = ",",
+        Exception? exception = null,
+        string? traceId = null,
+        bool includeStackTrace = false,
+        int? statusCodeOverride = null,
+        Func<Exception?, int?>? statusCodeResolver = null)
     {
         return BuildProblemDetailsResponse(
             title: title,
-            message: messages != null && messages.Count > 0 ? string.Join(messageDelimiter, messages) : null,
+            message: messages is { Count: > 0 } ? string.Join(messageDelimiter, messages) : null,
             exception: exception,
             traceId: traceId,
             includeStackTrace: includeStackTrace,
-            statusCodeOverride: statusCodeOverride);
+            statusCodeOverride: statusCodeOverride,
+            statusCodeResolver: statusCodeResolver);
     }
 }
