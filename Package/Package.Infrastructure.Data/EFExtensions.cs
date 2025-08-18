@@ -468,4 +468,68 @@ public static class EFExtensions
     {
         dbSet.Attach(entity);
     }
+
+    /// <summary>
+    /// Expression extensiondependency on DbFunctionsExtensions
+    /// SQL LIKE pattern (uses EF.Functions.Like). Supports % and _ wildcards. Optionally case-insensitive by lowercasing both sides.
+    /// </summary>
+    /// #region Seed predicates
+
+    public static Expression<Func<T, bool>> True<T>() => static _ => true;
+    public static Expression<Func<T, bool>> False<T>() => static _ => false;
+
+    public static Expression<Func<T, bool>> Like<T>(this Expression<Func<T, string?>> property, string? pattern, bool caseInsensitive = false)
+    {
+        if (string.IsNullOrEmpty(pattern))
+            return True<T>();
+
+        var param = property.Parameters[0];
+        var body = property.Body.ReplaceParameter(property.Parameters[0], param);
+        Expression propertyExpr = body;
+        Expression patternExpr = Expression.Constant(pattern);
+
+        if (caseInsensitive)
+        {
+            var toLower = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!;
+            propertyExpr = Expression.Call(propertyExpr, toLower);
+            patternExpr = Expression.Call(patternExpr, toLower);
+        }
+
+        // EF.Functions.Like(property, pattern)
+        var efFunctions = Expression.Property(null, typeof(EF).GetProperty(nameof(EF.Functions))!);
+        var likeMethod = typeof(DbFunctionsExtensions).GetMethods()
+            .First(m => m.Name == nameof(DbFunctionsExtensions.Like) &&
+                        m.GetParameters().Length == 3 &&
+                        m.GetParameters()[1].ParameterType == typeof(string) &&
+                        m.GetParameters()[2].ParameterType == typeof(string));
+
+        var call = Expression.Call(likeMethod, efFunctions, propertyExpr, patternExpr);
+
+        // property != null && Like(...)
+        var notNull = Expression.NotEqual(body, Expression.Constant(null, typeof(string)));
+        var combined = Expression.AndAlso(notNull, call);
+
+        return Expression.Lambda<Func<T, bool>>(combined, param);
+    }
+
+    #region Parameter replacement utility (internal)
+
+    private sealed class ReplaceParameterVisitor : ExpressionVisitor
+    {
+        private readonly ParameterExpression _from;
+        private readonly ParameterExpression _to;
+        public ReplaceParameterVisitor(ParameterExpression from, ParameterExpression to)
+        {
+            _from = from;
+            _to = to;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node) =>
+            node == _from ? _to : base.VisitParameter(node);
+    }
+
+    internal static Expression ReplaceParameter(this Expression body, ParameterExpression from, ParameterExpression to) =>
+        new ReplaceParameterVisitor(from, to).Visit(body)!;
+
+    #endregion
 }

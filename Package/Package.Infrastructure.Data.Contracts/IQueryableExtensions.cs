@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Common.Contracts;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -230,4 +231,255 @@ public static class IQueryableExtensions
 
         return typeDefaults.GetOrAdd(type, Activator.CreateInstance(type));
     }
+
+
+    #region Conditional Where
+
+    public static IQueryable<T> WhereIf<T>(this IQueryable<T> source, bool condition, Expression<Func<T, bool>> predicate) =>
+        condition ? source.Where(predicate) : source;
+
+    public static IQueryable<T> WhereIfNotNull<T, TValue>(this IQueryable<T> source,
+        TValue? value,
+        Func<TValue, Expression<Func<T, bool>>> predicateFactory) where TValue : class =>
+        value is null ? source : source.Where(predicateFactory(value));
+
+    public static IQueryable<T> WhereIfHasValue<T, TValue>(this IQueryable<T> source,
+        TValue? value,
+        Func<TValue, Expression<Func<T, bool>>> predicateFactory) where TValue : struct =>
+        value.HasValue ? source.Where(predicateFactory(value.Value)) : source;
+
+    public static IQueryable<T> WhereIfNotEmpty<T>(this IQueryable<T> source,
+        string? value,
+        Func<string, Expression<Func<T, bool>>> predicateFactory) =>
+        string.IsNullOrWhiteSpace(value) ? source : source.Where(predicateFactory(value!));
+
+    public static IQueryable<T> WhereIfAny<T, TValue>(this IQueryable<T> source,
+        IEnumerable<TValue>? values,
+        Func<IEnumerable<TValue>, Expression<Func<T, bool>>> predicateFactory)
+    {
+        if (values is null) return source;
+        var arr = values as TValue[] ?? values.ToArray();
+        return arr.Length == 0 ? source : source.Where(predicateFactory(arr));
+    }
+
+    #endregion
+
+    #region Predicate pipeline
+
+    /// <summary>
+    /// Applies a final composed predicate if it is not null and not trivially 'true'.
+    /// </summary>
+    public static IQueryable<T> Where<T>(this IQueryable<T> source, Expression<Func<T, bool>>? predicate, bool skipIfTrivialTrue)
+    {
+        if (predicate == null) return source;
+        if (skipIfTrivialTrue && IsTriviallyTrue(predicate))
+            return source;
+        return source.Where(predicate);
+    }
+
+    private static bool IsTriviallyTrue<T>(Expression<Func<T, bool>> expr)
+    {
+        return expr.Body.NodeType == ExpressionType.Constant &&
+               expr.Body is ConstantExpression c &&
+               c.Value is bool b && b;
+    }
+
+    #endregion
+
+    #region Dynamic (multi) ordering
+
+    /// <summary>
+    /// Sort specification (Property path + direction).
+    /// </summary>
+    public readonly record struct SortSpec(string PropertyPath, bool Descending = false)
+    {
+        public override string ToString() => Descending ? "-" + PropertyPath : PropertyPath;
+    }
+
+    /// <summary>
+    /// Order by a single property path (e.g. "Person.LastName"), ascending by default.
+    /// </summary>
+    public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string propertyPath, bool descending = false)
+    {
+        var param = Expression.Parameter(typeof(T), "x");
+        Expression body = param;
+        foreach (var part in propertyPath.Split('.', StringSplitOptions.RemoveEmptyEntries))
+        {
+            body = Expression.PropertyOrField(body, part);
+        }
+
+        var delegateType = typeof(Func<,>).MakeGenericType(typeof(T), body.Type);
+        var lambda = Expression.Lambda(delegateType, body, param);
+
+        var methodName = descending ? "OrderByDescending" : "OrderBy";
+        var method = (from m in typeof(Queryable).GetMethods()
+                      where m.Name == methodName
+                      let parms = m.GetParameters()
+                      where parms.Length == 2
+                      select m).Single().MakeGenericMethod(typeof(T), body.Type);
+
+        return (IOrderedQueryable<T>)method.Invoke(null, [source, lambda])!;
+    }
+
+    /// <summary>
+    /// ThenBy variant for previously ordered query.
+    /// </summary>
+    public static IOrderedQueryable<T> ThenByProperty<T>(this IOrderedQueryable<T> source, string propertyPath, bool descending = false)
+    {
+        var param = Expression.Parameter(typeof(T), "x");
+        Expression body = param;
+        foreach (var part in propertyPath.Split('.', StringSplitOptions.RemoveEmptyEntries))
+        {
+            body = Expression.PropertyOrField(body, part);
+        }
+
+        var delegateType = typeof(Func<,>).MakeGenericType(typeof(T), body.Type);
+        var lambda = Expression.Lambda(delegateType, body, param);
+
+        var methodName = descending ? "ThenByDescending" : "ThenBy";
+        var method = (from m in typeof(Queryable).GetMethods()
+                      where m.Name == methodName
+                      let parms = m.GetParameters()
+                      where parms.Length == 2
+                      select m).Single().MakeGenericMethod(typeof(T), body.Type);
+
+        return (IOrderedQueryable<T>)method.Invoke(null, [source, lambda])!;
+    }
+
+    /// <summary>
+    /// Applies multiple sorts in order. Accepts either SortSpec or parseable strings.
+    /// String formats supported: "Name", "-Name", "Name DESC", "Name ASC".
+    /// </summary>
+    public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<string> sortExpressions)
+    {
+        if (sortExpressions is null) return source;
+        SortSpec[] specs = sortExpressions
+            .Select(ParseSortExpression)
+            .Where(s => !string.IsNullOrWhiteSpace(s.PropertyPath))
+            .ToArray();
+
+        return source.OrderBy(specs);
+    }
+
+    /// <summary>
+    /// Applies multiple sorts using SortSpec collection.
+    /// </summary>
+    public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<SortSpec>? specs)
+    {
+        if (specs == null) return source;
+        var specArray = specs as SortSpec[] ?? specs.ToArray();
+        if (specArray.Length == 0) return source;
+
+        IOrderedQueryable<T>? ordered = null;
+        for (int i = 0; i < specArray.Length; i++)
+        {
+            var spec = specArray[i];
+            ordered = i == 0
+                ? source.OrderByProperty(spec.PropertyPath, spec.Descending)
+                : ordered!.ThenByProperty(spec.PropertyPath, spec.Descending);
+        }
+
+        return ordered ?? source;
+    }
+
+    private static SortSpec ParseSortExpression(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return default;
+        raw = raw.Trim();
+        bool descending = false;
+
+        // Leading '-' shorthand
+        if (raw.StartsWith("-", StringComparison.Ordinal))
+        {
+            descending = true;
+            raw = raw[1..].Trim();
+        }
+        else
+        {
+            // Trailing direction tokens
+            var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 1)
+            {
+                raw = parts[0];
+                var dir = parts[1];
+                if (dir.Equals("DESC", StringComparison.OrdinalIgnoreCase) ||
+                    dir.Equals("DESCENDING", StringComparison.OrdinalIgnoreCase))
+                    descending = true;
+            }
+        }
+
+        return new SortSpec(raw, descending);
+    }
+
+    #endregion
+
+    #region Paging helper (Apply after ordering)
+
+    /// <summary>
+    /// Applies Skip/Take only if pageSize &gt; 0.
+    /// </summary>
+    public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> source, int pageIndex, int pageSize)
+    {
+        if (pageSize <= 0) return source;
+        if (pageIndex < 0) pageIndex = 0;
+        return source.Skip(pageIndex * pageSize).Take(pageSize);
+    }
+
+    #endregion
+
+    #region Misc helpers
+
+    /// <summary>
+    /// Applies a dynamic list of equality filters: (T x) =&gt; x.Property == value (skips nulls).
+    /// propertyValuePairs: propertyPath -> value.
+    /// </summary>
+    public static IQueryable<T> WhereEquals<T>(this IQueryable<T> source, IReadOnlyDictionary<string, object?> propertyValuePairs)
+    {
+        if (propertyValuePairs.Count == 0) return source;
+        var param = Expression.Parameter(typeof(T), "x");
+        Expression? combined = null;
+
+        foreach (var kvp in propertyValuePairs)
+        {
+            if (kvp.Value is null) continue;
+            Expression body = param;
+            foreach (var part in kvp.Key.Split('.', StringSplitOptions.RemoveEmptyEntries))
+            {
+                body = Expression.PropertyOrField(body, part);
+            }
+
+            var constant = Expression.Constant(kvp.Value);
+            Expression comparison;
+
+            if (kvp.Value.GetType() != body.Type)
+            {
+                // attempt conversion (e.g., boxed int to Nullable<int>)
+                var converted = ConvertValue(kvp.Value, body.Type);
+                comparison = Expression.Equal(body, Expression.Constant(converted, body.Type));
+            }
+            else
+            {
+                comparison = Expression.Equal(body, constant);
+            }
+
+            combined = combined == null ? comparison : Expression.AndAlso(combined, comparison);
+        }
+
+        if (combined == null) return source;
+
+        var lambda = Expression.Lambda<Func<T, bool>>(combined, param);
+        return source.Where(lambda);
+    }
+
+    private static object? ConvertValue(object value, Type targetType)
+    {
+        if (targetType.IsInstanceOfType(value)) return value;
+
+        var underlying = Nullable.GetUnderlyingType(targetType);
+        var destType = underlying ?? targetType;
+
+        return System.Convert.ChangeType(value, destType, CultureInfo.InvariantCulture);
+    }
+
+    #endregion
 }
