@@ -23,23 +23,48 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
 
     protected LambdaExpression BuildTenantFilter(Type entityType)
     {
+        // e =>
+        //     (this.TenantId == null)          // global admin: no filtering
+        //     || (e.TenantId == this.TenantId) // tenant-scoped user
         var parameter = Expression.Parameter(entityType, "e");
-        var tenantIdProperty = Expression.Property(parameter, nameof(TenantId));
-        var dbContext = Expression.Constant(this);
-        var dbContextTenantId = Expression.Property(dbContext, nameof(TenantId));
 
-        /// Handle nullable TenantId: (e.TenantId == this.TenantId || this.TenantId == null)
-        var tenantIdIsNotNull = Expression.NotEqual(dbContextTenantId, Expression.Constant(null, typeof(TTenantIdType?)));
+        // entityTenant: e.TenantId
+        var entityTenant = Expression.Property(parameter, nameof(TenantId));
 
-        // Convert TenantId to non-nullable for comparison if necessary
-        var tenantIdPropertyConverted = Expression.Convert(tenantIdProperty, typeof(TTenantIdType));
-        var dbContextTenantIdConverted = Expression.Convert(dbContextTenantId, typeof(TTenantIdType));
+        // this.TenantId
+        var contextConst = Expression.Constant(this);
+        var contextTenant = Expression.Property(contextConst, nameof(TenantId)); // type: TTenantIdType?
 
-        var tenantIdEquals = Expression.Equal(tenantIdPropertyConverted, dbContextTenantIdConverted);
-        var body = Expression.AndAlso(tenantIdIsNotNull, tenantIdEquals);
+        // Normalize types for comparison (handle nullable/non-nullable)
+        Expression left, right;
+        if (entityTenant.Type != contextTenant.Type)
+        {
+            // Convert both to the underlying non-nullable type (e.g. Guid)
+            var targetType = Nullable.GetUnderlyingType(entityTenant.Type)
+                              ?? Nullable.GetUnderlyingType(contextTenant.Type)
+                              ?? entityTenant.Type;
 
-        var lambda = Expression.Lambda(body, parameter);
-        return lambda;
+            left = entityTenant.Type == targetType ? entityTenant : Expression.Convert(entityTenant, targetType);
+            right = contextTenant.Type == targetType ? contextTenant : Expression.Convert(contextTenant, targetType);
+        }
+        else
+        {
+            left = entityTenant;
+            right = contextTenant;
+        }
+
+        var tenantEquals = Expression.Equal(left, right);
+
+        // this.TenantId == null
+        var contextTenantIsNull = Expression.Equal(
+            contextTenant,
+            Expression.Constant(null, contextTenant.Type)
+        );
+
+        // (this.TenantId == null) || (e.TenantId == this.TenantId)
+        var body = Expression.OrElse(contextTenantIsNull, tenantEquals);
+
+        return Expression.Lambda(body, parameter);
     }
 
 
