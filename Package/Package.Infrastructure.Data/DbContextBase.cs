@@ -20,33 +20,24 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
 
     //TenantId set in the factory, so it can be used in query filters
     public TTenantIdType? TenantId { get; set; }
-
     protected LambdaExpression BuildTenantFilter(Type entityType)
     {
-        // e => ((Guid?)e.TenantId == TenantId) || TenantId == null
-        // (Column comparison first keeps predicate shape stable; second term broadens for global admin)
+        // For GlobalAdmin (TenantId == null): return true (access all)
+        // For tenant users: filter by TenantId match
         var param = Expression.Parameter(entityType, "e");
-
-        // e.TenantId (non-nullable Guid on entity)
         var entityTenant = Expression.Property(param, nameof(TenantId));
-
-        // this.TenantId (Guid? on context)
         var ctxConst = Expression.Constant(this);
-        var ctxTenant = Expression.Property(ctxConst, nameof(TenantId)); // Guid?
+        var ctxTenant = Expression.Property(ctxConst, nameof(TenantId));
 
-        // ((Guid?)e.TenantId == this.TenantId)
+        // Convert entity TenantId to nullable for comparison
         var entityTenantAsNullable = Expression.Convert(entityTenant, ctxTenant.Type);
         var equals = Expression.Equal(entityTenantAsNullable, ctxTenant);
-
-        // this.TenantId == null
         var ctxIsNull = Expression.Equal(ctxTenant, Expression.Constant(null, ctxTenant.Type));
 
-        // Combine: (entity match) OR (admin - no tenant)
-        var body = Expression.OrElse(equals, ctxIsNull);
-
+        // GlobalAdmin access (null TenantId) OR tenant match
+        var body = Expression.OrElse(ctxIsNull, equals);
         return Expression.Lambda(body, param);
     }
-
 
     //OnConfiguring occurs last and can overwrite options obtained from DI or the constructor.
     //This approach does not lend itself to testing (unless you target the full database).
