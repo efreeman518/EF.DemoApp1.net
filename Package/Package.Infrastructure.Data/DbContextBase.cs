@@ -23,28 +23,27 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
 
     protected LambdaExpression BuildTenantFilter(Type entityType)
     {
-        // e => this.TenantId == null || ((Guid?)e.TenantId) == this.TenantId
-        // (No .Value dereference, fully short-circuiting)
+        // e => ((Guid?)e.TenantId == TenantId) || TenantId == null
+        // (Column comparison first keeps predicate shape stable; second term broadens for global admin)
         var param = Expression.Parameter(entityType, "e");
 
         // e.TenantId (non-nullable Guid on entity)
-        var entityTenant = Expression.Property(param, "TenantId"); // Guid
+        var entityTenant = Expression.Property(param, nameof(TenantId));
 
-        // this.TenantId (Guid?)
+        // this.TenantId (Guid? on context)
         var ctxConst = Expression.Constant(this);
         var ctxTenant = Expression.Property(ctxConst, nameof(TenantId)); // Guid?
 
-        // (this.TenantId == null)
-        var ctxNull = Expression.Equal(
-            ctxTenant,
-            Expression.Constant(null, ctxTenant.Type) // null Guid?
-        );
+        // ((Guid?)e.TenantId == this.TenantId)
+        var entityTenantAsNullable = Expression.Convert(entityTenant, ctxTenant.Type);
+        var equals = Expression.Equal(entityTenantAsNullable, ctxTenant);
 
-        // ((Guid?)e.TenantId) == this.TenantId
-        var entityTenantNullable = Expression.Convert(entityTenant, ctxTenant.Type); // Guid -> Guid?
-        var equals = Expression.Equal(entityTenantNullable, ctxTenant);
+        // this.TenantId == null
+        var ctxIsNull = Expression.Equal(ctxTenant, Expression.Constant(null, ctxTenant.Type));
 
-        var body = Expression.OrElse(ctxNull, equals);
+        // Combine: (entity match) OR (admin - no tenant)
+        var body = Expression.OrElse(equals, ctxIsNull);
+
         return Expression.Lambda(body, param);
     }
 
