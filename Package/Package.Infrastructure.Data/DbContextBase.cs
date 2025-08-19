@@ -23,46 +23,30 @@ public abstract class DbContextBase<TAuditIdType, TTenantIdType>(DbContextOption
 
     protected LambdaExpression BuildTenantFilter(Type entityType)
     {
-        // e =>
-        //     (this.TenantId == null)          // global admin: no filtering
-        //     || (e.TenantId == this.TenantId) // tenant-scoped user
+        // Builds: e => TenantId == null || (TenantId.HasValue && e.TenantId == TenantId.Value)
+
         var parameter = Expression.Parameter(entityType, "e");
 
-        // entityTenant: e.TenantId
-        var entityTenant = Expression.Property(parameter, nameof(TenantId));
+        // entityTenant: e.TenantId (must exist on ITenantEntity<Guid>)
+        var entityTenant = Expression.Property(parameter, "TenantId");
 
         // this.TenantId
         var contextConst = Expression.Constant(this);
-        var contextTenant = Expression.Property(contextConst, nameof(TenantId)); // type: TTenantIdType?
+        var contextTenant = Expression.Property(contextConst, nameof(TenantId));            // Guid?
+        var contextTenantIsNull = Expression.Equal(contextTenant, Expression.Constant(null, contextTenant.Type));
+        var contextTenantHasValue = Expression.Property(contextTenant, "HasValue");
+        var contextTenantValue = Expression.Property(contextTenant, "Value");               // Guid
 
-        // Normalize types for comparison (handle nullable/non-nullable)
-        Expression left, right;
-        if (entityTenant.Type != contextTenant.Type)
-        {
-            // Convert both to the underlying non-nullable type (e.g. Guid)
-            var targetType = Nullable.GetUnderlyingType(entityTenant.Type)
-                              ?? Nullable.GetUnderlyingType(contextTenant.Type)
-                              ?? entityTenant.Type;
+        // e.TenantId == this.TenantId.Value (types already Guid on both sides)
+        Expression tenantEquals = entityTenant.Type == contextTenantValue.Type
+            ? Expression.Equal(entityTenant, contextTenantValue)
+            : Expression.Equal(Expression.Convert(entityTenant, contextTenantValue.Type), contextTenantValue);
 
-            left = entityTenant.Type == targetType ? entityTenant : Expression.Convert(entityTenant, targetType);
-            right = contextTenant.Type == targetType ? contextTenant : Expression.Convert(contextTenant, targetType);
-        }
-        else
-        {
-            left = entityTenant;
-            right = contextTenant;
-        }
+        // Guard access to .Value: TenantId.HasValue && e.TenantId == TenantId.Value
+        var guardedEquals = Expression.AndAlso(contextTenantHasValue, tenantEquals);
 
-        var tenantEquals = Expression.Equal(left, right);
-
-        // this.TenantId == null
-        var contextTenantIsNull = Expression.Equal(
-            contextTenant,
-            Expression.Constant(null, contextTenant.Type)
-        );
-
-        // (this.TenantId == null) || (e.TenantId == this.TenantId)
-        var body = Expression.OrElse(contextTenantIsNull, tenantEquals);
+        // (TenantId == null) || (TenantId.HasValue && e.TenantId == TenantId.Value)
+        var body = Expression.OrElse(contextTenantIsNull, guardedEquals);
 
         return Expression.Lambda(body, parameter);
     }
