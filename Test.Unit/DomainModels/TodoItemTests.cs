@@ -6,7 +6,7 @@ namespace Test.Unit.DomainModels;
 [TestClass]
 public class TodoItemTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("asdfg", true)]
     [DataRow("sdfgsd4a56yrt", true)]
     [DataRow(null, false)]

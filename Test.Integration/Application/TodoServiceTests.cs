@@ -100,7 +100,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         await _tcs.Task;
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DoNotParallelize]
     [DataRow("asg")]
     [DataRow("sdfg")]

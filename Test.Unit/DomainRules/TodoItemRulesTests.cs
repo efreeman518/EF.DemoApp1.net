@@ -7,7 +7,7 @@ namespace Test.Unit.DomainRules;
 [TestClass]
 public class TodoItemRulesTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("asdfg", 6, false)]
     [DataRow("asdfg", 5, true)]
     [DataRow("asdfgsd456yrt", 5, true)]
@@ -19,7 +19,7 @@ public class TodoItemRulesTests
         Assert.AreEqual(expectedValid, isValid);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("axyzsdfghgfd", "xyz")]
     [DataRow("asdfgxyzhgfd", "xyz")]
     [DataRow("axyzsdfghxyz", "xyz")]
@@ -30,7 +30,7 @@ public class TodoItemRulesTests
         Assert.IsTrue(isValid);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("axyzgh", 5, "xyz")]
     [DataRow("axyzsdfghxyz", 5, "xyz")]
     public void CompositeRule_pass(string name, int nameLength, string contains)
@@ -40,7 +40,7 @@ public class TodoItemRulesTests
         Assert.IsTrue(isValid);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("aaaaa", 6, "a")]
     [DataRow("axyzsdfg", 10, "xyz")]
     [DataRow("asgfdgr", 5, "xyz")]

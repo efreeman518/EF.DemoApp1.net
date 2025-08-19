@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Domain;
+using Polly.Caching;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
@@ -352,11 +353,15 @@ public static class EFExtensions
     /// <returns></returns>
     public static async Task<T?> GetEntityAsync<T>(this DbSet<T> dbSet, bool tracking,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
+
         IQueryable<T> query = dbSet.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes);
         return await query.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
@@ -377,11 +382,15 @@ public static class EFExtensions
     public static async Task<TProject?> GetEntityProjectionAsync<T, TProject>(this DbSet<T> dbSet, 
         Expression<Func<T, TProject>> projector,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
+
         IQueryable<T> query = dbSet.ComposeIQueryable(false, null, null, filter, orderBy, splitQuery, includes);
         return await query.Select(projector).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
     }
@@ -393,23 +402,29 @@ public static class EFExtensions
     /// <param name="query"></param>
     /// <param name="tracking"></param>
     /// <param name="pageSize"></param>
-    /// <param name="pageIndex">1-based</param>
+    /// <param name="pageIndex"></param>
     /// <param name="filter"></param>
     /// <param name="orderBy"></param>
     /// <param name="includeTotal"></param>
-    /// <param name="splitQuery"></param>Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    /// <param name="splitQueryThresholds">Discretionary; avoid cartesian explosion, applicable with Includes; understand the risks/repercussions (when paging, etc) of using this https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries</param>
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns>IReadOnlyList<T> page results with total (-1 if includeTotal = false) </returns>
     public static async Task<(IReadOnlyList<T>, int)> QueryPageAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, 
+        SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
+
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if(!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
+
         query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         return ((await query.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None)).AsReadOnly(), total);
     }
@@ -434,16 +449,24 @@ public static class EFExtensions
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        bool includeTotal = false, bool splitQuery = false,
+        bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
+
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
+
         query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         var results = await query.Select(projector).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
         return (results.AsReadOnly(), total);
     }
+
+    
+
 
     /// <summary>
     /// Returns the count given the filter

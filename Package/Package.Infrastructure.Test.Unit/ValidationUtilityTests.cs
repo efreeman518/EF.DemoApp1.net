@@ -5,7 +5,7 @@ namespace Package.Infrastructure.Test.Unit;
 [TestClass]
 public class ValidationUtilityTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, false)]
     [DataRow("", false)]
     [DataRow("xyz", false)]

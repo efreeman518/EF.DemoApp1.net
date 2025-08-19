@@ -29,35 +29,35 @@ public interface IRepositoryBase
 
     Task<T?> GetEntityAsync<T>(bool tracking = false,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
-    Task<PagedResponse<T>> QueryPageAsync<T>(bool readNoLock = true, bool tracking = false,
+    Task<PagedResponse<T>> QueryPageAsync<T>(bool readNoLock = false, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
     Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
-        bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
+        bool readNoLock = false, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
     IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 
     public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class;
 }

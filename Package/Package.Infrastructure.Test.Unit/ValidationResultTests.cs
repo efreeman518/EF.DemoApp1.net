@@ -5,7 +5,7 @@ namespace Package.Infrastructure.Test.Unit;
 [TestClass]
 public class ValidationResultTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true, null)]
     [DataRow(false, null)]
     [DataRow(true, "true message")]

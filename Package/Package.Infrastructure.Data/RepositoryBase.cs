@@ -165,12 +165,12 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <returns></returns>
     public async Task<T?> GetEntityAsync<T>(bool tracking = false,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return await dbContext.Set<T>().GetEntityAsync<T>(tracking, filter, orderBy, splitQuery, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
+        return await dbContext.Set<T>().GetEntityAsync<T>(tracking, filter, orderBy, splitQueryOptions, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
     /// <summary>
@@ -187,12 +187,12 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <returns></returns>
     public async Task<TProject?> GetEntityProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
-        return await dbContext.Set<T>().GetEntityProjectionAsync<T, TProject>(projector, filter, orderBy, splitQuery, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
+        return await dbContext.Set<T>().GetEntityProjectionAsync<T, TProject>(projector, filter, orderBy, splitQueryOptions, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
     }
 
 
@@ -200,7 +200,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// Returns a List<T> page of data with optional related data
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="readNoLock">Sets DB Isolation level to read uncommitted to prevent locks</param>
+    /// <param name="readNoLock">Sets DB Isolation level to read uncommitted to prevent locks; Not needed for Azure SQL read replica</param>
     /// <param name="tracking">DbContext will track changes (saves to db on SaveChangesAsync()) or not</param>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex"></param>
@@ -208,17 +208,18 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <param name="orderBy">Order By clause</param>
     /// <param name="includes">get related data</param>
     /// <returns></returns>
-    public async Task<PagedResponse<T>> QueryPageAsync<T>(bool readNoLock = true, bool tracking = false,
+    public async Task<PagedResponse<T>> QueryPageAsync<T>(bool readNoLock = false, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         if (readNoLock) await SetNoLock().ConfigureAwait(ConfigureAwaitOptions.None);
         (IReadOnlyList<T> data, int total) = await dbContext.Set<T>()
-            .QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes)
+            .QueryPageAsync(tracking, pageSize, pageIndex, filter, orderBy, includeTotal, splitQueryOptions, cancellationToken, includes)
             .ConfigureAwait(ConfigureAwaitOptions.None);
         if (readNoLock) await SetLock().ConfigureAwait(ConfigureAwaitOptions.None);
         return new PagedResponse<T>
@@ -236,7 +237,7 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TProject"></typeparam>
     /// <param name="projector">Projector Func</param>
-    /// <param name="readNoLock">Sets DB Isolation level to read uncommitted to prevent locks</param>
+    /// <param name="readNoLock">Sets DB Isolation level to read uncommitted to prevent locks; Not needed for Azure SQL read replica;</param>
     /// <param name="pageSize"></param>
     /// <param name="pageIndex"></param>
     /// <param name="filter"></param>
@@ -247,16 +248,17 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <param name="includes"></param>
     /// <returns></returns>
     public async Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
-        bool readNoLock = true, int? pageSize = null, int? pageIndex = null,
+        bool readNoLock = false, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
+        SplitQueryOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
         if (readNoLock) await SetNoLock().ConfigureAwait(ConfigureAwaitOptions.None);
         (IReadOnlyList<TProject> data, int total) = await dbContext.Set<T>().QueryPageProjectionAsync<T, TProject>(projector,
-            pageSize, pageIndex, filter, orderBy, includeTotal, splitQuery, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
+            pageSize, pageIndex, filter, orderBy, includeTotal, splitQueryOptions, cancellationToken, includes).ConfigureAwait(ConfigureAwaitOptions.None);
         if (readNoLock) await SetLock().ConfigureAwait(ConfigureAwaitOptions.None);
         return new PagedResponse<TProject>
         {
@@ -277,10 +279,14 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <param name="includes"></param>
     /// <returns></returns>
     public IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(null, -1, includes, splitQueryOptions);
+
         return dbContext.Set<T>().GetStream(tracking, filter, orderBy, splitQuery, includes);
     }
 
@@ -297,10 +303,14 @@ public abstract class RepositoryBase<TDbContext, TAuditIdType, TTenantIdType>(TD
     /// <returns></returns>
     public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
         params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
         where T : class
     {
+        bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!splitQuery && splitQueryOptions != null)
+            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(null, -1, includes, splitQueryOptions);
+
         return dbContext.Set<T>().GetStreamProjection<T, TProject>(projector, tracking, filter, orderBy, splitQuery, includes);
     }
 

@@ -13,7 +13,7 @@ public class TodoItemDtoValidatorTests : UnitTestBase
     {
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", false)]
     [DataRow("a", false)]
     [DataRow("sdfg", false)]

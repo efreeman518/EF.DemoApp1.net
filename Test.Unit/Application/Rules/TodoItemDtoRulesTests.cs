@@ -8,7 +8,7 @@ namespace Test.Unit.Application.Rules;
 [TestClass]
 public class TodoItemDtoRulesTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("sdfg", 5, false)]
     [DataRow("sdfg", 3, true)]
     [DataRow("sdfgsd456yrt", 5, true)]
@@ -20,7 +20,7 @@ public class TodoItemDtoRulesTests
         Assert.AreEqual(expectedValid, isValid);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("sdfg", "xyz", false)]
     [DataRow("xyzsdfghgfd", "xyz", true)]
     [DataRow("sdfgxyzhgfd", "xyz", true)]
@@ -32,7 +32,7 @@ public class TodoItemDtoRulesTests
         Assert.AreEqual(expectedValid, isValid);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("sdfg", 5, "xyz", false)]
     [DataRow("xyzsdfg", 10, "xyz", false)]
     [DataRow("xyzgh", 5, "xyz", true)]
