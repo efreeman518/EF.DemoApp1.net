@@ -9,6 +9,8 @@ public interface IRepositoryBase
 {
     Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class;
 
+    Task UpsertAsync<T>(T entity) where T : EntityBase;
+
     void Create<T>(ref T entity) where T : class;
 
     void PrepareForUpdate<T>(ref T entity) where T : EntityBase;
@@ -25,39 +27,43 @@ public interface IRepositoryBase
 
     Task<int> SaveChangesAsync(OptimisticConcurrencyWinner winner, CancellationToken cancellationToken = default);
 
+    void SetAutoDetectChanges(bool value);
+
+    void DetectChanges();
+
     Task<T?> GetEntityByKeysAsync<T>(CancellationToken cancellationToken = default, params object[] keys) where T : class;
 
     Task<T?> GetEntityAsync<T>(bool tracking = false,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryThresholdOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class;
 
     Task<PagedResponse<T>> QueryPageAsync<T>(bool readNoLock = false, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryThresholdOptions? splitQueryThresholdOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class;
 
     Task<PagedResponse<TProject>> QueryPageProjectionAsync<T, TProject>(Expression<Func<T, TProject>> projector,
         bool readNoLock = false, int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, SplitQueryThresholdOptions? splitQueryThresholdOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class;
 
     IAsyncEnumerable<T> GetStream<T>(bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryThresholdOptions = null,
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class;
 
     public IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryThresholdOptions = null,
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class;
 }

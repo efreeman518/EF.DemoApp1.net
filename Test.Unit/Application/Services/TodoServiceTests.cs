@@ -81,8 +81,8 @@ public class TodoServiceTests : UnitTestBase
         // When GetEntityAsync is called, return the item that was captured during the Create call.
         RepositoryTrxnMock.Setup(
             r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
-                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<SplitQueryOptions>(), It.IsAny<CancellationToken>(),
-                It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()))
+                It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<SplitQueryThresholdOptions>(), It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>>[]>()))
             .Returns(() => Task.FromResult(capturedTodoItem)); // Return the captured item
 
         // When Create is called by the service, capture the passed-in TodoItem.
@@ -135,8 +135,8 @@ public class TodoServiceTests : UnitTestBase
             Times.Once);
         RepositoryTrxnMock.Verify(
            r => r.GetEntityAsync(It.IsAny<bool>(), It.IsAny<Expression<Func<TodoItem, bool>>>(),
-               It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<SplitQueryOptions>(), It.IsAny<CancellationToken>(),
-               It.IsAny<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>[]>()),
+               It.IsAny<Func<IQueryable<TodoItem>, IOrderedQueryable<TodoItem>>>(), It.IsAny<SplitQueryThresholdOptions>(), It.IsAny<CancellationToken>(),
+               It.IsAny<Expression<Func<IQueryable<TodoItem>, IIncludableQueryable<TodoItem, object?>>>[]>()),
            Times.Exactly(2)); //called for Update and Get
         RepositoryTrxnMock.Verify(
             r => r.DeleteAsync<TodoItem>(It.IsAny<CancellationToken>(), It.IsAny<Guid>()),

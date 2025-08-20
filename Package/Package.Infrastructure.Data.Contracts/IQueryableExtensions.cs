@@ -30,7 +30,7 @@ public static class IQueryableExtensions
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         //https://dotnetdocs.ir/Post/45/the-difference-between-asnotracking-and-asnotrackingwithidentityresolution
@@ -54,7 +54,7 @@ public static class IQueryableExtensions
         {
             includes.ToList().ForEach(include =>
             {
-                query = include(query);
+                query = include.Compile()(query);
             });
 
             //Split (discretionary) reduces cartesian explosion when joining (multiple includes at the same level)
@@ -137,7 +137,7 @@ public static class IQueryableExtensions
     /// <returns></returns>
     public static IAsyncEnumerable<T> GetStream<T>(this IQueryable<T> query, bool tracking = false, Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).AsAsyncEnumerable();
@@ -159,7 +159,7 @@ public static class IQueryableExtensions
     public static IAsyncEnumerable<TProject> GetStreamProjection<T, TProject>(this IQueryable<T> query, Func<T, TProject> projector,
         bool tracking = false, Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool splitQuery = false,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         return query.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes).Select(e => projector(e)).AsAsyncEnumerable();
@@ -258,7 +258,7 @@ public static class IQueryableExtensions
         Func<IEnumerable<TValue>, Expression<Func<T, bool>>> predicateFactory)
     {
         if (values is null) return source;
-        var arr = values as TValue[] ?? values.ToArray();
+        var arr = values as TValue[] ?? [.. values];
         return arr.Length == 0 ? source : source.Where(predicateFactory(arr));
     }
 
@@ -353,10 +353,9 @@ public static class IQueryableExtensions
     public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<string> sortExpressions)
     {
         if (sortExpressions is null) return source;
-        SortSpec[] specs = sortExpressions
+        SortSpec[] specs = [.. sortExpressions
             .Select(ParseSortExpression)
-            .Where(s => !string.IsNullOrWhiteSpace(s.PropertyPath))
-            .ToArray();
+            .Where(s => !string.IsNullOrWhiteSpace(s.PropertyPath))];
 
         return source.OrderBy(specs);
     }
@@ -367,7 +366,7 @@ public static class IQueryableExtensions
     public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<SortSpec>? specs)
     {
         if (specs == null) return source;
-        var specArray = specs as SortSpec[] ?? specs.ToArray();
+        var specArray = specs as SortSpec[] ?? [.. specs];
         if (specArray.Length == 0) return source;
 
         IOrderedQueryable<T>? ordered = null;
@@ -389,7 +388,7 @@ public static class IQueryableExtensions
         bool descending = false;
 
         // Leading '-' shorthand
-        if (raw.StartsWith("-", StringComparison.Ordinal))
+        if (raw.StartsWith('-'))
         {
             descending = true;
             raw = raw[1..].Trim();

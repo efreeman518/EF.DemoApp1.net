@@ -353,14 +353,14 @@ public static class EFExtensions
     /// <returns></returns>
     public static async Task<T?> GetEntityAsync<T>(this DbSet<T> dbSet, bool tracking,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
         if (!splitQuery && splitQueryOptions != null)
-            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
+            splitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
 
         IQueryable<T> query = dbSet.ComposeIQueryable(tracking, null, null, filter, orderBy, splitQuery, includes);
         return await query.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
@@ -382,14 +382,14 @@ public static class EFExtensions
     public static async Task<TProject?> GetEntityProjectionAsync<T, TProject>(this DbSet<T> dbSet, 
         Expression<Func<T, TProject>> projector,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryOptions? splitQueryOptions = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
         if (!splitQuery && splitQueryOptions != null)
-            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
+            splitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(1, 1, includes, splitQueryOptions);
 
         IQueryable<T> query = dbSet.ComposeIQueryable(false, null, null, filter, orderBy, splitQuery, includes);
         return await query.Select(projector).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
@@ -414,16 +414,16 @@ public static class EFExtensions
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, 
-        SplitQueryOptions? splitQueryOptions = null,
+        SplitQueryThresholdOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
 
         bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
         if(!splitQuery && splitQueryOptions != null)
-            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
+            splitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
 
         query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         return ((await query.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None)).AsReadOnly(), total);
@@ -449,16 +449,16 @@ public static class EFExtensions
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        bool includeTotal = false, SplitQueryOptions? splitQueryOptions = null,
+        bool includeTotal = false, SplitQueryThresholdOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
-        params Func<IQueryable<T>, IIncludableQueryable<T, object?>>[] includes)
+        params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
 
         bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
         if (!splitQuery && splitQueryOptions != null)
-            splitQuery = SplitQueryOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
+            splitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
 
         query = query.ComposeIQueryable(false, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
         var results = await query.Select(projector).ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
@@ -537,15 +537,10 @@ public static class EFExtensions
 
     #region Parameter replacement utility (internal)
 
-    private sealed class ReplaceParameterVisitor : ExpressionVisitor
+    private sealed class ReplaceParameterVisitor(ParameterExpression from, ParameterExpression to) : ExpressionVisitor
     {
-        private readonly ParameterExpression _from;
-        private readonly ParameterExpression _to;
-        public ReplaceParameterVisitor(ParameterExpression from, ParameterExpression to)
-        {
-            _from = from;
-            _to = to;
-        }
+        private readonly ParameterExpression _from = from;
+        private readonly ParameterExpression _to = to;
 
         protected override Expression VisitParameter(ParameterExpression node) =>
             node == _from ? _to : base.VisitParameter(node);
