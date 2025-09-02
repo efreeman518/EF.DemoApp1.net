@@ -473,37 +473,41 @@ var assemblies = [
     "name": "Package.Infrastructure.Common.Contracts",
     "classes": [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.GenericSpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_GenericSpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 133, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.MixedSpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_MixedSpecificationExtensions.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 133, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.NonGenericSpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_NonGenericSpecificationExtensions.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 133, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.PagedResponse<T>", "rp": "Package.Infrastructure.Common.Contracts_PagedResponse_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.RequestContext<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_RequestContext_2.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Result", "rp": "Package.Infrastructure.Common.Contracts_Result.html", "cl": 8, "ucl": 34, "cal": 42, "tl": 475, "cb": 2, "tb": 30, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Result<T>", "rp": "Package.Infrastructure.Common.Contracts_Result_1.html", "cl": 13, "ucl": 48, "cal": 61, "tl": 475, "cb": 2, "tb": 64, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.SearchRequest<T>", "rp": "Package.Infrastructure.Common.Contracts_SearchRequest_1.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Contracts.Sort", "rp": "Package.Infrastructure.Common.Contracts_Sort.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 15, "cal": 21, "tl": 78, "cb": 1, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.SpecificationExtensions", "rp": "Package.Infrastructure.Common.Contracts_SpecificationExtensions.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 78, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticData", "rp": "Package.Infrastructure.Common.Contracts_StaticData.html", "cl": 0, "ucl": 67, "cal": 67, "tl": 171, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 171, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Contracts.StaticList<T>", "rp": "Package.Infrastructure.Common.Contracts_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 171, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Specification", "rp": "Package.Infrastructure.Common.Contracts_Specification.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 133, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.Specification<T>", "rp": "Package.Infrastructure.Common.Contracts_Specification_1.html", "cl": 6, "ucl": 19, "cal": 25, "tl": 133, "cb": 1, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticData", "rp": "Package.Infrastructure.Common.Contracts_StaticData.html", "cl": 0, "ucl": 68, "cal": 68, "tl": 185, "cb": 0, "tb": 51, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticItem<T1, T2>", "rp": "Package.Infrastructure.Common.Contracts_StaticItem_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 185, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.Contracts.StaticList<T>", "rp": "Package.Infrastructure.Common.Contracts_StaticList_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 185, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.Data",
     "classes": [
-      { "name": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "rp": "Package.Infrastructure.Data_DbContextBase_2.html", "cl": 11, "ucl": 34, "cal": 45, "tl": 150, "cb": 5, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "rp": "Package.Infrastructure.Data_DbContextBase_2.html", "cl": 11, "ucl": 34, "cal": 45, "tl": 141, "cb": 5, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.DbContextScopedFactory<T1, T2, T3>", "rp": "Package.Infrastructure.Data_DbContextScopedFactory_3.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Data.EFExtensions", "rp": "Package.Infrastructure.Data_EFExtensions.html", "cl": 28, "ucl": 102, "cal": 130, "tl": 535, "cb": 8, "tb": 62, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.EFExtensions", "rp": "Package.Infrastructure.Data_EFExtensions.html", "cl": 34, "ucl": 107, "cal": 141, "tl": 553, "cb": 20, "tb": 86, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.EntityChangeInfo", "rp": "Package.Infrastructure.Data_EntityChangeInfo.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Interceptors.AuditInterceptor<T1, T2>", "rp": "Package.Infrastructure.Data_AuditInterceptor_2.html", "cl": 0, "ucl": 44, "cal": 44, "tl": 115, "cb": 0, "tb": 24, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Interceptors.ConnectionNoLockInterceptor", "rp": "Package.Infrastructure.Data_ConnectionNoLockInterceptor.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 53, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Interceptors.ReadUncommittedInterceptor", "rp": "Package.Infrastructure.Data_ReadUncommittedInterceptor.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 40, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.PropertyChangeInfo", "rp": "Package.Infrastructure.Data_PropertyChangeInfo.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Data.RepositoryBase<T1, T2, T3>", "rp": "Package.Infrastructure.Data_RepositoryBase_3.html", "cl": 42, "ucl": 25, "cal": 67, "tl": 328, "cb": 12, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.RepositoryBase<T1, T2, T3>", "rp": "Package.Infrastructure.Data_RepositoryBase_3.html", "cl": 44, "ucl": 29, "cal": 73, "tl": 339, "cb": 14, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.ResilientTransaction", "rp": "Package.Infrastructure.Data_ResilientTransaction.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 29, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.Data.Contracts",
     "classes": [
-      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 22, "ucl": 146, "cal": 168, "tl": 485, "cb": 20, "tb": 146, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 22, "ucl": 145, "cal": 167, "tl": 484, "cb": 20, "tb": 146, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Contracts.PredicateBuilder", "rp": "Package.Infrastructure.Data.Contracts_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "rp": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "cl": 0, "ucl": 58, "cal": 58, "tl": 166, "cb": 0, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Contracts.xEntityBase", "rp": "Package.Infrastructure.Data.Contracts_xEntityBase.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 18, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -600,6 +604,12 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetValue(System.String)", "methodShortName": "GetValue(...)", "fileIndex": 0, "line": 121,
+    "metrics": [
+      { "value": 1406, "exceeded": true },
+      { "value": 37, "exceeded": true },
+    ]},
+  {
     "assembly": "Package.Infrastructure.AspNetCore", "class": "Package.Infrastructure.AspNetCore.ProblemDetailsHelper", "reportPath": "Package.Infrastructure.AspNetCore_ProblemDetailsHelper.html", "methodName": "BuildProblemDetailsResponse(System.String,System.String,System.Exception,System.String,System.Boolean,System.Nullable`1<System.Int32>,System.Func`2<System.Exception,System.Nullable`1<System.Int32>>)", "methodShortName": "BuildProblemDetailsResponse(...)", "fileIndex": 0, "line": 49,
     "metrics": [
       { "value": 600, "exceeded": true },
@@ -607,12 +617,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseResultAsync()", "methodShortName": "HttpRequestAndResponseResultAsync()", "fileIndex": 0, "line": 98,
-    "metrics": [
-      { "value": 506, "exceeded": true },
-      { "value": 22, "exceeded": true },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetValue(System.String)", "methodShortName": "GetValue(...)", "fileIndex": 0, "line": 108,
     "metrics": [
       { "value": 506, "exceeded": true },
       { "value": 22, "exceeded": true },
@@ -672,6 +676,12 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "reportPath": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "methodName": "DetermineSplitQueryWithTotal(System.Nullable`1<System.Int32>,System.Int32,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[],Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions)", "methodShortName": "DetermineSplitQueryWithTotal(...)", "fileIndex": 0, "line": 84,
+    "metrics": [
+      { "value": 272, "exceeded": true },
+      { "value": 16, "exceeded": true },
+    ]},
+  {
     "assembly": "Package.Infrastructure.Messaging", "class": "Package.Infrastructure.Messaging.EventHub.EventHubProducerBase", "reportPath": "Package.Infrastructure.Messaging_EventHubProducerBase.html", "methodName": "SendBatchAsync()", "methodShortName": "SendBatchAsync()", "fileIndex": 0, "line": 68,
     "metrics": [
       { "value": 272, "exceeded": true },
@@ -726,7 +736,13 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 438,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 437,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "reportPath": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "methodName": "VisitMethodCall(System.Linq.Expressions.MethodCallExpression)", "methodShortName": "VisitMethodCall(...)", "fileIndex": 0, "line": 155,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -780,19 +796,19 @@ var riskHotspots = [
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetList(System.String)", "methodShortName": "GetList(...)", "fileIndex": 0, "line": 45,
+    "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetList(System.String)", "methodShortName": "GetList(...)", "fileIndex": 0, "line": 48,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "Like(System.Linq.Expressions.Expression`1<System.Func`2<T,System.String>>,System.String,System.Boolean)", "methodShortName": "Like(...)", "fileIndex": 0, "line": 483,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "Like(System.Linq.Expressions.Expression`1<System.Func`2<T,System.String>>,System.String,System.Boolean)", "methodShortName": "Like(...)", "fileIndex": 0, "line": 506,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 369,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 368,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -894,7 +910,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 387,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 386,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
@@ -960,7 +976,7 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 76,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 67,
     "metrics": [
       { "value": 73, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -1038,13 +1054,13 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetEntityChanges(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry,System.Collections.Generic.List`1<System.String>)", "methodShortName": "GetEntityChanges(...)", "fileIndex": 0, "line": 220,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetEntityChanges(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry,System.Collections.Generic.List`1<System.String>)", "methodShortName": "GetEntityChanges(...)", "fileIndex": 0, "line": 221,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetPrimaryKeyValues(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry,System.String)", "methodShortName": "GetPrimaryKeyValues(...)", "fileIndex": 0, "line": 250,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetPrimaryKeyValues(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry,System.String)", "methodShortName": "GetPrimaryKeyValues(...)", "fileIndex": 0, "line": 251,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1326,13 +1342,25 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetAllEntityChanges(Microsoft.EntityFrameworkCore.DbContext)", "methodShortName": "GetAllEntityChanges(...)", "fileIndex": 0, "line": 191,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetAllEntityChanges(Microsoft.EntityFrameworkCore.DbContext)", "methodShortName": "GetAllEntityChanges(...)", "fileIndex": 0, "line": 192,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.EFExtensions", "reportPath": "Package.Infrastructure.Data_EFExtensions.html", "methodName": "GetEntityProjectionAsync()", "methodShortName": "GetEntityProjectionAsync()", "fileIndex": 0, "line": 390,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
     "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.Interceptors.AuditInterceptor<T1, T2>", "reportPath": "Package.Infrastructure.Data_AuditInterceptor_2.html", "methodName": "SaveChangesFailedAsync()", "methodShortName": "SaveChangesFailedAsync()", "fileIndex": 0, "line": 92,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.RepositoryBase<T1, T2, T3>", "reportPath": "Package.Infrastructure.Data_RepositoryBase_3.html", "methodName": "GetStreamProjection(System.Func`2<T,TProject>,System.Boolean,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "GetStreamProjection(...)", "fileIndex": 0, "line": 310,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1369,6 +1397,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "IsTriviallyTrue(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>)", "methodShortName": "IsTriviallyTrue(...)", "fileIndex": 0, "line": 282,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "reportPath": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "methodName": "CountCollectionIncludes(System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "CountCollectionIncludes(...)", "fileIndex": 0, "line": 135,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1506,7 +1540,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ComposeIQueryable(System.Linq.IQueryable`1<T>,System.Boolean,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,System.Boolean,System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>[])", "methodShortName": "ComposeIQueryable(...)", "fileIndex": 0, "line": 37,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ComposeIQueryable(System.Linq.IQueryable`1<T>,System.Boolean,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,System.Boolean,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "ComposeIQueryable(...)", "fileIndex": 0, "line": 37,
     "metrics": [
       { "value": 36, "exceeded": true },
       { "value": 18, "exceeded": true },
@@ -1518,7 +1552,7 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 113,
+    "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 104,
     "metrics": [
       { "value": 32, "exceeded": true },
       { "value": 10, "exceeded": false },
