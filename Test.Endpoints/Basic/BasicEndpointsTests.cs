@@ -29,9 +29,9 @@ public class BasicEndpointsTests : EndpointTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        Console.Write($"Start {testContext.TestName}");
+        Console.Write("Start ClassInit");
 
-        await ConfigureTestInstanceAsync(testContext.TestName!);
+        await ConfigureTestInstanceAsync("ClassInit", testContext.CancellationTokenSource.Token);
     }
 
     [ClassCleanup(ClassCleanupBehavior.EndOfClass)]

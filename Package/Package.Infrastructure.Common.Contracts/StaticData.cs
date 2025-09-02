@@ -2,7 +2,7 @@
 
 namespace Package.Infrastructure.Common.Contracts;
 
-public record StaticItem<TId, TValue>(TId Id, string Name, TValue? Value = default);
+public record StaticItem<TId, TValue>(TId? Id, string? Name, TValue? Value = default);
 
 public record StaticList<T>(IReadOnlyList<T> Items);
 
@@ -15,14 +15,16 @@ public record StaticData
     /// <summary>
     /// Stores lists of static items, keyed by the list name.
     /// The value is stored as 'object' to accommodate any 'StaticList<T>' type.
+    /// The property is get-only to prevent reassignment while allowing JSON population and internal mutation.
     /// </summary>
-    public Dictionary<string, object> Lists { get; set; } = [];
+    public Dictionary<string, object> Lists { get; } = [];
 
     /// <summary>
     /// Stores individual static items, keyed by a unique name.
-    /// The value is stored as 'object' to accommodate any 'StaticItem<TId, TValue>' type.
+    /// The value is stored as 'object' to accommodate any value type 'TValue'.
+    /// The property is get-only to prevent reassignment while allowing JSON population and internal mutation.
     /// </summary>
-    public Dictionary<string, object> Values { get; set; } = [];
+    public Dictionary<string, object> Values { get; } = [];
 
     /// <summary>
     /// Adds a 'StaticList<T>' to the 'Lists' dictionary with a specified key.
@@ -36,6 +38,7 @@ public record StaticData
     {
         PropertyNameCaseInsensitive = true
     };
+
     /// <summary>
     /// Retrieves a 'StaticList<T>' from the 'Lists' dictionary in a type-safe way.
     /// </summary>
@@ -91,81 +94,92 @@ public record StaticData
     }
 
     /// <summary>
-    /// Adds a 'StaticItem<TId, TValue>' to the 'Values' dictionary.
-    /// The item's 'Name' property is used as the key.
+    /// Adds to the Values dictionary (or removes if value is null)
     /// </summary>
-    public void AddValue<TId, TValue>(StaticItem<TId, TValue> item)
+    public void AddValue<TValue>(string key, TValue? val)
     {
-        Values[item.Name] = item;
+        // Ensure that null values are not assigned to the dictionary to avoid CS8601
+        if (val is not null)
+        {
+            Values[key] = val!;
+        }
+        else
+        {
+            Values.Remove(key);
+        }
     }
 
     /// <summary>
-    /// Retrieves a 'StaticItem<TId, TValue>' from the 'Values' dictionary in a type-safe way.
+    /// Retrieves a value from the 'Values' dictionary in a type-safe way.
     /// </summary>
-    /// <returns>The typed item if found and the type matches, otherwise null.</returns>
-    public StaticItem<TId, TValue>? GetValue<TId, TValue>(string key)
+    /// <returns>
+    /// The typed value if found and convertible, otherwise null.
+    /// Note: The method returns TValue? so for value types (e.g., int) the return type is Nullable<T> (e.g., int?).
+    /// </returns>
+    public TValue? GetValue<TValue>(string key)
     {
         if (!Values.TryGetValue(key, out var valueObject))
         {
-            return null;
+            // Missing key -> return null (also for value types because return type is Nullable<TValue>)
+            return default;
         }
 
         // Direct cast works if object was manually added
-        if (valueObject is StaticItem<TId, TValue> typedItem)
+        if (valueObject is TValue typedValue)
         {
-            return typedItem;
+            return typedValue;
         }
 
-        // Handle JsonElement from deserialization
+        // Handle JsonElement from deserialization of StaticData
         if (valueObject is JsonElement jsonElement)
         {
             try
             {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var result = JsonSerializer.Deserialize<StaticItem<TId, TValue>>(jsonElement.GetRawText(), options);
-                if (result != null)
+                if (jsonElement.ValueKind == JsonValueKind.Null)
                 {
-                    Values[key] = result; // Cache for next time
+                    return default; // null
+                }
+
+                var result = JsonSerializer.Deserialize<TValue>(jsonElement.GetRawText(), _jsonSerializerOptions);
+
+                // Cache successful materialization to avoid re-deserialization next time.
+                // For value types, result may be default(T), which is valid and should be cached.
+                if (result is not null || typeof(TValue).IsValueType)
+                {
+                    Values[key] = result!;
                     return result;
                 }
             }
             catch (JsonException)
             {
-                // If that fails, try to manually construct from properties
+                // Best-effort fallbacks for primitive conversions
                 try
                 {
-                    if (jsonElement.TryGetProperty("id", out var idElement) &&
-                        jsonElement.TryGetProperty("name", out var nameElement))
+                    object? fallback = jsonElement.ValueKind switch
                     {
-                        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                        var id = JsonSerializer.Deserialize<TId>(idElement.GetRawText(), options);
-                        var name = nameElement.GetString();
+                        JsonValueKind.String when typeof(TValue) == typeof(string) => jsonElement.GetString(),
+                        JsonValueKind.Number when typeof(TValue) == typeof(int) && jsonElement.TryGetInt32(out var i) => i,
+                        JsonValueKind.Number when typeof(TValue) == typeof(long) && jsonElement.TryGetInt64(out var l) => l,
+                        JsonValueKind.Number when typeof(TValue) == typeof(double) && jsonElement.TryGetDouble(out var d) => d,
+                        JsonValueKind.True when typeof(TValue) == typeof(bool) => true,
+                        JsonValueKind.False when typeof(TValue) == typeof(bool) => false,
+                        _ => null
+                    };
 
-                        TValue? value = default;
-                        if (jsonElement.TryGetProperty("value", out var valueElement))
-                        {
-                            value = JsonSerializer.Deserialize<TValue>(valueElement.GetRawText(), options);
-                        }
-
-                        if (!EqualityComparer<TId>.Default.Equals(id, default!) && name != null)
-                        {
-                            // Replace this block inside GetValue<TId, TValue> method
-                            if (!EqualityComparer<TId>.Default.Equals(id, default!) && name != null)
-                            {
-                                var staticItem1 = new StaticItem<TId, TValue>(id!, name, value);
-                                Values[key] = staticItem1;
-                                return staticItem1;
-                            }
-                            var staticItem = new StaticItem<TId, TValue>(id!, name!, value);
-                            Values[key] = staticItem;
-                            return staticItem;
-                        }
+                    if (fallback is not null)
+                    {
+                        Values[key] = (TValue)fallback;
+                        return (TValue)fallback;
                     }
                 }
-                catch (JsonException) { /* Fall through to return null */ }
+                catch
+                {
+                    // Fall through to return null
+                }
             }
         }
 
-        return null;
+        // Type mismatch or unsupported stored type -> treat as not found
+        return default; // null
     }
 }

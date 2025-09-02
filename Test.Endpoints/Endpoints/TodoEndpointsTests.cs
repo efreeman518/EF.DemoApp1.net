@@ -75,8 +75,8 @@ public class TodoEndpointsTests : EndpointTestBase
     [ClassInitialize]
     public static async Task ClassInit(TestContext testContext)
     {
-        Console.Write($"Start {testContext.TestName}");
-        await ConfigureTestInstanceAsync(testContext.TestName!);
+        Console.Write($"Start ClassInit");
+        await ConfigureTestInstanceAsync("ClassInit");
 
         //DBSnapshot Create - existing sql db can reset db using snapshot created in ClassInitialize
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
