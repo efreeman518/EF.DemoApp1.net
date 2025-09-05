@@ -214,7 +214,7 @@ public static class RegisterServices
             ConfigureFusionCacheInstance(services, config, cacheSettingsInstance);
         }
 
-        // Configure Redis or Memory Cache
+        // Configure Redis (backfill with local only Memory Cache) for direct use if needed
         ConfigureDistributedCache(services, config);
     }
 

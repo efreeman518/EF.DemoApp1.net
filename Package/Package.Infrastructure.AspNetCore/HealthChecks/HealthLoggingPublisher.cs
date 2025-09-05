@@ -1,9 +1,15 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Package.Infrastructure.AspNetCore.HealthChecks;
-public sealed class HealthLoggingPublisher(ILogger<HealthLoggingPublisher> logger) : IHealthCheckPublisher
+
+public sealed class HealthLoggingPublisher(
+    ILogger<HealthLoggingPublisher> logger,
+    IOptions<HealthLoggingPublisherSettings>? options = null) : IHealthCheckPublisher
 {
+    private readonly HealthLoggingPublisherSettings _settings = options?.Value ?? new();
+
     // int.MinValue = "uninitialized"
     private int _lastStatus = int.MinValue;
 
@@ -11,10 +17,18 @@ public sealed class HealthLoggingPublisher(ILogger<HealthLoggingPublisher> logge
     {
         var current = (int)report.Status;
 
-        // Atomically swap and log only on change
-        var previous = Interlocked.Exchange(ref _lastStatus, current);
-        if (previous == current)
-            return Task.CompletedTask;
+        if (_settings.LogOnlyOnChange)
+        {
+            // Atomically swap and log only on change
+            var previous = Interlocked.Exchange(ref _lastStatus, current);
+            if (previous == current)
+                return Task.CompletedTask;
+        }
+        else
+        {
+            // Keep last status current even when logging every time
+            Interlocked.Exchange(ref _lastStatus, current);
+        }
 
         var failing = report.Entries
             .Where(e => e.Value.Status != HealthStatus.Healthy)
