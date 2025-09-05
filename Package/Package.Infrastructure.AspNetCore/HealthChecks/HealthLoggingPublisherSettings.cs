@@ -9,5 +9,5 @@ public sealed class HealthLoggingPublisherSettings
     /// When true, logs only when the overall health status changes from the last observed status.
     /// When false, logs every time the publisher runs.
     /// </summary>
-    public bool LogOnlyOnChange { get; init; } = true;
+    public bool LogOnlyOnChange { get; set; } = true;
 }
