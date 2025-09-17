@@ -31,7 +31,8 @@ public class TodoEndpointsTests : EndpointTestBase
         //add a single item
         seedFactories.Add(() => DbContext.Add(new TodoItem($"a-{Guid.NewGuid()}")));
         //grab the seed paths for this test (can't duplicate snapshot)
-        List<string>? seedPaths = respawn ? [TestConfigSection.GetValue<string>("SeedFilePath")] : null;
+        string? seedFilePath = TestConfigSection.GetValue<string>("SeedFilePath");
+        List<string>? seedPaths = seedFilePath != null ? [seedFilePath] : null;
         //reset the DB with the seed scripts & data
         //existing sql db can reset db using snapshot created in ClassInitialize
         await ResetDatabaseAsync(respawn, DBSnapshotName, seedPaths, seedFactories);
@@ -84,7 +85,8 @@ public class TodoEndpointsTests : EndpointTestBase
             List<Action> seedFactories = [() => DbContext.SeedEntityData()];
             seedFactories.Add(() => DbContext.SeedEntityData(size: 5, status: TodoItemStatus.Completed));
             seedFactories.Add(() => DbContext.Add(new TodoItem("a12345")));
-            List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
+            string? seedFilePath = TestConfigSection.GetValue<string>("SeedFilePath");
+            List<string>? seedPaths = seedFilePath != null ? [seedFilePath] : null;
             await ResetDatabaseAsync(true, seedPaths: seedPaths, seedFactories: seedFactories);
             await CreateDbSnapshot(DBSnapshotName);
         }

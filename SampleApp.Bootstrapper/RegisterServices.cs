@@ -29,7 +29,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Graph;
+using Microsoft.Graph.Beta;
 using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Package.Infrastructure.AspNetCore.Chaos;

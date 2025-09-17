@@ -41,8 +41,13 @@ public abstract class CronBackgroundService<T>(ILogger<CronBackgroundService<T>>
             {
                 IncludingSeconds = true
             };
+            if (cronJob.Cron is null)
+            {
+                logger.Log(LogLevel.Warning, "'{Cron}' is null; not a valid CRON expression; scheduled service will not run.", cronJob.Cron);
+                return;
+            }
             var schedule = TryParse(cronJob.Cron, o);
-            if (schedule == null)
+            if (schedule is null)
             {
                 logger.Log(LogLevel.Warning, "'{Cron}' is not a valid CRON expression; scheduled service will not run.", cronJob.Cron);
                 return;

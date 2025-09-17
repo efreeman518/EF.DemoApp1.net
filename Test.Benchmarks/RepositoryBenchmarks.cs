@@ -40,8 +40,9 @@ public class RepositoryBenchmarks : DbIntegrationTestBase
     [IterationSetup]
     public static void IterationSetup()
     {
+        var seedFilePath = TestConfigSection.GetValue<string>("SeedFilePath");
+        List<string>? seedPaths = seedFilePath is not null ? [seedFilePath] : [];
         List<Action> seedFactories = [() => DbContext.SeedEntityData()];
-        List<string>? seedPaths = [TestConfigSection.GetValue<string>("SeedFilePath")];
         ResetDatabaseAsync(true, seedPaths: seedPaths, seedFactories: seedFactories).GetAwaiter().GetResult(); //no async support
     }
 

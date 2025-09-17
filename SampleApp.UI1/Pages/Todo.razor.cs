@@ -29,7 +29,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
 
     private async Task GetItem(Guid? id)
     {
-        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.GetItemAsync((Guid)id!));
+        var result = await RefitCallHelperFull.TryApiCallAsync(() => sampleAppClient.GetItemAsync((Guid)id!));
         if (result.IsSuccess)
         {
             model = result.Data!;
@@ -57,8 +57,8 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
             //_statusMessage = string.Empty;
 
             var result = model.Id == null
-                ? await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
-                : await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.UpdateItemAsync((Guid)model.Id, model));
+                ? await RefitCallHelperFull.TryApiCallAsync(() => sampleAppClient.CreateItemAsync(model))
+                : await RefitCallHelperFull.TryApiCallAsync(() => sampleAppClient.UpdateItemAsync((Guid)model.Id, model));
 
             requestActive = false;
             if (result.IsSuccess)
@@ -147,7 +147,7 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
         }
 
         requestActive = true;
-        var result = await RefitCallHelper.TryApiCallAsync(() => sampleAppClient.SearchAsync(request));
+        var result = await RefitCallHelperFull.TryApiCallAsync(() => sampleAppClient.SearchAsync(request));
         requestActive = false;
 
         if (result.Problem is not null)

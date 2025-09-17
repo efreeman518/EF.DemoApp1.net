@@ -31,11 +31,11 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.9" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.2" />
     <PackageReference Include="MudBlazor" Version="8.12.0" />
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />

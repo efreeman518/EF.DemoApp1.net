@@ -10,7 +10,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Graph;
+using Microsoft.Graph.Beta;
 using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;

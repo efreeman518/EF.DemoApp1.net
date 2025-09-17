@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Graph.Models.ODataErrors;
+using Microsoft.Graph.Beta.Models.ODataErrors;
 using Package.Infrastructure.MSGraph.Models;
 using Package.Infrastructure.Test.Integration.MSGraph;
 using System.Text.Json;

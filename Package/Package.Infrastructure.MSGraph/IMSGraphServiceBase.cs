@@ -1,4 +1,4 @@
-﻿using Microsoft.Graph.Models;
+﻿using Microsoft.Graph.Beta.Models;
 using Package.Infrastructure.MSGraph.Models;
 
 namespace Package.Infrastructure.MSGraph;

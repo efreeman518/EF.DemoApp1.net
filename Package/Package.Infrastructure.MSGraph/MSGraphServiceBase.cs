@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Graph;
-using Microsoft.Graph.Models;
+using Microsoft.Graph.Beta;
+using Microsoft.Graph.Beta.Models;
 using Package.Infrastructure.MSGraph.Models;
 
 namespace Package.Infrastructure.MSGraph;
