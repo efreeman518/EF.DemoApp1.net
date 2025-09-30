@@ -463,6 +463,7 @@ var assemblies = [
       { "name": "Package.Infrastructure.Common.Extensions.SerializeExtensions", "rp": "Package.Infrastructure.Common_SerializeExtensions.html", "cl": 8, "ucl": 17, "cal": 25, "tl": 80, "cb": 8, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.Extensions.StringExtensions", "rp": "Package.Infrastructure.Common_StringExtensions.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 156, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.HashUtility", "rp": "Package.Infrastructure.Common_HashUtility.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 27, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Common.JsonUtility", "rp": "Package.Infrastructure.Common_JsonUtility.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 38, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.PredicateBuilder", "rp": "Package.Infrastructure.Common_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StaticLogging", "rp": "Package.Infrastructure.Common_StaticLogging.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 38, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 46, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -1034,6 +1035,12 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "ErrorLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception,System.String,System.String,System.String)", "methodShortName": "ErrorLogExt(...)", "fileIndex": 0, "line": 235,
+    "metrics": [
+      { "value": 72, "exceeded": true },
+      { "value": 8, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.JsonUtility", "reportPath": "Package.Infrastructure.Common_JsonUtility.html", "methodName": "GetJsonIntField(System.String,System.String)", "methodShortName": "GetJsonIntField(...)", "fileIndex": 0, "line": 25,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
