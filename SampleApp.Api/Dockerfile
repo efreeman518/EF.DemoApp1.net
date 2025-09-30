@@ -12,6 +12,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0-noble AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+COPY Directory.Packages.props ./
 COPY ["SampleApp.Api/SampleApp.Api.csproj", "SampleApp.Api/"]
 COPY ["Application.Contracts/Application.Contracts.csproj", "Application.Contracts/"]
 COPY ["Domain.Model/Domain.Model.csproj", "Domain.Model/"]

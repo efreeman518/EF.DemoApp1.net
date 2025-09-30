@@ -12,6 +12,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0-noble AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+COPY Directory.Packages.props ./
 COPY ["SampleApp.Gateway/SampleApp.Gateway.csproj", "SampleApp.Gateway/"]
 COPY ["Aspire/ServiceDefaults/SampleApp.ServiceDefaults.csproj", "Aspire/ServiceDefaults/"]
 COPY ["Package/Package.Infrastructure.AspNetCore/Package.Infrastructure.AspNetCore.csproj", "Package/Package.Infrastructure.AspNetCore/"]
