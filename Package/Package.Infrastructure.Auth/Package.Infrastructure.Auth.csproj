@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>Package.Infrastructure.Auth</PackageId>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,14 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.16.0" />
-    <PackageReference Include="LazyCache" Version="2.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.77.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.14.1" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="LazyCache" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Identity.Client" />
+    <PackageReference Include="Microsoft.Identity.Web" />
   </ItemGroup>
-
 </Project>

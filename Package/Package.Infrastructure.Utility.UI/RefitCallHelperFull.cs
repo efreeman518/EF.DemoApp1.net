@@ -26,6 +26,9 @@ public static class RefitCallHelperFull
     public static bool EnableActivities { get; set; } = true;
     public static readonly ActivitySource ActivitySource = new("RefitCallHelper");
 
+    //Client code can subscribe to this event to get notified of auth errors (401, 403)
+    public static event Action<AuthErrorInfo>? OnAuthError;
+
     public static string[] CorrelationHeaderNames { get; set; } = ["X-Correlation-Id", "X-Correlation-ID"];
 
     public sealed record ApiCallMetadata(
@@ -287,12 +290,24 @@ public static class RefitCallHelperFull
 
     private static ProblemDetails MapApiException(ApiException ex, CallOptions options, bool captureRaw)
     {
-        var deserialized = DeserializeProblemDetails(ex.StatusCode, ex.Content);
+        var deserializedPD = DeserializeProblemDetails(ex.StatusCode, ex.Content);
         ProblemDetails pd;
 
-        if (deserialized.Title != EmptyResponseTitle)
+        // Detect AADSTS50173 or invalid_grant
+        if (IsAuthTokenRevoked(ex.Content))
         {
-            pd = deserialized;
+            OnAuthError?.Invoke(new AuthErrorInfo(
+                Error: GetJsonField(ex.Content, "error") ?? "error_not_identified",
+                ErrorDescription: GetJsonField(ex.Content, "error_description"),
+                ErrorCode: GetJsonIntField(ex.Content, "error_codes"),
+                SubError: GetJsonField(ex.Content, "suberror"),
+                Problem: deserializedPD
+            ));
+        }
+
+        if (deserializedPD.Title != EmptyResponseTitle)
+        {
+            pd = deserializedPD;
         }
         else
         {
@@ -429,4 +444,47 @@ public static class RefitCallHelperFull
             TimedOut: problem?.Status == (int)HttpStatusCode.GatewayTimeout,
             OperationName: op,
             WasNoOp: IsNoOp(problem));
+
+    private static bool IsAuthTokenRevoked(string? content)
+    {
+        // Check for AADSTS50173, invalid_grant, or suberror: bad_token
+        if (content is null) return false;
+        return content.Contains("AADSTS50173") ||
+               content.Contains("\"error\":\"invalid_grant\"") ||
+               content.Contains("\"suberror\":\"bad_token\"") ||
+               content.Contains("\"error_codes\":[50173]");
+    }
+
+    // Simple JSON field extractors (for error info)
+    private static string? GetJsonField(string? json, string field)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty(field, out var el))
+                return el.GetString();
+        }
+        catch
+        {
+            // handle
+        }
+        return null;
+    }
+
+    private static int? GetJsonIntField(string? json, string field)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty(field, out var el) && el.ValueKind == JsonValueKind.Array && el.GetArrayLength() > 0)
+                return el[0].GetInt32();
+        }
+        catch
+        {
+            //handle
+        }
+        return null;
+    }
 }

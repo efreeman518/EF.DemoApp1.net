@@ -1,29 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="NetArchTest.Rules" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Application.Services\Application.Services.csproj" />
     <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
@@ -31,9 +26,7 @@
     <ProjectReference Include="..\Domain.Shared\Domain.Shared.csproj" />
     <ProjectReference Include="..\SampleApp.Api\SampleApp.Api.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
-
 </Project>

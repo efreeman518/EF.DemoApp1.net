@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -7,28 +6,23 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>f500e2d2-5a97-4a1c-b5ba-fbc9f471edcf</UserSecretsId>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
-
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
-
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.23.0" />
-    <PackageReference Include="Respawn" Version="6.2.1" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.7.0" />
-    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.4.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
@@ -38,5 +32,4 @@
     <ProjectReference Include="..\Package\Package.Infrastructure.Data\Package.Infrastructure.Data.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />
   </ItemGroup>
-
 </Project>

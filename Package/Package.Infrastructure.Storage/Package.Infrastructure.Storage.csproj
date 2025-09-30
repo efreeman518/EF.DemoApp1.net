@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>Package.Infrastructure.Storage</PackageId>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,17 +6,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.16.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.12.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Microsoft.Extensions.Azure" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,33 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
     <Folder Include="Proto\" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.32.1" />
-    <PackageReference Include="Grpc.Core" Version="2.46.6" />
-    <PackageReference Include="Grpc.Tools" Version="2.72.0">
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Core" />
+    <PackageReference Include="Grpc.Tools">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
     <ProjectReference Include="..\Package\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Protobuf Include="Proto\enums.proto" GrpcServices="None" ProtoRoot="Proto\" />
     <Protobuf Include="Proto\protobuf.proto" GrpcServices="Both" ProtoRoot="Proto\" />
   </ItemGroup>
-  
 </Project>

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -7,43 +6,37 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
     <None Remove="appsettings.json" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
+    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Selenium.WebDriver" Version="4.35.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="140.0.7339.8200" />
-    <PackageReference Include="WebDriverManager" Version="2.17.6" />
+    <PackageReference Include="Selenium.WebDriver" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" />
+    <PackageReference Include="WebDriverManager" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
-
 </Project>

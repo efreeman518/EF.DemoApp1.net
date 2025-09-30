@@ -9,18 +9,15 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/efreeman518/EF.DemoApp1.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    
     <!-- Enable packaging -->
     <IsPackable>true</IsPackable>
-    
     <!-- Set deterministic builds -->
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  
   <ItemGroup>
     <!-- Include SourceLink for better debugging experience -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
 </Project>

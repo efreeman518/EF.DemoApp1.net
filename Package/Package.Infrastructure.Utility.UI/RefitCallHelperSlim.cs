@@ -1,5 +1,6 @@
 using Refit;
 using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Utility.UI;
@@ -17,6 +18,9 @@ public static class RefitCallHelperSlim
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     private const string EmptyResponseTitle = "Unexpected empty response";
     private const int NoOpStatusCode = 460;
+
+    //Client code can subscribe to this event to get notified of auth errors (401, 403)
+    public static event Action<AuthErrorInfo>? OnAuthError;
 
     public sealed record ApiCallMetadata(
         DateTimeOffset Started,
@@ -163,6 +167,10 @@ public static class RefitCallHelperSlim
         {
             return ApiResult<T>.Failure(NetworkProblem(AggregateMessage(httpEx), operationName));
         }
+        catch (SocketException sockEx)
+        {
+            return ApiResult<T>.Failure(NetworkProblem(sockEx.Message, operationName));
+        }
         catch (Exception ex)
         {
             return ApiResult<T>.Failure(GenericProblem(ex.Message, operationName));
@@ -196,6 +204,10 @@ public static class RefitCallHelperSlim
         {
             return ApiResult.Failure(NetworkProblem(AggregateMessage(httpEx), operationName));
         }
+        catch (SocketException sockEx)
+        {
+            return ApiResult.Failure(NetworkProblem(sockEx.Message, operationName));
+        }
         catch (Exception ex)
         {
             return ApiResult.Failure(GenericProblem(ex.Message, operationName));
@@ -206,6 +218,19 @@ public static class RefitCallHelperSlim
     private static ProblemDetails MapApiException(ApiException ex, string? op)
     {
         var pd = DeserializeProblemDetails(ex.StatusCode, ex.Content);
+
+        // Detect AADSTS50173 or invalid_grant
+        if (IsAuthTokenRevoked(ex.Content))
+        {
+            OnAuthError?.Invoke(new AuthErrorInfo(
+                Error: GetJsonField(ex.Content, "error") ?? "error_not_identified",
+                ErrorDescription: GetJsonField(ex.Content, "error_description"),
+                ErrorCode: GetJsonIntField(ex.Content, "error_codes"),
+                SubError: GetJsonField(ex.Content, "suberror"),
+                Problem: pd
+            ));
+        }
+
         if (pd.Title != EmptyResponseTitle)
             return AttachOperation(pd, op);
 
@@ -288,5 +313,46 @@ public static class RefitCallHelperSlim
         if (!pd.Extensions.ContainsKey("operation"))
             pd.Extensions["operation"] = op;
         return pd;
+    }
+
+    private static bool IsAuthTokenRevoked(string? content)
+    {
+        // Check for AADSTS50173, invalid_grant, or suberror: bad_token
+        if (content is null) return false;
+        return content.Contains("AADSTS50173") ||
+               content.Contains("\"error\":\"invalid_grant\"") ||
+               content.Contains("\"suberror\":\"bad_token\"") ||
+               content.Contains("\"error_codes\":[50173]");
+    }
+
+    // Simple JSON field extractors (for error info)
+    private static string? GetJsonField(string? json, string field)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty(field, out var el))
+                return el.GetString();
+        }
+        catch { 
+            // handle
+        }
+        return null;
+    }
+
+    private static int? GetJsonIntField(string? json, string field)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty(field, out var el) && el.ValueKind == JsonValueKind.Array && el.GetArrayLength() > 0)
+                return el[0].GetInt32();
+        }
+        catch {
+            //handle
+        }
+        return null;
     }
 }

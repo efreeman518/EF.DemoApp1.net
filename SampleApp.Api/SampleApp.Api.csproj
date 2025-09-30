@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -7,42 +6,36 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>f500e2d2-5a97-4a1c-b5ba-fbc9f471edcf</UserSecretsId>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include=".well-known\ai-plugin.json" />
     <Content Include=".well-known\favicon.ico" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
-    <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
-    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-    <PackageReference Include="Asp.Versioning.OData.ApiExplorer" Version="8.2.0" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.1" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="9.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.23.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.14.1" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.8.4" />
+    <PackageReference Include="Asp.Versioning.Http" />
+    <PackageReference Include="Asp.Versioning.Mvc" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <PackageReference Include="Asp.Versioning.OData.ApiExplorer" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" />
+    <PackageReference Include="Microsoft.Identity.Web" />
+    <PackageReference Include="Scalar.AspNetCore" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
     <ProjectReference Include="..\Aspire\ServiceDefaults\SampleApp.ServiceDefaults.csproj" />
@@ -54,7 +47,6 @@
     <ProjectReference Include="..\SampleApp.Grpc\SampleApp.Grpc.csproj" />
     <ProjectReference Include="..\SampleApp.Support\SampleApp.Support.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Options" />
@@ -63,9 +55,7 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading.Tasks" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Filters\" />
   </ItemGroup>
-
 </Project>

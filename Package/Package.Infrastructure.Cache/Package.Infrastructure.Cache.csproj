@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>Package.Infrastructure.Cache</PackageId>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,13 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.CysharpMemoryPack" Version="2.4.0" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.CysharpMemoryPack" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
   </ItemGroup>
-
 </Project>

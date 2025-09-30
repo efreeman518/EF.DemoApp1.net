@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
     <Compile Remove="Support\**" />
     <EmbeddedResource Remove="Support\**" />
@@ -18,42 +15,36 @@
     <SpecFlowFeatureFiles Remove="Support\**" />
     <SpecFlowObsoleteCodeBehindFiles Remove="Support\**" />
   </ItemGroup>
-
   <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\Calculator - Copy.feature.cs" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" />
-    <PackageReference Include="Selenium.Support" Version="4.35.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.35.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="140.0.7339.8200" />
-    <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.36.0" />
-    <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.14.0" />
-    <PackageReference Include="Selenium.WebDriver.MicrosoftDriver" Version="17.17134.0" />
-    <PackageReference Include="SpecFlow.Assist.Dynamic" Version="1.4.2" />
-    <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
-    <PackageReference Include="SpecFlow.MsTest" Version="3.9.74" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageReference Include="FluentAssertions" Version="[7.1.0]" />
+    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="Selenium.Firefox.WebDriver" />
+    <PackageReference Include="Selenium.Support" />
+    <PackageReference Include="Selenium.WebDriver" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" />
+    <PackageReference Include="Selenium.WebDriver.GeckoDriver" />
+    <PackageReference Include="Selenium.WebDriver.IEDriver" />
+    <PackageReference Include="Selenium.WebDriver.MicrosoftDriver" />
+    <PackageReference Include="SpecFlow.Assist.Dynamic" />
+    <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" />
+    <PackageReference Include="SpecFlow.MsTest" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Hooks\" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Domain.Rules\Domain.Rules.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <SpecFlowFeatureFiles Update="Features\NameLengthRule.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
     </SpecFlowFeatureFiles>
   </ItemGroup>
-
 </Project>

@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -8,15 +7,12 @@
     <IsPackable>false</IsPackable>
     <UserSecretsId>f500e2d2-5a97-4a1c-b5ba-fbc9f471edcf</UserSecretsId>
   </PropertyGroup>
-  
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
     <None Remove="appsettings.json" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -24,36 +20,34 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Azure.Data.Tables" Version="12.11.0" />
-    <PackageReference Include="Azure.Messaging.EventGrid" Version="5.0.0" />
-    <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.8.0" />
-    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.8.0" />
-    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.8.0" />
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
-    <PackageReference Include="LazyCache.AspNetCore" Version="2.4.0" />
-    <PackageReference Include="Microsoft.Azure.StackExchangeRedis" Version="3.2.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
+    <PackageReference Include="Azure.Data.Tables" />
+    <PackageReference Include="Azure.Messaging.EventGrid" />
+    <PackageReference Include="Azure.Security.KeyVault.Certificates" />
+    <PackageReference Include="Azure.Security.KeyVault.Keys" />
+    <PackageReference Include="Azure.Security.KeyVault.Secrets" />
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="LazyCache.AspNetCore" />
+    <PackageReference Include="Microsoft.Azure.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.4.0" />
+    <PackageReference Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure.RapidApi\Infrastructure.RapidApi.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.AzureOpenAI\Package.Infrastructure.AzureOpenAI.csproj" />
@@ -68,5 +62,4 @@
     <ProjectReference Include="..\Package.Infrastructure.Storage\Package.Infrastructure.Storage.csproj" />
     <ProjectReference Include="..\Package.Infrastructure.Table\Package.Infrastructure.Table.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -7,20 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>f500e2d2-5a97-4a1c-b5ba-fbc9f471edcf</UserSecretsId>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
-    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.23.0" />
-    <PackageReference Include="OpenTelemetry" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\SampleApp.BackgroundServices\SampleApp.BackgroundServices.csproj" />
     <ProjectReference Include="..\SampleApp.Bootstrapper\SampleApp.Bootstrapper.csproj" />

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>Package.Infrastructure.Common.Contracts</PackageId>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,9 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="9.0.9" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
-
 </Project>

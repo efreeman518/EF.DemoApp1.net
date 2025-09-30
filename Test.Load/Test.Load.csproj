@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,31 +6,25 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
     <None Remove="appsettings.json" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-    <PackageReference Include="NBomber" Version="6.1.1" />
-    <PackageReference Include="NBomber.Http" Version="6.1.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="NBomber" />
+    <PackageReference Include="NBomber.Http" />
+    <PackageReference Include="System.Net.Http" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
-
 </Project>

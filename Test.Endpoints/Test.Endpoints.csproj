@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -8,16 +7,13 @@
     <IsPackable>false</IsPackable>
     <UserSecretsId>f500e2d2-5a97-4a1c-b5ba-fbc9f471edcf</UserSecretsId>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
-  
   <ItemGroup>
     <None Remove="appsettings-test.json" />
     <None Remove="SeedSql\seed1.sql" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="appsettings-test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -26,25 +22,23 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
+    <PackageReference Include="AngleSharp" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Respawn" Version="6.2.1" />
-    <PackageReference Include="Testcontainers" Version="4.7.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.7.0" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.MsSql" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Domain.Model\Domain.Model.csproj" />
     <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
@@ -52,5 +46,4 @@
     <ProjectReference Include="..\SampleApp.Api\SampleApp.Api.csproj" />
     <ProjectReference Include="..\Test.Support\Test.Support.csproj" />
   </ItemGroup>
-
 </Project>
