@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Package.Infrastructure.BlandAI;
+using Package.Infrastructure.BlandAI.Enums;
 using Package.Infrastructure.BlandAI.Model;
 using System.Text.Json;
 
@@ -58,8 +59,14 @@ public static class BlandAIEndpoints
             RecordCallAudio = true,
             FirstSentence = "Hello {{name}}, this is the AI assistant Betty from {{company}} and I have a few questions.",
             RequestData = new Dictionary<string, string>() { { "name", name ?? "" }, { "company", "The Shizzle-mah-Dizzle Firm" }, { "officenumber", "999-999-9999" } },
-            VoicemailMessage = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.",
-            AvailableTags = ["successful", "incomplete", "failed"],
+            //VoicemailMessage = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.",
+            Voicemail = new VoiceMail 
+            {  
+                Message = "Hello, this is Betty from {{company}}. I have a few questions for you, I will try calling later or you call the office at {{officenumber}}.", 
+                Action = VoicemailAction.leave_message,
+                Sms = new VoicemailSms { Message = "Hi, this is Betty from {{company}}. Sorry I missed you. Please call our office at {{officenumber}}. Thanks!" } 
+            },
+            //AvailableTags = ["successful", "incomplete", "failed"],
             Metadata = new Dictionary<string, object>() { { "originId", "123" }, { "reasonId", "456" } }
             //https://docs.bland.ai/tutorials/custom-tools#custom-tools
             //Tools = 
@@ -78,7 +85,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(string.Join(",", callResult.Errors));
+            throw new InvalidOperationException(string.Join(",", callResult.Errors));
         }
     }
 
@@ -100,7 +107,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 
@@ -113,7 +120,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 
@@ -126,7 +133,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 
@@ -139,7 +146,7 @@ public static class BlandAIEndpoints
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 
@@ -161,13 +168,13 @@ public static class BlandAIEndpoints
         var resultAgent = await client.CreateWebAgentAsync(request);
         if (!resultAgent.IsSuccess)
         {
-            throw new Exception(string.Join(",", resultAgent.Errors));
+            throw new InvalidOperationException(string.Join(",", resultAgent.Errors));
         }
         var resultToken = await client.AuthorizeWebAgentCallAsync(resultAgent.Value!.AgentId!, CancellationToken.None);
 
         if (!resultToken.IsSuccess)
         {
-            throw new Exception(string.Join(",", resultToken.Errors));
+            throw new InvalidOperationException(string.Join(",", resultToken.Errors));
         }
 
         return TypedResults.Ok(new AgentConfigResponse { AgentId = resultAgent.Value.AgentId, Token = resultToken.Value!.Token });
@@ -187,8 +194,8 @@ public static class BlandAIEndpoints
         // Serialize the request body to a JSON string
         string requestBody = JsonSerializer.Serialize(body);
 
-
-        if (!Utility.VerifyWebhookSignature(blandAISettings.Value.WebhookSigningSecret, requestBody, signature))
+        var webhookSigningSecret = blandAISettings.Value.WebhookSigningSecret;
+        if (webhookSigningSecret is not null && !Utility.VerifyWebhookSignature(webhookSigningSecret, requestBody, signature))
         {
             return Results.Unauthorized();
         }

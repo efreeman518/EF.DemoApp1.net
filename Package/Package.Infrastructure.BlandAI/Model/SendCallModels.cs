@@ -15,8 +15,5 @@ public record SendCallResponse : DefaultResponse
 
     [JsonPropertyName("batch_id")]
     public string? BatchId { get; set; }
-
-    [JsonPropertyName("errors")]
-    public string[]? Errors { get; set; }
 }
 

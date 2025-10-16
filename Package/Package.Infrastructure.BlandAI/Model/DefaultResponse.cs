@@ -9,4 +9,7 @@ public abstract record DefaultResponse
 
     [JsonPropertyName("message")]
     public string? Message { get; set; }
+
+    [JsonPropertyName("errors")]
+    public string[]? Errors { get; set; }
 }
