@@ -167,7 +167,8 @@ public class TodoServiceTests : DbIntegrationTestBase
     }
 
     //[AssemblyCleanup]
-    [ClassCleanup(ClassCleanupBehavior.EndOfClass)]
+    //[ClassCleanup(ClassCleanupBehavior.EndOfClass)]
+    [ClassCleanup]
     public static async Task ClassCleanup()
     {
         //existing sql db can reset db using snapshot created in ClassInitialize
