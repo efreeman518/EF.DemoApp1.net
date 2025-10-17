@@ -42,7 +42,7 @@ public static class BlandAIEndpoints
         var request = new SendCallRequest
         {
             PhoneNumber = phoneNumber,
-
+            
             //1)What is your profession? 2)What are your areas of expertise? 3)What is your availability by days and work hours? 
             //4)How soon can you start?, 5)What time of the day do you normally jump to warp speed?, 6)Favorite color?, 7)Gender (male or female)?, 8)Current Age? 9)Feedback on this call?
 

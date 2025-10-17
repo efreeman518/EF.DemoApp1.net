@@ -84,8 +84,8 @@ public static partial class WebApplicationBuilderExtensions
 
         // Basic security middleware
         app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
+ //       app.UseAuthentication();
+ //       app.UseAuthorization();
         app.UseCustomHeaderAuth(); //extract roles from gateway request & assign to current request 
     }
 

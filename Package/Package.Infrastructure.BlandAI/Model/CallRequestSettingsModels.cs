@@ -310,6 +310,7 @@ public record VoiceMail
     /// hangup, leave_message, ignore
     /// </summary>
     [JsonPropertyName("action")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public VoicemailAction Action { get; set; } = VoicemailAction.hangup;
     [JsonPropertyName("sms")]
     public VoicemailSms? Sms { get; set; }
@@ -349,6 +350,7 @@ public record CallRetry
 
     //hangup, leave_message, ignore
     [JsonPropertyName("voicemail_action")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public VoicemailAction VoicemailAction { get; set; } = VoicemailAction.hangup;
 
     [JsonPropertyName("voicemail_message")]
