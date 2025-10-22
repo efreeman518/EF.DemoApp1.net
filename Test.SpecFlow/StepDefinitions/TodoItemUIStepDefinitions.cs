@@ -35,7 +35,7 @@ public class TodoItemUIStepDefinitions : SeleniumTestBase
     public void GivenNavigate(string url)
     {
         _driver!.Navigate().GoToUrl(url);
-        Assert.IsTrue(_driver.Title.Contains("SampleApp - Todo CRUD"));
+        Assert.Contains("SampleApp - Todo CRUD", _driver.Title);
     }
 
     [When(@"enters (.*) in textbox and clicks Add")]

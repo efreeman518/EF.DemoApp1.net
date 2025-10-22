@@ -26,7 +26,7 @@ public class AzureOpenAIChatServiceTests : IntegrationTestBase
         };
 
         (var chatId, var chatResponse) = await _chatService.ChatCompletionAsync(null, msgs);
-        Assert.IsNotNull(chatId);
+        Assert.AreNotEqual(chatId, Guid.Empty);
         Assert.IsNotNull(chatResponse);
     }
 }

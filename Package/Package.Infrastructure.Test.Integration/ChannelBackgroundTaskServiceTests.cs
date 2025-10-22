@@ -46,7 +46,7 @@ public class ChannelBackgroundTaskServiceTests
         await service.StopAsync(CancellationToken.None);
 
         // Assert
-        Assert.AreEqual(itemCount, processedItems.Count);
+        Assert.HasCount(itemCount, processedItems);
     }
 
     [TestMethod]
@@ -117,7 +117,7 @@ public class ChannelBackgroundTaskServiceTests
         }
 
         // Assert
-        Assert.AreEqual(itemCount, processedItems.Count);
+        Assert.HasCount(itemCount, processedItems);
         Assert.IsTrue(completedInTime, "Service should stop after queue is completed");
     }
 

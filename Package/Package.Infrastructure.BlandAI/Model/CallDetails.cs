@@ -37,10 +37,11 @@ public record CallDetails
     [JsonPropertyName("created_at")]
     public DateTime? CreatedAt { get; set; }
 
-    [JsonPropertyName("Started_at")]
+    [JsonPropertyName("started_at")]
     public DateTime? StartedAt { get; set; }
 
-    [JsonPropertyName("ended_at")]
+    // The documented field is "end_at" (not "ended_at")
+    [JsonPropertyName("end_at")]
     public DateTime? EndedAt { get; set; }
 
     [JsonPropertyName("queue_status")]
@@ -66,6 +67,9 @@ public record CallDetails
 
     [JsonPropertyName("recording_url")]
     public string? RecordingUrl { get; set; }
+
+    [JsonPropertyName("c_id")]
+    public string? CId { get; set; }
 
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
@@ -105,6 +109,12 @@ public record CallDetails
 
     [JsonPropertyName("citations")]
     public object[]? Citations { get; set; }
+
+    [JsonPropertyName("warm_transfer_call")]
+    public WarmTransferCall? WarmTransferCall { get; set; }
+
+    [JsonPropertyName("is_proxy_agent_call")]
+    public bool? IsProxyAgentCall { get; set; }
 }
 
 public record CallDetailsRequestData
@@ -141,4 +151,25 @@ public class Transcript
 
     [JsonPropertyName("transcript_id")]
     public string? TranscriptId { get; set; }
+}
+
+public record WarmTransferCall
+{
+    [JsonPropertyName("proxy_agent_calls")]
+    public List<ProxyAgentCall>? ProxyAgentCalls { get; set; }
+
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
+}
+
+public record ProxyAgentCall
+{
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
+
+    [JsonPropertyName("call_id")]
+    public string? CallId { get; set; }
+
+    [JsonPropertyName("phone_number")]
+    public string? PhoneNumber { get; set; }
 }
