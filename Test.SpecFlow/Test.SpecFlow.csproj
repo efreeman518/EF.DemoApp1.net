@@ -34,6 +34,7 @@
     <PackageReference Include="SpecFlow.MsTest" />
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" PrivateAssets="all"/>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Hooks\" />

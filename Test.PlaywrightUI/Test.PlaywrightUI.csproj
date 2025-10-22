@@ -20,7 +20,7 @@
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="SpecFlow" />
     <PackageReference Include="SpecFlow.MsTest" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" />
+		<PackageReference Include="SpecFlow.Tools.MsBuild.Generation" PrivateAssets="all"/>
   </ItemGroup>
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
