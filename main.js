@@ -454,35 +454,6 @@ var assemblies = [
       { "name": "Package.Infrastructure.Cache.RedisConfigurationUtility", "rp": "Package.Infrastructure.Cache_RedisConfigurationUtility.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 59, "cb": 0, "tb": 20, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
-    "name": "Package.Infrastructure.Common",
-    "classes": [
-      { "name": "Package.Infrastructure.Common.Attributes.MaskAttribute", "rp": "Package.Infrastructure.Common_MaskAttribute.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 19, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.CollectionUtility", "rp": "Package.Infrastructure.Common_CollectionUtility.html", "cl": 0, "ucl": 42, "cal": 42, "tl": 144, "cb": 0, "tb": 32, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Exceptions.NotFoundException", "rp": "Package.Infrastructure.Common_NotFoundException.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Exceptions.ValidationException", "rp": "Package.Infrastructure.Common_ValidationException.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 35, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.AsyncPageableExtensions", "rp": "Package.Infrastructure.Common_AsyncPageableExtensions.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.CompressionExtensions", "rp": "Package.Infrastructure.Common_CompressionExtensions.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 74, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.DictionaryExtensions", "rp": "Package.Infrastructure.Common_DictionaryExtensions.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 56, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "rp": "Package.Infrastructure.Common_ExpressionExtensions.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 266, "cb": 0, "tb": 62, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "rp": "Package.Infrastructure.Common_HttpClientExtensions.html", "cl": 0, "ucl": 71, "cal": 71, "tl": 196, "cb": 0, "tb": 46, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.IAsyncEnumerableExtensions", "rp": "Package.Infrastructure.Common_IAsyncEnumerableExtensions.html", "cl": 56, "ucl": 0, "cal": 56, "tl": 126, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "rp": "Package.Infrastructure.Common_LoggerExtensions.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 130, "cb": 0, "tb": 15, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "rp": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "cl": 4, "ucl": 166, "cal": 170, "tl": 264, "cb": 2, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.RegexExtensions", "rp": "Package.Infrastructure.Common_RegexExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 23, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.ResultExtensions", "rp": "Package.Infrastructure.Common_ResultExtensions.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 47, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.SerializeExtensions", "rp": "Package.Infrastructure.Common_SerializeExtensions.html", "cl": 8, "ucl": 17, "cal": 25, "tl": 80, "cb": 8, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.Extensions.StringExtensions", "rp": "Package.Infrastructure.Common_StringExtensions.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 156, "cb": 0, "tb": 44, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.HashUtility", "rp": "Package.Infrastructure.Common_HashUtility.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 27, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.JsonUtility", "rp": "Package.Infrastructure.Common_JsonUtility.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 38, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.PredicateBuilder", "rp": "Package.Infrastructure.Common_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StaticLogging", "rp": "Package.Infrastructure.Common_StaticLogging.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 38, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.StringMatcher", "rp": "Package.Infrastructure.Common_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 46, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.SymmetricEncryptionUtility", "rp": "Package.Infrastructure.Common_SymmetricEncryptionUtility.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 72, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.TypeUtility", "rp": "Package.Infrastructure.Common_TypeUtility.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 16, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.ValidationResult", "rp": "Package.Infrastructure.Common_ValidationResult.html", "cl": 0, "ucl": 16, "cal": 16, "tl": 47, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Common.ValidationUtility", "rp": "Package.Infrastructure.Common_ValidationUtility.html", "cl": 0, "ucl": 16, "cal": 16, "tl": 49, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-    ]},
-  {
     "name": "Package.Infrastructure.Common.Contracts",
     "classes": [
       { "name": "Package.Infrastructure.Common.Contracts.AuditEntry<T>", "rp": "Package.Infrastructure.Common.Contracts_AuditEntry_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -630,12 +601,6 @@ var riskHotspots = [
       { "value": 24, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseResultAsync()", "methodShortName": "HttpRequestAndResponseResultAsync()", "fileIndex": 0, "line": 98,
-    "metrics": [
-      { "value": 506, "exceeded": true },
-      { "value": 22, "exceeded": true },
-    ]},
-  {
     "assembly": "SampleApp.Grpc", "class": "SampleApp.Grpc.Proto.TodoItemDto", "reportPath": "SampleApp.Grpc_TodoItemDto.html", "methodName": "Google.Protobuf.IBufferMessage.InternalMergeFrom(Google.Protobuf.ParseContext&)", "methodShortName": "Google.Protobuf.IBufferMessage.InternalMergeFrom(...)", "fileIndex": 0, "line": 401,
     "metrics": [
       { "value": 506, "exceeded": true },
@@ -660,12 +625,6 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.HttpClientExtensions", "reportPath": "Package.Infrastructure.Common_HttpClientExtensions.html", "methodName": "HttpRequestAndResponseAsync()", "methodShortName": "HttpRequestAndResponseAsync()", "fileIndex": 0, "line": 34,
-    "metrics": [
-      { "value": 342, "exceeded": true },
-      { "value": 18, "exceeded": true },
-    ]},
-  {
     "assembly": "Package.Infrastructure.MSGraph", "class": "Package.Infrastructure.MSGraph.MSGraphServiceBase", "reportPath": "Package.Infrastructure.MSGraph_MSGraphServiceBase.html", "methodName": "UpdateUserAsync()", "methodShortName": "UpdateUserAsync()", "fileIndex": 0, "line": 96,
     "metrics": [
       { "value": 342, "exceeded": true },
@@ -679,12 +638,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.AzureOpenAI", "class": "Package.Infrastructure.AzureOpenAI.Chat.ChatServiceBase", "reportPath": "Package.Infrastructure.AzureOpenAI_ChatServiceBase.html", "methodName": "ChatCompletionAsync()", "methodShortName": "ChatCompletionAsync()", "fileIndex": 0, "line": 54,
-    "metrics": [
-      { "value": 272, "exceeded": true },
-      { "value": 16, "exceeded": true },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "LevenshteinDistance(System.String,System.String,System.Boolean)", "methodShortName": "LevenshteinDistance(...)", "fileIndex": 0, "line": 120,
     "metrics": [
       { "value": 272, "exceeded": true },
       { "value": 16, "exceeded": true },
@@ -720,25 +673,7 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerExtensions", "reportPath": "Package.Infrastructure.Common_LoggerExtensions.html", "methodName": "Log(Microsoft.Extensions.Logging.ILogger,Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,System.String,System.Exception,System.Collections.Generic.List`1<System.Collections.Generic.KeyValuePair`2<System.String,System.String>>)", "methodShortName": "Log(...)", "fileIndex": 0, "line": 55,
-    "metrics": [
-      { "value": 240, "exceeded": true },
-      { "value": 15, "exceeded": false },
-    ]},
-  {
     "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 31,
-    "metrics": [
-      { "value": 210, "exceeded": true },
-      { "value": 14, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "ProcessCollection(System.Collections.Generic.IEnumerable`1<TItem>,System.Action`1<TItem>,System.Boolean)", "methodShortName": "ProcessCollection(...)", "fileIndex": 0, "line": 6,
-    "metrics": [
-      { "value": 210, "exceeded": true },
-      { "value": 14, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "FindTopMatches(System.String,System.Collections.Generic.List`1<System.String>,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean)", "methodShortName": "FindTopMatches(...)", "fileIndex": 0, "line": 72,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -786,12 +721,6 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.SerializeExtensions", "reportPath": "Package.Infrastructure.Common_SerializeExtensions.html", "methodName": "SerializeToJson(T,System.Text.Json.JsonSerializerOptions,System.Boolean)", "methodShortName": "SerializeToJson(...)", "fileIndex": 0, "line": 21,
-    "metrics": [
-      { "value": 172, "exceeded": true },
-      { "value": 24, "exceeded": true },
-    ]},
-  {
     "assembly": "Infrastructure.Data", "class": "Infrastructure.Data.SystemSettingsDbContext", "reportPath": "Infrastructure.Data_SystemSettingsDbContext.html", "methodName": "OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)", "methodShortName": "OnModelCreating(...)", "fileIndex": 0, "line": 11,
     "metrics": [
       { "value": 156, "exceeded": true },
@@ -805,12 +734,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "reportPath": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "methodName": "ExecuteTask1()", "methodShortName": "ExecuteTask1()", "fileIndex": 0, "line": 39,
-    "metrics": [
-      { "value": 156, "exceeded": true },
-      { "value": 12, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.StringMatcher", "reportPath": "Package.Infrastructure.Common_StringMatcher.html", "methodName": "ContainsKeyword(System.ReadOnlySpan`1<System.Char>)", "methodShortName": "ContainsKeyword(...)", "fileIndex": 0, "line": 16,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -894,24 +817,6 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollectionAsync()", "methodShortName": "SyncCollectionAsync()", "fileIndex": 0, "line": 113,
-    "metrics": [
-      { "value": 110, "exceeded": true },
-      { "value": 10, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "reportPath": "Package.Infrastructure.Common_ExpressionExtensions.html", "methodName": "Between(System.Linq.Expressions.Expression`1<System.Func`2<T,TProp>>,System.Nullable`1<TProp>,System.Nullable`1<TProp>)", "methodShortName": "Between(...)", "fileIndex": 0, "line": 164,
-    "metrics": [
-      { "value": 110, "exceeded": true },
-      { "value": 10, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "DebugLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.String)", "methodShortName": "DebugLogExt(...)", "fileIndex": 0, "line": 51,
-    "metrics": [
-      { "value": 110, "exceeded": true },
-      { "value": 10, "exceeded": false },
-    ]},
-  {
     "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderByProperty(System.Linq.IQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "OrderByProperty(...)", "fileIndex": 0, "line": 304,
     "metrics": [
       { "value": 110, "exceeded": true },
@@ -984,12 +889,6 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "InfoLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.String)", "methodShortName": "InfoLogExt(...)", "fileIndex": 0, "line": 127,
-    "metrics": [
-      { "value": 90, "exceeded": true },
-      { "value": 10, "exceeded": false },
-    ]},
-  {
     "assembly": "Package.Infrastructure.Data", "class": "Package.Infrastructure.Data.DbContextBase<T1, T2>", "reportPath": "Package.Infrastructure.Data_DbContextBase_2.html", "methodName": "SaveChangesAsync()", "methodShortName": "SaveChangesAsync()", "fileIndex": 0, "line": 67,
     "metrics": [
       { "value": 73, "exceeded": true },
@@ -1033,24 +932,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
-    "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.CollectionUtility", "reportPath": "Package.Infrastructure.Common_CollectionUtility.html", "methodName": "SyncCollection(System.Collections.Generic.ICollection`1<TBase>,System.Collections.Generic.IEnumerable`1<TMod>,System.Func`2<TBase,TKey>,System.Func`2<TMod,TKey>,System.Action`1<TMod>,System.Action`1<TBase>,System.Action`2<TBase,TMod>)", "methodShortName": "SyncCollection(...)", "fileIndex": 0, "line": 61,
-    "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "ErrorLogExt(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception,System.String,System.String,System.String)", "methodShortName": "ErrorLogExt(...)", "fileIndex": 0, "line": 235,
-    "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.JsonUtility", "reportPath": "Package.Infrastructure.Common_JsonUtility.html", "methodName": "GetJsonIntField(System.String,System.String)", "methodShortName": "GetJsonIntField(...)", "fileIndex": 0, "line": 25,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1291,54 +1172,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "methodName": ".ctor(Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue,Microsoft.Extensions.Hosting.IHostApplicationLifetime,Microsoft.Extensions.Logging.ILogger`1<Package.Infrastructure.BackgroundServices.ChannelCompletionService>)", "methodShortName": ".ctor(...)", "fileIndex": 0, "line": 9,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.CompressionExtensions", "reportPath": "Package.Infrastructure.Common_CompressionExtensions.html", "methodName": "DecompressFromByteArray(System.Byte[],Package.Infrastructure.Common.Extensions.CompressionAlogrithm)", "methodShortName": "DecompressFromByteArray(...)", "fileIndex": 0, "line": 54,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "reportPath": "Package.Infrastructure.Common_ExpressionExtensions.html", "methodName": "AndAll(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>[])", "methodShortName": "AndAll(...)", "fileIndex": 0, "line": 42,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "reportPath": "Package.Infrastructure.Common_ExpressionExtensions.html", "methodName": "OrAny(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>[])", "methodShortName": "OrAny(...)", "fileIndex": 0, "line": 50,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "reportPath": "Package.Infrastructure.Common_ExpressionExtensions.html", "methodName": "In(System.Linq.Expressions.Expression`1<System.Func`2<T,TProp>>,System.Collections.Generic.IEnumerable`1<TProp>)", "methodShortName": "In(...)", "fileIndex": 0, "line": 131,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ExpressionExtensions", "reportPath": "Package.Infrastructure.Common_ExpressionExtensions.html", "methodName": "BuildStringComparison(System.Linq.Expressions.Expression`1<System.Func`2<T,System.String>>,System.String,System.StringComparison,System.String)", "methodShortName": "BuildStringComparison(...)", "fileIndex": 0, "line": 214,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.LoggerMessageDefinitionSG", "reportPath": "Package.Infrastructure.Common_LoggerMessageDefinitionSG.html", "methodName": "LogEvent(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "methodShortName": "LogEvent(...)", "fileIndex": 0, "line": 168,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.ResultExtensions", "reportPath": "Package.Infrastructure.Common_ResultExtensions.html", "methodName": "ToResult(Package.Infrastructure.Domain.Contracts.DomainResult`1<T>)", "methodShortName": "ToResult(...)", "fileIndex": 0, "line": 35,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "Package.Infrastructure.Common", "class": "Package.Infrastructure.Common.Extensions.StringExtensions", "reportPath": "Package.Infrastructure.Common_StringExtensions.html", "methodName": "ParseStringForIntegers(System.String)", "methodShortName": "ParseStringForIntegers(...)", "fileIndex": 0, "line": 34,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
