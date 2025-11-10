@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
 
@@ -30,7 +31,8 @@ public record AnalyzeCallResponse : DefaultResponse
         ]
      */
     [JsonPropertyName("answers")]
-    public List<object> Answers { get; set; } = null!;
+    //public List<object> Answers { get; set; } = null!;
+    public List<JsonElement> Answers { get; set; } = [];
 
     [JsonPropertyName("credits_used")]
     public decimal CreditsUsed { get; set; }

@@ -1,7 +1,6 @@
 using Application.Contracts.Model;
 using Domain.Shared.Enums;
 using FluentValidation.TestHelper;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp.Support.Validators;
 
 namespace Test.Unit.Application.Validators;

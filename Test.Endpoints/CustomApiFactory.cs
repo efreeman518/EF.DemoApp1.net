@@ -57,14 +57,11 @@ public class CustomHttpHandler : DelegatingHandler
 {
     public CustomHttpHandler()
     {
-        //ignore cert validation
+        // Use default server certificate validation for security
         var handler = new HttpClientHandler
         {
-            ClientCertificateOptions = ClientCertificateOption.Manual,
-            ServerCertificateCustomValidationCallback = (HttpRequestMessage, cert, cetChain, policyErrors) =>
-            {
-                return true;
-            }
+            ClientCertificateOptions = ClientCertificateOption.Manual
+            // Removed insecure ServerCertificateCustomValidationCallback override
         };
 
         InnerHandler = handler;

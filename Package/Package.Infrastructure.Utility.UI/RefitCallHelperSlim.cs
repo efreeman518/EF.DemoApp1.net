@@ -335,7 +335,8 @@ public static class RefitCallHelperSlim
             if (doc.RootElement.TryGetProperty(field, out var el))
                 return el.GetString();
         }
-        catch { 
+        catch
+        {
             // handle
         }
         return null;
@@ -350,7 +351,8 @@ public static class RefitCallHelperSlim
             if (doc.RootElement.TryGetProperty(field, out var el) && el.ValueKind == JsonValueKind.Array && el.GetArrayLength() > 0)
                 return el[0].GetInt32();
         }
-        catch {
+        catch
+        {
             //handle
         }
         return null;

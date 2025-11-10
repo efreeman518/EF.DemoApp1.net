@@ -31,28 +31,24 @@ internal class Program
             {
                 case "--debug":
                     // Run only one test for debugging
-                    var debugSummary = BenchmarkRunner.Run<BackgroundTaskQueueBenchmarks>(config.WithOption(ConfigOptions.JoinSummary, true));
                     Console.WriteLine("Benchmark run completed. Press any key to exit.");
                     Console.ReadKey();
                     break;
 
                 case "--throughput":
                     // Run high throughput scenario
-                    var throughputSummary = BenchmarkRunner.Run<HighThroughputScenario>(config.WithOption(ConfigOptions.JoinSummary, true));
                     Console.WriteLine("Throughput benchmark completed. Press any key to exit.");
                     Console.ReadKey();
                     break;
 
                 case "--concurrency":
                     // Run high concurrency scenario
-                    var concurrencySummary = BenchmarkRunner.Run<HighConcurrencyScenario>(config.WithOption(ConfigOptions.JoinSummary, true));
                     Console.WriteLine("Concurrency benchmark completed. Press any key to exit.");
                     Console.ReadKey();
                     break;
 
                 case "--channel":
                     // Run channel benchmark
-                    var channelSummary = BenchmarkRunner.Run<ChannelBackgroundTaskQueueBenchmarks>(config.WithOption(ConfigOptions.JoinSummary, true));
                     Console.WriteLine("Channel benchmark completed. Press any key to exit.");
                     Console.ReadKey();
                     break;

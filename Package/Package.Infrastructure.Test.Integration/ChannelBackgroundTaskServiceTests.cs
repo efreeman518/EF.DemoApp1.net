@@ -67,7 +67,7 @@ public class ChannelBackgroundTaskServiceTests
         var serviceStoppedTaskSource = new TaskCompletionSource<bool>();
 
         // Override ExecuteAsync to detect when the service exits
-        var serviceTask = Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
             try
             {
@@ -75,7 +75,7 @@ public class ChannelBackgroundTaskServiceTests
 
                 // This is a hack to wait for the service to exit normally
                 // In a real scenario, we'd monitor the service's lifetime
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await Task.Delay(TimeSpan.FromSeconds(10), TestContext.CancellationToken);
             }
             catch (Exception)
             {
@@ -85,7 +85,7 @@ public class ChannelBackgroundTaskServiceTests
             {
                 serviceStoppedTaskSource.TrySetResult(true);
             }
-        });
+        }, TestContext.CancellationToken);
 
         // Act - Queue some items
         for (int i = 0; i < itemCount; i++)
@@ -107,7 +107,7 @@ public class ChannelBackgroundTaskServiceTests
         // Wait for the service to stop
         var completedInTime = await Task.WhenAny(
             serviceStoppedTaskSource.Task,
-            Task.Delay(TimeSpan.FromSeconds(10))
+            Task.Delay(TimeSpan.FromSeconds(10), TestContext.CancellationToken)
         ) == serviceStoppedTaskSource.Task;
 
         // Stop the service if needed
@@ -161,7 +161,7 @@ public class ChannelBackgroundTaskServiceTests
         await service.StopAsync(CancellationToken.None);
 
         // Assert
-        Assert.AreEqual(itemCount, processedItems.Count);
+        Assert.HasCount(itemCount, processedItems);
 
         // Each scoped service should have a unique instance ID
         var uniqueIds = processedItems.Distinct().Count();
@@ -183,4 +183,6 @@ public class ChannelBackgroundTaskServiceTests
     {
         public Guid InstanceId { get; } = Guid.NewGuid();
     }
+
+    public TestContext TestContext { get; set; }
 }

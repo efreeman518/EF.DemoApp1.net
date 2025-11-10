@@ -31,7 +31,7 @@ public static class CollectionUtility
         {
             results.Add(processFunc(item));
         }
-        return DomainResult.Combine([.. results]);
+        return DomainResult.Combine(results.ToArray());
     }
 
     /// <summary>
@@ -103,6 +103,6 @@ public static class CollectionUtility
             }
         }
 
-        return DomainResult.Combine([.. results]);
+        return DomainResult.Combine(results.ToArray());
     }
 }

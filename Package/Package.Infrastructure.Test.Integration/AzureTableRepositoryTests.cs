@@ -160,7 +160,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-linq-batch Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     [TestMethod]
@@ -199,7 +199,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-odata-batch Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     [TestMethod]
@@ -242,7 +242,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-linq-pipe Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     [TestMethod]
@@ -281,7 +281,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-odata-pipe Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     [TestMethod]
@@ -319,7 +319,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-parallel-async Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     [TestMethod]
@@ -360,7 +360,7 @@ public class AzureTableRepositoryTests : IntegrationTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
         Debug.WriteLine($"{DateTime.Now} - Finish stream-parallel-sync Total:{total} ElapsedMS:{elapsed_time}");
 
-        Assert.AreEqual(total, fullList.Count);
+        Assert.HasCount(total, fullList);
     }
 
     private async Task PopulateTableData(int numRows = 100)

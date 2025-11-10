@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-namespace Package.Infrastructure.Domain.Contracts;
+﻿namespace Package.Infrastructure.Domain.Contracts;
 
 /// <summary>
 /// Represents the result of an operation, indicating success or failure.

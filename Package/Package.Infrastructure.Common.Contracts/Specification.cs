@@ -92,7 +92,7 @@ public class Specification<T> : ISpecification<T> // value types supported
     public static Specification<T> operator &(ISpecification other, Specification<T> me)
     { return new Specification<T>(t => other.IsSatisfied() && me.IsSatisfiedBy(t)); }
     public static Specification<T> operator |(Specification<T> me, ISpecification other)
-   { return new Specification<T>(t => me.IsSatisfiedBy(t) || other.IsSatisfied()); }
+    { return new Specification<T>(t => me.IsSatisfiedBy(t) || other.IsSatisfied()); }
     public static Specification<T> operator |(ISpecification other, Specification<T> me)
     { return new Specification<T>(t => other.IsSatisfied() || me.IsSatisfiedBy(t)); }
 

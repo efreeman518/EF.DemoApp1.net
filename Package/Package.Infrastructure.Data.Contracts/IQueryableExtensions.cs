@@ -115,7 +115,8 @@ public static class IQueryableExtensions
         // Create a Contains expression: entity => ids.Contains(entity.Id)
         var containsMethod = (typeof(Enumerable)
             .GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .FirstOrDefault(m => m.Name == "Contains" && m.GetParameters().Length == 2)?
+            .ToList()
+            .Find(m => m.Name == "Contains" && m.GetParameters().Length == 2)?
             .MakeGenericMethod(typeof(TKey))) ?? throw new InvalidOperationException("Could not find Contains method");
 
         var idsConstant = Expression.Constant(ids);

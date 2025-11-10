@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.SeleniumUI;
 
@@ -22,7 +21,7 @@ public class UITests : SeleniumTestBase
         //nav to swagger page
         string path = $"{Config.GetValue<string>("SampleApi:BaseUrl")}";
         _webDriver.Navigate().GoToUrl(path);
-        Assert.IsTrue(_webDriver.Title.Contains("SampleApp - Todo CRUD"));
+        Assert.Contains("SampleApp - Todo CRUD", _webDriver.Title);
     }
 
     [TestCleanup]

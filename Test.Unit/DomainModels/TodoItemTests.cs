@@ -1,5 +1,4 @@
 using Domain.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Unit.DomainModels;
 

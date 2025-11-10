@@ -5,6 +5,8 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Suppress NU1608 warnings for Microsoft.CodeAnalysis version conflicts with BenchmarkDotNet transitive dependencies -->
+    <NoWarn>$(NoWarn);NU1608</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>

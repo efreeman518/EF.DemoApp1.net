@@ -305,7 +305,7 @@ public record VoiceMail
 {
     [JsonPropertyName("message")]
     public string Message { get; set; } = null!;
-    
+
     /// <summary>
     /// hangup, leave_message, ignore
     /// </summary>

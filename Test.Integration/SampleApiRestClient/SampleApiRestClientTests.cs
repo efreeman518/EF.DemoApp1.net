@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.SampleApiRestClient;
@@ -71,14 +70,14 @@ public class SampleApiRestClientTests
         var result = await _svc.SaveItemAsync(todo);
         if (!result.IsSuccess)
         {
-            throw new Exception(result.ErrorMessage);
+            throw new InvalidOperationException(result.ErrorMessage);
         }
         var todoResponse = result.Value;
         Assert.IsNotNull(todoResponse);
 
         if (!Guid.TryParse(todoResponse!.Id.ToString(), out Guid id))
         {
-            throw new Exception("Invalid Guid");
+            throw new InvalidOperationException("Invalid Guid");
         }
 
         //GET retrieve
@@ -91,7 +90,7 @@ public class SampleApiRestClientTests
         result = await _svc.SaveItemAsync(todo2);
         if (!result.IsSuccess)
         {
-            throw new Exception(result.ErrorMessage);
+            throw new InvalidOperationException(result.ErrorMessage);
         }
         todoResponse = result.Value;
         Assert.AreEqual(todo2.Name, todoResponse!.Name);

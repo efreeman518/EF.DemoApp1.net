@@ -10,7 +10,7 @@ namespace Test.Benchmarks;
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [RankColumn]
-public class ValidatorBenchmarks
+public static class ValidatorBenchmarks
 {
     //[Params(5, 10)]
     //public int NameLength { get; set; }

@@ -28,6 +28,9 @@ using StackExchange.Redis;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 
+// Enable parallel execution: adjust Workers to the desired concurrency
+[assembly: Parallelize(Workers = 4, Scope = ExecutionScope.MethodLevel)]
+
 namespace Package.Infrastructure.Test.Integration;
 
 [TestClass]

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Package.Infrastructure.Data.Contracts;
 using Package.Infrastructure.Domain;
-using Polly.Caching;
 using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Data;
@@ -379,7 +378,7 @@ public static class EFExtensions
     /// <param name="cancellationToken"></param>
     /// <param name="includes"></param>
     /// <returns></returns>
-    public static async Task<TProject?> GetEntityProjectionAsync<T, TProject>(this DbSet<T> dbSet, 
+    public static async Task<TProject?> GetEntityProjectionAsync<T, TProject>(this DbSet<T> dbSet,
         Expression<Func<T, TProject>> projector,
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, SplitQueryThresholdOptions? splitQueryOptions = null,
@@ -413,7 +412,7 @@ public static class EFExtensions
     public static async Task<(IReadOnlyList<T>, int)> QueryPageAsync<T>(this IQueryable<T> query, bool tracking = false,
         int? pageSize = null, int? pageIndex = null,
         Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false, 
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool includeTotal = false,
         SplitQueryThresholdOptions? splitQueryOptions = null,
         CancellationToken cancellationToken = default,
         params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
@@ -422,7 +421,7 @@ public static class EFExtensions
         int total = includeTotal ? await query.ComposeIQueryable(filter: filter).CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None) : -1;
 
         bool splitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
-        if(!splitQuery && splitQueryOptions != null)
+        if (!splitQuery && splitQueryOptions != null)
             splitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, total, includes, splitQueryOptions);
 
         query = query.ComposeIQueryable(tracking, pageSize, pageIndex, filter, orderBy, splitQuery, includes);
@@ -465,7 +464,7 @@ public static class EFExtensions
         return (results.AsReadOnly(), total);
     }
 
-    
+
 
 
     /// <summary>

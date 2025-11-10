@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 
 //no shared or external dependencies, run methods max parallel
 [assembly: Parallelize(Workers = 5, Scope = ExecutionScope.MethodLevel)]

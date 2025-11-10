@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.0.31919.166
+VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApp", "SampleApp", "{E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}"
 EndProject
@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build.yml = build.yml
 		coverlet.runsettings = coverlet.runsettings
 		Directory.Packages.props = Directory.Packages.props
+		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -117,8 +118,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.PlaywrightUI", "Test.PlaywrightUI\Test.PlaywrightUI.csproj", "{E3C1DC02-96DE-4D81-A7A8-24874FFF9650}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.SeleniumUI", "Test.SeleniumUI\Test.SeleniumUI.csproj", "{3E83C4DD-7CDC-41FE-A012-33218BCEDF18}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.SpecFlow", "Test.SpecFlow\Test.SpecFlow.csproj", "{5254E370-ACD2-4DAF-8A04-29E88A52A04E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Support", "SampleApp.Support\SampleApp.Support.csproj", "{323EC702-089A-4188-B6DC-89129073103D}"
 EndProject
@@ -332,10 +331,6 @@ Global
 		{3E83C4DD-7CDC-41FE-A012-33218BCEDF18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E83C4DD-7CDC-41FE-A012-33218BCEDF18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E83C4DD-7CDC-41FE-A012-33218BCEDF18}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5254E370-ACD2-4DAF-8A04-29E88A52A04E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{323EC702-089A-4188-B6DC-89129073103D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{323EC702-089A-4188-B6DC-89129073103D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{323EC702-089A-4188-B6DC-89129073103D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -463,7 +458,6 @@ Global
 		{205DC396-D018-4E03-9F32-7FFEA7AF419B} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{E3C1DC02-96DE-4D81-A7A8-24874FFF9650} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{3E83C4DD-7CDC-41FE-A012-33218BCEDF18} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
-		{5254E370-ACD2-4DAF-8A04-29E88A52A04E} = {6A579746-EA50-43BA-891D-9CB90F9426AF}
 		{323EC702-089A-4188-B6DC-89129073103D} = {E498D85D-9E41-4B2E-A0B1-BAAC696D1D60}
 		{544D8509-1277-45A2-91CA-B0CE73464A31} = {436E300A-4E49-4325-B54E-F880BD182508}
 		{B6AE636D-AD36-44A5-AE9D-F3B56E598418} = {1CD5EF60-73A3-44F9-9DF6-0E764A978031}

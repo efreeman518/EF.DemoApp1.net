@@ -2,14 +2,15 @@
 using Domain.Model;
 using Domain.Shared.Enums;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 using System.Net;
 using Test.Support;
 
 //parallel to the same api can cause intermittent failures since the api & all tests are using the same database;
 //all will try to create the DB if it doesn't exist
-//[assembly: DoNotParallelize]
+
+// Force single-worker execution (effectively disables parallel test execution)
+[assembly: Parallelize(Workers = 1, Scope = ExecutionScope.ClassLevel)]
 
 namespace Test.Endpoints.Endpoints;
 
@@ -48,7 +49,7 @@ public class TodoEndpointsTests : EndpointTestBase
         todo = parsedResponse;
         Assert.IsNotNull(todo);
 
-        if (!Guid.TryParse(todo!.Id.ToString(), out Guid id)) throw new Exception("Invalid Guid");
+        if (!Guid.TryParse(todo!.Id.ToString(), out Guid id)) throw new ArgumentException("Invalid Guid");
         Assert.IsTrue(id != Guid.Empty);
 
         //GET retrieve

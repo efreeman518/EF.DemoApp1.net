@@ -4,7 +4,6 @@ using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using System.Collections.Concurrent;
@@ -39,19 +38,19 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(4, response.Data.Count);
+        Assert.HasCount(4, response.Data);
 
         search = new SearchRequest<TodoItemSearchFilter> { PageSize = 2, PageIndex = 1 };
         response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(2, response.Data.Count);
+        Assert.HasCount(2, response.Data);
 
         search = new SearchRequest<TodoItemSearchFilter> { PageSize = 3, PageIndex = 2 };
         response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(1, response.Data.Count);
+        Assert.HasCount(1, response.Data);
     }
 
     [TestMethod]
@@ -73,19 +72,19 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(4, response.Data.Count);
+        Assert.HasCount(4, response.Data);
 
         search = new SearchRequest<TodoItemSearchFilter> { PageSize = 2, PageIndex = 1 };
         response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(2, response.Data.Count);
+        Assert.HasCount(2, response.Data);
 
         search = new SearchRequest<TodoItemSearchFilter> { PageSize = 3, PageIndex = 2 };
         response = await repoQuery.SearchTodoItemAsync(search);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(1, response.Data.Count);
+        Assert.HasCount(1, response.Data);
     }
 
     [TestMethod]
@@ -106,17 +105,17 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var response = await repoQuery.QueryPageAsync<TodoItem>(pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(4, response.Data.Count);
+        Assert.HasCount(4, response.Data);
 
         response = await repoQuery.QueryPageAsync<TodoItem>(pageSize: 2, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(2, response.Data.Count);
+        Assert.HasCount(2, response.Data);
 
         response = await repoQuery.QueryPageAsync<TodoItem>(pageSize: 3, pageIndex: 2, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(1, response.Data.Count);
+        Assert.HasCount(1, response.Data);
     }
 
     [TestMethod]
@@ -137,17 +136,17 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(4, response.Data.Count);
+        Assert.HasCount(4, response.Data);
 
         response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 2, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(2, response.Data.Count);
+        Assert.HasCount(2, response.Data);
 
         response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 3, pageIndex: 2, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(1, response.Data.Count);
+        Assert.HasCount(1, response.Data);
     }
 
     [TestMethod]
@@ -184,7 +183,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(total > 0);
+        Assert.IsGreaterThan(0, total);
     }
 
     [TestMethod]
@@ -221,7 +220,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(total > 0);
+        Assert.IsGreaterThan(0, total);
     }
 
     [TestMethod]
@@ -259,7 +258,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} ElapsedMS:{elapsed_time}");
-        Assert.IsTrue(total > 0);
+        Assert.IsGreaterThan(0, total);
     }
 
     [TestMethod]
@@ -300,7 +299,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var elapsed_time = stopwatch.ElapsedMilliseconds;
 
         Debug.WriteLine($"{DateTime.Now} - Finish Total:{total} Elapsed MS:{elapsed_time}");
-        Assert.IsTrue(total > 0);
+        Assert.IsGreaterThan(0, total);
     }
 
     [TestMethod]
@@ -362,7 +361,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
         var response = await repoQuery.QueryPageProjectionAsync(TodoItemMapper.Projector, pageSize: 10, pageIndex: 1, includeTotal: true);
         Assert.IsNotNull(response);
         Assert.AreEqual(4, response.Total);
-        Assert.AreEqual(4, response.Data.Count);
+        Assert.HasCount(4, response.Data);
 
         //concurrent processing example should run multiple threads concurrently, take about 1 sec total
         var cBag = new ConcurrentBag<Guid>();
@@ -373,7 +372,7 @@ public class TodoRepositoryQueryTests : UnitTestBase
             cBag.Add((Guid)t.Id!);
         });
         await Task.WhenAll(tasks);
-        Assert.AreEqual(4, cBag.Count);
+        Assert.HasCount(4, cBag);
     }
 
 }

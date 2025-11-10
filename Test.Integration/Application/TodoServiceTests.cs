@@ -10,9 +10,10 @@ using Package.Infrastructure.BackgroundServices;
 using Package.Infrastructure.Common.Extensions;
 using Test.Support;
 
-namespace Test.Integration.Application;
+// all tests in this class are using the same database
+[assembly: Parallelize(Workers = 1, Scope = ExecutionScope.ClassLevel)]
 
-//all tests in this class are using the same database so [DoNotParallelize]
+namespace Test.Integration.Application;
 
 [TestClass]
 public class TodoServiceTests : DbIntegrationTestBase
@@ -80,7 +81,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         Assert.IsTrue(updateResult.IsSuccess, $"Update failed: {string.Join(",", updateResult.Errors)}");
         var updated = updateResult.Value;
         Assert.AreEqual(TodoItemStatus.Completed, updated!.Status);
-        Assert.AreEqual(newName, updated?.Name);
+        Assert.AreEqual(newName, updated.Name);
 
         // Retrieve and ensure the update persisted
         getResult = await svc.GetItemAsync(id);

@@ -6,5 +6,5 @@ public class BlandAISettings
     public string BaseUrl { get; set; } = null!;
     public string ApiKey { get; set; } = null!;
     public string? WebhookUrl { get; set; }
-    public string? WebhookSigningSecret { get; set; } 
+    public string? WebhookSigningSecret { get; set; }
 }

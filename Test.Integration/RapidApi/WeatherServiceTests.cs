@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Package.Infrastructure.Common.Extensions;
 
 namespace Test.Integration.RapidApi;
@@ -58,7 +57,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 
@@ -77,7 +76,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(string.Join(",", forecastResult.Errors));
+            throw new InvalidOperationException(string.Join(",", forecastResult.Errors));
         }
 
         var currentResult = await _svc.GetCurrentAsync("Paris, France");
@@ -89,7 +88,7 @@ public class WeatherServiceTests
         }
         else
         {
-            throw new Exception(string.Join(",", currentResult.Errors));
+            throw new InvalidOperationException(string.Join(",", currentResult.Errors));
         }
     }
 }

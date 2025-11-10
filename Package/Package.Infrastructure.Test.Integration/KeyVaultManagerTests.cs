@@ -25,7 +25,7 @@ public class KeyVaultManagerTests : IntegrationTestBase
         var cryptoUtility = Services.GetRequiredKeyedService<IKeyVaultCryptoUtility>("SomeCryptoUtil");
         var plainTest = "This is some sensitive data";
         var encrypted = await cryptoUtility.EncryptAsync(plainTest);
-        Assert.IsTrue(encrypted.Length > 0);
+        Assert.IsNotEmpty(encrypted);
         var decrypted = await cryptoUtility.DecryptAsync(encrypted);
         Assert.AreEqual(plainTest, decrypted);
     }

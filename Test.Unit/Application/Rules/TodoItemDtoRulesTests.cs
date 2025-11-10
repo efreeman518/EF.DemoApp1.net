@@ -1,7 +1,6 @@
 using Application.Contracts.Model;
 using Application.Services.Rules;
 using Domain.Shared.Enums;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Unit.Application.Rules;
 

@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Model;
 using Application.Services.JobSK;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Support;
 
 namespace Test.Integration.JobSearchOrchestrators;
@@ -40,7 +39,7 @@ public class JobSearchOrchestratorTests : IntegrationTestBase
         }
         else
         {
-            throw new Exception(string.Join(",", result.Errors));
+            throw new InvalidOperationException(string.Join(",", result.Errors));
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Package.Infrastructure.Common;
 using System.Security.Cryptography;
 
+// Enable parallel execution: adjust Workers to the desired concurrency
+[assembly: Parallelize(Workers = 4, Scope = ExecutionScope.MethodLevel)]
+
 namespace Package.Infrastructure.Test.Unit;
 
 [TestClass]

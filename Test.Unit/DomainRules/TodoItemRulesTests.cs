@@ -1,6 +1,5 @@
 using Domain.Model;
 using Domain.Rules;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Unit.DomainRules;
 

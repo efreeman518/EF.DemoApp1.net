@@ -2,7 +2,6 @@ using Domain.Model;
 using Domain.Shared.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Package.Infrastructure.Data.Contracts;
 using Test.Support;

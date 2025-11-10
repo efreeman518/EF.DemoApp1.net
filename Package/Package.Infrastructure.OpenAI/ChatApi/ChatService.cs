@@ -51,11 +51,9 @@ public class ChatService : IChatService
     /// This is a mock function that simulates a call to a location API.
     /// </summary>
     /// <returns></returns>
-    private static string GetCurrentLocation()
-    {
+    private static string GetCurrentLocation() =>
         // Call the location API here.
-        return "San Francisco";
-    }
+        "San Francisco";
 
     /// <summary>
     /// This is a mock function that simulates a call to a weather API.

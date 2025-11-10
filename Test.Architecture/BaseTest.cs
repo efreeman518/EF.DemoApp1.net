@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
 
+// Force single-worker execution (effectively disables parallel test execution)
+[assembly: Parallelize(Workers = 4, Scope = ExecutionScope.MethodLevel)]
+
 namespace Test.Architecture;
 public abstract class BaseTest
 {

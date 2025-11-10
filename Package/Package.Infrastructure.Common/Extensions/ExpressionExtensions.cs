@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace Package.Infrastructure.Common.Extensions;
 /// <summary>
@@ -169,7 +164,7 @@ public static class ExpressionExtensions
         if (minInclusive.HasValue)
         {
             var ge = Expression.GreaterThanOrEqual(body, Expression.Constant(minInclusive.Value));
-            predicate = predicate is null ? ge : Expression.AndAlso(predicate, ge);
+            predicate = ge;
         }
 
         if (maxInclusive.HasValue)
