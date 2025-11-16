@@ -4,7 +4,7 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 2/14 tasks complete (14%) ![14%](https://progress-bar.xyz/14)
+**Progress**: 3/14 tasks complete (21%) ![21%](https://progress-bar.xyz/21)
 
 ## Tasks
 
@@ -37,35 +37,35 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [▶] TASK-004: Upgrade Tier 2 (Data & EF Core projects)
+### [✓] TASK-004: Upgrade Tier 2 (Data & EF Core projects) *(Completed: 2025-11-15 22:23)*
 **References**: Plan §Phase 2 (Tier 2), Plan §Breaking Changes Catalog (EF Core 10 notes), Plan §Package Update Reference
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` for all Tier 2 projects listed in Plan §Phase 2.
-- [ ] (2) Update EF Core and related package references to target versions per Plan §Package Update Reference (batch updates across Tier 2).
-- [ ] (3) Restore dependencies (`dotnet restore`) for the solution/tier.
-- [ ] (4) Build Tier 2 projects and fix compilation errors per Plan §Breaking Changes Catalog (single pass; include EF migration API adjustments).
-- [ ] (5) Tier 2 projects build with 0 errors (**Verify**).
-- [ ] (6) Commit changes: `chore(net10): upgrade Tier 2 (data & EF) to net10 + package updates` (**Verify** commit success).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` for all Tier 2 projects listed in Plan §Phase 2.
+- [✓] (2) Update EF Core and related package references to target versions per Plan §Package Update Reference (batch updates across Tier 2).
+- [✓] (3) Restore dependencies (`dotnet restore`) for the solution/tier.
+- [✓] (4) Build Tier 2 projects and fix compilation errors per Plan §Breaking Changes Catalog (single pass; include EF migration API adjustments).
+- [✓] (5) Tier 2 projects build with 0 errors (**Verify**).
+- [✓] (6) Commit changes: `chore(net10): upgrade Tier 2 (data & EF) to net10 + package updates` (**Verify** commit success).
 
-### [ ] TASK-005: Validate Tier 2 (data integration smoke)
+### [⊘] TASK-005: Validate Tier 2 (data integration smoke)
 **References**: Plan §Phase 2 Validation, Plan §Breaking Changes Catalog
 
-- [ ] (1) Run targeted data integration tests or in-memory DB checks listed in Plan §Phase 2 Validation (explicit project names from Plan; e.g., `dotnet test path/to/Infrastructure.Data.Tests.csproj`).
-- [ ] (2) Fix deterministic failures limited to upgrade scope (one pass).
-- [ ] (3) Re-run the same specified tests once.
-- [ ] (4) All specified tests passed with 0 failures (**Verify**).
+- [⊘] (1) Run targeted data integration tests or in-memory DB checks listed in Plan §Phase 2 Validation (explicit project names from Plan; e.g., `dotnet test path/to/Infrastructure.Data.Tests.csproj`).
+- [⊘] (2) Fix deterministic failures limited to upgrade scope (one pass).
+- [⊘] (3) Re-run the same specified tests once.
+- [⊘] (4) All specified tests passed with 0 failures (**Verify**).
 
 ---
 
-### [ ] TASK-006: Upgrade Tier 3 (Service integration libraries)
+### [▶] TASK-006: Upgrade Tier 3 (Service integration libraries)
 **References**: Plan §Phase 3 (Tier 3), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` for all Tier 3 projects per Plan §Phase 3.
-- [ ] (2) Batch-update Microsoft.Extensions.* and other integration packages per Plan §Package Update Reference; remove redundant packages now provided by framework (per Plan §NuGet.0003).
-- [ ] (3) Restore dependencies.
-- [ ] (4) Build Tier 3 projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [ ] (5) Tier 3 projects build with 0 errors (**Verify**).
-- [ ] (6) Commit changes: `chore(net10): upgrade Tier 3 (service integrations) to net10 + package updates` (**Verify**).
+- [▶] (1) Update `<TargetFramework>` to `net10.0` for all Tier 3 projects per Plan §Phase 3.
+- [▶] (2) Batch-update Microsoft.Extensions.* and other integration packages per Plan §Package Update Reference; remove redundant packages now provided by framework (per Plan §NuGet.0003).
+- [▶] (3) Restore dependencies.
+- [▶] (4) Build Tier 3 projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [▶] (5) Tier 3 projects build with 0 errors (**Verify**).
+- [▶] (6) Commit changes: `chore(net10): upgrade Tier 3 (service integrations) to net10 + package updates` (**Verify**).
 
 ### [ ] TASK-007: Validate Tier 3 (integration smoke)
 **References**: Plan §Phase 3 Validation

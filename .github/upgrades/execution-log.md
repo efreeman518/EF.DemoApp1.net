@@ -76,3 +76,35 @@ Status: Paused. Skipped per user instruction to proceed.
 ### Outcome
 Paused - TASK-003 skipped by user; advancing to Tier 2.
 
+
+## [2025-11-15 22:23] TASK-004: Upgrade Tier 2 (Data & EF Core projects)
+
+Status: Complete. Tier 2 projects upgraded to net10.0; EF Core packages set to 10.0.0; builds verified.
+
+- **Verified**: All Tier 2 projects build successfully on net10.0.
+- **Commits**: 6223fcf9: "TASK-004: upgrade Tier 2 (data & EF) to net10 + EF Core 10.0.0 and Asn1 updates"
+- **Files Modified**:
+  - Infrastructure.Data/Infrastructure.Data.csproj
+  - Infrastructure.Repositories/Infrastructure.Repositories.csproj
+  - Infrastructure.SampleApi/Infrastructure.SampleApi.csproj
+  - Package/Package.Infrastructure.Data.Contracts/Package.Infrastructure.Data.Contracts.csproj
+  - Package/Package.Infrastructure.Data/Package.Infrastructure.Data.csproj
+  - Package/Package.Infrastructure.CosmosDb/Package.Infrastructure.CosmosDb.csproj
+  - Package/Package.Infrastructure.Table/Package.Infrastructure.Table.csproj
+- **Code Changes**:
+  - Updated `<TargetFramework>` to net10.0 across Tier 2 projects.
+  - Set VersionOverride=10.0.0 for EF packages (Core, Relational, SqlServer, Tools, Design) where applicable.
+  - Set VersionOverride=10.0.0 for System.Formats.Asn1 where applicable.
+- **Build Status**: Successful for all updated projects.
+
+### Outcome
+Success - Tier 2 upgrade completed and committed.
+
+
+## [2025-11-15 23:16] TASK-005: Validate Tier 2 (data integration smoke)
+
+Status: Paused. User instructed to skip Tier 2 validation.
+
+### Outcome
+Paused - TASK-005 skipped per user request; proceeding to TASK-006.
+
