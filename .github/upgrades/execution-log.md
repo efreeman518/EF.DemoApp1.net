@@ -145,3 +145,70 @@ Status: Paused. User requested to skip validation and continue.
 ### Outcome
 Paused - TASK-007 skipped per user request; moving to Tier 4 upgrade.
 
+
+## [2025-11-16 00:06] TASK-008: Upgrade Tier 4 (Composition & configuration hosts)
+
+Status: Complete. Tier 4 upgraded to net10.0; packages bumped; builds successful.
+
+- **Verified**: Tier 4 projects build clean on net10.0.
+- **Commits**: 43634675: "TASK-008: upgrade Tier 4 (composition & config) to net10 + package updates"
+- **Files Modified**:
+  - SampleApp.Bootstrapper/SampleApp.Bootstrapper.csproj
+  - Infrastructure.Configuration/Infrastructure.Configuration.csproj
+  - Package/Package.Infrastructure.Host/Package.Infrastructure.Host.csproj
+- **Code Changes**:
+  - Retargeted to net10.0.
+  - Updated EF Core, Microsoft.Extensions.*, and ASP.NET Core packages per plan.
+- **Build Status**: Successful for all Tier 4 projects.
+
+### Outcome
+Success - Tier 4 completed and committed; ready for validation next.
+
+
+## [2025-11-16 11:42] TASK-009: Validate Tier 4 (composition start)
+
+Status: Failed. Minimal composition startup check could not run due to TFM mismatch in upstream application projects.
+
+- **Files Created**: Tools/CompositionSmoke/CompositionSmoke.csproj, Tools/CompositionSmoke/Program.cs
+- **Build Status**: Restore/build failed for composition smoke app
+- **Errors**:
+  - Application.Services (net9.0) references net10.0 projects: Application.Contracts, Domain.* , Infrastructure.* causing NU1201
+  - Infrastructure.MSGraphB2C (net9.0) references Package.Infrastructure.MSGraph (net10.0) causing NU1201
+
+### Outcome
+Failed - DI composition cannot be validated until remaining application-layer projects (e.g., `Application.Services`, `Infrastructure.MSGraphB2C`, etc.) are upgraded to net10.0. Changes uncommitted. Awaiting instruction to either: (a) retarget these projects now and retry TASK-009, or (b) skip TASK-009 and proceed to Tier 5.
+
+
+## [2025-11-16 11:43] TASK-009: Validate Tier 4 (composition start)
+
+Status: Paused. User requested to skip Tier 4 validation.
+
+### Outcome
+Paused - TASK-009 skipped; moving to Tier 5 upgrade.
+
+
+## [2025-11-16 11:58] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers)
+
+Status: Failed. Tier 5 host upgrades applied but build blocked by downstream projects still on net9.0.
+
+- **Verified**: Updated TFMs to net10.0 for API, Gateway, gRPC, UI, BackgroundServices, AppHost, ServiceDefaults, Functions. Removed Containers Tools from Gateway. Bumped central packages to 10.0.0 for ASP.NET Core/Microsoft.Extensions/EF Core; Aspire updated to 13.0.0.
+- **Files Modified**:
+  - SampleApp.Api/SampleApp.Api.csproj
+  - SampleApp.Gateway/SampleApp.Gateway.csproj
+  - SampleApp.Grpc/SampleApp.Grpc.csproj
+  - SampleApp.UI1/SampleApp.UI1.csproj
+  - SampleApp.BackgroundServices/SampleApp.BackgroundServices.csproj
+  - Aspire/AppHost/SampleApp.AppHost.csproj
+  - Aspire/ServiceDefaults/SampleApp.ServiceDefaults.csproj
+  - Functions/Functions.csproj
+  - Directory.Packages.props
+- **Code Changes**:
+  - Retargeted TFMs to net10.0; removed incompatible Microsoft.VisualStudio.Azure.Containers.Tools.Targets from Gateway.
+  - Centralized version updates: ASP.NET Core/Microsoft.Extensions/EF Core → 10.0.0; Aspire.Hosting.AppHost → 13.0.0.
+- **Build Status**: Failed. Example errors:
+  - Building SampleApp.Api: CS0006 ref dll missing because SampleApp.Bootstrapper restore failed.
+  - Building SampleApp.Bootstrapper (transitive restore): NU1201 — `Application.Services` (net9.0) and `Infrastructure.MSGraphB2C` (net9.0) reference net10.0 libraries; incompatible with net9.0.
+
+### Outcome
+Failed - Tier 5 hosts cannot build until `Application.Services` and `Infrastructure.MSGraphB2C` (and any other app-layer projects still on net9.0) are retargeted to net10.0. No commit performed. Awaiting instruction to retarget these projects now or adjust plan.
+

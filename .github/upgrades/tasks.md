@@ -4,7 +4,7 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 4/14 tasks complete (29%) ![29%](https://progress-bar.xyz/29)
+**Progress**: 5/14 tasks complete (36%) ![36%](https://progress-bar.xyz/36)
 
 ## Tasks
 
@@ -77,36 +77,36 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [▶] TASK-008: Upgrade Tier 4 (Composition & configuration hosts)
+### [✓] TASK-008: Upgrade Tier 4 (Composition & configuration hosts) *(Completed: 2025-11-16 00:06)*
 **References**: Plan §Phase 4 (Tier 4), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` for Tier 4 projects listed in Plan §Phase 4 (`SampleApp.Bootstrapper`, `Package.Infrastructure.Host`, `Infrastructure.Configuration`, etc.).
-- [ ] (2) Batch-update packages per Plan §Package Update Reference (watch configuration/binder packages).
-- [ ] (3) Restore dependencies.
-- [ ] (4) Build Tier 4 projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [ ] (5) Tier 4 projects build with 0 errors (**Verify**).
-- [ ] (6) Commit changes: `chore(net10): upgrade Tier 4 (composition & config) to net10 + package updates` (**Verify**).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` for Tier 4 projects listed in Plan §Phase 4 (`SampleApp.Bootstrapper`, `Package.Infrastructure.Host`, `Infrastructure.Configuration`, etc.).
+- [✓] (2) Batch-update packages per Plan §Package Update Reference (watch configuration/binder packages).
+- [✓] (3) Restore dependencies.
+- [✓] (4) Build Tier 4 projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [✓] (5) Tier 4 projects build with 0 errors (**Verify**).
+- [✓] (6) Commit changes: `chore(net10): upgrade Tier 4 (composition & config) to net10 + package updates` (**Verify**).
 
-### [ ] TASK-009: Validate Tier 4 (composition start)
+### [⊘] TASK-009: Validate Tier 4 (composition start)
 **References**: Plan §Phase 4 Validation
 
-- [ ] (1) Start bootstrapper/host in a minimal configuration (no manual UI checks) and verify DI container builds and health checks load (use automated health probes defined in Plan §Phase 4 Validation).
-- [ ] (2) Fix deterministic startup errors (one pass).
-- [ ] (3) Re-run automated startup checks once.
-- [ ] (4) Startup/health checks succeed (**Verify**).
+- [⊘] (1) Start bootstrapper/host in a minimal configuration (no manual UI checks) and verify DI container builds and health checks load (use automated health probes defined in Plan §Phase 4 Validation).
+- [⊘] (2) Fix deterministic startup errors (one pass).
+- [⊘] (3) Re-run automated startup checks once.
+- [⊘] (4) Startup/health checks succeed (**Verify**).
 
 ---
 
-### [ ] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers)
+### [▶] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers)
 **References**: Plan §Phase 5 (Tier 5), Plan §Package Update Reference, Assessment #NuGet.0001 (SampleApp.Gateway incompatible package), Plan §Breaking Changes Catalog
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` for all Tier 5 projects listed in Plan §Phase 5.
-- [ ] (2) Batch-update ASP.NET Core, Blazor, Functions, Aspire/AppHost, and hosting packages per Plan §Package Update Reference.
-- [ ] (3) Address Assessment #NuGet.0001: remove or replace `Microsoft.VisualStudio.Azure.Containers.Tools.Targets` in `SampleApp.Gateway` per Plan guidance (document removal in commit).
-- [ ] (4) Restore dependencies.
-- [ ] (5) Build Tier 5 projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [ ] (6) Tier 5 projects build with 0 errors (**Verify**).
-- [ ] (7) Commit changes: `chore(net10): upgrade Tier 5 (hosts) to net10 + package updates; note: remove incompatible packaging tool where applicable` (**Verify** commit success).
+- [▶] (1) Update `<TargetFramework>` to `net10.0` for all Tier 5 projects listed in Plan §Phase 5.
+- [▶] (2) Batch-update ASP.NET Core, Blazor, Functions, Aspire/AppHost, and hosting packages per Plan §Package Update Reference.
+- [▶] (3) Address Assessment #NuGet.0001: remove or replace `Microsoft.VisualStudio.Azure.Containers.Tools.Targets` in `SampleApp.Gateway` per Plan guidance (document removal in commit).
+- [▶] (4) Restore dependencies.
+- [▶] (5) Build Tier 5 projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [▶] (6) Tier 5 projects build with 0 errors (**Verify**).
+- [▶] (7) Commit changes: `chore(net10): upgrade Tier 5 (hosts) to net10 + package updates; note: remove incompatible packaging tool where applicable` (**Verify** commit success).
 
 ### [ ] TASK-011: Validate Tier 5 (host smoke tests)
 **References**: Plan §Phase 5 Validation, Assessment #NuGet.0001

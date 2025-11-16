@@ -105,12 +105,22 @@ public static partial class WebApplicationBuilderExtensions
         })
         .AllowAnonymous()
         .WithName("GetAuthToken")
+        // Guard against null Parameters collection or missing elements
         .WithOpenApi(generatedOperation =>
         {
-            var parameter = generatedOperation.Parameters[0];
-            parameter.Description = $"External service resourceId {resourceId}";
-            parameter = generatedOperation.Parameters[1];
-            parameter.Description = $"External service scope .default";
+            if (generatedOperation.Parameters != null)
+            {
+                if (generatedOperation.Parameters.Count > 0)
+                {
+                    var p0 = generatedOperation.Parameters[0];
+                    p0.Description = $"External service resourceId {resourceId}";
+                }
+                if (generatedOperation.Parameters.Count > 1)
+                {
+                    var p1 = generatedOperation.Parameters[1];
+                    p1.Description = "External service scope .default";
+                }
+            }
             return generatedOperation;
         })
         .WithTags("_Top")
