@@ -22,7 +22,7 @@ permissions:
   pages: write  # Required for GitHub Pages deployment
 
 env:
-  DOTNET_VERSION: '9.x'
+  DOTNET_VERSION: '10.x'
   TEST_RESULTS_DIR: './TestResults'
   TEST_PROJECTS: 'Test.Unit/Test.Unit.csproj' # Test.Unit2/Test.Unit2.csproj' # Add/remove projects
 

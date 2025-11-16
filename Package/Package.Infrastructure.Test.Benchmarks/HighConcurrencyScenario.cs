@@ -8,7 +8,7 @@ using Package.Infrastructure.BackgroundServices;
 namespace Package.Infrastructure.Test.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 public class HighConcurrencyScenario
 {
     private BackgroundTaskQueue _standardQueue = null!;
