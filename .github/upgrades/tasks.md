@@ -17,7 +17,7 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [✓] TASK-002: Upgrade Tier 1 (Domain & foundational libraries) — project & package edits *(Completed: 2025-11-15 21:11)*
+### [✓] TASK-002: Upgrade Tier 1 (Domain & foundational libraries) — project & package edits *(Completed: 2025-11-15 21:12)*
 **References**: Plan §Phase 1 (Tier 1), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
 - [✓] (1) Update `<TargetFramework>` to `net10.0` in all projects listed in Plan §Phase 1.
@@ -27,17 +27,17 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 - [✓] (5) Solution/Tier 1 projects build with 0 errors (**Verify**).
 - [✓] (6) Commit changes: `chore(net10): upgrade Tier 1 (domain & foundational) to net10 + package updates` (**Verify** commit success).
 
-### [ ] TASK-003: Validate Tier 1 (bounded tests & smoke)
+### [⊘] TASK-003: Validate Tier 1 (bounded tests & smoke)
 **References**: Plan §Phase 1 Validation, Plan §Breaking Changes Catalog
 
-- [ ] (1) Run specified consumer/regression tests that depend on Tier 1 per Plan §Phase 1 Validation (run explicit test projects listed in Plan §Phase 1; example: `dotnet test path/to/Test.Domain.Unit.csproj`) — run only the named projects referenced in the Plan.
-- [ ] (2) Record test failures; fix deterministic failures limited to upgrade scope (one fix pass).
-- [ ] (3) Re-run the same specified test projects once to verify fixes.
-- [ ] (4) All specified tests passed with 0 failures (**Verify**).
+- [⊘] (1) Run specified consumer/regression tests that depend on Tier 1 per Plan §Phase 1 Validation (run explicit test projects listed in Plan §Phase 1; example: `dotnet test path/to/Test.Domain.Unit.csproj`) — run only the named projects referenced in the Plan.
+- [⊘] (2) Record test failures; fix deterministic failures limited to upgrade scope (one fix pass).
+- [⊘] (3) Re-run the same specified test projects once to verify fixes.
+- [⊘] (4) All specified tests passed with 0 failures (**Verify**).
 
 ---
 
-### [ ] TASK-004: Upgrade Tier 2 (Data & EF Core projects)
+### [▶] TASK-004: Upgrade Tier 2 (Data & EF Core projects)
 **References**: Plan §Phase 2 (Tier 2), Plan §Breaking Changes Catalog (EF Core 10 notes), Plan §Package Update Reference
 
 - [ ] (1) Update `<TargetFramework>` to `net10.0` for all Tier 2 projects listed in Plan §Phase 2.
