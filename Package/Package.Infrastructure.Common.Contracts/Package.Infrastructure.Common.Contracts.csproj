@@ -5,11 +5,6 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<NoWarn>NU5128</NoWarn>
+		<NoWarn>NU5128</NoWarn><!-- Optional: Suppresses the "missing readme" warning -->
 	</PropertyGroup>
-
-	<ItemGroup>
-		<!-- This is the correct fix for error NU5017: Cannot create a package that has no dependencies nor content. It tells NuGet to include the build output in the 'lib' folder. -->
-		<Content Include="bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="lib\$(TargetFramework)" />
-	</ItemGroup>
 </Project>
