@@ -4,28 +4,28 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 0/14 tasks complete (0%) ![0%](https://progress-bar.xyz/0)
+**Progress**: 2/14 tasks complete (14%) ![14%](https://progress-bar.xyz/14)
 
 ## Tasks
 
-### [▶] TASK-001: Verify prerequisites (SDK & `global.json`)
+### [✓] TASK-001: Verify prerequisites (SDK & `global.json`) *(Completed: 2025-11-15 21:03)*
 **References**: Plan §Phase 0 (Prerequisites), Plan §Source Control Strategy
 
-- [ ] (1) Verify .NET 10 SDK is installed and available on PATH (per Plan §Phase 0).
-- [ ] (2) Update `global.json` to target SDK `10.x` if Plan requires and commit the file as part of the subsequent phase tasks (see Plan §Phase 0).
-- [ ] (3) Verify required tool versions (build tools, CLI extensions) per Plan §Phase 0 (**Verify**: `dotnet --version` shows a 10.x preview SDK and `dotnet --info` shows expected workloads).
+- [✓] (1) Verify .NET 10 SDK is installed and available on PATH (per Plan §Phase 0).
+- [✓] (2) Update `global.json` to target SDK `10.x` if Plan requires and commit the file as part of the subsequent phase tasks (see Plan §Phase 0).
+- [✓] (3) Verify required tool versions (build tools, CLI extensions) per Plan §Phase 0 (**Verify**: `dotnet --version` shows a 10.x preview SDK and `dotnet --info` shows expected workloads).
 
 ---
 
-### [ ] TASK-002: Upgrade Tier 1 (Domain & foundational libraries) — project & package edits
+### [✓] TASK-002: Upgrade Tier 1 (Domain & foundational libraries) — project & package edits *(Completed: 2025-11-15 21:11)*
 **References**: Plan §Phase 1 (Tier 1), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` in all projects listed in Plan §Phase 1.
-- [ ] (2) Update package references for Tier 1 projects per Plan §Package Update Reference (batch package updates for the tier).
-- [ ] (3) Restore dependencies (`dotnet restore`) for the solution/tier.
-- [ ] (4) Build Tier 1 projects and fix compilation errors per Plan §Breaking Changes Catalog (single pass of fixes scoped to upgrade changes).
-- [ ] (5) Solution/Tier 1 projects build with 0 errors (**Verify**).
-- [ ] (6) Commit changes: `chore(net10): upgrade Tier 1 (domain & foundational) to net10 + package updates` (**Verify** commit success).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` in all projects listed in Plan §Phase 1.
+- [✓] (2) Update package references for Tier 1 projects per Plan §Package Update Reference (batch package updates for the tier).
+- [✓] (3) Restore dependencies (`dotnet restore`) for the solution/tier.
+- [✓] (4) Build Tier 1 projects and fix compilation errors per Plan §Breaking Changes Catalog (single pass of fixes scoped to upgrade changes).
+- [✓] (5) Solution/Tier 1 projects build with 0 errors (**Verify**).
+- [✓] (6) Commit changes: `chore(net10): upgrade Tier 1 (domain & foundational) to net10 + package updates` (**Verify** commit success).
 
 ### [ ] TASK-003: Validate Tier 1 (bounded tests & smoke)
 **References**: Plan §Phase 1 Validation, Plan §Breaking Changes Catalog
