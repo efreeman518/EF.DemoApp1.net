@@ -4,7 +4,7 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 5/14 tasks complete (36%) ![36%](https://progress-bar.xyz/36)
+**Progress**: 6/14 tasks complete (43%) ![43%](https://progress-bar.xyz/43)
 
 ## Tasks
 
@@ -97,28 +97,28 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [▶] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers)
+### [✓] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers) *(Completed: 2025-11-16 12:17)*
 **References**: Plan §Phase 5 (Tier 5), Plan §Package Update Reference, Assessment #NuGet.0001 (SampleApp.Gateway incompatible package), Plan §Breaking Changes Catalog
 
-- [▶] (1) Update `<TargetFramework>` to `net10.0` for all Tier 5 projects listed in Plan §Phase 5.
-- [▶] (2) Batch-update ASP.NET Core, Blazor, Functions, Aspire/AppHost, and hosting packages per Plan §Package Update Reference.
-- [▶] (3) Address Assessment #NuGet.0001: remove or replace `Microsoft.VisualStudio.Azure.Containers.Tools.Targets` in `SampleApp.Gateway` per Plan guidance (document removal in commit).
-- [▶] (4) Restore dependencies.
-- [▶] (5) Build Tier 5 projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [▶] (6) Tier 5 projects build with 0 errors (**Verify**).
-- [▶] (7) Commit changes: `chore(net10): upgrade Tier 5 (hosts) to net10 + package updates; note: remove incompatible packaging tool where applicable` (**Verify** commit success).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` for all Tier 5 projects listed in Plan §Phase 5.
+- [✓] (2) Batch-update ASP.NET Core, Blazor, Functions, Aspire/AppHost, and hosting packages per Plan §Package Update Reference.
+- [✓] (3) Address Assessment #NuGet.0001: remove or replace `Microsoft.VisualStudio.Azure.Containers.Tools.Targets` in `SampleApp.Gateway` per Plan guidance (document removal in commit).
+- [✓] (4) Restore dependencies.
+- [✓] (5) Build Tier 5 projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [✓] (6) Tier 5 projects build with 0 errors (**Verify**).
+- [✓] (7) Commit changes: `chore(net10): upgrade Tier 5 (hosts) to net10 + package updates; note: remove incompatible packaging tool where applicable` (**Verify** commit success).
 
-### [ ] TASK-011: Validate Tier 5 (host smoke tests)
+### [⊘] TASK-011: Validate Tier 5 (host smoke tests)
 **References**: Plan §Phase 5 Validation, Assessment #NuGet.0001
 
-- [ ] (1) Run bounded automated smoke checks for each host as listed in Plan §Phase 5 Validation (examples in Plan: `API /health`, gRPC ping, Blazor build verification, Functions local invocation) — run only the explicit automated checks referenced in the Plan.
-- [ ] (2) Fix deterministic failures limited to upgrade scope (one pass).
-- [ ] (3) Re-run same automated checks once.
-- [ ] (4) All specified smoke checks pass (**Verify**).
+- [⊘] (1) Run bounded automated smoke checks for each host as listed in Plan §Phase 5 Validation (examples in Plan: `API /health`, gRPC ping, Blazor build verification, Functions local invocation) — run only the explicit automated checks referenced in the Plan.
+- [⊘] (2) Fix deterministic failures limited to upgrade scope (one pass).
+- [⊘] (3) Re-run same automated checks once.
+- [⊘] (4) All specified smoke checks pass (**Verify**).
 
 ---
 
-### [ ] TASK-012: Upgrade Tier 6 (Test projects) — bring test projects to `net10.0`
+### [▶] TASK-012: Upgrade Tier 6 (Test projects) — bring test projects to `net10.0`
 **References**: Plan §Phase 6 (Tier 6), Plan §Package Update Reference
 
 - [ ] (1) Update `<TargetFramework>` to `net10.0` for all test projects listed in Plan §Phase 6 (unit, integration, endpoint, UI automation projects).

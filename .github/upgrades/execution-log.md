@@ -212,3 +212,48 @@ Status: Failed. Tier 5 host upgrades applied but build blocked by downstream pro
 ### Outcome
 Failed - Tier 5 hosts cannot build until `Application.Services` and `Infrastructure.MSGraphB2C` (and any other app-layer projects still on net9.0) are retargeted to net10.0. No commit performed. Awaiting instruction to retarget these projects now or adjust plan.
 
+
+## [2025-11-16 12:17] TASK-010: Upgrade Tier 5 (Application hosts: API, Gateway, gRPC, UI, Functions, Workers)
+
+Status: Complete. Tier 5 hosts and dependent app-layer projects retargeted and build succeeds.
+
+- **Verified**: All Tier 5 host projects (API, Gateway, Grpc, UI1, BackgroundServices, Functions, AppHost, ServiceDefaults) build successfully on net10.0 after retargeting dependent projects (Application.Services, Infrastructure.MSGraphB2C, Application.MessageHandlers, SampleApp.Support).
+- **Commits**: 9ffa0ffd: "TASK-010: upgrade Tier 5 hosts to net10 + central pkg updates; removed Containers.Tools; retargeted dependent app-layer projects"
+- **Files Modified**:
+  - Application.Services/Application.Services.csproj
+  - Infrastructure.MSGraphB2C/Infrastructure.MSGraphB2C.csproj
+  - Application.MessageHandlers/Application.MessageHandlers.csproj
+  - SampleApp.Support/SampleApp.Support.csproj
+  - SampleApp.Api/SampleApp.Api.csproj
+  - SampleApp.Gateway/SampleApp.Gateway.csproj
+  - SampleApp.Grpc/SampleApp.Grpc.csproj
+  - SampleApp.UI1/SampleApp.UI1.csproj
+  - SampleApp.BackgroundServices/SampleApp.BackgroundServices.csproj
+  - Aspire/AppHost/SampleApp.AppHost.csproj
+  - Aspire/ServiceDefaults/SampleApp.ServiceDefaults.csproj
+  - Functions/Functions.csproj
+  - Directory.Packages.props
+  - SampleApp.Api/WebApplicationBuilderExtensions.cs
+  - SampleApp.UI1/Components/LoginFailedHandler.razor
+- **Files Created**:
+  - Tools/CompositionSmoke/CompositionSmoke.csproj
+  - Tools/CompositionSmoke/Program.cs
+- **Code Changes**:
+  - Retargeted multiple projects to net10.0 (resolved NU1201 mismatches).
+  - Removed deprecated Containers.Tools.Targets from Gateway.
+  - Updated central package versions (ASP.NET Core, EF Core, Microsoft.Extensions) to 10.0.0; Aspire SDK to 13.0.0.
+  - Fixed CS8602 null dereference in WebApplicationBuilderExtensions via parameter guards.
+  - Removed WebUtilities dependency from Blazor component using manual query parsing.
+- **Build Status**: Successful for all Tier 5 and retargeted dependencies (warnings remain but no errors).
+
+### Outcome
+Success - Tier 5 upgrade completed and committed; ready for TASK-011 validation.
+
+
+## [2025-11-16 12:33] TASK-011: Validate Tier 5 (host smoke tests)
+
+Status: Paused. User requested to skip Tier 5 validation.
+
+### Outcome
+Paused - TASK-011 skipped per user request; proceeding to Tier 6 upgrade (tests).
+
