@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Common;
+
 public static class CollectionUtility
 {
     public static void ProcessCollection<TItem>(IEnumerable<TItem>? items, Action<TItem> processAction, bool failFast = true)

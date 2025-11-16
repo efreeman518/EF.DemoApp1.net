@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Data.Common;
 
 namespace Package.Infrastructure.Data.Interceptors;
+
 public class ReadUncommittedInterceptor(ILogger<ReadUncommittedInterceptor> logger) : DbCommandInterceptor
 {
     public override InterceptionResult<DbDataReader> ReaderExecuting(

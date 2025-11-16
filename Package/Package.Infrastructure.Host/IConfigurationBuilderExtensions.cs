@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
 namespace Package.Infrastructure.Host;
+
 public static class IConfigurationBuilderExtensions
 {
     /// <summary>

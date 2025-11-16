@@ -2,6 +2,7 @@
 using System.Diagnostics;
 
 namespace Package.Infrastructure.AspNetCore.ActivityProcessors;
+
 public class FilterActivityProcessor(Predicate<Activity> filter) : BaseProcessor<Activity>
 {
     private readonly Predicate<Activity> _filter = filter ?? throw new ArgumentNullException(nameof(filter));

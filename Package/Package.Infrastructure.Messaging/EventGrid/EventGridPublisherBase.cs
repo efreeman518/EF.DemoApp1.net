@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Messaging.EventGrid;
+
 public abstract class EventGridPublisherBase : IEventGridPublisher
 {
     private readonly ILogger<EventGridPublisherBase> _logger;

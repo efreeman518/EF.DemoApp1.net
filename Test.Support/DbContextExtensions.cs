@@ -4,6 +4,7 @@ using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;
 
 namespace Test.Support;
+
 public static class DbContextExtensions
 {
     /// <summary>

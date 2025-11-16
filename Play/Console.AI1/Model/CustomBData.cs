@@ -1,4 +1,5 @@
 ﻿namespace Console.AI1.Model;
+
 public class CustomBData
 {
     public string Name { get; set; } = null!;

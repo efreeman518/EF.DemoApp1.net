@@ -4,6 +4,7 @@
 [assembly: Parallelize(Workers = 4, Scope = ExecutionScope.MethodLevel)]
 
 namespace Test.Architecture;
+
 public abstract class BaseTest
 {
     protected static readonly Assembly DomainModelAssembly = typeof(Domain.Model.TodoItem).Assembly;

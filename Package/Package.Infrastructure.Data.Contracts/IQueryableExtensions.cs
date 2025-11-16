@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Package.Infrastructure.Data.Contracts;
+
 public static class IQueryableExtensions
 {
     private static readonly ConcurrentDictionary<Type, object?> typeDefaults = new();

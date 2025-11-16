@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 
 namespace Package.Infrastructure.Messaging.ServiceBus;
+
 public class ServiceBusProcessorSettingsBase
 {
     public string ServiceBusClientName { get; set; } = null!;

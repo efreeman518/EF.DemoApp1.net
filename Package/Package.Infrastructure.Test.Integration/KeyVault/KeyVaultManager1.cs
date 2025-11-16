@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Package.Infrastructure.KeyVault;
 
 namespace Package.Infrastructure.Test.Integration.KeyVault;
+
 public class KeyVaultManager1(ILogger<KeyVaultManager1> logger, IOptions<KeyVaultManager1Settings> settings,
     IAzureClientFactory<SecretClient> clientFactorySecret, IAzureClientFactory<KeyClient> clientFactoryKey, IAzureClientFactory<CertificateClient> clientFactoryCert)
     : KeyVaultManagerBase(logger, settings, clientFactorySecret, clientFactoryKey, clientFactoryCert), IKeyVaultManager1

@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 
 namespace Package.Infrastructure.Common;
+
 public static class SymmetricEncryptionUtility
 {
     const CipherMode cipherMode = CipherMode.CBC;

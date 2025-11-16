@@ -5,6 +5,7 @@ using System.Data;
 //using System.Data.SqlClient;
 
 namespace Functions.Infrastructure;
+
 public class DatabaseService(IConfiguration configuration) : IDatabaseService
 {
     private readonly string? _connectionString = configuration.GetConnectionString("SampleDB");

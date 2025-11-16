@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.Hosting;
 
 namespace Package.Infrastructure.Host;
+
 public static class IHostApplicationBuilderExtensions
 {
     /// <summary>
