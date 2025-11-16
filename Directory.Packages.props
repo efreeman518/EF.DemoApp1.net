@@ -180,5 +180,8 @@
     <PackageVersion Include="ZiggyCreatures.FusionCache" Version="2.4.0" />
     <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="2.4.0" />
     <PackageVersion Include="ZiggyCreatures.FusionCache.Serialization.CysharpMemoryPack" Version="2.4.0" />
+
+		<!-- This workaround is necessary to satisfy the Package.Infrastructure.Common.Contracts NU5017 validation error. -->
+		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 </Project>
