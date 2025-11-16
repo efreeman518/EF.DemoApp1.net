@@ -108,3 +108,40 @@ Status: Paused. User instructed to skip Tier 2 validation.
 ### Outcome
 Paused - TASK-005 skipped per user request; proceeding to TASK-006.
 
+
+## [2025-11-15 23:19] TASK-006: Upgrade Tier 3 (Service integration libraries)
+
+Status: Complete. Tier 3 service integration libraries upgraded.
+
+- **Verified**: All Tier 3 projects build successfully targeting net10.0.
+- **Commits**: 6e9293e8: "TASK-006: upgrade Tier 3 (service integrations) to net10 + package updates & removed redundant System.Linq"
+- **Files Modified**:
+  - Package/Package.Infrastructure.Auth/Package.Infrastructure.Auth.csproj
+  - Package/Package.Infrastructure.Grpc/Package.Infrastructure.Grpc.csproj
+  - Package/Package.Infrastructure.Messaging/Package.Infrastructure.Messaging.csproj
+  - Package/Package.Infrastructure.Storage/Package.Infrastructure.Storage.csproj
+  - Package/Package.Infrastructure.Cache/Package.Infrastructure.Cache.csproj
+  - Package/Package.Infrastructure.KeyVault/Package.Infrastructure.KeyVault.csproj
+  - Package/Package.Infrastructure.OpenAI/Package.Infrastructure.OpenAI.csproj
+  - Package/Package.Infrastructure.AzureOpenAI/Package.Infrastructure.AzureOpenAI.csproj
+  - Package/Package.Infrastructure.BlandAI/Package.Infrastructure.BlandAI.csproj
+  - Package/Package.Infrastructure.MSGraph/Package.Infrastructure.MSGraph.csproj
+  - Infrastructure.RapidApi/Infrastructure.RapidApi.csproj
+  - Infrastructure.JobsApi/Infrastructure.JobsApi.csproj
+- **Code Changes**:
+  - Updated `<TargetFramework>` to net10.0 across Tier 3.
+  - Applied VersionOverride=10.0.0 for Microsoft.Extensions.* packages and ASP.NET Core Authorization where needed.
+  - Removed redundant `System.Linq` package (now framework-provided) from AzureOpenAI project.
+- **Build Status**: Successful for all modified Tier 3 projects.
+
+### Outcome
+Success - Tier 3 upgrade committed and ready for validation phase.
+
+
+## [2025-11-16 00:04] TASK-007: Validate Tier 3 (integration smoke)
+
+Status: Paused. User requested to skip validation and continue.
+
+### Outcome
+Paused - TASK-007 skipped per user request; moving to Tier 4 upgrade.
+

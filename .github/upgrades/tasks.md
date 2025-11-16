@@ -4,7 +4,7 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 3/14 tasks complete (21%) ![21%](https://progress-bar.xyz/21)
+**Progress**: 4/14 tasks complete (29%) ![29%](https://progress-bar.xyz/29)
 
 ## Tasks
 
@@ -57,27 +57,27 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [▶] TASK-006: Upgrade Tier 3 (Service integration libraries)
+### [✓] TASK-006: Upgrade Tier 3 (Service integration libraries) *(Completed: 2025-11-15 23:19)*
 **References**: Plan §Phase 3 (Tier 3), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
-- [▶] (1) Update `<TargetFramework>` to `net10.0` for all Tier 3 projects per Plan §Phase 3.
-- [▶] (2) Batch-update Microsoft.Extensions.* and other integration packages per Plan §Package Update Reference; remove redundant packages now provided by framework (per Plan §NuGet.0003).
-- [▶] (3) Restore dependencies.
-- [▶] (4) Build Tier 3 projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [▶] (5) Tier 3 projects build with 0 errors (**Verify**).
-- [▶] (6) Commit changes: `chore(net10): upgrade Tier 3 (service integrations) to net10 + package updates` (**Verify**).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` for all Tier 3 projects per Plan §Phase 3.
+- [✓] (2) Batch-update Microsoft.Extensions.* and other integration packages per Plan §Package Update Reference; remove redundant packages now provided by framework (per Plan §NuGet.0003).
+- [✓] (3) Restore dependencies.
+- [✓] (4) Build Tier 3 projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [✓] (5) Tier 3 projects build with 0 errors (**Verify**).
+- [✓] (6) Commit changes: `chore(net10): upgrade Tier 3 (service integrations) to net10 + package updates` (**Verify**).
 
-### [ ] TASK-007: Validate Tier 3 (integration smoke)
+### [⊘] TASK-007: Validate Tier 3 (integration smoke)
 **References**: Plan §Phase 3 Validation
 
-- [ ] (1) Run targeted integration tests and minimal service stubs listed in Plan §Phase 3 Validation (explicit test project names referenced in the Plan).
-- [ ] (2) Fix deterministic failures limited to upgrade impacts (one pass).
-- [ ] (3) Re-run the same specified tests once.
-- [ ] (4) All specified tests passed with 0 failures (**Verify**).
+- [⊘] (1) Run targeted integration tests and minimal service stubs listed in Plan §Phase 3 Validation (explicit test project names referenced in the Plan).
+- [⊘] (2) Fix deterministic failures limited to upgrade impacts (one pass).
+- [⊘] (3) Re-run the same specified tests once.
+- [⊘] (4) All specified tests passed with 0 failures (**Verify**).
 
 ---
 
-### [ ] TASK-008: Upgrade Tier 4 (Composition & configuration hosts)
+### [▶] TASK-008: Upgrade Tier 4 (Composition & configuration hosts)
 **References**: Plan §Phase 4 (Tier 4), Plan §Package Update Reference, Plan §Breaking Changes Catalog
 
 - [ ] (1) Update `<TargetFramework>` to `net10.0` for Tier 4 projects listed in Plan §Phase 4 (`SampleApp.Bootstrapper`, `Package.Infrastructure.Host`, `Infrastructure.Configuration`, etc.).
