@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Common.Extensions;
+
 public static class SerializeExtensions
 {
     /// <summary>

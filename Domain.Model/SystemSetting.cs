@@ -2,6 +2,7 @@
 using Package.Infrastructure.Domain;
 
 namespace Domain.Model;
+
 public class SystemSetting(string key, string? value) : AuditableBase<string>
 {
     public string Key { get; set; } = key;

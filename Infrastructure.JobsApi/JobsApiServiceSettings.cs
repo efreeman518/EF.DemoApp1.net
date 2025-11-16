@@ -1,4 +1,5 @@
 ﻿namespace Infrastructure.JobsApi;
+
 public class JobsApiServiceSettings
 {
     public const string ConfigSectionName = "JobsApiServiceSettings";

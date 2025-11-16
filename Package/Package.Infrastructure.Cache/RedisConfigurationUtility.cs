@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Cache;
+
 public static class RedisConfigurationUtility
 {
     public static RedisConfiguration ParseRedisConnectionString(string connectionString)

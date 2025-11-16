@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Grpc;
+
 public class ErrorInterceptorSettings
 {
     public bool IncludeLogDataInResponse { get; set; } = true;

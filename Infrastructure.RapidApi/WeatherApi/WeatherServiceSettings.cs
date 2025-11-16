@@ -1,4 +1,5 @@
 ﻿namespace Infrastructure.RapidApi.WeatherApi;
+
 public class WeatherServiceSettings
 {
     public const string ConfigSectionName = "WeatherServiceSettings";

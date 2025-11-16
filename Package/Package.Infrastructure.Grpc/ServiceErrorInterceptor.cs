@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Grpc;
+
 public partial class ServiceErrorInterceptor(ILogger<ServiceErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings) : Interceptor
 {
     private readonly ILogger<ServiceErrorInterceptor> _logger = logger;

@@ -4,7 +4,7 @@
 
 Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up (dependency‑first) strategy defined in the Plan. Tasks follow the Plan phases/tiers; each upgrade task batches project file updates + package updates + restore + build+fix for a tier, then a separate test/validation task runs bounded verifications before advancing. Commits are performed per phase per Plan §Source Control Strategy.
 
-**Progress**: 6/14 tasks complete (43%) ![43%](https://progress-bar.xyz/43)
+**Progress**: 9/14 tasks complete (64%) ![64%](https://progress-bar.xyz/64)
 
 ## Tasks
 
@@ -118,33 +118,33 @@ Upgrade multi-project solution from `net9.0` → `net10.0` using the Bottom‑Up
 
 ---
 
-### [▶] TASK-012: Upgrade Tier 6 (Test projects) — bring test projects to `net10.0`
+### [✓] TASK-012: Upgrade Tier 6 (Test projects) — bring test projects to `net10.0` *(Completed: 2025-11-16 13:03)*
 **References**: Plan §Phase 6 (Tier 6), Plan §Package Update Reference
 
-- [ ] (1) Update `<TargetFramework>` to `net10.0` for all test projects listed in Plan §Phase 6 (unit, integration, endpoint, UI automation projects).
-- [ ] (2) Update package references in test projects per Plan §Package Update Reference (batch updates).
-- [ ] (3) Restore dependencies.
-- [ ] (4) Build test projects and fix compilation errors per Plan §Breaking Changes Catalog.
-- [ ] (5) Test projects build with 0 errors (**Verify**).
-- [ ] (6) Commit changes: `chore(net10): upgrade test projects to net10 + package updates` (**Verify**).
+- [✓] (1) Update `<TargetFramework>` to `net10.0` for all test projects listed in Plan §Phase 6 (unit, integration, endpoint, UI automation projects).
+- [✓] (2) Update package references in test projects per Plan §Package Update Reference (batch updates).
+- [✓] (3) Restore dependencies.
+- [✓] (4) Build test projects and fix compilation errors per Plan §Breaking Changes Catalog.
+- [✓] (5) Test projects build with 0 errors (**Verify**).
+- [✓] (6) Commit changes: `chore(net10): upgrade test projects to net10 + package updates` (**Verify**).
 
-### [ ] TASK-013: Run full test suite (bounded, explicit)
+### [✓] TASK-013: Run full test suite (bounded, explicit) *(Completed: 2025-11-16 13:08)*
 **References**: Plan §Phase 6 Validation (Full test suite)
 
-- [ ] (1) Run explicit test projects listed in Plan §Phase 6 using `dotnet test <project>` for each listed project (examples from Plan: `Test.Unit`, `Test.Integration`, `Test.Endpoints`, `Test.PlaywrightUI`, `Test.SeleniumUI` — run only projects named in Plan).
-- [ ] (2) Fix deterministic failures limited to upgrade impacts (one pass, reference Plan §Breaking Changes for common fixes).
-- [ ] (3) Re-run the same explicit test projects once to verify fixes.
-- [ ] (4) All specified tests passed with 0 failures (**Verify**).
+- [✓] (1) Run explicit test projects listed in Plan §Phase 6 using `dotnet test <project>` for each listed project (examples from Plan: `Test.Unit`, `Test.Integration`, `Test.Endpoints`, `Test.PlaywrightUI`, `Test.SeleniumUI` — run only projects named in Plan).
+- [✓] (2) Fix deterministic failures limited to upgrade impacts (one pass, reference Plan §Breaking Changes for common fixes).
+- [✓] (3) Re-run the same explicit test projects once to verify fixes.
+- [✓] (4) All specified tests passed with 0 failures (**Verify**).
 
 ---
 
-### [ ] TASK-014: Finalize upgrade deliverables (docs, tags, checklist)
+### [✓] TASK-014: Finalize upgrade deliverables (docs, tags, checklist) *(Completed: 2025-11-16 13:15)*
 **References**: Plan §Commit Strategy, Plan §Phase Completion Checklists, Plan §Success Criteria
 
-- [ ] (1) Update upgrade documentation / `README` / upgrade notes summarizing changes, removed packages (e.g., per Assessment #NuGet.0003), and known caveats.
-- [ ] (2) Run the Plan §Success Criteria checklist and verify: all projects target `net10.0`, recommended packages updated, redundant packages removed, incompatible packages addressed, builds succeed without warnings, tests green (**Verify**).
-- [ ] (3) Commit documentation changes: `docs(upgrade): record net10 migration notes` (**Verify**).
-- [ ] (4) Create a tag for the completed upgrade branch (optional per Plan §Source Control Strategy): `net10-upgrade-complete` (verify tag created) — do not merge branches automatically.
+- [✓] (1) Update upgrade documentation / `README` / upgrade notes summarizing changes, removed packages (e.g., per Assessment #NuGet.0003), and known caveats.
+- [✓] (2) Run the Plan §Success Criteria checklist and verify: all projects target `net10.0`, recommended packages updated, redundant packages removed, incompatible packages addressed, builds succeed without warnings, tests green (**Verify**).
+- [✓] (3) Commit documentation changes: `docs(upgrade): record net10 migration notes` (**Verify**).
+- [✓] (4) Create a tag for the completed upgrade branch (optional per Plan §Source Control Strategy): `net10-upgrade-complete` (verify tag created) — do not merge branches automatically.
 
 ---
 

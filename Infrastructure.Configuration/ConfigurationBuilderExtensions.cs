@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Configuration;
+
 public static class ConfigurationBuilderExtensions
 {
     public static IConfigurationBuilder AddDatabaseSource(this IConfigurationBuilder builder, string connectionString, TimeSpan? refreshInterval = null)

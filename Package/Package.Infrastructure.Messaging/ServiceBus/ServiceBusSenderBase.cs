@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Messaging.ServiceBus;
+
 public abstract class ServiceBusSenderBase : IServiceBusSender
 {
     private readonly ILogger<ServiceBusSenderBase> _logger;

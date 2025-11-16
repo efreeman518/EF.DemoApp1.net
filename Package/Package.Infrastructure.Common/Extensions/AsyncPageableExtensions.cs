@@ -1,6 +1,7 @@
 ﻿using Azure;
 
 namespace Package.Infrastructure.Common.Extensions;
+
 public static class AsyncPageableExtensions
 {
     public static async Task<(IReadOnlyList<T>, string?)> GetPageAsync<T>(this AsyncPageable<T> pageable, string? continuationToken = null, CancellationToken cancellationToken = default)

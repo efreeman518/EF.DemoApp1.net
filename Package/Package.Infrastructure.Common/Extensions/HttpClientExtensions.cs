@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Common.Extensions;
+
 public static class HttpClientExtensions
 {
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };

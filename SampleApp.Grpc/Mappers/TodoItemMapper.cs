@@ -2,6 +2,7 @@
 using Domain.Shared.Enums;
 
 namespace SampleApp.Grpc.Mappers;
+
 public static class TodoItemMapper
 {
     //app -> grpc proto

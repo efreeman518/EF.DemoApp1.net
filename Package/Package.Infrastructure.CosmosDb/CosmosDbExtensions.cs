@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 
 namespace Package.Infrastructure.CosmosDb;
+
 public static class CosmosDbExtensions
 {
     /// <summary>

@@ -257,3 +257,47 @@ Status: Paused. User requested to skip Tier 5 validation.
 ### Outcome
 Paused - TASK-011 skipped per user request; proceeding to Tier 6 upgrade (tests).
 
+
+## [2025-11-16 13:03] TASK-012: Upgrade Tier 6 (Test projects) — bring test projects to net10.0
+
+Status: Complete. Test projects upgraded and build verified.
+
+- **Verified**: Retargeted `Test.Unit`, `Test.Integration`, `Test.Endpoints`, `Test.Support` to net10.0; all build successfully.
+- **Commits**: 131e344a: "TASK-012: upgrade test projects (unit/integration/endpoints/support) to net10 + fix Blazor/WebUtilities usage; align central packages"
+- **Files Modified**:
+  - Test.Unit/Test.Unit.csproj
+  - Test.Integration/Test.Integration.csproj
+  - Test.Endpoints/Test.Endpoints.csproj
+  - Test.Support/Test.Support.csproj
+- **Build Status**: Successful: test projects compiled; warnings remain but no errors.
+
+### Outcome
+Success - Tier 6 test projects upgraded to net10.0 and verified via build.
+
+
+## [2025-11-16 13:08] TASK-013: Run full test suite (bounded, explicit)
+
+Status: Complete. Bounded test suite executed per Plan §Phase 6.
+
+- **Tests**:
+  - Test.Unit: Passed 57, Failed 0, Skipped 0
+  - Test.Endpoints: Passed 2, Failed 0, Skipped 0
+  - Test.Integration: Passed 5, Failed 0, Skipped 6
+- **Build Status**: Tests executed successfully (no failures)
+
+### Outcome
+Success - All specified tests passed with 0 failures.
+
+
+## [2025-11-16 13:15] TASK-014: Finalize upgrade deliverables (docs, tags, checklist)
+
+Status: Complete. Final deliverables prepared and verified.
+
+- **Verified**: All projects target net10.0; central packages updated; incompatible Containers.Tools removed; builds and bounded tests pass.
+- **Files Modified**: README.md
+- **Commits**: 2b0a4ec3: "docs(upgrade): update README for .NET 10 and test guidance"
+- **Tag**: net10-upgrade-complete
+
+### Outcome
+Success - Documentation updated, success criteria verified, and tag created. Upgrade branch ready for review; no auto-merge performed.
+

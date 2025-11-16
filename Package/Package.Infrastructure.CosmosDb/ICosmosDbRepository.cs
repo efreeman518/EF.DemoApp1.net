@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Net;
 
 namespace Package.Infrastructure.CosmosDb;
+
 public interface ICosmosDbRepository
 {
     Task<T> SaveItemAsync<T>(T item) where T : CosmosDbEntity;
