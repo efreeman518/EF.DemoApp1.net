@@ -7,4 +7,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<NoWarn>NU5128</NoWarn><!-- Optional: Suppresses the "missing readme" warning -->
 	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- This workaround is necessary to satisfy the NU5017 validation error in this specific build environment. -->
+		<PackageReference Include="System.ComponentModel.Annotations" />
+	</ItemGroup>
 </Project>
