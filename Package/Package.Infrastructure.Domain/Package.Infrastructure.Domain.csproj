@@ -4,4 +4,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+	<ItemGroup>
+		<!-- This workaround is necessary to satisfy the NU5017 validation error. -->
+		<!-- The version is managed centrally in Directory.Packages.props -->
+		<PackageReference Include="System.ComponentModel.Annotations" />
+	</ItemGroup>
 </Project>
