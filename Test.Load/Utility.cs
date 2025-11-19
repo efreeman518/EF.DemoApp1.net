@@ -4,6 +4,7 @@ using Package.Infrastructure.Common.Extensions;
 using System.Text.Json;
 
 namespace Test.Load;
+
 internal static class Utility
 {
     public static async Task<Response<object>> RunStep<TRequest, TResponse>(IScenarioContext context, HttpClient httpClient, string stepName, HttpMethod method, string url, Func<IScenarioContext, string>? urlBuilder = null, Func<IScenarioContext, TRequest>? payloadBuilder = null)

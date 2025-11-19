@@ -9,7 +9,7 @@ using System.Threading.Channels;
 namespace Package.Infrastructure.Test.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 public class HighThroughputScenario
 {
     private IServiceScopeFactory _serviceScopeFactory = null!;

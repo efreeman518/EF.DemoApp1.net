@@ -4,6 +4,7 @@ using Polly;
 using System.Net;
 
 namespace Package.Infrastructure.Utility.UI;
+
 public static class HttpClientBuilderExtensions
 {
     /// <summary>

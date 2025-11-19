@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Package.Infrastructure.Common.Extensions;
+
 public static class DictionaryExtensions
 {
     //chapsas - https://www.youtube.com/watch?v=8dI_nsmcW-4

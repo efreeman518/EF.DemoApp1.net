@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace SampleApp.Bootstrapper.StartupTasks;
+
 public class LoadCache(IConfiguration config, ILogger<LoadCache> logger, IFusionCacheProvider cache, ITodoRepositoryQuery repoQuery) : IStartupTask
 {
     public async Task ExecuteAsync(CancellationToken cancellationToken = default)

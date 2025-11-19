@@ -2,6 +2,7 @@
 using System.Text;
 
 namespace Package.Infrastructure.KeyVault;
+
 public class KeyVaultCryptoUtility(CryptographyClient cryptoClient) : IKeyVaultCryptoUtility
 {
     public async Task<byte[]> EncryptAsync(string plaintext)

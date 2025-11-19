@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 namespace Package.Infrastructure.Messaging;
+
 internal static class Utility
 {
     public static string StringToBinary(this string data)

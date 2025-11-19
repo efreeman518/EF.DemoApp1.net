@@ -105,14 +105,6 @@ public static partial class WebApplicationBuilderExtensions
         })
         .AllowAnonymous()
         .WithName("GetAuthToken")
-        .WithOpenApi(generatedOperation =>
-        {
-            var parameter = generatedOperation.Parameters[0];
-            parameter.Description = $"External service resourceId {resourceId}";
-            parameter = generatedOperation.Parameters[1];
-            parameter.Description = $"External service scope .default";
-            return generatedOperation;
-        })
         .WithTags("_Top")
         .WithDescription("Retrieve a token for the resource using DefaultAzureCredential");
 

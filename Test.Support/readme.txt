@@ -16,8 +16,8 @@ Load tests
 
 Powershell/cmd
 $solutionPath = "[Path to .sln]"   
-$benchmarkPath = "Path to Test.Benchmarks project output folder - \bin\Release\net9.0"
-$loadPath = "Path to Test.Load project output folder - \bin\Release\net9.0"
+$benchmarkPath = "Path to Test.Benchmarks project output folder - \bin\Release\net10.0"
+$loadPath = "Path to Test.Load project output folder - \bin\Release\net10.0"
 cd $solutionPath
 dotnet build -c release   
 cd $benchmarkPath   

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.BlandAI.Model;
+
 public record EmotionData
 {
     [JsonPropertyName("emotion")]

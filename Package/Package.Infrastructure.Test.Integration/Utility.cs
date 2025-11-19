@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 
 namespace Package.Infrastructure.Test.Integration;
+
 internal static class Utility
 {
     public static IConfigurationRoot BuildConfiguration<T>() where T : class

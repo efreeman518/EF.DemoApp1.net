@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Common;
+
 public class StringMatcher
 {
     private readonly ReadOnlyMemory<string> _keywords;

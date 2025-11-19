@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Common.Extensions;
+
 public static class RegexExtensions
 {
     public static async Task<string> ReplaceAsync(this Regex regex, string input, Func<Match, Task<string>> funcReplacement)

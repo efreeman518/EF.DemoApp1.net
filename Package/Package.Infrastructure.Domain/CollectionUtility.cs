@@ -1,6 +1,7 @@
 ﻿using Package.Infrastructure.Domain.Contracts;
 
 namespace Package.Infrastructure.Domain;
+
 public static class CollectionUtility
 {
     /// <summary>

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace Package.Infrastructure.Messaging.ServiceBus;
+
 public abstract class ServiceBusProcessorBase : IServiceBusReceiver
 {
     private readonly ILogger<ServiceBusProcessorBase> _logger;
@@ -30,13 +31,13 @@ public abstract class ServiceBusProcessorBase : IServiceBusReceiver
     /// <param name="funcError"></param>
     public void RegisterProcessor(string queueOrTopicName, string? subscriptionName, Func<ProcessMessageEventArgs, Task> funcProcess, Func<ProcessErrorEventArgs, Task> funcError)
     {
-        _logger.LogInformation("RegisterProcessor Start - {QueueOrTopicName}-{SubscriptionName}}", queueOrTopicName, subscriptionName);
+        _logger.LogInformation("RegisterProcessor Start - {QueueOrTopicName}-{SubscriptionName}", queueOrTopicName, subscriptionName);
         string pre = subscriptionName != null ? "s" : "q";
         string key = $"{pre}.{queueOrTopicName}{(pre == "s" ? $".{subscriptionName}" : "")}";
         ServiceBusProcessor sbProcessor = GetServiceBusProcessor(key, subscriptionName);
         sbProcessor.ProcessMessageAsync += funcProcess;
         sbProcessor.ProcessErrorAsync += funcError;
-        _logger.LogInformation("RegisterProcessor Finish - {QueueOrTopicName}-{SubscriptionName}}", queueOrTopicName, subscriptionName);
+        _logger.LogInformation("RegisterProcessor Finish - {QueueOrTopicName}-{SubscriptionName}", queueOrTopicName, subscriptionName);
     }
 
     public async Task StartProcessingAsync(string queueOrTopicName, string? subscriptionName = null, CancellationToken cancellationToken = default)

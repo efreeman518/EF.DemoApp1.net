@@ -4,6 +4,7 @@
 [assembly: Parallelize(Workers = 5, Scope = ExecutionScope.MethodLevel)]
 
 namespace Test.Unit;
+
 public abstract class UnitTestBase
 {
     protected MockRepository _mockFactory;

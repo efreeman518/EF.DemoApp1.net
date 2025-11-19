@@ -1,6 +1,7 @@
 ﻿using Microsoft.Playwright;
 
 namespace Test.PlaywrightUI.PageObjects;
+
 public abstract class BasePageObject
 {
     public abstract string PagePath { get; }

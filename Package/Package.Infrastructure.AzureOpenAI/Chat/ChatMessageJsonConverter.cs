@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Package.Infrastructure.AzureOpenAI.Chat;
+
 public class ChatMessageJsonConverter : JsonConverter<ChatMessage>
 {
     public override ChatMessage? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace Console.AI1.Demo.SKMultiAgentChat.Plugins;
+
 public class AgentBItemsPlugin(IConfiguration config)
 {
     [KernelFunction("SearchItems")]

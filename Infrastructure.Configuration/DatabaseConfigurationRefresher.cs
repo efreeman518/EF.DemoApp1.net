@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Primitives;
 
 namespace Infrastructure.Configuration;
+
 public class DatabaseConfigurationRefresher : IDatabaseConfigurationRefresher
 {
     private readonly Timer? _timer;

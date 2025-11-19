@@ -6,6 +6,7 @@ using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 
 namespace Infrastructure.SampleApi;
+
 public class SampleApiRestClient(ILogger<SampleApiRestClient> logger, IOptions<SampleApiRestClientSettings> settings, HttpClient httpClient) : ISampleApiRestClient
 {
     private const string urlSegment = "todoitems";

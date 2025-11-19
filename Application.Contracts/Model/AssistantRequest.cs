@@ -1,4 +1,5 @@
 ﻿namespace Application.Contracts.Model;
+
 public class AssistantRequest
 {
     public string? AssistantId { get; set; }

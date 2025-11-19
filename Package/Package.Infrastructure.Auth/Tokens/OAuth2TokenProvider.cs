@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace Package.Infrastructure.Auth.Tokens;
+
 public class OAuth2TokenProvider(IOptions<OAuth2Options> oauth2Options, IAppCache appCache) : IOAuth2TokenProvider
 {
     private readonly OAuth2Options _oauth2Options = oauth2Options.Value;

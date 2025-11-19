@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Package.Infrastructure.Grpc;
+
 public class ClientErrorInterceptor(ILogger<ClientErrorInterceptor> logger, IOptions<ErrorInterceptorSettings> settings) : Interceptor
 {
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)

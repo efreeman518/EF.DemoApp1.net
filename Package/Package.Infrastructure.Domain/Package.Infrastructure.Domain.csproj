@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" />
-  </ItemGroup>
+
+	<ItemGroup>
+		<!-- This workaround is necessary to satisfy the NU5017 validation error. -->
+		<!-- The version is managed centrally in Directory.Packages.props -->
+		<PackageReference Include="System.ComponentModel.Annotations" />
+	</ItemGroup>
 </Project>

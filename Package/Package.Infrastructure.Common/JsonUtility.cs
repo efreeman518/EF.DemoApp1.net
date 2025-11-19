@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 
 namespace Package.Infrastructure.Common;
+
 public static class JsonUtility
 {
     // Simple JSON field extractors

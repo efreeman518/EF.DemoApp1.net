@@ -3,6 +3,7 @@ using Infrastructure.MSGraphB2C;
 using Package.Infrastructure.MSGraph.Models;
 
 namespace Application.Services;
+
 public class B2CManagement(IMSGraphServiceB2C b2cClient) : IB2CManagement
 {
     /// <summary>

@@ -2,7 +2,6 @@
 @using SampleApp.UI1.Model
 @using SampleApp.UI1.Utility
 @using Microsoft.Extensions.Primitives
-@using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Options
 
 @layout EmptyLayout
@@ -29,10 +28,9 @@ else
     protected override void OnInitialized()
     {
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("message", out StringValues messageValues))
-        {
-            ErrorMessage = messageValues.FirstOrDefault();
-        }
+        // Manual parsing of query parameters without WebUtilities
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        ErrorMessage = query["message"];
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {

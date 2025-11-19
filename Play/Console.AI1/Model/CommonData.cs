@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.VectorData;
 
 namespace Console.AI1.Model;
+
 public class Item
 {
     [VectorStoreKey]

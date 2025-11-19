@@ -21,7 +21,7 @@ on:
     #       - prod
 
 env:
-  DOTNET_VERSION: '9.x'
+  DOTNET_VERSION: '10.x'
 
 jobs:
   build:

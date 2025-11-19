@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.AspNetCore.ActivityProcessors; //copied from Package.Infrastructure.Common to avoid reference for a single utility
+
 public class StringMatcher
 {
     private readonly ReadOnlyMemory<string> _keywords;

@@ -3,6 +3,7 @@ using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Secrets;
 
 namespace Package.Infrastructure.KeyVault;
+
 public interface IKeyVaultManager
 {
     Task<string?> GetSecretAsync(string name, string? version = null, CancellationToken cancellationToken = default);

@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Common.Extensions;
+
 public static class IAsyncEnumerableExtensions
 {
     /// <summary>

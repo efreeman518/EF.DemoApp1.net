@@ -1,4 +1,5 @@
 ﻿namespace Package.Infrastructure.Messaging.EventHub;
+
 public class EventHubProducerSettingsBase
 {
     public string EventHubProducerClientName { get; set; } = null!;

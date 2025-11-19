@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <PackageId>Package.Infrastructure.Common.Contracts</PackageId>
-    <TargetFramework>net9.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" />
-  </ItemGroup>
+	<PropertyGroup>
+		<PackageId>Package.Infrastructure.Common.Contracts</PackageId>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NoWarn>NU5128</NoWarn><!-- Optional: Suppresses the "missing readme" warning -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- This workaround is necessary to satisfy the NU5017 validation error in this specific build environment. -->
+		<PackageReference Include="System.ComponentModel.Annotations" />
+	</ItemGroup>
 </Project>

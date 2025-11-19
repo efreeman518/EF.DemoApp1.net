@@ -5,6 +5,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Test.Support;
+
 public class InMemoryDbBuilder
 {
     //fluent config
