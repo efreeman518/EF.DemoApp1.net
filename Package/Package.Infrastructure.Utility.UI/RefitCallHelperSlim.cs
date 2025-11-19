@@ -171,13 +171,68 @@ public static class RefitCallHelperSlim
         {
             return ApiResult<T>.Failure(NetworkProblem(sockEx.Message, operationName));
         }
+        // ADD THIS: Catch .NET 10 WASM streaming error
+        catch (InvalidOperationException ioe) when (
+            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+            ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase))
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = ".NET 10 WASM Configuration Required",
+                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj) to fix this error.",
+                Extensions = new Dictionary<string, object>
+                {
+                    ["operation"] = operationName ?? "API Call",
+                    ["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming",
+                    ["fix"] = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to Portal.UI1.csproj"
+                }
+            });
+        }
+        catch (AggregateException aex) when (
+            aex.InnerException is InvalidOperationException ioe &&
+            (ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+             ioe.Message.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase)))
+        {
+            return ApiResult<T>.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = ".NET 10 WASM Configuration Required",
+                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj).",
+                Extensions = new Dictionary<string, object>
+                {
+                    ["operation"] = operationName ?? "API Call",
+                    ["innerError"] = ioe.Message
+                }
+            });
+        }
         catch (Exception ex)
         {
+            // Check if any inner exception mentions the streaming issue
+            var allMessages = GetAllExceptionMessages(ex);
+            if (allMessages.Any(m =>
+                m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+                m.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase) ||
+                m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
+            {
+                return ApiResult<T>.Failure(new ProblemDetails
+                {
+                    Status = 500,
+                    Title = ".NET 10 WASM Configuration Required",
+                    Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to Portal.UI1.csproj",
+                    Extensions = new Dictionary<string, object>
+                    {
+                        ["operation"] = operationName ?? "API Call",
+                        ["errorDetails"] = string.Join(" | ", allMessages)
+                    }
+                });
+            }
+
             return ApiResult<T>.Failure(GenericProblem(ex.Message, operationName));
         }
     }
 
-    // -------- Core (void) --------
+    // ADD THIS: Same exception handling for void calls
     private static async Task<ApiResult> CoreVoidAsync(
         Func<CancellationToken, Task> apiCall,
         bool failOnTimeout,
@@ -208,10 +263,59 @@ public static class RefitCallHelperSlim
         {
             return ApiResult.Failure(NetworkProblem(sockEx.Message, operationName));
         }
+        // ADD THIS: .NET 10 WASM streaming error handling
+        catch (InvalidOperationException ioe) when (
+            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+            ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase))
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = ".NET 10 WASM Configuration Required",
+                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
+            });
+        }
+        catch (AggregateException aex) when (
+            aex.InnerException is InvalidOperationException ioe &&
+            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase))
+        {
+            return ApiResult.Failure(new ProblemDetails
+            {
+                Status = 500,
+                Title = ".NET 10 WASM Configuration Required",
+                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
+            });
+        }
         catch (Exception ex)
         {
+            var allMessages = GetAllExceptionMessages(ex);
+            if (allMessages.Any(m =>
+                m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+                m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
+            {
+                return ApiResult.Failure(new ProblemDetails
+                {
+                    Status = 500,
+                    Title = ".NET 10 WASM Configuration Required",
+                    Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
+                });
+            }
+
             return ApiResult.Failure(GenericProblem(ex.Message, operationName));
         }
+    }
+
+    // ADD THIS: Helper to get all exception messages
+    private static List<string> GetAllExceptionMessages(Exception ex)
+    {
+        var messages = new List<string>();
+        var current = ex;
+        while (current is not null)
+        {
+            messages.Add(current.Message);
+            current = current.InnerException;
+        }
+        return messages;
     }
 
     // -------- Mapping / helpers --------
