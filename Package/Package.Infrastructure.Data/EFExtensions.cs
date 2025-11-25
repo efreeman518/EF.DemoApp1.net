@@ -464,7 +464,83 @@ public static class EFExtensions
         return (results.AsReadOnly(), total);
     }
 
+    /// <summary>
+    /// Queries and paginates a flattened projection where one entity maps to multiple result rows.
+    /// Uses ComposeIQueryable for consistent entity-level filtering and includes before flattening.
+    /// </summary>
+    /// <typeparam name="TEntity">The source entity type</typeparam>
+    /// <typeparam name="TProjection">The flattened projection type</typeparam>
+    /// <param name="query">The source queryable</param>
+    /// <param name="flatProjector">Expression that flattens entity to multiple projection rows using SelectMany</param>
+    /// <param name="pageSize">Number of rows per page</param>
+    /// <param name="pageIndex">Zero-based page index</param>
+    /// <param name="filter">Optional filter to apply to entities before flattening</param>
+    /// <param name="orderBy">Optional ordering to apply to flattened results</param>
+    /// <param name="includeTotal">Whether to include total count</param>
+    /// <param name="splitQueryOptions">Split query configuration</param>
+    /// <param name="includes">Entity includes to apply before flattening</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tuple of (projected data list, total count)</returns>
+    public static async Task<(IReadOnlyList<TProjection>, int)> QueryPageFlatProjectionAsync<TEntity, TProjection>(
+        this IQueryable<TEntity> query,
+        Expression<Func<TEntity, IEnumerable<TProjection>>> flatProjector,
+        int? pageSize = null,
+        int? pageIndex = null,
+        Expression<Func<TEntity, bool>>? filter = null,
+        Func<IQueryable<TProjection>, IOrderedQueryable<TProjection>>? orderBy = null,
+        bool includeTotal = false,
+        SplitQueryThresholdOptions? splitQueryOptions = null,
+        CancellationToken cancellationToken = default,
+        params Expression<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>>[] includes)
+        where TEntity : class
+    {
+        // Phase 1: Use ComposeIQueryable for entity-level filtering and includes (NO pagination yet)
+        // ComposeIQueryable will handle: tracking, filter, includes, splitQuery
+        bool useSplitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+        if (!useSplitQuery && splitQueryOptions != null)
+        {
+            useSplitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, -1, includes, splitQueryOptions);
+        }
 
+        query = query.ComposeIQueryable(
+            tracking: false,
+            pageSize: null,        // Don't paginate at entity level
+            pageIndex: null,       // Don't paginate at entity level
+            filter: filter,
+            orderBy: null,         // Don't order entities, we'll order flattened results
+            splitQuery: useSplitQuery,
+            includes: includes);
+
+        // Phase 2: Flatten to multiple rows per entity
+        var flatQuery = query.SelectMany(flatProjector);
+
+        // Phase 3: Apply ordering on flattened results
+        if (orderBy != null)
+        {
+            flatQuery = orderBy(flatQuery);
+        }
+
+        // Phase 4: Get total count if requested (before pagination)
+        int total = -1;
+        if (includeTotal)
+        {
+            total = await flatQuery.CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        }
+
+        // Phase 5: Apply pagination to flattened results
+        if (pageSize.HasValue && pageIndex.HasValue)
+        {
+            int skip = pageIndex.Value * pageSize.Value;
+            flatQuery = skip == 0
+                ? flatQuery.Take(pageSize.Value)
+                : flatQuery.Skip(skip).Take(pageSize.Value);
+        }
+
+        // Phase 6: Execute query
+        var data = await flatQuery.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+
+        return (data.AsReadOnly(), total);
+    }
 
 
     /// <summary>
