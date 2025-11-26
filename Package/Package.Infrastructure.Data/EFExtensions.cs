@@ -464,6 +464,53 @@ public static class EFExtensions
         return (results.AsReadOnly(), total);
     }
 
+
+    /// <summary>
+    /// Paginate and optionally count a flattened query (already projected to rows).
+    /// Use when you build an EF-translatable flat IQueryable<TProjection> in the repository and only need
+    /// ordering/count/paging applied consistently.
+    /// </summary>
+    /// <typeparam name="TProjection"></typeparam>
+    /// <param name="flatQuery">The flattened query to paginate</param>
+    /// <param name="pageSize">The number of items to return per page</param>
+    /// <param name="pageIndex">The 1-based page number to return</param>
+    /// <param name="orderBy">Optional ordering to apply to flattened results</param>
+    /// <param name="includeTotal"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task<(IReadOnlyList<TProjection>, int)> QueryPageFromFlatAsync<TProjection>(
+        this IQueryable<TProjection> flatQuery,
+        int? pageSize = null,
+        int? pageIndex = null,
+        Func<IQueryable<TProjection>, IOrderedQueryable<TProjection>>? orderBy = null,
+        bool includeTotal = false,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(flatQuery);
+
+        var total = -1;
+        if (includeTotal)
+        {
+            total = await flatQuery.CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        }
+
+        if (orderBy != null)
+        {
+            flatQuery = orderBy(flatQuery);
+        }
+
+        if (pageSize.HasValue && pageIndex.HasValue)
+        {
+            // Project convention: pageIndex is 1-based. If your caller is 0-based adjust accordingly.
+            var pIndex = Math.Max(1, pageIndex.Value);
+            var pSize = Math.Max(1, pageSize.Value);
+            flatQuery = flatQuery.Skip((pIndex - 1) * pSize).Take(pSize);
+        }
+
+        var data = await flatQuery.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+        return (data.AsReadOnly(), total);
+    }
+
     /// <summary>
     /// Queries and paginates a flattened projection where one entity maps to multiple result rows.
     /// Uses ComposeIQueryable for consistent entity-level filtering and includes before flattening.
@@ -481,66 +528,66 @@ public static class EFExtensions
     /// <param name="includes">Entity includes to apply before flattening</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Tuple of (projected data list, total count)</returns>
-    public static async Task<(IReadOnlyList<TProjection>, int)> QueryPageFlatProjectionAsync<TEntity, TProjection>(
-        this IQueryable<TEntity> query,
-        Expression<Func<TEntity, IEnumerable<TProjection>>> flatProjector,
-        int? pageSize = null,
-        int? pageIndex = null,
-        Expression<Func<TEntity, bool>>? filter = null,
-        Func<IQueryable<TProjection>, IOrderedQueryable<TProjection>>? orderBy = null,
-        bool includeTotal = false,
-        SplitQueryThresholdOptions? splitQueryOptions = null,
-        CancellationToken cancellationToken = default,
-        params Expression<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>>[] includes)
-        where TEntity : class
-    {
-        // Phase 1: Use ComposeIQueryable for entity-level filtering and includes (NO pagination yet)
-        // ComposeIQueryable will handle: tracking, filter, includes, splitQuery
-        bool useSplitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
-        if (!useSplitQuery && splitQueryOptions != null)
-        {
-            useSplitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, -1, includes, splitQueryOptions);
-        }
+    //public static async Task<(IReadOnlyList<TProjection>, int)> QueryPageFlatProjectionAsync<TEntity, TProjection>(
+    //    this IQueryable<TEntity> query,
+    //    Expression<Func<TEntity, IEnumerable<TProjection>>> flatProjector,
+    //    int? pageSize = null,
+    //    int? pageIndex = null,
+    //    Expression<Func<TEntity, bool>>? filter = null,
+    //    Func<IQueryable<TProjection>, IOrderedQueryable<TProjection>>? orderBy = null,
+    //    bool includeTotal = false,
+    //    SplitQueryThresholdOptions? splitQueryOptions = null,
+    //    CancellationToken cancellationToken = default,
+    //    params Expression<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>>[] includes)
+    //    where TEntity : class
+    //{
+    //    // Phase 1: Use ComposeIQueryable for entity-level filtering and includes (NO pagination yet)
+    //    // ComposeIQueryable will handle: tracking, filter, includes, splitQuery
+    //    bool useSplitQuery = splitQueryOptions?.ForceSplitQuery ?? false;
+    //    if (!useSplitQuery && splitQueryOptions != null)
+    //    {
+    //        useSplitQuery = SplitQueryThresholdOptions.DetermineSplitQueryWithTotal(pageSize, -1, includes, splitQueryOptions);
+    //    }
 
-        query = query.ComposeIQueryable(
-            tracking: false,
-            pageSize: null,        // Don't paginate at entity level
-            pageIndex: null,       // Don't paginate at entity level
-            filter: filter,
-            orderBy: null,         // Don't order entities, we'll order flattened results
-            splitQuery: useSplitQuery,
-            includes: includes);
+    //    query = query.ComposeIQueryable(
+    //        tracking: false,
+    //        pageSize: null,        // Don't paginate at entity level
+    //        pageIndex: null,       // Don't paginate at entity level
+    //        filter: filter,
+    //        orderBy: null,         // Don't order entities, we'll order flattened results
+    //        splitQuery: useSplitQuery,
+    //        includes: includes);
 
-        // Phase 2: Flatten to multiple rows per entity
-        var flatQuery = query.SelectMany(flatProjector);
+    //    // Phase 2: Flatten to multiple rows per entity
+    //    var flatQuery = query.SelectMany(flatProjector);
 
-        // Phase 3: Apply ordering on flattened results
-        if (orderBy != null)
-        {
-            flatQuery = orderBy(flatQuery);
-        }
+    //    // Phase 3: Apply ordering on flattened results
+    //    if (orderBy != null)
+    //    {
+    //        flatQuery = orderBy(flatQuery);
+    //    }
 
-        // Phase 4: Get total count if requested (before pagination)
-        int total = -1;
-        if (includeTotal)
-        {
-            total = await flatQuery.CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
-        }
+    //    // Phase 4: Get total count if requested (before pagination)
+    //    int total = -1;
+    //    if (includeTotal)
+    //    {
+    //        total = await flatQuery.CountAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+    //    }
 
-        // Phase 5: Apply pagination to flattened results
-        if (pageSize.HasValue && pageIndex.HasValue)
-        {
-            int skip = pageIndex.Value * pageSize.Value;
-            flatQuery = skip == 0
-                ? flatQuery.Take(pageSize.Value)
-                : flatQuery.Skip(skip).Take(pageSize.Value);
-        }
+    //    // Phase 5: Apply pagination to flattened results
+    //    if (pageSize.HasValue && pageIndex.HasValue)
+    //    {
+    //        int skip = pageIndex.Value * pageSize.Value;
+    //        flatQuery = skip == 0
+    //            ? flatQuery.Take(pageSize.Value)
+    //            : flatQuery.Skip(skip).Take(pageSize.Value);
+    //    }
 
-        // Phase 6: Execute query
-        var data = await flatQuery.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
+    //    // Phase 6: Execute query
+    //    var data = await flatQuery.ToListAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.None);
 
-        return (data.AsReadOnly(), total);
-    }
+    //    return (data.AsReadOnly(), total);
+    //}
 
 
     /// <summary>
