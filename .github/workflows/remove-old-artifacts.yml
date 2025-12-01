@@ -1,0 +1,26 @@
+name: Remove old artifacts
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # Runs daily at 1 AM UTC
+  workflow_dispatch:
+    inputs:
+      retention_days:
+        description: 'Number of days to keep artifacts (delete older ones)'
+        required: false
+        default: '30'
+
+jobs:
+  remove-old-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write  # Required for private repos
+
+    steps:
+    - name: Remove old artifacts
+      uses: c-hive/gha-remove-artifacts@v1
+      with:
+        age: "${{ github.event.inputs.retention_days || '10' }} days"
+        # skip-tags: true  # Uncomment to keep artifacts from tagged releases
+        # skip-recent: 5   # Uncomment to keep the 5 most recent artifacts
