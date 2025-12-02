@@ -208,6 +208,13 @@ public static class RefitCallHelperFull
             activity?.SetTag("success", false).SetTag("transport", "socket");
             return ApiResult<T>.Failure(pd);
         }
+        catch (Exception ex) when (IsWasmStreamingError(ex))
+        {
+            var pd = CreateWasmStreamingErrorProblem(options.OperationName, ex);
+            onFailure?.Invoke(pd);
+            activity?.SetTag("success", false).SetTag("error.type", "wasm.streaming");
+            return ApiResult<T>.Failure(pd);
+        }
         catch (Exception ex)
         {
             var pd = GenericProblem(ex.Message, options.OperationName);
@@ -266,6 +273,13 @@ public static class RefitCallHelperFull
             var pd = NetworkProblem(sockEx.Message, options.OperationName);
             onFailure?.Invoke(pd);
             activity?.SetTag("success", false).SetTag("transport", "socket");
+            return ApiResult.Failure(pd);
+        }
+        catch (Exception ex) when (IsWasmStreamingError(ex))
+        {
+            var pd = CreateWasmStreamingErrorProblem(options.OperationName, ex);
+            onFailure?.Invoke(pd);
+            activity?.SetTag("success", false).SetTag("error.type", "wasm.streaming");
             return ApiResult.Failure(pd);
         }
         catch (Exception ex)
@@ -486,5 +500,74 @@ public static class RefitCallHelperFull
             //handle
         }
         return null;
+    }
+
+    // Helper to get all exception messages
+    private static List<string> GetAllExceptionMessages(Exception ex)
+    {
+        var messages = new List<string>();
+        var current = ex;
+        while (current is not null)
+        {
+            messages.Add(current.Message);
+            current = current.InnerException;
+        }
+        return messages;
+    }
+
+    // Helper to check if exception is related to .NET 10 WASM streaming issue
+    private static bool IsWasmStreamingError(Exception ex)
+    {
+        // Direct InvalidOperationException check
+        if (ex is InvalidOperationException ioe &&
+            (ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+             ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // AggregateException wrapping InvalidOperationException
+        if (ex is AggregateException aex &&
+            aex.InnerException is InvalidOperationException innerIoe &&
+            (innerIoe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+             innerIoe.Message.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // Check all nested exceptions
+        var allMessages = GetAllExceptionMessages(ex);
+        return allMessages.Any(m =>
+            m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+            m.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase) ||
+            m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Helper to create WASM streaming error ProblemDetails
+    private static ProblemDetails CreateWasmStreamingErrorProblem(string? operationName, Exception? ex = null)
+    {
+        var pd = new ProblemDetails
+        {
+            Status = 500,
+            Title = ".NET 10 WASM Configuration Required",
+            Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj) to fix this error.",
+            Extensions = new Dictionary<string, object>
+            {
+                ["operation"] = operationName ?? "API Call"
+            }
+        };
+
+        if (ex is not null)
+        {
+            pd.Extensions["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming";
+            
+            if (ex is InvalidOperationException || ex is AggregateException)
+            {
+                var allMessages = GetAllExceptionMessages(ex);
+                pd.Extensions["errorDetails"] = string.Join(" | ", allMessages);
+            }
+        }
+
+        return pd;
     }
 }

@@ -2,6 +2,7 @@ using Refit;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Package.Infrastructure.Utility.UI;
 
@@ -12,7 +13,7 @@ namespace Package.Infrastructure.Utility.UI;
 /// - Optional treatNotFoundAsNone
 /// - Metadata support
 /// </summary>
-public static class RefitCallHelperSlim
+public static partial class RefitCallHelperSlim
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
@@ -171,63 +172,12 @@ public static class RefitCallHelperSlim
         {
             return ApiResult<T>.Failure(NetworkProblem(sockEx.Message, operationName));
         }
-        // ADD THIS: Catch .NET 10 WASM streaming error
-        catch (InvalidOperationException ioe) when (
-            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-            ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase))
+        catch (Exception ex) when (IsWasmStreamingError(ex))
         {
-            return ApiResult<T>.Failure(new ProblemDetails
-            {
-                Status = 500,
-                Title = ".NET 10 WASM Configuration Required",
-                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj) to fix this error.",
-                Extensions = new Dictionary<string, object>
-                {
-                    ["operation"] = operationName ?? "API Call",
-                    ["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming",
-                    ["fix"] = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to Portal.UI1.csproj"
-                }
-            });
-        }
-        catch (AggregateException aex) when (
-            aex.InnerException is InvalidOperationException ioe &&
-            (ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-             ioe.Message.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase)))
-        {
-            return ApiResult<T>.Failure(new ProblemDetails
-            {
-                Status = 500,
-                Title = ".NET 10 WASM Configuration Required",
-                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj).",
-                Extensions = new Dictionary<string, object>
-                {
-                    ["operation"] = operationName ?? "API Call",
-                    ["innerError"] = ioe.Message
-                }
-            });
+            return ApiResult<T>.Failure(CreateWasmStreamingErrorProblem(operationName, ex));
         }
         catch (Exception ex)
         {
-            // Check if any inner exception mentions the streaming issue
-            var allMessages = GetAllExceptionMessages(ex);
-            if (allMessages.Any(m =>
-                m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-                m.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase) ||
-                m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
-            {
-                return ApiResult<T>.Failure(new ProblemDetails
-                {
-                    Status = 500,
-                    Title = ".NET 10 WASM Configuration Required",
-                    Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to Portal.UI1.csproj",
-                    Extensions = new Dictionary<string, object>
-                    {
-                        ["operation"] = operationName ?? "API Call",
-                        ["errorDetails"] = string.Join(" | ", allMessages)
-                    }
-                });
-            }
-
             return ApiResult<T>.Failure(GenericProblem(ex.Message, operationName));
         }
     }
@@ -263,49 +213,17 @@ public static class RefitCallHelperSlim
         {
             return ApiResult.Failure(NetworkProblem(sockEx.Message, operationName));
         }
-        // ADD THIS: .NET 10 WASM streaming error handling
-        catch (InvalidOperationException ioe) when (
-            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-            ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase))
+        catch (Exception ex) when (IsWasmStreamingError(ex))
         {
-            return ApiResult.Failure(new ProblemDetails
-            {
-                Status = 500,
-                Title = ".NET 10 WASM Configuration Required",
-                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
-            });
-        }
-        catch (AggregateException aex) when (
-            aex.InnerException is InvalidOperationException ioe &&
-            ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase))
-        {
-            return ApiResult.Failure(new ProblemDetails
-            {
-                Status = 500,
-                Title = ".NET 10 WASM Configuration Required",
-                Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
-            });
+            return ApiResult.Failure(CreateWasmStreamingErrorProblem(operationName, ex));
         }
         catch (Exception ex)
         {
-            var allMessages = GetAllExceptionMessages(ex);
-            if (allMessages.Any(m =>
-                m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-                m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
-            {
-                return ApiResult.Failure(new ProblemDetails
-                {
-                    Status = 500,
-                    Title = ".NET 10 WASM Configuration Required",
-                    Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to the Blazor WASM project file (.csproj)"
-                });
-            }
-
             return ApiResult.Failure(GenericProblem(ex.Message, operationName));
         }
     }
 
-    // ADD THIS: Helper to get all exception messages
+    // Helper to get all exception messages
     private static List<string> GetAllExceptionMessages(Exception ex)
     {
         var messages = new List<string>();
@@ -316,6 +234,62 @@ public static class RefitCallHelperSlim
             current = current.InnerException;
         }
         return messages;
+    }
+
+    // Helper to check if exception is related to .NET 10 WASM streaming issue
+    private static bool IsWasmStreamingError(Exception ex)
+    {
+        // Direct InvalidOperationException check
+        if (ex is InvalidOperationException ioe &&
+            (ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+             ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // AggregateException wrapping InvalidOperationException
+        if (ex is AggregateException aex &&
+            aex.InnerException is InvalidOperationException innerIoe &&
+            (innerIoe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+             innerIoe.Message.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // Check all nested exceptions
+        var allMessages = GetAllExceptionMessages(ex);
+        return allMessages.Any(m =>
+            m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
+            m.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase) ||
+            m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Helper to create WASM streaming error ProblemDetails
+    private static ProblemDetails CreateWasmStreamingErrorProblem(string? operationName, Exception? ex = null)
+    {
+        var pd = new ProblemDetails
+        {
+            Status = 500,
+            Title = ".NET 10 WASM Configuration Required",
+            Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj) to fix this error.",
+            Extensions = new Dictionary<string, object>
+            {
+                ["operation"] = operationName ?? "API Call"
+            }
+        };
+
+        if (ex is not null)
+        {
+            pd.Extensions["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming";
+            
+            if (ex is InvalidOperationException || ex is AggregateException)
+            {
+                var allMessages = GetAllExceptionMessages(ex);
+                pd.Extensions["errorDetails"] = string.Join(" | ", allMessages);
+            }
+        }
+
+        return pd;
     }
 
     // -------- Mapping / helpers --------
@@ -357,16 +331,92 @@ public static class RefitCallHelperSlim
 
         try
         {
-            var pd = JsonSerializer.Deserialize<ProblemDetails>(content, JsonOptions);
-            if (pd is null)
+            // Try to parse as JSON document first to check for validation errors
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+
+            // Check if there's an "errors" property (ValidationProblemDetails)
+            if (root.TryGetProperty("errors", out var errorsElement) && errorsElement.ValueKind == JsonValueKind.Object)
+            {
+                // Extract and format validation errors
+                var validationErrors = new List<string>();
+
+                foreach (var errorProperty in errorsElement.EnumerateObject())
+                {
+                    var fieldName = errorProperty.Name;
+
+                    if (errorProperty.Value.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var errorMessage in errorProperty.Value.EnumerateArray())
+                        {
+                            var message = errorMessage.GetString();
+                            if (!string.IsNullOrEmpty(message))
+                            {
+                                // Format as "FieldName: Error message" for clarity
+                                var formattedFieldName = FormatFieldName(fieldName);
+                                validationErrors.Add($"{formattedFieldName}: {message}");
+                            }
+                        }
+                    }
+                }
+
+                // Deserialize the full ProblemDetails
+                var pd = JsonSerializer.Deserialize<ProblemDetails>(content, JsonOptions);
+                if (pd is not null)
+                {
+                    if (pd.Status == 0) pd.Status = (int)statusCode;
+
+                    // Replace the generic detail with specific validation errors
+                    if (validationErrors.Count > 0)
+                    {
+                        pd.Detail = string.Join("; ", validationErrors);
+
+                        // Store structured errors in Extensions for advanced scenarios
+                        pd.Extensions ??= new Dictionary<string, object>();
+                        pd.Extensions["validationErrors"] = validationErrors;
+                    }
+
+                    return pd;
+                }
+            }
+
+            // Standard deserialization if not validation errors
+            var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(content, JsonOptions);
+            if (problemDetails is null)
                 return new ProblemDetails { Status = (int)statusCode, Title = "Unexpected error", Detail = $"Failed to deserialize error response. {content}" };
-            if (pd.Status == 0) pd.Status = (int)statusCode;
-            return pd;
+            if (problemDetails.Status == 0) problemDetails.Status = (int)statusCode;
+            return problemDetails;
         }
         catch
         {
             return new ProblemDetails { Status = (int)statusCode, Title = "Response deserialization error", Detail = $"Failed to deserialize error: {content}" };
         }
+    }
+
+    /// <summary>
+    /// Formats a field name from dot notation to a user-friendly display name.
+    /// Example: "Item.Emails[0].Address" -> "Email Address"
+    /// </summary>
+    private static string FormatFieldName(string fieldName)
+    {
+        if (string.IsNullOrEmpty(fieldName))
+            return "Field";
+
+        // Remove array indices: "Item.Emails[0].Address" -> "Item.Emails.Address"
+        var cleaned = ProblemDetailsRegex().Replace(fieldName, string.Empty);
+
+        // Get the last segment: "Item.Emails.Address" -> "Address"
+        var segments = cleaned.Split('.');
+        var lastSegment = segments.Length > 0 ? segments[^1] : cleaned;
+
+        // If it's a common property name, use it as-is
+        if (lastSegment.Length <= 3)
+            return lastSegment;
+
+        // Add spaces before capital letters: "EmailAddress" -> "Email Address"
+        var formatted = SpaceCamelCaseRegex().Replace(lastSegment, " $1");
+
+        return formatted;
     }
 
     private static ApiCallMetadata BuildMeta(ProblemDetails? problem, DateTimeOffset started, DateTimeOffset ended, string? op) =>
@@ -461,4 +511,10 @@ public static class RefitCallHelperSlim
         }
         return null;
     }
+
+    [GeneratedRegex(@"\[\d+\]")]
+    private static partial Regex ProblemDetailsRegex();
+
+    [GeneratedRegex(@"(\B[A-Z])")]
+    private static partial Regex SpaceCamelCaseRegex();
 }
