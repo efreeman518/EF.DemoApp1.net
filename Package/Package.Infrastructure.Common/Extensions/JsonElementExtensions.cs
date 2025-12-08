@@ -43,8 +43,8 @@ public static class JsonElementExtensions
     public static object? ToObject(this JsonElement element) => element.ValueKind switch
     {
         JsonValueKind.String => element.GetString(),
-        JsonValueKind.Number => element.TryGetInt32(out var i) ? i : 
-                               element.TryGetInt64(out var l) ? l : 
+        JsonValueKind.Number => element.TryGetInt32(out var i) ? i :
+                               element.TryGetInt64(out var l) ? l :
                                element.GetDecimal(),
         JsonValueKind.True => true,
         JsonValueKind.False => false,
@@ -59,14 +59,14 @@ public static class JsonElementExtensions
     /// </summary>
     public static Dictionary<string, string> ToDictionary(this JsonElement element)
     {
-        if (element.ValueKind != JsonValueKind.Object) 
+        if (element.ValueKind != JsonValueKind.Object)
             return [];
 
         return element.EnumerateObject()
             .ToDictionary(
                 p => p.Name,
-                p => p.Value.ValueKind == JsonValueKind.String 
-                    ? p.Value.GetString() ?? string.Empty 
+                p => p.Value.ValueKind == JsonValueKind.String
+                    ? p.Value.GetString() ?? string.Empty
                     : p.Value.ToString(),
                 StringComparer.OrdinalIgnoreCase);
     }
@@ -76,7 +76,7 @@ public static class JsonElementExtensions
     /// </summary>
     public static Dictionary<string, object?> ToStronglyTypedDictionary(this JsonElement element)
     {
-        if (element.ValueKind != JsonValueKind.Object) 
+        if (element.ValueKind != JsonValueKind.Object)
             return [];
 
         return element.EnumerateObject()
@@ -158,7 +158,7 @@ public static class JsonElementExtensions
     /// </summary>
     public static List<string> ToStringList(this JsonElement element)
     {
-        if (element.ValueKind != JsonValueKind.Array) 
+        if (element.ValueKind != JsonValueKind.Array)
             return [];
 
         return [.. element.EnumerateArray()
@@ -171,7 +171,7 @@ public static class JsonElementExtensions
     /// </summary>
     public static List<object?> ToObjectList(this JsonElement element)
     {
-        if (element.ValueKind != JsonValueKind.Array) 
+        if (element.ValueKind != JsonValueKind.Array)
             return [];
 
         return [.. element.EnumerateArray().Select(item => item.ToObject())];
@@ -236,7 +236,7 @@ public static class JsonElementExtensions
     public static bool HasProperty(this JsonElement element, string propertyName)
     {
         if (element.ValueKind != JsonValueKind.Object) return false;
-        
+
         return element.EnumerateObject()
             .Any(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
     }

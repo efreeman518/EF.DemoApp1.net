@@ -10,13 +10,13 @@ namespace Test.Benchmarks;
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [RankColumn]
-public static class ValidatorBenchmarks
+public class ValidatorBenchmarks
 {
     //[Params(5, 10)]
     //public int NameLength { get; set; }
 
     [Benchmark]
-    public static FluentValidation.Results.ValidationResult? ValidatorTodoItemValidate()
+    public FluentValidation.Results.ValidationResult? ValidatorTodoItemValidate()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -30,7 +30,7 @@ public static class ValidatorBenchmarks
         }
     }
 
-    public static void ValidatorTodoItemValidateAndThrow()
+    public void ValidatorTodoItemValidateAndThrow()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -44,7 +44,7 @@ public static class ValidatorBenchmarks
     }
 
     [Benchmark]
-    public static async Task<FluentValidation.Results.ValidationResult?> ValidatorTodoItemValidateAsync()
+    public async Task<FluentValidation.Results.ValidationResult?> ValidatorTodoItemValidateAsync()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try
@@ -59,7 +59,7 @@ public static class ValidatorBenchmarks
     }
 
     [Benchmark]
-    public static async Task ValidatorTodoItemValidateAndThrowAsyncAsync()
+    public async Task ValidatorTodoItemValidateAndThrowAsyncAsync()
     {
         var todoItemDto = new TodoItemDto(null, Guid.NewGuid().ToString(), TodoItemStatus.Created);
         try

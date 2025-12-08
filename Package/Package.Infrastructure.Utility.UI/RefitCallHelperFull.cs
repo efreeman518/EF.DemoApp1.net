@@ -560,7 +560,7 @@ public static class RefitCallHelperFull
         if (ex is not null)
         {
             pd.Extensions["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming";
-            
+
             if (ex is InvalidOperationException || ex is AggregateException)
             {
                 var allMessages = GetAllExceptionMessages(ex);

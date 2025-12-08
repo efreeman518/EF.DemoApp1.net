@@ -21,10 +21,11 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
 
     private string EditTabLabel => model?.Id != null ? Localizer["Edit"] : Localizer["Add"];
 
-    private void NewItem()
+    private async Task NewItem()
     {
         model = new TodoItemDto();
-        tabsRef?.ActivatePanel(1);
+        if (tabsRef is not null)
+            await tabsRef.ActivatePanelAsync(1);
     }
 
     private async Task GetItem(Guid? id)
@@ -33,7 +34,8 @@ public partial class Todo(IStringLocalizer<Localization.Locals> Localizer, ISnac
         if (result.IsSuccess)
         {
             model = result.Data!;
-            tabsRef?.ActivatePanel(1);
+            if (tabsRef is not null)
+                await tabsRef.ActivatePanelAsync(1);
         }
         else
         {

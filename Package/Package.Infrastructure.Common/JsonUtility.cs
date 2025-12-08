@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using Package.Infrastructure.Common.Extensions;
+﻿using Package.Infrastructure.Common.Extensions;
+using System.Text.Json;
 
 namespace Package.Infrastructure.Common;
 
@@ -170,12 +170,12 @@ public static class JsonUtility
             using var doc1 = JsonDocument.Parse(json1);
             using var doc2 = JsonDocument.Parse(json2);
 
-            if (doc1.RootElement.ValueKind != JsonValueKind.Object || 
+            if (doc1.RootElement.ValueKind != JsonValueKind.Object ||
                 doc2.RootElement.ValueKind != JsonValueKind.Object)
                 return json1;
 
             var merged = doc1.RootElement.ToStronglyTypedDictionary();
-            
+
             foreach (var prop in doc2.RootElement.EnumerateObject())
             {
                 merged[prop.Name] = prop.Value.ToObject();
@@ -206,8 +206,8 @@ public static class JsonUtility
         try
         {
             using var doc = JsonDocument.Parse(JsonSerializer.Serialize(metadata));
-            return doc.RootElement.ValueKind == JsonValueKind.Object 
-                ? doc.RootElement.ToStronglyTypedDictionary() 
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                ? doc.RootElement.ToStronglyTypedDictionary()
                 : [];
         }
         catch
@@ -225,8 +225,8 @@ public static class JsonUtility
         try
         {
             using var doc = JsonDocument.Parse(json);
-            return doc.RootElement.ValueKind == JsonValueKind.Object 
-                ? doc.RootElement.ToStronglyTypedDictionary() 
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                ? doc.RootElement.ToStronglyTypedDictionary()
                 : null;
         }
         catch
