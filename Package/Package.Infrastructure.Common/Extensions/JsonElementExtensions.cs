@@ -14,7 +14,7 @@ public static class JsonElementExtensions
     /// <returns>A string representation of the JSON value, or empty string for null/undefined</returns>
     public static string ToSafeString(this JsonElement element) => element.ValueKind switch
     {
-        JsonValueKind.String => element.GetString() ?? string.Empty,
+        JsonValueKind.String => (element.GetString() ?? string.Empty).Trim(),
         JsonValueKind.Number => element.GetRawText(),
         JsonValueKind.True => "true",
         JsonValueKind.False => "false",
