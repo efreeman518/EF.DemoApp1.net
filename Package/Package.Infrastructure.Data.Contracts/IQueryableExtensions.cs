@@ -34,6 +34,14 @@ public static class IQueryableExtensions
         params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object?>>>[] includes)
         where T : class
     {
+
+        // Clear change tracker for pooled contexts when not tracking
+        if (!tracking)
+        {
+            query.GetDbContext()?.ChangeTracker.Clear();
+        }
+
+        //When you have multiple navigation properties pointing to the same entity, identity resolution ensures you get one instance instead of duplicates, reducing memory usage.
         //https://dotnetdocs.ir/Post/45/the-difference-between-asnotracking-and-asnotrackingwithidentityresolution
         query = tracking ? query.AsTracking() : query.AsNoTrackingWithIdentityResolution();
 
@@ -483,4 +491,17 @@ public static class IQueryableExtensions
     }
 
     #endregion
+
+    private static DbContext? GetDbContext<T>(this IQueryable<T> query) where T : class
+    {
+        if (query.Provider is IAsyncQueryProvider asyncProvider)
+        {
+            var field = asyncProvider.GetType().GetField("_context", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field?.GetValue(asyncProvider) is DbContext context)
+            {
+                return context;
+            }
+        }
+        return null;
+    }
 }
