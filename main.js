@@ -394,18 +394,17 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.BackgroundServices",
     "classes": [
-      { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskQueue.html", "cl": 15, "ucl": 17, "cal": 32, "tl": 120, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.BackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 120, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 214, "cb": 0, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 70, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "rp": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 31, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "rp": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "cl": 0, "ucl": 53, "cal": 53, "tl": 99, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.CronJobBackgroundServiceSettings<T>", "rp": "Package.Infrastructure.BackgroundServices_CronJobBackgroundServiceSettings_1.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.CronJobSettings", "rp": "Package.Infrastructure.BackgroundServices_CronJobSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 79, "cal": 79, "tl": 162, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Cron.CronBackgroundService<T>", "rp": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "cl": 0, "ucl": 189, "cal": 189, "tl": 278, "cb": 0, "tb": 28, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Cron.CronJobSettings", "rp": "Package.Infrastructure.BackgroundServices_CronJobSettings.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "cl": 0, "ucl": 79, "cal": 79, "tl": 163, "cb": 0, "tb": 34, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBusSettings", "rp": "Package.Infrastructure.BackgroundServices_InternalMessageBusSettings.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 6, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.BackgroundServices.ScopedBackgroundService", "rp": "Package.Infrastructure.BackgroundServices_ScopedBackgroundService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 20, "cal": 20, "tl": 62, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.ServiceCollectionExtensions", "rp": "Package.Infrastructure.BackgroundServices_ServiceCollectionExtensions.html", "cl": 0, "ucl": 23, "cal": 23, "tl": 80, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Work.BackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskQueue.html", "cl": 15, "ucl": 17, "cal": 32, "tl": 120, "cb": 2, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Work.BackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_BackgroundTaskService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 120, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Work.ChannelBackgroundTaskQueue", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 214, "cb": 0, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Work.ChannelBackgroundTaskService", "rp": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskService.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 70, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.BackgroundServices.Work.ChannelCompletionService", "rp": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 31, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "Package.Infrastructure.BlandAI",
@@ -489,7 +488,7 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.Data.Contracts",
     "classes": [
-      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 22, "ucl": 146, "cal": 168, "tl": 486, "cb": 20, "tb": 146, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 28, "ucl": 147, "cal": 175, "tl": 507, "cb": 27, "tb": 156, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Contracts.PredicateBuilder", "rp": "Package.Infrastructure.Data.Contracts_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "rp": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "cl": 0, "ucl": 58, "cal": 58, "tl": 166, "cb": 0, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
@@ -540,15 +539,24 @@ var assemblies = [
   {
     "name": "SampleApp.BackgroundServices",
     "classes": [
-      { "name": "SampleApp.BackgroundServices.Scheduler.CronService", "rp": "SampleApp.BackgroundServices_CronService.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 49, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.CronJobServiceRegistration", "rp": "SampleApp.BackgroundServices_CronJobServiceRegistration.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.BackgroundServices.Scheduler.CustomCronJob", "rp": "SampleApp.BackgroundServices_CustomCronJob.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.CustomCronJobHandler", "rp": "SampleApp.BackgroundServices_CustomCronJobHandler.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 41, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.EmailCronJob", "rp": "SampleApp.BackgroundServices_EmailCronJob.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.EmailCronJobHandler", "rp": "SampleApp.BackgroundServices_EmailCronJobHandler.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 35, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job1HourCronJob", "rp": "SampleApp.BackgroundServices_Job1HourCronJob.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 8, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job1HourCronJobHandler", "rp": "SampleApp.BackgroundServices_Job1HourCronJobHandler.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job2HourCronJob", "rp": "SampleApp.BackgroundServices_Job2HourCronJob.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 8, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job2HourCronJobHandler", "rp": "SampleApp.BackgroundServices_Job2HourCronJobHandler.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job30MinCronJob", "rp": "SampleApp.BackgroundServices_Job30MinCronJob.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 8, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.BackgroundServices.Scheduler.Job30MinCronJobHandler", "rp": "SampleApp.BackgroundServices_Job30MinCronJobHandler.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "SampleApp.Bootstrapper",
     "classes": [
       { "name": "SampleApp.Bootstrapper.HealthChecks.WeatherServiceHealthCheck", "rp": "SampleApp.Bootstrapper_WeatherServiceHealthCheck.html", "cl": 0, "ucl": 22, "cal": 22, "tl": 45, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.IHostExtensions", "rp": "SampleApp.Bootstrapper_IHostExtensions.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 24, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 517, "cal": 517, "tl": 890, "cb": 0, "tb": 86, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "SampleApp.Bootstrapper.RegisterServices", "rp": "SampleApp.Bootstrapper_RegisterServices.html", "cl": 0, "ucl": 519, "cal": 519, "tl": 894, "cb": 0, "tb": 84, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "SampleApp.Bootstrapper.StartupTasks.LoadCache", "rp": "SampleApp.Bootstrapper_LoadCache.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 41, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -672,7 +680,13 @@ var riskHotspots = [
       { "value": 16, "exceeded": true },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 31,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.Cron.CronBackgroundService<T>", "reportPath": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "methodName": "ExecuteJobLoop()", "methodShortName": "ExecuteJobLoop()", "fileIndex": 0, "line": 163,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "AutoRegisterHandlers()", "methodShortName": "AutoRegisterHandlers()", "fileIndex": 0, "line": 32,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -684,7 +698,7 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 439,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 447,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -732,12 +746,6 @@ var riskHotspots = [
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.CronBackgroundService<T>", "reportPath": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "methodName": "ExecuteTask1()", "methodShortName": "ExecuteTask1()", "fileIndex": 0, "line": 39,
-    "metrics": [
-      { "value": 156, "exceeded": true },
-      { "value": 12, "exceeded": false },
-    ]},
-  {
     "assembly": "Package.Infrastructure.Common.Contracts", "class": "Package.Infrastructure.Common.Contracts.StaticData", "reportPath": "Package.Infrastructure.Common.Contracts_StaticData.html", "methodName": "GetList(System.String)", "methodShortName": "GetList(...)", "fileIndex": 0, "line": 48,
     "metrics": [
       { "value": 156, "exceeded": true },
@@ -750,7 +758,7 @@ var riskHotspots = [
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 370,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 378,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -810,25 +818,25 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "QueueMessageHandlerWork(Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBusProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus/HandlerInfo>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "QueueMessageHandlerWork(...)", "fileIndex": 0, "line": 111,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus", "reportPath": "Package.Infrastructure.BackgroundServices_InternalMessageBus.html", "methodName": "QueueMessageHandlerWork(Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBusProcessMode,System.Collections.Generic.List`1<Package.Infrastructure.BackgroundServices.InternalMessageBus.InternalMessageBus/HandlerInfo>,System.Collections.Generic.ICollection`1<T>)", "methodShortName": "QueueMessageHandlerWork(...)", "fileIndex": 0, "line": 112,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderByProperty(System.Linq.IQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "OrderByProperty(...)", "fileIndex": 0, "line": 306,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderByProperty(System.Linq.IQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "OrderByProperty(...)", "fileIndex": 0, "line": 314,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ThenByProperty(System.Linq.IOrderedQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "ThenByProperty(...)", "fileIndex": 0, "line": 331,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ThenByProperty(System.Linq.IOrderedQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "ThenByProperty(...)", "fileIndex": 0, "line": 339,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 388,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 396,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
@@ -930,7 +938,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.Work.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "QueueBackgroundWorkItem(System.Func`2<System.Threading.CancellationToken,System.Threading.Tasks.Task>,System.Boolean)", "methodShortName": "QueueBackgroundWorkItem(...)", "fileIndex": 0, "line": 55,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -978,7 +986,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "BuildContainsPredicate(System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>)", "methodShortName": "BuildContainsPredicate(...)", "fileIndex": 0, "line": 117,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "BuildContainsPredicate(System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>)", "methodShortName": "BuildContainsPredicate(...)", "fileIndex": 0, "line": 125,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1170,13 +1178,19 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "DequeueAsync()", "methodShortName": "DequeueAsync()", "fileIndex": 0, "line": 140,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.Cron.CronBackgroundService<T>", "reportPath": "Package.Infrastructure.BackgroundServices_CronBackgroundService_1.html", "methodName": ".ctor(Microsoft.Extensions.Logging.ILogger`1<Package.Infrastructure.BackgroundServices.Cron.CronBackgroundService`1<T>>,Microsoft.Extensions.Options.IOptionsMonitor`1<T>,System.IServiceProvider)", "methodShortName": ".ctor(...)", "fileIndex": 0, "line": 13,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.ChannelCompletionService", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "methodName": ".ctor(Package.Infrastructure.BackgroundServices.ChannelBackgroundTaskQueue,Microsoft.Extensions.Hosting.IHostApplicationLifetime,Microsoft.Extensions.Logging.ILogger`1<Package.Infrastructure.BackgroundServices.ChannelCompletionService>)", "methodShortName": ".ctor(...)", "fileIndex": 0, "line": 9,
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.Work.ChannelBackgroundTaskQueue", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelBackgroundTaskQueue.html", "methodName": "DequeueAsync()", "methodShortName": "DequeueAsync()", "fileIndex": 0, "line": 140,
+    "metrics": [
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Package.Infrastructure.BackgroundServices", "class": "Package.Infrastructure.BackgroundServices.Work.ChannelCompletionService", "reportPath": "Package.Infrastructure.BackgroundServices_ChannelCompletionService.html", "methodName": ".ctor(Package.Infrastructure.BackgroundServices.Work.ChannelBackgroundTaskQueue,Microsoft.Extensions.Hosting.IHostApplicationLifetime,Microsoft.Extensions.Logging.ILogger`1<Package.Infrastructure.BackgroundServices.Work.ChannelCompletionService>)", "methodShortName": ".ctor(...)", "fileIndex": 0, "line": 9,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1236,31 +1250,31 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WherePropertyIn(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>,System.Int32)", "methodShortName": "WherePropertyIn(...)", "fileIndex": 0, "line": 85,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WherePropertyIn(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>,System.Int32)", "methodShortName": "WherePropertyIn(...)", "fileIndex": 0, "line": 93,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ApplyFilters(System.Linq.IQueryable`1<T>,T)", "methodShortName": "ApplyFilters(...)", "fileIndex": 0, "line": 199,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ApplyFilters(System.Linq.IQueryable`1<T>,T)", "methodShortName": "ApplyFilters(...)", "fileIndex": 0, "line": 207,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereIfAny(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<TValue>,System.Func`2<System.Collections.Generic.IEnumerable`1<TValue>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>>)", "methodShortName": "WhereIfAny(...)", "fileIndex": 0, "line": 262,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereIfAny(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<TValue>,System.Func`2<System.Collections.Generic.IEnumerable`1<TValue>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>>)", "methodShortName": "WhereIfAny(...)", "fileIndex": 0, "line": 270,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "Where(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Boolean)", "methodShortName": "Where(...)", "fileIndex": 0, "line": 276,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "Where(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Boolean)", "methodShortName": "Where(...)", "fileIndex": 0, "line": 284,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "IsTriviallyTrue(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>)", "methodShortName": "IsTriviallyTrue(...)", "fileIndex": 0, "line": 284,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "IsTriviallyTrue(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>)", "methodShortName": "IsTriviallyTrue(...)", "fileIndex": 0, "line": 292,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1404,10 +1418,10 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ComposeIQueryable(System.Linq.IQueryable`1<T>,System.Boolean,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,System.Boolean,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "ComposeIQueryable(...)", "fileIndex": 0, "line": 38,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ComposeIQueryable(System.Linq.IQueryable`1<T>,System.Boolean,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,System.Boolean,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "ComposeIQueryable(...)", "fileIndex": 0, "line": 39,
     "metrics": [
-      { "value": 36, "exceeded": true },
-      { "value": 18, "exceeded": true },
+      { "value": 40, "exceeded": true },
+      { "value": 22, "exceeded": true },
     ]},
   {
     "assembly": "Application.Services", "class": "Application.Services.Logging.LoggerMessageDefinitionSrcGen", "reportPath": "Application.Services_LoggerMessageDefinitionSrcGen.html", "methodName": "TodoItemCRUD(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "methodShortName": "TodoItemCRUD(...)", "fileIndex": 0, "line": 51,
