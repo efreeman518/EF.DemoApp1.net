@@ -4,7 +4,7 @@ using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices.Work;
 
 namespace Package.Infrastructure.Test.Benchmarks;
 

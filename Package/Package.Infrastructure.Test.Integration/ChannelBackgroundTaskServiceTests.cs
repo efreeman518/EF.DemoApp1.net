@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Package.Infrastructure.BackgroundServices.Work;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 

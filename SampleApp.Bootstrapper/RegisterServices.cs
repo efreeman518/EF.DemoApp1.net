@@ -584,7 +584,7 @@ public static class RegisterServices
 
     private static void AddAzureClientServices(IServiceCollection services, IConfiguration config)
     {
-        //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory<>
+        //Azure Service Clients - Blob, EventGridPublisher, KeyVault, etc; enables injecting IAzureClientFactory pragmatic
         //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection
         //https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
         //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.azure.azureclientfactorybuilder?view=azure-dotnet
@@ -877,13 +877,17 @@ public static class RegisterServices
         //background task
         services.AddChannelBackgroundTaskQueue();
 
-        //scheduler
-        var configSection = config.GetSection(CronServiceSettings.ConfigSectionName);
-        if (configSection.GetChildren().Any())
-        {
-            services.Configure<CronJobBackgroundServiceSettings<CustomCronJob>>(configSection);
-            services.AddHostedService<CronService>();
-        }
+        //30-minute job
+        services.Configure<Job30MinCronJob>(config.GetSection("Job30MinSettings"));
+        services.AddCronJob<Job30MinCronJob, Job30MinCronJobHandler>();
+
+        //1-hour job
+        services.Configure<Job1HourCronJob>(config.GetSection("Job1HourSettings"));
+        services.AddCronJob<Job1HourCronJob, Job1HourCronJobHandler>();
+
+        //2-hour job
+        services.Configure<Job2HourCronJob>(config.GetSection("Job2HourSettings"));
+        services.AddCronJob<Job2HourCronJob, Job2HourCronJobHandler>();
 
         return services;
     }

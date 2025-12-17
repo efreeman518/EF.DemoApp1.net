@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices.Work;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Data.Contracts;
 using System.Linq.Expressions;

@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Package.Infrastructure.BackgroundServices.Cron;
+using Package.Infrastructure.BackgroundServices.Work;
 
 namespace Package.Infrastructure.BackgroundServices;
 
@@ -57,6 +59,22 @@ public static class ServiceCollectionExtensions
         services.AddChannelBackgroundTaskQueue(boundedCapacity);
         services.AddHostedService<ChannelCompletionService>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a cron job with its handler
+    /// </summary>
+    /// <typeparam name="TJobSettings">The job settings type</typeparam>
+    /// <typeparam name="THandler">The handler type</typeparam>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
+    public static IServiceCollection AddCronJob<TJobSettings, THandler>(this IServiceCollection services)
+        where TJobSettings : CronJobSettings
+        where THandler : class, ICronJobHandler<TJobSettings>
+    {
+        services.AddScoped<ICronJobHandler<TJobSettings>, THandler>();
+        services.AddHostedService<CronBackgroundService<TJobSettings>>();
         return services;
     }
 }

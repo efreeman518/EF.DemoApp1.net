@@ -1,4 +1,4 @@
-﻿namespace Package.Infrastructure.BackgroundServices;
+﻿namespace Package.Infrastructure.BackgroundServices.Cron;
 
 public abstract class CronJobSettings
 {

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Package.Infrastructure.BackgroundServices.Attributes;
+using Package.Infrastructure.BackgroundServices.Work;
 using Package.Infrastructure.Common.Contracts;
 using System.Collections.Concurrent;
 using System.Reflection;

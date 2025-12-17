@@ -2,7 +2,7 @@
 using Application.Contracts.Mappers;
 using Application.Services.Logging;
 using EntityFramework.Exceptions.Common;
-using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices.Work;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.Common.Extensions;
 using Package.Infrastructure.Data.Contracts;

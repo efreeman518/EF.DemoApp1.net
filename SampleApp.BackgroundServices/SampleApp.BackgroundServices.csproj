@@ -20,6 +20,10 @@
     <Using Include="System.Text" />
     <Using Include="System.Threading.Tasks" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Examples\" />
+  </ItemGroup>
   
 </Project>
 

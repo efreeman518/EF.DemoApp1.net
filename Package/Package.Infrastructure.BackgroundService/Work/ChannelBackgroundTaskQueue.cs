@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
 
-namespace Package.Infrastructure.BackgroundServices;
+namespace Package.Infrastructure.BackgroundServices.Work;
 
 /// <summary>
 /// Channel-based implementation of IBackgroundTaskQueue

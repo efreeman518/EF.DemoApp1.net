@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Beta;
-using Package.Infrastructure.BackgroundServices;
+using Package.Infrastructure.BackgroundServices.Work;
 using Package.Infrastructure.Cache;
 using Package.Infrastructure.Common.Contracts;
 using Package.Infrastructure.KeyVault;

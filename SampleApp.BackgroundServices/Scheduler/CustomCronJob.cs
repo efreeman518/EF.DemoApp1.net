@@ -1,4 +1,4 @@
-﻿using Package.Infrastructure.BackgroundServices;
+﻿using Package.Infrastructure.BackgroundServices.Cron;
 
 namespace SampleApp.BackgroundServices.Scheduler;
 

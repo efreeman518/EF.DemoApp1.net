@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Package.Infrastructure.BackgroundServices;
+namespace Package.Infrastructure.BackgroundServices.Work;
 
 /// <summary>
 /// Handles graceful completion of channel background task queue on application shutdown
