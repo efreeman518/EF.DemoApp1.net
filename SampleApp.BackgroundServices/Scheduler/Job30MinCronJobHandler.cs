@@ -1,4 +1,3 @@
-using Application.Contracts.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Package.Infrastructure.BackgroundServices.Cron;
 

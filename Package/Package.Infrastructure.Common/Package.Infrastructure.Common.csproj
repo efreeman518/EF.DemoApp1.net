@@ -12,10 +12,9 @@
     <PackageReference Include="DeepCopy" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" />
     <PackageReference Include="LazyCache" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" VersionOverride="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" VersionOverride="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
-    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="10.0.0" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
   </ItemGroup>
