@@ -18,16 +18,15 @@ using var loggerFactory = LoggerFactory.Create(builder =>
     builder.SetMinimumLevel(LogLevel.Information);
     builder.AddDebug();
     builder.AddConsole();
-    builder.AddApplicationInsights();
 });
 var logger = loggerFactory.CreateLogger<Program>()!;
 var config = Test.Support.Utility.BuildConfiguration().AddUserSecrets<Program>().Build();
 
 //DI
 IServiceCollection services = new ServiceCollection();
-//app insights telemetry logging for non-http service
+//logging configuration for console application
 services
-    .AddLogging(configure => configure.AddConsole().AddDebug().AddApplicationInsights())
+    .AddLogging(configure => configure.AddConsole().AddDebug())
     .AddApplicationInsightsTelemetryWorkerService(config);
 
 //Rest Client

@@ -78,7 +78,7 @@ public abstract class EndpointTestBase
     {
         //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
 
-        _dbContainer = new MsSqlBuilder().WithPassword("YourStr0ngP@ssword!").Build();
+        _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:latest").WithPassword("YourStr0ngP@ssword!").Build();
         await _dbContainer.StartAsync(cancellationToken);
 
         // Get the connection string to master database

@@ -1,4 +1,5 @@
-﻿using Infrastructure.Data;
+﻿using DotNet.Testcontainers.Images;
+using Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -91,9 +92,7 @@ public abstract class DbIntegrationTestBase : IntegrationTestBase
     /// <returns>DB connection string from the container</returns>
     private static async Task<string> StartDbContainerAsync(CancellationToken cancellationToken = default)
     {
-        //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
-
-        _dbContainer = new MsSqlBuilder().Build();
+        _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:latest").Build();
         await _dbContainer.StartAsync(cancellationToken);
         return _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
     }

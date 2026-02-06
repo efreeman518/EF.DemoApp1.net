@@ -37,16 +37,8 @@ public abstract class IntegrationTestBase
     /// Configure the test class; runs once before any test class [MSTest:ClassInitialize], [BenchmarkDotNet:GlobalSetup]
     /// </summary>
     /// <param name="testContextName"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     protected static void ConfigureServices(string testContextName)
     {
-        var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.ClearProviders().AddConsole().AddDebug().AddApplicationInsights();
-        });
-        ServicesCollection.AddSingleton(loggerFactory);
-
         //bootstrapper service registrations - infrastructure, domain, application 
         ServicesCollection
             .RegisterInfrastructureServices(Config)
@@ -55,9 +47,11 @@ public abstract class IntegrationTestBase
             .RegisterApplicationServices(Config);
 
         //register services for testing that are not already registered in the bootstraper
-
-        ServicesCollection.AddLogging(configure => configure.ClearProviders().AddConsole().AddDebug().AddApplicationInsights());
-        Logger = ServicesCollection.BuildServiceProvider().GetRequiredService<ILogger<IntegrationTestBase>>();
+        ServicesCollection.AddLogging(configure => 
+            configure
+                .ClearProviders()
+                .AddConsole()
+                .AddDebug());
 
         //IRequestContext - replace the Bootstrapper registered non-http 'BackgroundService' registration; injected into repositories
         ServicesCollection.AddTransient<IRequestContext<string, Guid?>>(provider =>
@@ -69,6 +63,7 @@ public abstract class IntegrationTestBase
         //build IServiceProvider for subsequent use finding/injecting services
         Services = ServicesCollection.BuildServiceProvider(validateScopes: true);
         ServiceScope = Services.CreateScope();
+        Logger = Services.GetRequiredService<ILogger<IntegrationTestBase>>();
         Logger.Log(LogLevel.Information, "{TestContextName} Base ConfigureServices complete.", testContextName);
     }
 }

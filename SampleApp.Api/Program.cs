@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var services = builder.Services;
 var appName = config.GetValue<string>("AppName")!;
-var appInsightsConnectionString = config["ApplicationInsights:ConnectionString"]!;
 var env = config.GetValue<string>("ASPNETCORE_ENVIRONMENT") ?? config.GetValue<string>("DOTNET_ENVIRONMENT") ?? "Undefined"; // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-9.0
 var credential = CreateAzureCredential(config);
 ILogger<Program> startupLogger = CreateStartupLogger();
@@ -62,15 +61,11 @@ finally
 ILogger<Program> CreateStartupLogger()
 {
     //static logger factory setup - for startup
+    //Application Insights telemetry is configured via AddServiceDefaults() for use during and after startup
     StaticLogging.CreateStaticLoggerFactory(logBuilder =>
     {
         logBuilder.SetMinimumLevel(LogLevel.Information);
         logBuilder.AddConsole();
-        logBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
-        {
-            config.ConnectionString = appInsightsConnectionString;
-        },
-        configureApplicationInsightsLoggerOptions: (options) => { });
     });
     return StaticLogging.CreateLogger<Program>();
 }

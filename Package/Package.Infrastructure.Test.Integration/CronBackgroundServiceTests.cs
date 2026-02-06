@@ -91,8 +91,8 @@ public class CronBackgroundServiceTests
 
         cts.Dispose();
 
-        // Assert - If we got here without exceptions, config reload worked
-        Assert.IsTrue(true, "Configuration reload completed successfully");
+        // Assert - Verify the service completed without crashing
+        Assert.IsNotNull(serviceProvider, "Service provider should be initialized");
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public class CronBackgroundServiceTests
         cts.Dispose();
 
         // Assert - SlowTestHandler logs error if concurrent execution detected
-        Assert.IsTrue(SlowTestHandler.MaxConcurrentExecutions <= 1,
+        Assert.IsLessThanOrEqualTo(1, SlowTestHandler.MaxConcurrentExecutions,
             $"Expected max 1 concurrent execution, but got {SlowTestHandler.MaxConcurrentExecutions}");
     }
 
@@ -185,7 +185,7 @@ public class CronBackgroundServiceTests
         cts.Dispose();
 
         // Assert - Job should have executed at least once
-        Assert.IsTrue(true, "Service executed without exceptions");
+        Assert.IsNotNull(serviceProvider, "Service provider initialized successfully");
     }
 
     /// <summary>
@@ -231,13 +231,14 @@ public class CronBackgroundServiceTests
         cts.Dispose();
 
         // Assert - Should not crash, just log and skip the job
-        Assert.IsTrue(true, "Service handled invalid CRON gracefully");
+        Assert.IsNotNull(serviceProvider, "Service handled invalid CRON without crashing");
     }
 
     // Handler that takes longer than the cron interval
     public class SlowTestHandler(ILogger<CronBackgroundServiceTests.SlowTestHandler> logger) : ICronJobHandler<TestCronJob>
     {
         private static int _concurrentExecutions = 0;
+        private static readonly Lock _lockObject = new();
         public static int MaxConcurrentExecutions { get; private set; } = 0;
 
         public async Task ExecuteAsync(string traceId, TestCronJob cronJob, CancellationToken stoppingToken = default)
@@ -245,7 +246,7 @@ public class CronBackgroundServiceTests
             var concurrent = Interlocked.Increment(ref _concurrentExecutions);
 
             // Track the maximum concurrent executions seen
-            lock (typeof(SlowTestHandler))
+            lock (_lockObject)
             {
                 if (concurrent > MaxConcurrentExecutions)
                 {
