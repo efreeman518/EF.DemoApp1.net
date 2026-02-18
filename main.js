@@ -292,7 +292,7 @@ var assemblies = [
       { "name": "Infrastructure.Data.Configuration.EntityBaseConfiguration<T>", "rp": "Infrastructure.Data_EntityBaseConfiguration_1.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.SystemSettingConfiguration", "rp": "Infrastructure.Data_SystemSettingConfiguration.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 18, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Configuration.TodoItemConfiguration", "rp": "Infrastructure.Data_TodoItemConfiguration.html", "cl": 18, "ucl": 0, "cal": 18, "tl": 34, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 167, "cal": 167, "tl": 227, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Infrastructure.Data.Migrations.InitialCreate", "rp": "Infrastructure.Data_InitialCreate.html", "cl": 0, "ucl": 174, "cal": 174, "tl": 240, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.Migrations.TodoDbContextTrxnModelSnapshot", "rp": "Infrastructure.Data_TodoDbContextTrxnModelSnapshot.html", "cl": 0, "ucl": 94, "cal": 94, "tl": 118, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.SystemSettingsDbContext", "rp": "Infrastructure.Data_SystemSettingsDbContext.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 38, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Infrastructure.Data.TodoDbContextBase", "rp": "Infrastructure.Data_TodoDbContextBase.html", "cl": 29, "ucl": 4, "cal": 33, "tl": 132, "cb": 8, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -348,7 +348,7 @@ var assemblies = [
     "name": "Package.Infrastructure.AspNetCore",
     "classes": [
       { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.FilterActivityProcessor", "rp": "Package.Infrastructure.AspNetCore_FilterActivityProcessor.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 37, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 58, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.AspNetCore.ActivityProcessors.StringMatcher", "rp": "Package.Infrastructure.AspNetCore_StringMatcher.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 47, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManager", "rp": "Package.Infrastructure.AspNetCore_ChaosManager.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 36, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Chaos.ChaosManagerSettings", "rp": "Package.Infrastructure.AspNetCore_ChaosManagerSettings.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 14, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.AspNetCore.Extensions.OpenTelemetryLoggingExtensions", "rp": "Package.Infrastructure.AspNetCore_OpenTelemetryLoggingExtensions.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 37, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -488,8 +488,8 @@ var assemblies = [
   {
     "name": "Package.Infrastructure.Data.Contracts",
     "classes": [
-      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 28, "ucl": 147, "cal": 175, "tl": 507, "cb": 27, "tb": 156, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Package.Infrastructure.Data.Contracts.PredicateBuilder", "rp": "Package.Infrastructure.Data.Contracts_PredicateBuilder.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "rp": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "cl": 22, "ucl": 146, "cal": 168, "tl": 487, "cb": 20, "tb": 146, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Package.Infrastructure.Data.Contracts.PredicateBuilder", "rp": "Package.Infrastructure.Data.Contracts_PredicateBuilder.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 38, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Package.Infrastructure.Data.Contracts.SplitQueryThresholdOptions", "rp": "Package.Infrastructure.Data.Contracts_SplitQueryThresholdOptions.html", "cl": 0, "ucl": 58, "cal": 58, "tl": 166, "cb": 0, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
@@ -698,7 +698,7 @@ var riskHotspots = [
       { "value": 14, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 447,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereEquals(System.Linq.IQueryable`1<T>,System.Collections.Generic.IReadOnlyDictionary`2<System.String,System.Object>)", "methodShortName": "WhereEquals(...)", "fileIndex": 0, "line": 440,
     "metrics": [
       { "value": 210, "exceeded": true },
       { "value": 14, "exceeded": false },
@@ -758,7 +758,7 @@ var riskHotspots = [
       { "value": 12, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 378,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderBy(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<Package.Infrastructure.Data.Contracts.IQueryableExtensions/SortSpec>)", "methodShortName": "OrderBy(...)", "fileIndex": 0, "line": 371,
     "metrics": [
       { "value": 156, "exceeded": true },
       { "value": 12, "exceeded": false },
@@ -824,19 +824,19 @@ var riskHotspots = [
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderByProperty(System.Linq.IQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "OrderByProperty(...)", "fileIndex": 0, "line": 314,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "OrderByProperty(System.Linq.IQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "OrderByProperty(...)", "fileIndex": 0, "line": 307,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ThenByProperty(System.Linq.IOrderedQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "ThenByProperty(...)", "fileIndex": 0, "line": 339,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ThenByProperty(System.Linq.IOrderedQueryable`1<T>,System.String,System.Boolean)", "methodShortName": "ThenByProperty(...)", "fileIndex": 0, "line": 332,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 396,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ParseSortExpression(System.String)", "methodShortName": "ParseSortExpression(...)", "fileIndex": 0, "line": 389,
     "metrics": [
       { "value": 110, "exceeded": true },
       { "value": 10, "exceeded": false },
@@ -986,7 +986,7 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "BuildContainsPredicate(System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>)", "methodShortName": "BuildContainsPredicate(...)", "fileIndex": 0, "line": 125,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "BuildContainsPredicate(System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>)", "methodShortName": "BuildContainsPredicate(...)", "fileIndex": 0, "line": 118,
     "metrics": [
       { "value": 72, "exceeded": true },
       { "value": 8, "exceeded": false },
@@ -1250,31 +1250,31 @@ var riskHotspots = [
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WherePropertyIn(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>,System.Int32)", "methodShortName": "WherePropertyIn(...)", "fileIndex": 0, "line": 93,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WherePropertyIn(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,TKey>>,System.Collections.Generic.ICollection`1<TKey>,System.Int32)", "methodShortName": "WherePropertyIn(...)", "fileIndex": 0, "line": 86,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ApplyFilters(System.Linq.IQueryable`1<T>,T)", "methodShortName": "ApplyFilters(...)", "fileIndex": 0, "line": 207,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ApplyFilters(System.Linq.IQueryable`1<T>,T)", "methodShortName": "ApplyFilters(...)", "fileIndex": 0, "line": 200,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereIfAny(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<TValue>,System.Func`2<System.Collections.Generic.IEnumerable`1<TValue>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>>)", "methodShortName": "WhereIfAny(...)", "fileIndex": 0, "line": 270,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "WhereIfAny(System.Linq.IQueryable`1<T>,System.Collections.Generic.IEnumerable`1<TValue>,System.Func`2<System.Collections.Generic.IEnumerable`1<TValue>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>>)", "methodShortName": "WhereIfAny(...)", "fileIndex": 0, "line": 263,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "Where(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Boolean)", "methodShortName": "Where(...)", "fileIndex": 0, "line": 284,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "Where(System.Linq.IQueryable`1<T>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Boolean)", "methodShortName": "Where(...)", "fileIndex": 0, "line": 277,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "IsTriviallyTrue(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>)", "methodShortName": "IsTriviallyTrue(...)", "fileIndex": 0, "line": 292,
+    "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "IsTriviallyTrue(System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>)", "methodShortName": "IsTriviallyTrue(...)", "fileIndex": 0, "line": 285,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
@@ -1420,8 +1420,8 @@ var riskHotspots = [
   {
     "assembly": "Package.Infrastructure.Data.Contracts", "class": "Package.Infrastructure.Data.Contracts.IQueryableExtensions", "reportPath": "Package.Infrastructure.Data.Contracts_IQueryableExtensions.html", "methodName": "ComposeIQueryable(System.Linq.IQueryable`1<T>,System.Boolean,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Linq.Expressions.Expression`1<System.Func`2<T,System.Boolean>>,System.Func`2<System.Linq.IQueryable`1<T>,System.Linq.IOrderedQueryable`1<T>>,System.Boolean,System.Linq.Expressions.Expression`1<System.Func`2<System.Linq.IQueryable`1<T>,Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2<T,System.Object>>>[])", "methodShortName": "ComposeIQueryable(...)", "fileIndex": 0, "line": 39,
     "metrics": [
-      { "value": 40, "exceeded": true },
-      { "value": 22, "exceeded": true },
+      { "value": 36, "exceeded": true },
+      { "value": 18, "exceeded": true },
     ]},
   {
     "assembly": "Application.Services", "class": "Application.Services.Logging.LoggerMessageDefinitionSrcGen", "reportPath": "Application.Services_LoggerMessageDefinitionSrcGen.html", "methodName": "TodoItemCRUD(Microsoft.Extensions.Logging.ILogger,System.String,System.String)", "methodShortName": "TodoItemCRUD(...)", "fileIndex": 0, "line": 51,
