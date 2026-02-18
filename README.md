@@ -34,6 +34,12 @@ Clone, set the startup project to SampleApp/SampleApp.Api, and run - openapi pag
 	* RapidApi tests require credentials (key & host headers)
 	* OpenAI Api tests require credentials (key)
 
+* Test lanes
+	* Deterministic default lane (exclude external/secret-dependent integration tests):
+		* dotnet test Test.Integration/Test.Integration.csproj --filter "TestCategory!=External&TestCategory!=RequiresSecrets"
+	* External + secrets lane (run only credentialed/external integration tests):
+		* dotnet test Test.Integration/Test.Integration.csproj --filter "TestCategory=External|TestCategory=RequiresSecrets"
+
 * Chaos testing can be configured in the the api appsettings.json file for introducing chaos to backend (external) api calls
 
 # Azure Functions App

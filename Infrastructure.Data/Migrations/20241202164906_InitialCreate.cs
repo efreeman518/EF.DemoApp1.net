@@ -71,24 +71,37 @@ public partial class InitialCreate : Migration
             unique: true)
             .Annotation("SqlServer:Clustered", true);
 
-        //add to migration class - customize for always encrypted (until supported in fluent syntax)
-        string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL"); //url to key vault CMK key;
-        string schema_table = "[todo].[TodoItem]";
-        string cmkName = "CMK_WITH_AKV";
+        bool skipAlwaysEncryptedSetup = string.Equals(
+            Environment.GetEnvironmentVariable("SKIP_ALWAYS_ENCRYPTED_SETUP"),
+            "true",
+            StringComparison.OrdinalIgnoreCase);
 
-        var support = new MigrationSupport(migrationBuilder, new DefaultAzureCredential());
-        support.CreateColumnMasterKey(url_AKV_CMK, cmkName);
+        if (!skipAlwaysEncryptedSetup)
+        {
+            //add to migration class - customize for always encrypted (until supported in fluent syntax)
+            string url_AKV_CMK = Environment.GetEnvironmentVariable("AKVCMKURL")!; //url to key vault CMK key;
+            if (string.IsNullOrWhiteSpace(url_AKV_CMK))
+            {
+                throw new InvalidOperationException("AKVCMKURL environment variable is required when SKIP_ALWAYS_ENCRYPTED_SETUP is not true.");
+            }
 
-        string cekName = "CEK_WITH_AKV";
-        support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
+            string schema_table = "[todo].[TodoItem]";
+            string cmkName = "CMK_WITH_AKV";
 
-        //secure column def
-        string colDef = "[SecureDeterministic] varbinary(200)";
-        support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "DETERMINISTIC"); //varbinary has no collate
+            var support = new MigrationSupport(migrationBuilder, new DefaultAzureCredential());
+            support.CreateColumnMasterKey(url_AKV_CMK, cmkName);
 
-        //secure column def; varbinary has no collate
-        colDef = "[SecureRandom] varbinary(200)";
-        support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "RANDOMIZED"); //varbinary has no collate
+            string cekName = "CEK_WITH_AKV";
+            support.CreateColumnEncryptionKey(url_AKV_CMK, cmkName, cekName);
+
+            //secure column def
+            string colDef = "[SecureDeterministic] varbinary(200)";
+            support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "DETERMINISTIC"); //varbinary has no collate
+
+            //secure column def; varbinary has no collate
+            colDef = "[SecureRandom] varbinary(200)";
+            support.AlterColumnEncryption(cekName, schema_table, colDef, collate: null, encType: "RANDOMIZED"); //varbinary has no collate
+        }
 
     }
 

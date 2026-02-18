@@ -15,6 +15,7 @@ using Test.Support;
 namespace Test.Endpoints.Endpoints;
 
 [TestClass]
+[TestCategory("Deterministic")]
 public class TodoEndpointsTests : EndpointTestBase
 {
     private static readonly string? DBSnapshotName = TestConfigSection.GetValue<string?>("DBSnapshotName", null);
@@ -78,7 +79,7 @@ public class TodoEndpointsTests : EndpointTestBase
     public static async Task ClassInit(TestContext testContext)
     {
         Console.Write($"Start ClassInit");
-        await ConfigureTestInstanceAsync("ClassInit");
+        await ConfigureTestInstanceAsync(testContext.FullyQualifiedTestClassName!);
 
         //DBSnapshot Create - existing sql db can reset db using snapshot created in ClassInitialize
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
@@ -95,7 +96,7 @@ public class TodoEndpointsTests : EndpointTestBase
         _httpClient = await GetHttpClient();
     }
 
-    //[ClassCleanup(ClassCleanupBehavior.EndOfClass)]
+    [ClassCleanup]
     public static async Task ClassCleanup()
     {
         //DBSnapshot delete 

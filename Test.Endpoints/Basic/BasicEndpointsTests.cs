@@ -6,6 +6,7 @@ namespace Test.Endpoints.Basic;
 
 [TestClass]
 [DoNotParallelize]
+[TestCategory("Deterministic")]
 public class BasicEndpointsTests : EndpointTestBase
 {
     //html endpoints return success and correct content type
@@ -30,7 +31,7 @@ public class BasicEndpointsTests : EndpointTestBase
     {
         Console.Write("Start ClassInit");
 
-        await ConfigureTestInstanceAsync("ClassInit", testContext.CancellationTokenSource.Token);
+        await ConfigureTestInstanceAsync(testContext.FullyQualifiedTestClassName!, testContext.CancellationTokenSource.Token);
     }
 
     //[ClassCleanup(ClassCleanupBehavior.EndOfClass)]

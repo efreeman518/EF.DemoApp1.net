@@ -10,6 +10,8 @@ namespace Test.Integration.RapidApi;
 [Ignore("RapidApi (external weather service) credentials required in config settings.")]
 
 [TestClass]
+[TestCategory("External")]
+[TestCategory("RequiresSecrets")]
 public class WeatherServiceTests
 {
     protected readonly ILogger<WeatherServiceTests> _logger;

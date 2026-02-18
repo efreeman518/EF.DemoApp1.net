@@ -12,6 +12,8 @@ namespace Test.Integration.SampleApiRestClient;
 [Ignore("SampleApi must be running somewhere, along with any test side credentials required (in config settings).")]
 
 [TestClass]
+[TestCategory("External")]
+[TestCategory("RequiresSecrets")]
 public class SampleApiRestClientTests
 {
     private readonly ILogger<SampleApiRestClientTests> _logger;

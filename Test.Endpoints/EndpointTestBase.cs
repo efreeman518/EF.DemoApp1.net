@@ -1,11 +1,9 @@
 ﻿using Infrastructure.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Package.Infrastructure.Data.Contracts;
 using Respawn;
-using Respawn.Graph;
 using System.Data.Common;
 using Test.Support;
 using Testcontainers.MsSql;
@@ -54,18 +52,12 @@ public abstract class EndpointTestBase
         }
         _dbContext = NewTodoDbContextTrxn(_dbConnectionString);
 
-        //if we are going to have a dbContext for resetting data, we need to make sure its created now in order for respawner to open the connection
-        //Environment.SetEnvironmentVariable("AKVCMKURL", "");
-        //db.Database.Migrate(); //needs AKVCMKURL env var set
-        //cannot run parallel tests - this throws
-        await _dbContext.Database.EnsureCreatedAsync(cancellationToken); //does not use migrations; uses DbContext to create tables
+        bool skipAlwaysEncryptedSetup = TestConfigSection.GetValue("DisableAlwaysEncryptedSetup", true);
+        await DbTestLifecycle.EnsureInitializedAsync(_dbContext, skipAlwaysEncryptedSetup, cancellationToken);
 
         if (!_dbContext.Database.IsInMemory())
         {
-            //supports respawner
-            _dbConnection = new SqlConnection(_dbConnectionString);
-            await _dbConnection.OpenAsync(cancellationToken);
-            await InitializeRespawner();
+            (_dbConnection, _respawner) = await DbTestLifecycle.OpenRespawnerAsync(_dbConnectionString, cancellationToken);
         }
     }
 
@@ -76,41 +68,8 @@ public abstract class EndpointTestBase
     /// <returns></returns>
     protected static async Task StartDbContainerAsync(CancellationToken cancellationToken = default)
     {
-        //create image from docker file - https://dotnet.testcontainers.org/api/create_docker_image/
-
-        _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:latest").WithPassword("YourStr0ngP@ssword!").Build();
-        await _dbContainer.StartAsync(cancellationToken);
-
-        // Get the connection string to master database
-        string masterConnectionString = _dbContainer.GetConnectionString();
-
-        // Get the database name from configuration
         string dbName = Config.GetValue("TestSettings:DBName", "TestDB");
-
-        // Create the database first
-        await CreateDatabaseIfNotExists(masterConnectionString, dbName, cancellationToken);
-
-        _dbConnectionString = _dbContainer.GetConnectionString().Replace("master", Config.GetValue("TestSettings:DBName", "TestDB"));
-    }
-
-    private static async Task CreateDatabaseIfNotExists(string masterConnectionString, string dbName, CancellationToken cancellationToken)
-    {
-        using var connection = new SqlConnection(masterConnectionString);
-        await connection.OpenAsync(cancellationToken);
-
-        // Check if database exists
-        string checkDbQuery = $"SELECT DB_ID('{dbName}')";
-        using (var command = new SqlCommand(checkDbQuery, connection))
-        {
-            var result = await command.ExecuteScalarAsync(cancellationToken);
-            if (result != DBNull.Value) // Database already exists
-                return;
-        }
-
-        // Create database if it doesn't exist
-        string createDbQuery = $"CREATE DATABASE [{dbName}]";
-        using var createCommand = new SqlCommand(createDbQuery, connection);
-        await createCommand.ExecuteNonQueryAsync(cancellationToken);
+        (_dbContainer, _dbConnectionString) = await DbTestLifecycle.StartDbContainerAsync(dbName, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -124,12 +83,12 @@ public abstract class EndpointTestBase
     /// <exception cref="InvalidOperationException"></exception>
     protected static async Task CreateDbSnapshot(string snapshotName, CancellationToken cancellationToken = default)
     {
-        string[] notAllowedTypes = ["UseInMemoryDatabase", "TestContainer"];
-        if (notAllowedTypes.Contains(TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase")) || _dbConnectionString == null)
-        {
-            throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
-        }
-        await DbSupport.CreateDbSnapshot(snapshotName, _dbConnection.Database, _dbConnectionString, cancellationToken);
+        await DbTestLifecycle.CreateDbSnapshotAsync(
+            TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase"),
+            _dbConnectionString,
+            _dbConnection,
+            snapshotName,
+            cancellationToken);
     }
 
     /// <summary>
@@ -141,12 +100,11 @@ public abstract class EndpointTestBase
     /// <exception cref="InvalidOperationException"></exception>
     protected static async Task DeleteDbSnapshot(string snapshotName, CancellationToken cancellationToken = default)
     {
-        string[] notAllowedTypes = ["UseInMemoryDatabase", "TestContainer"];
-        if (notAllowedTypes.Contains(TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase")) || _dbConnectionString == null)
-        {
-            throw new InvalidOperationException("Snapshots are only allowed for existing SQL DBs");
-        }
-        await DbSupport.DeleteDbSnapshot(snapshotName, _dbConnectionString, cancellationToken);
+        await DbTestLifecycle.DeleteDbSnapshotAsync(
+            TestConfigSection.GetValue("DBSource", "UseInMemoryDatabase"),
+            _dbConnectionString,
+            snapshotName,
+            cancellationToken);
     }
 
     /// <summary>
@@ -156,14 +114,12 @@ public abstract class EndpointTestBase
     /// <returns></returns>
     public static async Task InitializeRespawner()
     {
-        if (_dbConnection == null) return;
-
-        _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
+        if (_dbConnectionString == null || _dbConnection != null)
         {
-            DbAdapter = DbAdapter.SqlServer,
-            SchemasToInclude = ["todo"],
-            TablesToIgnore = [new Table("__EFMigrationsHistory")]
-        });
+            return;
+        }
+
+        (_dbConnection, _respawner) = await DbTestLifecycle.OpenRespawnerAsync(_dbConnectionString);
     }
 
     /// <summary>
@@ -179,20 +135,17 @@ public abstract class EndpointTestBase
     protected static async Task ResetDatabaseAsync(bool respawn = false, string? dbSnapshotName = null,
         List<string>? seedPaths = null, List<Action>? seedFactories = null, CancellationToken cancellationToken = default)
     {
-        if (!DbContext.Database.IsInMemory())
-        {
-            if (respawn) await _respawner.ResetAsync(_dbConnection);
-
-            //Currently works only with existing database; not TestContainer or InMemoryDatabase
-            if (!string.IsNullOrEmpty(dbSnapshotName))
-            {
-                var snapshotUtility = new SqlDatabaseSnapshotUtility(_dbConnectionString);
-                var dbName = _dbConnection.Database;
-                await snapshotUtility.RestoreSnapshotAsync(dbName, dbSnapshotName, cancellationToken);
-            }
-        }
-        await DbContext.SeedDatabaseAsync(NullLogger.Instance, seedPaths, seedFactories, cancellationToken);
-        await DbContext.SaveChangesAsync(OptimisticConcurrencyWinner.ClientWins, cancellationToken: cancellationToken);
+        await DbTestLifecycle.ResetDatabaseAsync(
+            DbContext,
+            NullLogger.Instance,
+            _dbConnectionString,
+            _respawner,
+            _dbConnection,
+            respawn,
+            dbSnapshotName,
+            seedPaths,
+            seedFactories,
+            cancellationToken);
     }
 
     public static async Task BaseClassCleanup()

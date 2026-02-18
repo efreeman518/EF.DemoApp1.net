@@ -1,9 +1,12 @@
 ﻿using Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Package.Infrastructure.BackgroundServices.Cron;
+using Package.Infrastructure.BackgroundServices.Work;
 using Test.Support;
 
 namespace Test.Endpoints;
@@ -38,18 +41,45 @@ public class CustomApiFactory<TProgram>(string? dbConnectionString = null) : Web
             {
                 //configuration.AddInMemoryCollection(memorySettings);
                 //override api settings with test settings
-                configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings-test.json"));
+                configuration.AddJsonFile(Utility.ResolveJsonConfigPath("appsettings-test.json"));
                 config = configuration.Build();//get config for use here
             })
-            .ConfigureServices(services =>
+            .ConfigureTestServices(services =>
             {
-                //remove unneeded services
-                services.RemoveAll<IHostedService>();
+                if (config.GetValue("TestSettings:DisableHostedServices", true))
+                {
+                    RemoveKnownHostedServices(services);
+                }
 
                 //swap the api database to the test database in Services collection
                 string dbName = config.GetValue<string>("TestSettings:DBName") ?? "Test.Endpoints.TestDB";
                 DbSupport.ConfigureServicesTestDB<TodoDbContextTrxn, TodoDbContextQuery>(services, dbConnectionString, dbName);
             });
+    }
+
+    private static void RemoveKnownHostedServices(IServiceCollection services)
+    {
+        var descriptorsToRemove = services
+            .Where(descriptor => descriptor.ServiceType == typeof(IHostedService)
+                && descriptor.ImplementationType != null
+                && IsKnownProblematicHostedService(descriptor.ImplementationType))
+            .ToList();
+
+        foreach (var descriptor in descriptorsToRemove)
+        {
+            services.Remove(descriptor);
+        }
+    }
+
+    private static bool IsKnownProblematicHostedService(Type implementationType)
+    {
+        if (implementationType == typeof(ChannelBackgroundTaskService))
+        {
+            return true;
+        }
+
+        return implementationType.IsGenericType
+            && implementationType.GetGenericTypeDefinition() == typeof(CronBackgroundService<>);
     }
 }
 

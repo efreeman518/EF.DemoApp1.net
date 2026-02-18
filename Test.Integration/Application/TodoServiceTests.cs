@@ -16,6 +16,7 @@ using Test.Support;
 namespace Test.Integration.Application;
 
 [TestClass]
+[TestCategory("Deterministic")]
 public class TodoServiceTests : DbIntegrationTestBase
 {
     private static readonly string? DBSnapshotName = TestConfigSection.GetValue<string?>("DBSnapshotName", null);
@@ -23,11 +24,9 @@ public class TodoServiceTests : DbIntegrationTestBase
     //Some services under test are injected with IBackgroundTaskQueue which runs in a background thread
     //To prevent these tests from terminating prior to background task completion, at the end of the test,
     //we await a TaskCompletionSource that completes from within the last queued workitem at the end of the test.
-    private static readonly ChannelBackgroundTaskService _bgTaskService = Services.GetServices<IHostedService>()
-        .OfType<ChannelBackgroundTaskService>()
-        .First();
-    private static readonly IBackgroundTaskQueue _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
-    private static readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private static ChannelBackgroundTaskService _bgTaskService = null!;
+    private static IBackgroundTaskQueue _bgTaskQueue = null!;
+    private static TaskCompletionSource<bool> _tcs = null!;
 
     [TestMethod]
     [DoNotParallelize]
@@ -36,6 +35,7 @@ public class TodoServiceTests : DbIntegrationTestBase
         Logger.InfoLog("Starting Todo_CRUD_pass");
 
         await _bgTaskService!.StartAsync(new CancellationToken());
+        _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         //arrange - configure any test data for this test (optional, after snapshot)
         bool respawn = string.IsNullOrEmpty(DBSnapshotName);
@@ -155,6 +155,11 @@ public class TodoServiceTests : DbIntegrationTestBase
     {
         Console.Write($"Start {testContext.FullyQualifiedTestClassName}");
         await ConfigureTestInstanceAsync(testContext.FullyQualifiedTestClassName!);
+        _bgTaskService = Services.GetServices<IHostedService>()
+            .OfType<ChannelBackgroundTaskService>()
+            .First();
+        _bgTaskQueue = Services.GetRequiredService<IBackgroundTaskQueue>();
+        _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         //existing sql db can reset db using snapshot created in ClassInitialize with specific data for this test class/assembly
         if (TestConfigSection.GetValue<bool>("DBSnapshotCreate") && !string.IsNullOrEmpty(DBSnapshotName))
