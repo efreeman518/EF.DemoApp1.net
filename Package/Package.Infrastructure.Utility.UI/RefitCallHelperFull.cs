@@ -2,7 +2,6 @@ using Refit;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Text.Json;
 
 namespace Package.Infrastructure.Utility.UI;
 
@@ -17,7 +16,6 @@ namespace Package.Infrastructure.Utility.UI;
 /// </summary>
 public static class RefitCallHelperFull
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
     private const string EmptyResponseTitle = "Unexpected empty response";
     private const int NoOpStatusCode = 460;
@@ -304,154 +302,33 @@ public static class RefitCallHelperFull
 
     private static ProblemDetails MapApiException(ApiException ex, CallOptions options, bool captureRaw)
     {
-        var deserializedPD = DeserializeProblemDetails(ex.StatusCode, ex.Content);
-        ProblemDetails pd;
-
-        // Detect AADSTS50173 or invalid_grant
-        if (IsAuthTokenRevoked(ex.Content))
-        {
-            OnAuthError?.Invoke(new AuthErrorInfo(
-                Error: GetJsonField(ex.Content, "error") ?? "error_not_identified",
-                ErrorDescription: GetJsonField(ex.Content, "error_description"),
-                ErrorCode: GetJsonIntField(ex.Content, "error_codes"),
-                SubError: GetJsonField(ex.Content, "suberror"),
-                Problem: deserializedPD
-            ));
-        }
-
-        if (deserializedPD.Title != EmptyResponseTitle)
-        {
-            pd = deserializedPD;
-        }
-        else
-        {
-            pd = ex.StatusCode switch
-            {
-                HttpStatusCode.Unauthorized => new ProblemDetails { Status = 401, Title = "Not Authorized", Detail = "You do not have permission to perform this action." },
-                HttpStatusCode.Forbidden => new ProblemDetails { Status = 403, Title = "Forbidden", Detail = "You do not have permission to perform this action." },
-                HttpStatusCode.NotFound => new ProblemDetails { Status = 404, Title = "Not Found", Detail = "Resource not found." },
-                HttpStatusCode.MethodNotAllowed => new ProblemDetails { Status = 405, Title = "Method Not Allowed", Detail = "Method not allowed for this endpoint." },
-                (HttpStatusCode)429 => new ProblemDetails { Status = 429, Title = "Too Many Requests", Detail = "Rate limit exceeded. Please retry later." },
-                _ => new ProblemDetails { Status = (int)ex.StatusCode, Title = "API Error", Detail = $"Unexpected API error ({(int)ex.StatusCode})." }
-            };
-        }
-
-        // Correlation header(s)
-        try
-        {
-            if (ex.Headers is not null)
-            {
-                foreach (var headerName in CorrelationHeaderNames)
-                {
-                    if (ex.Headers.TryGetValues(headerName, out var vals))
-                    {
-                        var val = vals.FirstOrDefault();
-                        if (!string.IsNullOrEmpty(val))
-                        {
-                            pd.Extensions ??= new Dictionary<string, object>();
-                            pd.Extensions["correlationId"] = val;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        catch { /* swallow */ }
-
-        if (captureRaw && !string.IsNullOrEmpty(ex.Content))
-        {
-            var preview = ex.Content.Length > MaxRawPreview
-                ? ex.Content[..MaxRawPreview] + "...(truncated)"
-                : ex.Content;
-            pd.Extensions ??= new Dictionary<string, object>();
-            if (!pd.Extensions.ContainsKey("raw"))
-                pd.Extensions["raw"] = preview;
-        }
-
-        return AttachOperation(pd, options.OperationName);
+        return RefitCallHelperShared.MapApiException(
+            ex,
+            options.OperationName,
+            EmptyResponseTitle,
+            info => OnAuthError?.Invoke(info),
+            CorrelationHeaderNames,
+            captureRaw,
+            MaxRawPreview,
+            includeValidationErrorShaping: true);
     }
 
     private static ProblemDetails DeserializeProblemDetails(HttpStatusCode statusCode, string? content)
     {
-        if (string.IsNullOrEmpty(content))
-        {
-            return new ProblemDetails
-            {
-                Status = (int)statusCode,
-                Title = EmptyResponseTitle,
-                Detail = "Response was empty or null."
-            };
-        }
-
-        try
-        {
-            var pd = JsonSerializer.Deserialize<ProblemDetails>(content, JsonOptions);
-            if (pd is null)
-            {
-                return new ProblemDetails
-                {
-                    Status = (int)statusCode,
-                    Title = "Unexpected error",
-                    Detail = $"Failed to deserialize the error response. {content}"
-                };
-            }
-            if (pd.Status == 0) pd.Status = (int)statusCode;
-            return pd;
-        }
-        catch
-        {
-            return new ProblemDetails
-            {
-                Status = (int)statusCode,
-                Title = "Response deserialization error",
-                Detail = $"Failed to deserialize the error response: {content}"
-            };
-        }
+        return RefitCallHelperShared.DeserializeProblemDetails(statusCode, content, EmptyResponseTitle, includeValidationErrorShaping: true);
     }
 
-    private static string AggregateMessage(HttpRequestException ex) =>
-        ex.InnerException is null ? ex.Message : $"{ex.Message} (Inner: {ex.InnerException.Message})";
+    private static string AggregateMessage(HttpRequestException ex) => RefitCallHelperShared.AggregateMessage(ex);
 
     private static ApiResult<T> TimeoutProblem<T>(string? op) =>
-        ApiResult<T>.Failure(AttachOperation(new ProblemDetails
-        {
-            Status = (int)HttpStatusCode.GatewayTimeout,
-            Title = op is null ? "Request Timeout" : $"{op} Timeout",
-            Detail = "The request took too long to complete."
-        }, op));
+        ApiResult<T>.Failure(RefitCallHelperShared.CreateTimeoutProblem(op));
 
     private static ApiResult TimeoutProblem(string? op) =>
-        ApiResult.Failure(AttachOperation(new ProblemDetails
-        {
-            Status = (int)HttpStatusCode.GatewayTimeout,
-            Title = op is null ? "Request Timeout" : $"{op} Timeout",
-            Detail = "The request took too long to complete."
-        }, op));
+        ApiResult.Failure(RefitCallHelperShared.CreateTimeoutProblem(op));
 
-    private static ProblemDetails NetworkProblem(string msg, string? op) =>
-        AttachOperation(new ProblemDetails
-        {
-            Status = 503,
-            Title = op is null ? "API Unreachable" : $"{op} Unreachable",
-            Detail = $"The API may be offline or unreachable. {msg}"
-        }, op);
+    private static ProblemDetails NetworkProblem(string msg, string? op) => RefitCallHelperShared.CreateNetworkProblem(msg, op);
 
-    private static ProblemDetails GenericProblem(string msg, string? op) =>
-        AttachOperation(new ProblemDetails
-        {
-            Status = 500,
-            Title = op is null ? "Unexpected Error" : $"{op} Failed",
-            Detail = msg
-        }, op);
-
-    private static ProblemDetails AttachOperation(ProblemDetails pd, string? op)
-    {
-        if (op is null) return pd;
-        pd.Extensions ??= new Dictionary<string, object>();
-        if (!pd.Extensions.ContainsKey("operation"))
-            pd.Extensions["operation"] = op;
-        return pd;
-    }
+    private static ProblemDetails GenericProblem(string msg, string? op) => RefitCallHelperShared.CreateGenericProblem(msg, op);
 
     private static ApiCallMetadata BuildMeta(ProblemDetails? problem, DateTimeOffset started, DateTimeOffset ended, string? op) =>
         new(started, ended, ended - started,
@@ -459,115 +336,10 @@ public static class RefitCallHelperFull
             OperationName: op,
             WasNoOp: IsNoOp(problem));
 
-    private static bool IsAuthTokenRevoked(string? content)
-    {
-        // Check for AADSTS50173, invalid_grant, or suberror: bad_token
-        if (content is null) return false;
-        return content.Contains("AADSTS50173") ||
-               content.Contains("\"error\":\"invalid_grant\"") ||
-               content.Contains("\"suberror\":\"bad_token\"") ||
-               content.Contains("\"error_codes\":[50173]");
-    }
-
-    // Simple JSON field extractors (for error info)
-    private static string? GetJsonField(string? json, string field)
-    {
-        if (string.IsNullOrWhiteSpace(json)) return null;
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty(field, out var el))
-                return el.GetString();
-        }
-        catch
-        {
-            // handle
-        }
-        return null;
-    }
-
-    private static int? GetJsonIntField(string? json, string field)
-    {
-        if (string.IsNullOrWhiteSpace(json)) return null;
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty(field, out var el) && el.ValueKind == JsonValueKind.Array && el.GetArrayLength() > 0)
-                return el[0].GetInt32();
-        }
-        catch
-        {
-            //handle
-        }
-        return null;
-    }
-
-    // Helper to get all exception messages
-    private static List<string> GetAllExceptionMessages(Exception ex)
-    {
-        var messages = new List<string>();
-        var current = ex;
-        while (current is not null)
-        {
-            messages.Add(current.Message);
-            current = current.InnerException;
-        }
-        return messages;
-    }
-
     // Helper to check if exception is related to .NET 10 WASM streaming issue
-    private static bool IsWasmStreamingError(Exception ex)
-    {
-        // Direct InvalidOperationException check
-        if (ex is InvalidOperationException ioe &&
-            (ioe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-             ioe.Message.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        // AggregateException wrapping InvalidOperationException
-        if (ex is AggregateException aex &&
-            aex.InnerException is InvalidOperationException innerIoe &&
-            (innerIoe.Message.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-             innerIoe.Message.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        // Check all nested exceptions
-        var allMessages = GetAllExceptionMessages(ex);
-        return allMessages.Any(m =>
-            m.Contains("synchronous reads", StringComparison.OrdinalIgnoreCase) ||
-            m.Contains("net_http_synchronous_reads_not_supported", StringComparison.OrdinalIgnoreCase) ||
-            m.Contains("BrowserHttpReadStream", StringComparison.OrdinalIgnoreCase));
-    }
+    private static bool IsWasmStreamingError(Exception ex) => RefitCallHelperShared.IsWasmStreamingError(ex);
 
     // Helper to create WASM streaming error ProblemDetails
-    private static ProblemDetails CreateWasmStreamingErrorProblem(string? operationName, Exception? ex = null)
-    {
-        var pd = new ProblemDetails
-        {
-            Status = 500,
-            Title = ".NET 10 WASM Configuration Required",
-            Detail = "Add <WasmEnableStreamingResponse>false</WasmEnableStreamingResponse> to your Blazor WASM project file (.csproj) to fix this error.",
-            Extensions = new Dictionary<string, object>
-            {
-                ["operation"] = operationName ?? "API Call"
-            }
-        };
-
-        if (ex is not null)
-        {
-            pd.Extensions["documentation"] = "https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/10.0/default-http-streaming";
-
-            if (ex is InvalidOperationException || ex is AggregateException)
-            {
-                var allMessages = GetAllExceptionMessages(ex);
-                pd.Extensions["errorDetails"] = string.Join(" | ", allMessages);
-            }
-        }
-
-        return pd;
-    }
+    private static ProblemDetails CreateWasmStreamingErrorProblem(string? operationName, Exception? ex = null) =>
+        RefitCallHelperShared.CreateWasmStreamingErrorProblem(operationName, ex);
 }

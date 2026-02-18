@@ -9,5 +9,5 @@ public interface IChaosManager
     ValueTask<double> GetInjectionRateAsync(ResilienceContext context);
     int LatencySeconds();
     Exception FaultException();
-    HttpStatusCode OutcomHttpStatusCode();
+    HttpStatusCode OutcomeHttpStatusCode();
 }

@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Package.Infrastructure.Common\Package.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\Package.Infrastructure.Utility.UI\Package.Infrastructure.Utility.UI.csproj" />
   </ItemGroup>
 </Project>

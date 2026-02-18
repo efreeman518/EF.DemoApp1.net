@@ -32,4 +32,31 @@ public class ValidationResultTests
         Assert.IsTrue(vr != vr1); //operator !=
 
     }
+
+    [TestMethod]
+    public void ValidationResult_StaticEquals_handles_null_cases()
+    {
+        ValidationResult? left = null;
+        ValidationResult? right = null;
+        Assert.IsTrue(ValidationResult.Equals(left, right));
+
+        right = ValidationResult.True();
+        Assert.IsFalse(ValidationResult.Equals(left, right));
+        Assert.IsFalse(ValidationResult.Equals(right, left));
+    }
+
+    [TestMethod]
+    public void ValidationResult_operators_match_static_comparer_semantics()
+    {
+        ValidationResult? left = null;
+        ValidationResult? right = null;
+        Assert.IsTrue(left == right);
+
+        left = ValidationResult.True(["a"]);
+        right = ValidationResult.True(["b"]);
+        Assert.IsTrue(left == right); // equality ignores messages
+
+        right = ValidationResult.False();
+        Assert.IsTrue(left != right);
+    }
 }

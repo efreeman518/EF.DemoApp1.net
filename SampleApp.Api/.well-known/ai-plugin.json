@@ -9,7 +9,7 @@
   },
   "api": {
     "type": "openapi",
-    "url": "http://localhost:44318/swagger/v1.0/swagger.yaml",
+    "url": "http://localhost:44318/openapi/v1.json",
     "is_user_authenticated": false
   },
   "logo_url": "http://localhost:44318/wwwroot/.well-known/logo.png",

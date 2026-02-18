@@ -33,15 +33,26 @@ public sealed class ValidationResult(bool valid, List<string>? messages = null) 
 
     public static bool Equals(ValidationResult? x, ValidationResult? y)
     {
-        throw new NotImplementedException();
+        if (ReferenceEquals(x, y))
+        {
+            return true;
+        }
+
+        if (x is null || y is null)
+        {
+            return false;
+        }
+
+        return x.IsValid == y.IsValid;
     }
 
-    public static bool operator ==(ValidationResult value1, ValidationResult value2)
+    public static bool operator ==(ValidationResult? value1, ValidationResult? value2)
     {
-        return value1.IsValid == value2.IsValid;
+        return Equals(value1, value2);
     }
-    public static bool operator !=(ValidationResult value1, ValidationResult value2)
+
+    public static bool operator !=(ValidationResult? value1, ValidationResult? value2)
     {
-        return value1.IsValid != value2.IsValid;
+        return !Equals(value1, value2);
     }
 }

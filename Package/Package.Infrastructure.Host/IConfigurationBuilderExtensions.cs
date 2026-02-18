@@ -1,6 +1,5 @@
 ﻿using Azure.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
 namespace Package.Infrastructure.Host;
 
@@ -21,27 +20,7 @@ public static class IConfigurationBuilderExtensions
     {
         builder.AddAzureAppConfiguration(options =>
         {
-            options.Connect(new Uri(endpoint), credential);
-
-            foreach (var prefix in keyPrefixes.Distinct())
-            {
-                var trimmedPrefix = prefix.TrimEnd(':') + ":"; // ensure proper trailing slash
-                options.Select($"{trimmedPrefix}*", LabelFilter.Null).TrimKeyPrefix(trimmedPrefix); // no label (global) SampleApi:* all env
-                options.Select($"{trimmedPrefix}*", env).TrimKeyPrefix(trimmedPrefix);              // environment-specific
-            }
-
-            options.ConfigureKeyVault(kv =>
-            {
-                //app config may contain references to keyvault
-                kv.SetCredential(credential);
-            });
-            if (sentinelSetting != null)
-            {
-                options.ConfigureRefresh(refresh =>
-                {
-                    refresh.Register(sentinelSetting, refreshAll: true).SetRefreshInterval(cacheExpire ?? new TimeSpan(1, 0, 0));
-                });
-            }
+            options.ConfigurePackageDefaults(endpoint, credential, env, sentinelSetting, cacheExpire, keyPrefixes);
         });
     }
 }

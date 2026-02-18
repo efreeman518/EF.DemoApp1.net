@@ -32,5 +32,5 @@ public class ChaosManager(IHttpContextAccessor contextAccessor, IOptions<ChaosMa
 
     public int LatencySeconds() => settings.Value.LatencySeconds;
     public Exception FaultException() => settings.Value.FaultException;
-    public HttpStatusCode OutcomHttpStatusCode() => settings.Value.OutcomHttpStatusCode;
+    public HttpStatusCode OutcomeHttpStatusCode() => settings.Value.OutcomeHttpStatusCode;
 }

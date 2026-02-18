@@ -32,13 +32,14 @@ public static class ResultExtensions
     /// <returns>A Result<T> instance.</returns>
     public static Result<T> ToResult<T>(this DomainResult<T> domainResult)
     {
+        if (domainResult.IsNone)
+        {
+            return Result<T>.None();
+        }
+
         if (domainResult.IsSuccess)
         {
-            // Assuming a successful domain result always has a value.
-            // If Value can be null for a success case, additional handling might be needed.
-            return domainResult.Value is not null
-                ? Result<T>.Success(domainResult.Value)
-                : Result<T>.Failure("Successful domain result has a null value.");
+            return Result<T>.Success(domainResult.Value!);
         }
 
         var errors = domainResult.Errors.Select(e => e.Error).ToList();

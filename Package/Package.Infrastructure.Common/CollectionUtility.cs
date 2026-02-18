@@ -59,6 +59,7 @@ public static class CollectionUtility
         Action<TBase> removeAction,
         Action<TBase, TMod>? updateAction = null) where TKey : notnull
     {
+        modCollection ??= [];
         var baseDict = baseCollection.ToDictionary(baseKeySelector);
         var modDict = modCollection.ToDictionary(modKeySelector);
 
@@ -111,6 +112,7 @@ public static class CollectionUtility
         Func<TBase, Task> removeAction,
         Func<TBase, TMod, Task>? updateAction = null) where TKey : notnull
     {
+        modCollection ??= [];
         var baseDict = baseCollection.ToDictionary(baseKeySelector);
         var modDict = modCollection.ToDictionary(modKeySelector);
 

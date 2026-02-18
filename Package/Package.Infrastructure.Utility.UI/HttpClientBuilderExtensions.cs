@@ -15,19 +15,24 @@ public static class HttpClientBuilderExtensions
     /// <param name="pipelineName">Name of the resilience pipeline.</param>
     /// <param name="excludedStatusCodes">HTTP status codes that should not trigger retries.</param>
     /// <param name="maxRetryAttempts"></param>
-    /// <param name="atteptTimeoutInSeconds"></param>
+    /// <param name="attemptTimeoutInSeconds"></param>
     /// <param name="totalTimeoutSeconds"></param>
     /// <param name="configureOptions">Optional callback to configure additional resilience options.</param>
     /// <returns>The HTTP client builder with resilience configured.</returns>
     public static IHttpClientBuilder AddCustomResilience(
         this IHttpClientBuilder builder,
         string pipelineName,
-        List<int> excludedStatusCodes,
+        IReadOnlyCollection<int> excludedStatusCodes,
         int maxRetryAttempts = 3,
-        int atteptTimeoutInSeconds = 20,
+        int attemptTimeoutInSeconds = 20,
         int totalTimeoutSeconds = 60,
         Action<HttpStandardResilienceOptions>? configureOptions = null)
     {
+        ArgumentNullException.ThrowIfNull(excludedStatusCodes);
+        var excludedSet = excludedStatusCodes.Count == 0
+            ? null
+            : new HashSet<int>(excludedStatusCodes);
+
         builder.AddResilienceHandler(pipelineName, options =>
         {
             // Configure standard options first
@@ -51,7 +56,7 @@ public static class HttpClientBuilderExtensions
                     },
 
                 // Standard timeout settings
-                AttemptTimeout = { Timeout = TimeSpan.FromSeconds(atteptTimeoutInSeconds) },
+                AttemptTimeout = { Timeout = TimeSpan.FromSeconds(attemptTimeoutInSeconds) },
 
                 TotalRequestTimeout = { Timeout = TimeSpan.FromSeconds(totalTimeoutSeconds) }
             };
@@ -68,7 +73,7 @@ public static class HttpClientBuilderExtensions
                     int statusCodeValue = (int)statusCode;
 
                     // If the status code is in our exclude list, don't retry
-                    if (excludedStatusCodes.Contains(statusCodeValue))
+                    if (excludedSet is not null && excludedSet.Contains(statusCodeValue))
                     {
                         return ValueTask.FromResult(false);
                     }
@@ -79,7 +84,7 @@ public static class HttpClientBuilderExtensions
                     return ValueTask.FromResult(
                             statusCode == HttpStatusCode.RequestTimeout ||
                             statusCode == HttpStatusCode.TooManyRequests ||
-                            (statusCode >= HttpStatusCode.InternalServerError && !excludedStatusCodes.Contains(statusCodeValue))
+                            statusCode >= HttpStatusCode.InternalServerError
                         );
                 }
 

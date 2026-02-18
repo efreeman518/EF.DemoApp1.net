@@ -15,8 +15,6 @@ public static class ExternalEndpoints
     {
         _problemDetailsIncludeStackTrace = problemDetailsIncludeStackTrace;
 
-        //openapidocs replace swagger
-
         group.MapGet("/", GetPage1).MapToApiVersion(1.0)
             .Produces<List<TodoItemDto>>().ProducesProblem(500);
         group.MapGet("/", GetPage1_1).MapToApiVersion(1.1)

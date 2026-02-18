@@ -65,27 +65,36 @@ public static class StringExtensions
     }
 
 
-    public static List<string> FindTopMatches(this string target, List<string> list,
+    public static List<string> FindTopMatches(this string target, IReadOnlyCollection<string> list,
         int maxMatches = 4, int distanceThreshold = 10, bool returnExactOnlyIfMatch = true,
-        bool prirotizeStartMatch = true, bool ignoreCase = true)
+        bool prioritizeStartMatch = true, bool ignoreCase = true)
     {
+        return FindTopMatchesCore(target, list, maxMatches, distanceThreshold, returnExactOnlyIfMatch, prioritizeStartMatch, ignoreCase);
+    }
+
+    private static List<string> FindTopMatchesCore(this string target, IEnumerable<string> list,
+        int maxMatches, int distanceThreshold, bool returnExactOnlyIfMatch,
+        bool prioritizeStartMatch, bool ignoreCase)
+    {
+        var source = list as IReadOnlyCollection<string> ?? [.. list];
+
         if (returnExactOnlyIfMatch)
         {
-            var match = list.Find(str => string.Equals(str, target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+            var match = source.FirstOrDefault(str => string.Equals(str, target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
             if (match != null) return [match];
         }
 
         List<string> matches = [];
-        if (prirotizeStartMatch)
+        if (prioritizeStartMatch)
         {
-            matches.AddRange([.. list.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
+            matches.AddRange([.. source.Where(str => str.StartsWith(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
         }
 
-        matches.AddRange([.. list.Where(s => s.Contains(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
+        matches.AddRange([.. source.Where(s => s.Contains(target, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Take(maxMatches)]);
 
         if (matches.Count < maxMatches)
         {
-            matches.AddRange([.. list
+            matches.AddRange([.. source
                 .Select(str => new { Str = str, Distance = LevenshteinDistance(target, str, ignoreCase) })
                 .Where(result => result.Distance <= distanceThreshold)
                 .OrderBy(result => result.Distance)

@@ -18,7 +18,7 @@ public class UITests : SeleniumTestBase
     [TestMethod]
     public void Todo_CRUD_pass()
     {
-        //nav to swagger page
+        //nav to scalar page
         string path = $"{Config.GetValue<string>("SampleApi:BaseUrl")}";
         _webDriver.Navigate().GoToUrl(path);
         Assert.Contains("SampleApp - Todo CRUD", _webDriver.Title);

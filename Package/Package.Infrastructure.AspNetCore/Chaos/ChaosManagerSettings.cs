@@ -10,5 +10,5 @@ public class ChaosManagerSettings
     public double InjectionRate { get; set; } = 0.02;
     public int LatencySeconds { get; set; } = 10;
     public Exception FaultException { get; set; } = new InvalidOperationException("Chaos strategy injection!");
-    public HttpStatusCode OutcomHttpStatusCode { get; set; } = HttpStatusCode.InternalServerError;
+    public HttpStatusCode OutcomeHttpStatusCode { get; set; } = HttpStatusCode.InternalServerError;
 }

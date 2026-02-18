@@ -270,7 +270,7 @@ Phase 6: Full test suite including performance & UI automation.
 ## 6.2 Smoke Tests (per project class)
 - Library: Build success.
 - EF Data project: Migrate in-memory DB; run one query.
-- API/Gateway/Grpc: /health or /swagger loads.
+- API/Gateway/Grpc: /health or /scalar loads.
 - UI: Home page renders without console errors.
 - Worker/Background: Service starts and logs heartbeat.
 - Functions: Local host executes a sample trigger.

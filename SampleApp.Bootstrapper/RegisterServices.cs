@@ -840,7 +840,7 @@ public static class RegisterServices
                        EnabledGenerator = args => chaosManager.IsChaosEnabledAsync(args.Context),
                        InjectionRateGenerator = args => chaosManager.GetInjectionRateAsync(args.Context),
                        OutcomeGenerator = new OutcomeGenerator<HttpResponseMessage>()
-                           .AddResult(() => new HttpResponseMessage(chaosManager.OutcomHttpStatusCode()))
+                           .AddResult(() => new HttpResponseMessage(chaosManager.OutcomeHttpStatusCode()))
                    })
                    //introduce a specific behavior as chaos
                    //.AddChaosBehavior(0.001, cancellationToken => RestartRedisAsync(cancellationToken)) // Introduce a specific behavior as chaos
