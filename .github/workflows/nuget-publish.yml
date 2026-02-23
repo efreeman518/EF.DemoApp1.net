@@ -1,186 +1,186 @@
-﻿name: Build and Publish NuGet Packages
+﻿# name: Build and Publish NuGet Packages
 
-on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'Package/**'
-      - '.github/workflows/nuget-publish.yml'
-  workflow_dispatch:
-    inputs:
-      major_version:
-        description: 'Major version number'
-        required: false
-        default: ''
-      minor_version:
-        description: 'Minor version number'
-        required: false
-        default: ''
+# on:
+#   push:
+#     branches: [ main ]
+#     paths:
+#       - 'Package/**'
+#       - '.github/workflows/nuget-publish.yml'
+#   workflow_dispatch:
+#     inputs:
+#       major_version:
+#         description: 'Major version number'
+#         required: false
+#         default: ''
+#       minor_version:
+#         description: 'Minor version number'
+#         required: false
+#         default: ''
 
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-publish:
+#     runs-on: ubuntu-latest
 
-    permissions:
-      packages: write
-      contents: write  # For committing version file changes, if needed
+#     permissions:
+#       packages: write
+#       contents: write  # For committing version file changes, if needed
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.x
+#       - name: Setup .NET
+#         uses: actions/setup-dotnet@v4
+#         with:
+#           dotnet-version: 9.x
 
-      - name: Discover Projects
-        id: find_projects
-        run: |
-          PACKAGE_PROJECTS=$(find Package -name "*.csproj" -type f | grep -v "Test" | xargs echo)
-          echo "PACKAGE_PROJECTS=$PACKAGE_PROJECTS" >> $GITHUB_ENV
-          echo "Found Package projects: $PACKAGE_PROJECTS"
+#       - name: Discover Projects
+#         id: find_projects
+#         run: |
+#           PACKAGE_PROJECTS=$(find Package -name "*.csproj" -type f | grep -v "Test" | xargs echo)
+#           echo "PACKAGE_PROJECTS=$PACKAGE_PROJECTS" >> $GITHUB_ENV
+#           echo "Found Package projects: $PACKAGE_PROJECTS"
 
-          UNIT_TEST_PROJECT="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj"
-          if [ -f "$UNIT_TEST_PROJECT" ]; then
-            echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
-          else
-            echo "❌ Unit Test project not found: $UNIT_TEST_PROJECT"
-            #exit 1
-          fi
+#           UNIT_TEST_PROJECT="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj"
+#           if [ -f "$UNIT_TEST_PROJECT" ]; then
+#             echo "UNIT_TEST_PROJECT=$UNIT_TEST_PROJECT" >> $GITHUB_ENV
+#           else
+#             echo "❌ Unit Test project not found: $UNIT_TEST_PROJECT"
+#             #exit 1
+#           fi
 
-      - name: Restore Dependencies
-        run: |
-          for project in $PACKAGE_PROJECTS; do
-            dotnet restore "$project"
-          done
-          dotnet restore "$UNIT_TEST_PROJECT"
+#       - name: Restore Dependencies
+#         run: |
+#           for project in $PACKAGE_PROJECTS; do
+#             dotnet restore "$project"
+#           done
+#           dotnet restore "$UNIT_TEST_PROJECT"
 
-      - name: Build Projects
-        run: |
-          for project in $PACKAGE_PROJECTS; do
-            dotnet build "$project" --configuration Release --no-restore
-          done
-          dotnet build "$UNIT_TEST_PROJECT" --configuration Release --no-restore
+#       - name: Build Projects
+#         run: |
+#           for project in $PACKAGE_PROJECTS; do
+#             dotnet build "$project" --configuration Release --no-restore
+#           done
+#           dotnet build "$UNIT_TEST_PROJECT" --configuration Release --no-restore
 
-      - name: Run Unit Tests
-        run: |
-          dotnet test "$UNIT_TEST_PROJECT" --configuration Release --no-build --verbosity normal
+#       - name: Run Unit Tests
+#         run: |
+#           dotnet test "$UNIT_TEST_PROJECT" --configuration Release --no-build --verbosity normal
 
-      - name: Determine Package Version
-        id: set_version
-        run: |
-          # Default version
-          MAJOR_VERSION="1"
-          MINOR_VERSION="0"
+#       - name: Determine Package Version
+#         id: set_version
+#         run: |
+#           # Default version
+#           MAJOR_VERSION="1"
+#           MINOR_VERSION="0"
 
-          if [ -f version.txt ]; then
-            CURRENT_VERSION=$(cat version.txt)
-            MAJOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1)
-            MINOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f2)
-          fi
+#           if [ -f version.txt ]; then
+#             CURRENT_VERSION=$(cat version.txt)
+#             MAJOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+#             MINOR_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+#           fi
 
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == *"[bump major]"* ]]; then
-            MAJOR_VERSION=$((MAJOR_VERSION + 1))
-            MINOR_VERSION=0
-          elif [[ "$COMMIT_MSG" == *"[bump minor]"* ]]; then
-            MINOR_VERSION=$((MINOR_VERSION + 1))
-          fi
+#           COMMIT_MSG=$(git log -1 --pretty=%B)
+#           if [[ "$COMMIT_MSG" == *"[bump major]"* ]]; then
+#             MAJOR_VERSION=$((MAJOR_VERSION + 1))
+#             MINOR_VERSION=0
+#           elif [[ "$COMMIT_MSG" == *"[bump minor]"* ]]; then
+#             MINOR_VERSION=$((MINOR_VERSION + 1))
+#           fi
 
-          # Override with manual input
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            if [[ -n "${{ github.event.inputs.major_version }}" ]]; then
-              MAJOR_VERSION="${{ github.event.inputs.major_version }}"
-            fi
-            if [[ -n "${{ github.event.inputs.minor_version }}" ]]; then
-              MINOR_VERSION="${{ github.event.inputs.minor_version }}"
-            fi
-          fi
+#           # Override with manual input
+#           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+#             if [[ -n "${{ github.event.inputs.major_version }}" ]]; then
+#               MAJOR_VERSION="${{ github.event.inputs.major_version }}"
+#             fi
+#             if [[ -n "${{ github.event.inputs.minor_version }}" ]]; then
+#               MINOR_VERSION="${{ github.event.inputs.minor_version }}"
+#             fi
+#           fi
 
-          PATCH_VERSION="${{ github.run_number }}"
-          PACKAGE_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
-          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-          echo "Package version: $PACKAGE_VERSION"
+#           PATCH_VERSION="${{ github.run_number }}"
+#           PACKAGE_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
+#           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+#           echo "Package version: $PACKAGE_VERSION"
 
-      - name: Create NuGet Packages
-        run: |
-          mkdir -p ./nupkgs
-          for project in $PACKAGE_PROJECTS; do
-            echo "📦 Packing $project..."
-            dotnet pack "$project" \
-              --configuration Release \
-              --output ./nupkgs \
-              -p:PackageVersion=$PACKAGE_VERSION \
-              -p:IncludeSymbols=true \
-              -p:SymbolPackageFormat=snupkg
-          done
+#       - name: Create NuGet Packages
+#         run: |
+#           mkdir -p ./nupkgs
+#           for project in $PACKAGE_PROJECTS; do
+#             echo "📦 Packing $project..."
+#             dotnet pack "$project" \
+#               --configuration Release \
+#               --output ./nupkgs \
+#               -p:PackageVersion=$PACKAGE_VERSION \
+#               -p:IncludeSymbols=true \
+#               -p:SymbolPackageFormat=snupkg
+#           done
 
-      - name: Push to GitHub Packages
-        run: |
-          dotnet nuget add source \
-            --username "${{ github.actor }}" \
-            --password "${{ secrets.GITHUB_TOKEN }}" \
-            --store-password-in-clear-text \
-            --name github \
-            "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+#       - name: Push to GitHub Packages
+#         run: |
+#           dotnet nuget add source \
+#             --username "${{ github.actor }}" \
+#             --password "${{ secrets.GITHUB_TOKEN }}" \
+#             --store-password-in-clear-text \
+#             --name github \
+#             "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
-          dotnet nuget push "./nupkgs/*.nupkg" \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --source github \
-            --skip-duplicate
+#           dotnet nuget push "./nupkgs/*.nupkg" \
+#             --api-key "${{ secrets.GITHUB_TOKEN }}" \
+#             --source github \
+#             --skip-duplicate
 
-      # - name: List packages with versions
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
-      #   run: |
-      #     echo "Listing packages with versions..."
-      #     for pkg in $(gh api "/user/packages?package_type=nuget" --jq '.[].name'); do
-      #       echo "Package: $pkg"
-      #       # Get the version IDs for this package
-      #       gh api "/user/packages/nuget/$pkg/versions" --jq '.[] | {id: .id, name: .name}'
-      #     done
+#       # - name: List packages with versions
+#       #   env:
+#       #     GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
+#       #   run: |
+#       #     echo "Listing packages with versions..."
+#       #     for pkg in $(gh api "/user/packages?package_type=nuget" --jq '.[].name'); do
+#       #       echo "Package: $pkg"
+#       #       # Get the version IDs for this package
+#       #       gh api "/user/packages/nuget/$pkg/versions" --jq '.[] | {id: .id, name: .name}'
+#       #     done
 
-      # THIS DOESN'T WORK TO MAKE PACKAGES PRIVATE
-      # - name: Make packages private
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
-      #   run: |
-      #     for project_file in $PACKAGE_PROJECTS; do
-      #       # Extract PackageId
-      #       PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
+#       # THIS DOESN'T WORK TO MAKE PACKAGES PRIVATE
+#       # - name: Make packages private
+#       #   env:
+#       #     GH_TOKEN: ${{ secrets.PAT_PACKAGES_READWRITE }}
+#       #   run: |
+#       #     for project_file in $PACKAGE_PROJECTS; do
+#       #       # Extract PackageId
+#       #       PACKAGE_NAME=$(dotnet build "$project_file" -nologo -getProperty:PackageId | tail -n 1)
             
-      #       echo "Processing package: $PACKAGE_NAME"
+#       #       echo "Processing package: $PACKAGE_NAME"
             
-      #       # Get all versions of this package
-      #       echo "Fetching versions for $PACKAGE_NAME..."
-      #       VERSIONS=$(gh api "/user/packages/nuget/$PACKAGE_NAME/versions" --jq '.[].id' || echo "")
+#       #       # Get all versions of this package
+#       #       echo "Fetching versions for $PACKAGE_NAME..."
+#       #       VERSIONS=$(gh api "/user/packages/nuget/$PACKAGE_NAME/versions" --jq '.[].id' || echo "")
             
-      #       if [ -z "$VERSIONS" ]; then
-      #         echo "No versions found for $PACKAGE_NAME, skipping."
-      #         continue
-      #       fi
+#       #       if [ -z "$VERSIONS" ]; then
+#       #         echo "No versions found for $PACKAGE_NAME, skipping."
+#       #         continue
+#       #       fi
             
-      #       # Update each version to private
-      #       for VERSION_ID in $VERSIONS; do
-      #         echo "Setting version $VERSION_ID of package $PACKAGE_NAME to private"
-      #         gh api \
-      #           --method PATCH \
-      #           -H "Accept: application/vnd.github+json" \
-      #           "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
-      #           -f visibility='private'
+#       #       # Update each version to private
+#       #       for VERSION_ID in $VERSIONS; do
+#       #         echo "Setting version $VERSION_ID of package $PACKAGE_NAME to private"
+#       #         gh api \
+#       #           --method PATCH \
+#       #           -H "Accept: application/vnd.github+json" \
+#       #           "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
+#       #           -f visibility='private'
 
-      #         # If the above fails, try the raw JSON approach
-      #         if [ $? -ne 0 ]; then
-      #           echo "First attempt failed, trying alternative method..."
-      #           gh api \
-      #             --method PATCH \
-      #             -H "Accept: application/vnd.github+json" \
-      #             -H "Content-Type: application/json" \
-      #             "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
-      #             -f '{"visibility":"private"}'
-      #         fi
-      #       done
-      #     done
+#       #         # If the above fails, try the raw JSON approach
+#       #         if [ $? -ne 0 ]; then
+#       #           echo "First attempt failed, trying alternative method..."
+#       #           gh api \
+#       #             --method PATCH \
+#       #             -H "Accept: application/vnd.github+json" \
+#       #             -H "Content-Type: application/json" \
+#       #             "/user/packages/nuget/$PACKAGE_NAME/versions/$VERSION_ID" \
+#       #             -f '{"visibility":"private"}'
+#       #         fi
+#       #       done
+#       #     done
