@@ -48,7 +48,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Custom for .net9 prerelease
+    # Custom for .net10
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4.1.0
       with:

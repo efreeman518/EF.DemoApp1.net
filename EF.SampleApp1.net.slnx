@@ -1,0 +1,102 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Application/">
+    <Project Path="Application.Contracts/Application.Contracts.csproj" />
+    <Project Path="Application.MessageHandlers/Application.MessageHandlers.csproj" />
+    <Project Path="Application.Services/Application.Services.csproj" />
+  </Folder>
+  <Folder Name="/Aspire/">
+    <Project Path="Aspire/AppHost/SampleApp.AppHost.csproj" />
+    <Project Path="Aspire/ServiceDefaults/SampleApp.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain.Model/Domain.Model.csproj" />
+    <Project Path="Domain.Rules/Domain.Rules.csproj" />
+    <Project Path="Domain.Shared/Domain.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Functions/">
+    <Project Path="Functions/Functions.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure.Configuration/Infrastructure.Configuration.csproj" />
+    <Project Path="Infrastructure.Data/Infrastructure.Data.csproj" />
+    <Project Path="Infrastructure.JobsApi/Infrastructure.JobsApi.csproj" />
+    <Project Path="Infrastructure.MSGraphB2C/Infrastructure.MSGraphB2C.csproj" />
+    <Project Path="Infrastructure.RapidApi/Infrastructure.RapidApi.csproj" />
+    <Project Path="Infrastructure.Repositories/Infrastructure.Repositories.csproj" />
+    <Project Path="Infrastructure.SampleApi/Infrastructure.SampleApi.csproj" />
+  </Folder>
+  <Folder Name="/Package/">
+    <Project Path="Package/Package.Infrastructure.AspNetCore/Package.Infrastructure.AspNetCore.csproj" />
+    <Project Path="Package/Package.Infrastructure.Auth/Package.Infrastructure.Auth.csproj" />
+    <Project Path="Package/Package.Infrastructure.AzureOpenAI/Package.Infrastructure.AzureOpenAI.csproj" />
+    <Project Path="Package/Package.Infrastructure.BackgroundService/Package.Infrastructure.BackgroundServices.csproj" />
+    <Project Path="Package/Package.Infrastructure.BlandAI/Package.Infrastructure.BlandAI.csproj" />
+    <Project Path="Package/Package.Infrastructure.Cache/Package.Infrastructure.Cache.csproj" />
+    <Project Path="Package/Package.Infrastructure.Common.Contracts/Package.Infrastructure.Common.Contracts.csproj" />
+    <Project Path="Package/Package.Infrastructure.Common/Package.Infrastructure.Common.csproj" />
+    <Project Path="Package/Package.Infrastructure.CosmosDb/Package.Infrastructure.CosmosDb.csproj" />
+    <Project Path="Package/Package.Infrastructure.Data.Contracts/Package.Infrastructure.Data.Contracts.csproj" />
+    <Project Path="Package/Package.Infrastructure.Data/Package.Infrastructure.Data.csproj" />
+    <Project Path="Package/Package.Infrastructure.Domain/Package.Infrastructure.Domain.csproj" />
+    <Project Path="Package/Package.Infrastructure.Grpc/Package.Infrastructure.Grpc.csproj" />
+    <Project Path="Package/Package.Infrastructure.Host/Package.Infrastructure.Host.csproj" />
+    <Project Path="Package/Package.Infrastructure.KeyVault/Package.Infrastructure.KeyVault.csproj" />
+    <Project Path="Package/Package.Infrastructure.Messaging/Package.Infrastructure.Messaging.csproj" />
+    <Project Path="Package/Package.Infrastructure.MSGraph/Package.Infrastructure.MSGraph.csproj" />
+    <Project Path="Package/Package.Infrastructure.OpenAI/Package.Infrastructure.OpenAI.csproj" />
+    <Project Path="Package/Package.Infrastructure.Storage/Package.Infrastructure.Storage.csproj" />
+    <Project Path="Package/Package.Infrastructure.Table/Package.Infrastructure.Table.csproj" />
+    <Project Path="Package/Package.Infrastructure.Test.Benchmarks/Package.Infrastructure.Test.Benchmarks.csproj" />
+    <Project Path="Package/Package.Infrastructure.Test.Integration/Package.Infrastructure.Test.Integration.csproj" />
+    <Project Path="Package/Package.Infrastructure.Test.Unit/Package.Infrastructure.Test.Unit.csproj" />
+    <Project Path="Package/Package.Infrastructure.Utility.UI/Package.Infrastructure.Utility.UI.csproj" />
+    <Project Path="Package/Package.Infrastructure.Utility/Package.Infrastructure.Utility.csproj" />
+  </Folder>
+  <Folder Name="/Play/" />
+  <Folder Name="/Play/AI/">
+    <Project Path="Play/Console.AI1/Console.AI1.csproj" />
+  </Folder>
+  <Folder Name="/SampleApp/">
+    <Project Path="SampleApp.Api/SampleApp.Api.csproj" />
+    <Project Path="SampleApp.BackgroundServices/SampleApp.BackgroundServices.csproj" />
+    <Project Path="SampleApp.Bootstrapper/SampleApp.Bootstrapper.csproj" />
+    <Project Path="SampleApp.Gateway/SampleApp.Gateway.csproj" />
+    <Project Path="SampleApp.Grpc/SampleApp.Grpc.csproj" />
+    <Project Path="SampleApp.Support/SampleApp.Support.csproj" />
+    <Project Path="SampleApp.UI1/SampleApp.UI1.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="build.yml" />
+    <File Path="coverlet.runsettings" />
+    <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Test/">
+    <Project Path="Test.Architecture/Test.Architecture.csproj" />
+    <Project Path="Test.Benchmarks/Test.Benchmarks.csproj" />
+    <Project Path="Test.Console/Test.Console.csproj" />
+    <Project Path="Test.Endpoints/Test.Endpoints.csproj" />
+    <Project Path="Test.Integration/Test.Integration.csproj" />
+    <Project Path="Test.Load/Test.Load.csproj" />
+    <Project Path="Test.PlaywrightUI/Test.PlaywrightUI.csproj" />
+    <Project Path="Test.SeleniumUI/Test.SeleniumUI.csproj" />
+    <Project Path="Test.Support/Test.Support.csproj" />
+    <Project Path="Test.Unit/Test.Unit.csproj" />
+  </Folder>
+  <Folder Name="/Test/http/">
+    <File Path="todoitem.http" />
+  </Folder>
+  <Folder Name="/Test/postman/">
+    <File Path="postman_collection.json" />
+  </Folder>
+  <Folder Name="/Worker/">
+    <Project Path="Worker.Scheduler/Worker.Scheduler.csproj" />
+  </Folder>
+</Solution>
