@@ -74,7 +74,7 @@ jobs:
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
       if: matrix.language != 'csharp'
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
 
     # Manual build for C# when Autobuild is not suitable
     - name: Restore (C#)
